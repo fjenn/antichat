@@ -19,7 +19,7 @@
     "@upstash/redis": "1.41.0"
   },
   "devDependencies": {
-    "@types/node": "24.10.1",
+    "@types/node": "26.6.6",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vercel": "65.12.1",
