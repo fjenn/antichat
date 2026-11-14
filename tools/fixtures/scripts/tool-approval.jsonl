@@ -1,0 +1,6 @@
+# One write_note call (write side effect: the ApprovalCard asks), then the answer (M1.T16 J12ToolApprovalTests).
+{"t":"toolCallDone","id":"call_{{n}}","name":"write_note","args":"{\"text\":\"buy milk\"}","delayMs":30}
+{"t":"turn"}
+{"t":"textDelta","v":"Saved","delayMs":20}
+{"t":"textDelta","v":" your","delayMs":20}
+{"t":"textDelta","v":" note.","delayMs":20}

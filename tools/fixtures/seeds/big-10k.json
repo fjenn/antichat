@@ -1,0 +1,31 @@
+{
+  "about": "Generator seed for fixtures/chats/big-10k (M1.T04 step 7; NFR-U8/U10/U11, AT-012). Authored for AntiChat, CC0. No personal data, no sexual content. gen-chats.py reads it; the lead copies it to fixtures/chats/big-10k/seed.json (A-M1-T04a).",
+  "rng_seed": 20261030,
+  "base_time": 1767225600,
+  "token": "zebracorn",
+  "messages_per_chat": [2, 12],
+  "title_templates": [
+    "{topic} ideas", "Help with {topic}", "{topic} questions", "Notes on {topic}", "{topic} plan",
+    "Quick {topic} check", "Explain {topic}", "{topic} for beginners", "Compare {topic} options", "{topic} summary"
+  ],
+  "topics": [
+    "pasta recipes", "tax forms", "garden soil", "bike repair", "Swift concurrency", "trip to Lisbon", "budget sheet",
+    "sourdough", "job interview", "piano practice", "marathon training", "SQL joins", "home network", "cover letter",
+    "birthday party", "climate data", "Roman history", "chess openings", "watercolor", "camera settings",
+    "coffee brewing", "houseplants", "spreadsheet formulas", "photosynthesis", "resume", "moving checklist",
+    "board games", "linear algebra", "Spanish verbs", "meal prep", "solar panels", "kitchen remodel", "poetry",
+    "dog training", "car insurance", "regex", "space probes", "knitting", "tea", "jazz chords"
+  ],
+  "user_openers": [
+    "Can you help me with", "What is the best way to approach", "Give me a short overview of",
+    "I am stuck on", "Make a checklist for", "Explain like I am new to", "What should I know about",
+    "Compare two options for", "Draft a plan for", "Summarize the key points of"
+  ],
+  "words": [
+    "first", "consider", "simple", "steps", "because", "usually", "option", "detail", "example", "note", "time",
+    "quality", "check", "start", "small", "measure", "result", "list", "plan", "useful", "common", "mistake",
+    "avoid", "prefer", "clear", "short", "longer", "budget", "weekly", "daily", "review", "track", "progress",
+    "goal", "focus", "balance", "material", "tool", "method", "rule", "pattern", "context", "reason", "answer",
+    "question", "follow", "update", "compare", "choose", "finish"
+  ]
+}

@@ -1,0 +1,46 @@
+# Video presets (M5.T09; R-044, R-290, G-045, P-media-12; hardware-tiers §4.4). Hand-maintained; bundled copy:
+# Packages/Harness/Resources/video-presets.json (A-M5-10: not signed into the catalog yet). VideoPresetsTests.
+# yamlMatchesBundledJSON keeps the two equal. One JSON-compatible flow mapping per list line (that test reads them).
+#
+# The plan card offers length (short / medium) and shape (square / portrait / landscape) only (R-044 AC1); the
+# resolution, steps and exact length come from the tier entry below and change only in Settings → Capabilities →
+# Advanced → Video (R-044 AC2).
+#   resolutions: equal-area sides per shape, multiples of 64 where the shape allows (LTX needs 64; Wan2.2 FastMetal
+#     needs 32). `models[].multiple` snaps every side to the job's model, so any preset is a valid shape for it.
+#   frames: 73 / 81 / 121 are both 4k+1 (Wan2.2) and 8k+1 (LTX). Short = 73 at 480p (3.0 s, the M0.T07 / speed-table
+#     480p clip) and 81 at 720p+ (3.4 s, the speed-table 720p clip), so the default presets estimate straight from the
+#     measured rows of catalog/video-speed.yaml; Medium = 121 (5.0 s). fps 24.
+#   models: steps per model (FastMetal DMD 3; sd.cpp I2V 20; LTX distilled 8 + 3 fixed); `frame_step` 4 (Wan) / 8 (LTX).
+#   tiers: per tier × speed class. T2-S1 = "Shown-lite": text-to-video 480p Short only, no image-to-video (the scaled
+#     S1 I2V estimate is ~89 min; lead decision M5.T09). T2-S2+ 720p Short; T3 720p Short; T4 720p–1080p, Medium
+#     allowed (default 720p Medium, hardware-tiers "5 s"). I2V stays at 480p (the only measured I2V row).
+#     T4 text-to-video = vid-5b (A-M5-13): 720p Medium is Wan2.2-TI2V-5B's native 1280×704 × 121 f at 24 fps;
+#     vid-14b (Wan2.1) missed NFR-VID1 at these presets and is not in the catalog.
+#     `max_frames` bounds Advanced → exact length. `t2v_model` = the tier's text-to-video model (Advanced → steps).
+schema: 1
+fps: 24
+resolutions:
+  - {"name": "480p", "landscape": [832, 480], "portrait": [480, 832], "square": [640, 640]}
+  - {"name": "720p", "landscape": [1280, 704], "portrait": [704, 1280], "square": [960, 960]}
+  - {"name": "1080p", "landscape": [1920, 1088], "portrait": [1088, 1920], "square": [1408, 1408]}
+frames:
+  - {"resolution": "480p", "short": 73, "medium": 121}
+  - {"resolution": "720p", "short": 81, "medium": 121}
+  - {"resolution": "1080p", "short": 81, "medium": 121}
+models:
+  - {"key": "vid-5b", "multiple": 32, "frame_step": 4, "steps": 3, "steps_min": 1, "steps_max": 3}
+  - {"key": "vid-i2v", "multiple": 32, "frame_step": 4, "steps": 20, "steps_min": 20, "steps_max": 20}
+  - {"key": "vid-ltx", "multiple": 64, "frame_step": 8, "steps": 11, "steps_min": 11, "steps_max": 11}
+tiers:
+  - {"tier": "T2", "speed_class": "S1", "lengths": ["short"], "resolutions": ["480p"], "i2v_resolutions": [], "default_length": "short", "default_resolution": "480p", "default_shape": "landscape", "max_frames": 73, "t2v_model": "vid-5b", "note": "Shown-lite"}
+  - {"tier": "T2", "speed_class": "S2", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 81, "t2v_model": "vid-5b"}
+  - {"tier": "T2", "speed_class": "S3", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 81, "t2v_model": "vid-5b"}
+  - {"tier": "T2", "speed_class": "S4", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 81, "t2v_model": "vid-5b"}
+  - {"tier": "T3", "speed_class": "S1", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 121, "t2v_model": "vid-5b"}
+  - {"tier": "T3", "speed_class": "S2", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 121, "t2v_model": "vid-5b"}
+  - {"tier": "T3", "speed_class": "S3", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 121, "t2v_model": "vid-5b"}
+  - {"tier": "T3", "speed_class": "S4", "lengths": ["short"], "resolutions": ["480p", "720p"], "i2v_resolutions": ["480p"], "default_length": "short", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 121, "t2v_model": "vid-5b"}
+  - {"tier": "T4", "speed_class": "S1", "lengths": ["short", "medium"], "resolutions": ["480p", "720p", "1080p"], "i2v_resolutions": ["480p"], "default_length": "medium", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 241, "t2v_model": "vid-5b"}
+  - {"tier": "T4", "speed_class": "S2", "lengths": ["short", "medium"], "resolutions": ["480p", "720p", "1080p"], "i2v_resolutions": ["480p"], "default_length": "medium", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 241, "t2v_model": "vid-5b"}
+  - {"tier": "T4", "speed_class": "S3", "lengths": ["short", "medium"], "resolutions": ["480p", "720p", "1080p"], "i2v_resolutions": ["480p"], "default_length": "medium", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 241, "t2v_model": "vid-5b"}
+  - {"tier": "T4", "speed_class": "S4", "lengths": ["short", "medium"], "resolutions": ["480p", "720p", "1080p"], "i2v_resolutions": ["480p"], "default_length": "medium", "default_resolution": "720p", "default_shape": "landscape", "max_frames": 241, "t2v_model": "vid-5b"}

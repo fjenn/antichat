@@ -1,0 +1,9 @@
+# UP-OS-000 (mechanical access rewrite, re-applied by `tools/vendor-sync access-rewrite agent-squad`): declarations
+# AntiChatEngines uses, made `package`. Format: <upstream path>:<pristine line>:<declaration name>.
+# PlaybackClock: played-ms accounting for spoken-span truncation (R-282 AC2, M3.T10).
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:20:PlaybackClock
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:30:willSchedule
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:39:completed
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:49:flushed
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:57:reset
+swift/Sources/AgentSquadAudio/PlaybackClock.swift:63:milliseconds

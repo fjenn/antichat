@@ -1,0 +1,8 @@
+name: osaurus
+repo: https://github.com/osaurus-ai/osaurus
+ref: 66c3dde0b322e45c439a1aa6c628a8caea6d1705
+fetched: 2026-11-10 (vendir.lock.yml)
+license: MIT  (LICENSE copied to ./LICENSE)
+paths: see Vendor/osaurus-allowlist.tsv (vendored + test rows; 122 files)
+patches: UP-OS-001, UP-OS-002, UP-OS-003, UP-OS-008, UP-OS-009, UP-OS-013, UP-OS-014, UP-OS-015, UP-OS-017, UP-OS-018, UP-OS-020, UP-OS-021, UP-OS-022, UP-OS-023, UP-OS-024, UP-OS-025, UP-OS-026, UP-OS-027, UP-OS-029, UP-OS-030, UP-OS-031, UP-OS-032, UP-OS-033, UP-OS-034, UP-OS-035, UP-OS-036, UP-OS-037, UP-OS-038, UP-OS-039, UP-OS-040, UP-OS-041, UP-OS-042, UP-OS-043, UP-OS-044 (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

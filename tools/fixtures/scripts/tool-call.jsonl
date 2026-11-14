@@ -1,0 +1,14 @@
+# Turn 1: a short preface and one echo call; turn 2 (after the tool result): the answer.
+{"t":"title","v":"Echo tool check","delayMs":300}
+{"t":"textDelta","v":"Let","delayMs":20}
+{"t":"textDelta","v":" me","delayMs":20}
+{"t":"textDelta","v":" check","delayMs":20}
+{"t":"textDelta","v":" that.","delayMs":20}
+{"t":"toolCallDelta","id":"call_1","name":"echo","v":"{\"text\":"}
+{"t":"toolCallDelta","id":"call_1","v":"\"hello\"}"}
+{"t":"toolCallDone","id":"call_1","name":"echo","args":"{\"text\":\"hello\"}","delayMs":20}
+{"t":"turn"}
+{"t":"textDelta","v":"The","delayMs":20}
+{"t":"textDelta","v":" tool","delayMs":20}
+{"t":"textDelta","v":" answered:","delayMs":20}
+{"t":"textDelta","v":" hello.","delayMs":20}

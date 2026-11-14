@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "antichat-perf-report/1",
+  "title": "build/perf/report.json (M1 schema, M1.T26 step 2)",
+  "description": "Reserved top-level keys of the M1 schema. Legacy flat keys (m0.*, m1.*) of the M0/M1 bench scripts coexist at the top level and are not described here (tools/perf/reportio.py). Pass for an AT = metrics.<ID>.<tier>.pass == true against the NFR target by ID; an entry with quality 'noisy' is never used as a gate or a regression baseline.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "antichat-perf-report/1"},
+    "build": {"$ref": "#/$defs/build"},
+    "commit": {"type": "string", "description": "git HEAD of the last write; '+dirty' when the tree had changes"},
+    "date": {"type": "string", "description": "ISO-8601 UTC of the last write"},
+    "machine": {"$ref": "#/$defs/machine"},
+    "metrics": {
+      "type": "object",
+      "description": "metrics.<ID>.<tier>: ID = NFR id without the prefix (U2, C1, …) or an AT perf key (sidebarUpdate, composerDock); tier = T0…T4 | T2-24 | T3-48 | na, optionally '/<variant>' (na/warm, T1/cadence, na/120hz, …).",
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {"pattern": "^(T[0-4](-[0-9]+)?|na)(/[A-Za-z0-9_.-]+)?$"},
+        "additionalProperties": {"$ref": "#/$defs/entry"}
+      }
+    }
+  },
+  "$defs": {
+    "machine": {
+      "type": "object",
+      "required": ["chip", "ram", "os"],
+      "properties": {
+        "chip": {"type": "string"},
+        "ram": {"type": "string", "description": "e.g. '128 GB'"},
+        "os": {"type": "string"},
+        "speed_class": {"enum": ["S1", "S2", "S3", "S4", null]},
+        "ncpu": {"type": "integer"},
+        "host": {"type": "string"}
+      }
+    },
+    "build": {
+      "type": "object",
+      "properties": {
+        "app": {"type": ["string", "null"]},
+        "config": {"enum": ["Debug", "Release", "Perf", "Perf-unconfirmed", "n/a", null]},
+        "buildinfo": {"type": ["object", "null"]},
+        "version": {"type": ["string", "null"]}
+      }
+    },
+    "check": {
+      "type": "object",
+      "required": ["stat", "op", "value"],
+      "properties": {
+        "stat": {"enum": ["p50", "p95", "p99", "mean", "min", "max", "rate"]},
+        "op": {"enum": ["<=", "<", ">=", ">", "==", "within"]},
+        "value": {"type": ["number", "null"]},
+        "hi": {"type": "number"},
+        "ok": {"type": ["boolean", "null"]},
+        "actual": {"type": ["number", "null"]}
+      }
+    },
+    "load": {
+      "type": "object",
+      "description": "Machine load recorded with every measurement (tools/perf/load.py summarize): before, during (background sampler) and after the probe.",
+      "required": ["quality", "reasons"],
+      "properties": {
+        "quality": {"enum": ["clean", "noisy"]},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "allowed_noisy": {"type": "boolean"},
+        "thresholds": {"type": "object"},
+        "before": {"type": "object"},
+        "during": {"type": "object"},
+        "after": {"type": "object"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "required": ["p50", "p95", "p99", "n", "unit", "target", "pass", "method", "quality", "load", "date", "commit"],
+      "properties": {
+        "p50": {"type": ["number", "null"]},
+        "p95": {"type": ["number", "null"]},
+        "p99": {"type": ["number", "null"]},
+        "mean": {"type": ["number", "null"]},
+        "min": {"type": ["number", "null"]},
+        "max": {"type": ["number", "null"]},
+        "n": {"type": "integer", "minimum": 0},
+        "unit": {"type": "string"},
+        "nfr": {"type": ["string", "null"]},
+        "target": {"type": ["array", "null"], "items": {"$ref": "#/$defs/check"}, "description": "checks from tools/perf/nfr_targets.json, each with its actual value and ok"},
+        "pass": {"type": ["boolean", "null"], "description": "all checks hold; null when there is no target or no samples"},
+        "method": {"enum": ["measured", "scaled", "assumption"]},
+        "label": {"type": ["string", "null"], "description": "e.g. [WARM-CACHE], warm-ish (no sudo purge), [ASSUMPTION] S1 stand-in"},
+        "quality": {"enum": ["clean", "noisy"]},
+        "valid": {"type": "boolean", "description": "false when quality is noisy or the app was a Debug build: never a gate or a baseline"},
+        "load": {"$ref": "#/$defs/load"},
+        "date": {"type": "string"},
+        "commit": {"type": "string"},
+        "build": {"$ref": "#/$defs/build"},
+        "machine": {"$ref": "#/$defs/machine"},
+        "model": {"type": ["string", "null"]},
+        "probe": {"type": "string"},
+        "raw": {"type": ["string", "null"], "description": "repo-relative path of the raw samples"},
+        "scaled_from": {"type": ["string", "null"]},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

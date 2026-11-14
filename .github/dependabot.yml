@@ -1,0 +1,10 @@
+# M7.T10 (architecture §8.5): weekly npm updates for the Composio relay. Pins stay exact (package.json has no ^/~;
+# `increase` rewrites the exact version), and every update must pass the relay workflow (mock Composio E2E fixture).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /relay
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
+    open-pull-requests-limit: 5

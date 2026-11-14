@@ -1,0 +1,4 @@
+# Release tooling (M10.T02): dmgbuild writes the DMG .DS_Store/background alias without Finder scripting.
+# Lock: uv pip compile --python-version 3.13 --generate-hashes tools/release/requirements.in -o tools/release/requirements.lock
+dmgbuild==1.6.5
+pillow==13.0.0

@@ -1,0 +1,2 @@
+# Calls echo with fresh arguments on every step and never answers (M1.T16 tool.loopLimit).
+{"t":"toolCallDone","id":"call_{{n}}","name":"echo","args":"{\"text\":\"step {{n}}\"}","delayMs":30}

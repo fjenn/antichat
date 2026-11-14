@@ -1,0 +1,122 @@
+# M2.T04 (R-220 AC5, R-222, R-239, R-240, R-298; blueprint E §E.2.2-E.2.3): tier/sub-band × speed class → model per
+# pack × mode × role. Sources: model-matrix §2.1 (chat), §2.2 (roles), §4 (pack contents), §9.3 (Evil chat).
+# Cell keys: `T0`, `T1`, `T2-24|32|36`, `T3-48|64`, `T4-96|128` (`<tier>-<min RAM GB>`; the selector takes the
+# largest sub-band ≤ the Mac's RAM). Speed classes: write `S1` in full; `S2`…`S4` inherit the next lower class
+# and override only the packs they change. `catalog-tool build` emits every cell × S1…S4 in full.
+# Packs: chat, voice, photo, video × modes normal, evil. A pack that is unavailable is `null` with `<pack>_reason`.
+# Evil photo/video use the Normal ids (Q-009 a); voice is mode-independent. Evil chat never uses `chat_fast` and
+# never steps down to a tiny model (R-227): its `step_down` is another Evil build of the same family or none.
+# rerank is an on-demand download on first semantic re-rank (model-matrix Δ9 / M2.T06 fallback: keeps NFR-D4).
+tone_sentence: "Answer directly and completely. Do not add warnings, disclaimers or moral commentary unless asked."
+roles: [chat, chat_fast, vision, embed, rerank, title, stt, stt_multi, vad, tts, image, image_edit, bg_remove, upscale, video, csam_check, cite_check]
+on_demand: [rerank, stt_multi, cite_check]  # stt_multi (M3.T05): WhisperKit for languages outside Parakeet's 25;
+# cite_check (A-M7-T03c): the citation entailment model, downloaded at the first web answer (0.7 GB; on demand keeps
+# NFR-D3/D4: with Chat it would put T0, T1-18, T2-36 and T4-128 over their caps).
+csam_check: {model: csc-nudity}  # + csc-age via `requires`; installed with Photo/Video (M4.T02)
+cite_check: {model: cite-check}  # AT-250 c2 (A-M7-T03c): MiniCheck, Core ML (CPU + ANE), every cell, Chat pack
+
+voice_t0: &voice_t0 [stt, tts, vad-files, turn, turn-coreml]
+voice_t1: &voice_t1 [stt, stt-eou, tts, vad-files, turn, turn-coreml]
+
+cells:
+  T0:
+    S1:
+      chat: {normal: {model: chat-2b, ctx: 8192, step_down: chat-0.8b}, evil: {model: evil-2b, ctx: 8192}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: null
+      rerank_reason: needs_ram_24
+      title: "@chat_fast"       # R-298: the starter titles on T0–T2 (model-matrix §2.2 had the resident chat-2b)
+      voice: *voice_t0
+      stt_multi: stt-multi
+      photo: null
+      photo_reason: needs_ram_16
+      video: null
+      video_reason: needs_ram_24
+  T1:
+    S1:
+      chat: {normal: {model: chat-9b-q4, ctx: 16384, step_down: chat-4b}, evil: {model: evil-9b, ctx: 16384, step_down: evil-4b}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: null
+      rerank_reason: needs_ram_24
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q4, img-erase]
+      video: null
+      video_reason: needs_ram_24
+  T2-24:
+    S1:
+      chat: {normal: {model: chat-9b-q4, ctx: 32768, step_down: chat-4b}, evil: {model: evil-9b, ctx: 32768, step_down: evil-4b}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-erase]
+      video: [vid-5b, vid-i2v]
+    S4:
+      photo: [img-klein-q8, img-zit-q8, img-erase]
+  T2-32:
+    S1:
+      chat: {normal: {model: chat-g26, ctx: 32768, step_down: chat-9b-q4}, evil: {model: evil-g26, ctx: 32768, step_down: evil-9b}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-erase]
+      video: [vid-5b, vid-i2v]
+    S4:
+      photo: [img-klein-q8, img-zit-q8, img-erase]
+  T2-36:
+    S1:
+      chat: {normal: {model: chat-35b-q4, ctx: 16384, step_down: chat-g26}, evil: {model: evil-35b-q4, ctx: 16384, step_down: evil-g26}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-erase]
+      video: [vid-5b, vid-i2v]
+    S4:
+      photo: [img-klein-q8, img-zit-q8, img-erase]
+  T3-48:
+    S1:
+      chat: {normal: {model: chat-35b-q4, ctx: 65536, step_down: chat-g26}, evil: {model: evil-35b-q4, ctx: 65536, step_down: evil-g26}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-zit-q8, img-edit-q4, img-erase]
+      video: [vid-5b, vid-i2v, vid-ltx]  # M5.T07: vid-ltx = Sound (Normal only)
+  T3-64:
+    S1:
+      chat: {normal: {model: chat-35b-q6, ctx: 65536, step_down: chat-35b-q4}, evil: {model: evil-35b-q6, ctx: 65536, step_down: evil-35b-q4}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-zit-q8, img-edit-q4, img-erase]
+      video: [vid-5b, vid-i2v, vid-ltx]  # M5.T07: vid-ltx = Sound (Normal only)
+  T4-96:
+    S1:
+      chat: {normal: {model: chat-35b-q8, ctx: 131072, step_down: chat-35b-q6}, evil: {model: evil-35b-q8, ctx: 131072, step_down: evil-35b-q6}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-zit-q8, img-edit-q8, img-erase]
+      video: [vid-5b, vid-i2v, vid-ltx]  # A-M5-13: vid-5b = T4 silent T2V (vid-14b misses NFR-VID1); vid-ltx = Sound (T3+)
+  T4-128:
+    S1:
+      chat: {normal: {model: chat-122b, ctx: 65536, step_down: chat-35b-q8}, evil: {model: evil-122b, ctx: 65536, step_down: evil-35b-q8}, fast_first: chat-0.8b}
+      embed: embed
+      rerank: rerank
+      title: "@chat_fast"
+      voice: *voice_t1
+      stt_multi: stt-multi
+      photo: [img-klein-q8, img-zit-q8, img-edit-q8, img-erase]
+      video: [vid-5b, vid-i2v, vid-ltx]  # A-M5-13: vid-5b = T4 silent T2V (vid-14b misses NFR-VID1); vid-ltx = Sound (T3+)

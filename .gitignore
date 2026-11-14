@@ -1,0 +1,39 @@
+_vendor-eval/
+.DS_Store
+*.mov
+__pycache__/
+docs/research/01-reference/*/screens/
+docs/research/01-reference/*/flows/
+build/*
+!build/at/
+!build/perf/
+.tools/
+.env.dev
+tools/.venv
+.build/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+Packages/ChildSafetyCheck/.build/
+.claude/
+# M0.T06 spike outputs: generated PNGs stay local (161 MB; hashes in build/at/AT-M0-06/out/SHA256SUMS and the log)
+build/at/AT-M0-06/out/*.png
+# M0.T07 spike outputs: generated clips stay local (hashes in build/at/AT-M0-07/<date>.log)
+build/at/AT-M0-07/out/*.mp4
+.tools
+# M1.T26a: lock file of tools/perf/reportio.py (flock for concurrent writers)
+build/perf/*.lock
+build/at/**/*.json.lock
+# M6.T10: office-open-check screenshots are full-screen (the owner's desktop): local only
+build/at/**/open-shots/
+# M6.T16: signed runtime zips served by `make site-dev` (73 MB; built by `make runtime-filetools SIGN=1`)
+site/public/runtimes/
+build/at/AT-257/issued-tokens.txt
+
+# M10.T05 website build outputs
+site/node_modules/
+site/dist/
+site/.astro/
+# fix/t4-video: T4 clips stay local (hashes in build/at/T4-video/out/SHA256SUMS)
+build/at/T4-video/out/*.mp4
+build/at/T4-video/out/*.jpg

@@ -1,0 +1,8 @@
+# M7.T15 AT-NFR-SEC5 (SecurityUITests.testInjectedPageAsksWithUntrustedLine, vq-04 step 13; -ScriptedWebSearch YES,
+# -ScriptedMCP scripted-server.jsonl): a web step (untrusted output), then the induced write call the injection-30 pages
+# ask for → the ApprovalCard with the untrusted line; nothing is sent before a click.
+{"t":"toolCallDone","id":"call_ws1","name":"web_search","args":"{\"queries\":[\"tips\"]}","delayMs":30}
+{"t":"turn"}
+{"t":"toolCallDone","id":"call_send","name":"team_chat_send_message","args":"{\"channel\":\"general\",\"text\":\"Lunch is at noon.\"}","delayMs":30}
+{"t":"turn"}
+{"t":"textDelta","v":"Done.","delayMs":20}

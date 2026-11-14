@@ -1,0 +1,1571 @@
+{
+  "generated_by": "tools/perf/gen-targets.py",
+  "metrics": {
+    "B1": {
+      "direction": "lower",
+      "gate_stat": "mean",
+      "nfr": "NFR-B1",
+      "source": "nfr.md",
+      "star": false,
+      "text": "Activity Monitor \"Energy Impact\" ≤ 1 averaged over 5 min with a window open and no generation; no timers faster than 1 Hz while idle",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "mean",
+            "value": 1.0,
+            "window_min": 5.0
+          }
+        ]
+      },
+      "title": "Idle energy",
+      "unit": "energy impact",
+      "variants": {
+        "timers": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "unit": "Hz",
+              "value": 1.0
+            }
+          ]
+        }
+      }
+    },
+    "C1": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-C1",
+      "source": "nfr.md",
+      "star": true,
+      "text": "≤ 1.5 s | ≤ 1.5 s | ≤ 1.0 s | ≤ 0.8 s | ≤ 0.8 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.8
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.8
+          }
+        ]
+      },
+      "title": "TTFT p50",
+      "unit": "s",
+      "variants": {}
+    },
+    "C1b": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-C1b",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 3 s | ≤ 3 s | ≤ 2 s | ≤ 1.5 s | ≤ 1.5 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 3.0
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 3.0
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 2.0
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 1.5
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 1.5
+          }
+        ]
+      },
+      "title": "TTFT p95",
+      "unit": "s",
+      "variants": {}
+    },
+    "C2": {
+      "direction": "higher",
+      "gate_stat": "p50",
+      "nfr": "NFR-C2",
+      "source": "nfr.md",
+      "star": true,
+      "text": "≥ 20 | ≥ 15 | ≥ 20 | ≥ 30 | ≥ 25",
+      "tiers": {
+        "T0": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 20.0
+          }
+        ],
+        "T1": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 15.0
+          }
+        ],
+        "T2": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 20.0
+          }
+        ],
+        "T3": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 30.0
+          }
+        ],
+        "T4": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 25.0
+          }
+        ]
+      },
+      "title": "Decode floor tok/s p50 at 1K context",
+      "unit": "tok/s",
+      "variants": {}
+    },
+    "C3": {
+      "direction": "higher",
+      "gate_stat": "p50",
+      "nfr": "NFR-C3",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≥ 60% of NFR-C2",
+      "tiers": {
+        "T0": [
+          {
+            "derived": "60% of NFR-C2 T0",
+            "op": ">=",
+            "stat": "p50",
+            "value": 12.0
+          }
+        ],
+        "T1": [
+          {
+            "derived": "60% of NFR-C2 T1",
+            "op": ">=",
+            "stat": "p50",
+            "value": 9.0
+          }
+        ],
+        "T2": [
+          {
+            "derived": "60% of NFR-C2 T2",
+            "op": ">=",
+            "stat": "p50",
+            "value": 12.0
+          }
+        ],
+        "T3": [
+          {
+            "derived": "60% of NFR-C2 T3",
+            "op": ">=",
+            "stat": "p50",
+            "value": 18.0
+          }
+        ],
+        "T4": [
+          {
+            "derived": "60% of NFR-C2 T4",
+            "op": ">=",
+            "stat": "p50",
+            "value": 15.0
+          }
+        ]
+      },
+      "title": "Decode at 75% of the max default context",
+      "unit": "tok/s",
+      "variants": {}
+    },
+    "C4": {
+      "direction": "higher",
+      "gate_stat": "p50",
+      "nfr": "NFR-C4",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≥ 150 tok/s | ≥ 150 | ≥ 300 | ≥ 400 | ≥ 400",
+      "tiers": {
+        "T0": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 150.0
+          }
+        ],
+        "T1": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 150.0
+          }
+        ],
+        "T2": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 300.0
+          }
+        ],
+        "T3": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 400.0
+          }
+        ],
+        "T4": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 400.0
+          }
+        ]
+      },
+      "title": "Prefill throughput floor (long input, e.g. a 4K-token PDF)",
+      "unit": "tok/s",
+      "variants": {}
+    },
+    "C5": {
+      "direction": "higher",
+      "gate_stat": "rate",
+      "nfr": "NFR-C5",
+      "source": "nfr.md",
+      "star": false,
+      "text": "100% of cases",
+      "tiers": {
+        "default": [
+          {
+            "op": ">=",
+            "stat": "rate",
+            "value": 100.0
+          }
+        ]
+      },
+      "title": "Prefill > 3 s shows \"Reading <file> · N%\" with a real percentage",
+      "unit": "%",
+      "variants": {}
+    },
+    "C6": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-C6",
+      "source": "nfr.md",
+      "star": false,
+      "text": "TTFT within NFR-C1 for any edit of the last message",
+      "tiers": {
+        "T0": [
+          {
+            "derived": "NFR-C1 T0",
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T1": [
+          {
+            "derived": "NFR-C1 T1",
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T2": [
+          {
+            "derived": "NFR-C1 T2",
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "T3": [
+          {
+            "derived": "NFR-C1 T3",
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.8
+          }
+        ],
+        "T4": [
+          {
+            "derived": "NFR-C1 T4",
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.8
+          }
+        ]
+      },
+      "title": "Regenerate or edit-resend reuses the cached prefix",
+      "unit": "s",
+      "variants": {}
+    },
+    "C7": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-C7",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ NFR-M1 load time + NFR-C1; ≤ 1.5 s when both models fit warm (T3+)",
+      "tiers": {
+        "T0": [
+          {
+            "by_weights_gb": [
+              {
+                "max_weights_gb": 6.0,
+                "value": 4.5
+              },
+              {
+                "max_weights_gb": 22.0,
+                "value": 9.5
+              },
+              {
+                "max_weights_gb": 40.0,
+                "value": 13.5
+              },
+              {
+                "max_weights_gb": 75.0,
+                "value": 26.5
+              }
+            ],
+            "derived": "NFR-M1 band + NFR-C1 T0",
+            "op": "<=",
+            "stat": "p50",
+            "value": null
+          }
+        ],
+        "T1": [
+          {
+            "by_weights_gb": [
+              {
+                "max_weights_gb": 6.0,
+                "value": 4.5
+              },
+              {
+                "max_weights_gb": 22.0,
+                "value": 9.5
+              },
+              {
+                "max_weights_gb": 40.0,
+                "value": 13.5
+              },
+              {
+                "max_weights_gb": 75.0,
+                "value": 26.5
+              }
+            ],
+            "derived": "NFR-M1 band + NFR-C1 T1",
+            "op": "<=",
+            "stat": "p50",
+            "value": null
+          }
+        ],
+        "T2": [
+          {
+            "by_weights_gb": [
+              {
+                "max_weights_gb": 6.0,
+                "value": 4.0
+              },
+              {
+                "max_weights_gb": 22.0,
+                "value": 9.0
+              },
+              {
+                "max_weights_gb": 40.0,
+                "value": 13.0
+              },
+              {
+                "max_weights_gb": 75.0,
+                "value": 26.0
+              }
+            ],
+            "derived": "NFR-M1 band + NFR-C1 T2",
+            "op": "<=",
+            "stat": "p50",
+            "value": null
+          }
+        ],
+        "T3": [
+          {
+            "derived": "both models fit warm (T3+)",
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T4": [
+          {
+            "derived": "both models fit warm (T3+)",
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ]
+      },
+      "title": "Normal↔Evil switch (new chat) to first token",
+      "unit": "s",
+      "variants": {}
+    },
+    "F7": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-F7",
+      "source": "nfr.md",
+      "star": false,
+      "text": "per-image check ≤ 300 ms p95; video frame checks ≤ 10% of generation time; preview frames checked without slowing the preview below NFR-P targets; measured M0 (2026-10-30): per-image full path (nudity + Marqo + Vision + MiVOLO) 77.2/238.5 ms on T1 cap (M5 Max S4, n 400), ≤ 300 ms ✓, measured; report.json key m0.F7.T1.csc. [SCALED] full path on T1 chips (M1–M4 base) ≈ 1.0–1.7 s miss (S-8, no key; carried to M4 G-048: face/age stage only when nude, SFW ≈ 0.4–0.6 s [SCALED]); K-019 RAM miss (2.3 GB steady). Video-frame and preview legs not measured in M0",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 300.0
+          }
+        ]
+      },
+      "title": "Latency (T1)",
+      "unit": "ms",
+      "variants": {}
+    },
+    "M1": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-M1",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 3 s for ≤ 6 GB weights; ≤ 8 s ≤ 22 GB; ≤ 12 s ≤ 40 GB; ≤ 25 s ≤ 75 GB (T4 S4). Includes Metal pipeline compile (cached after the first run)",
+      "tiers": {
+        "default": [
+          {
+            "by_weights_gb": [
+              {
+                "max_weights_gb": 6.0,
+                "value": 3.0
+              },
+              {
+                "max_weights_gb": 22.0,
+                "value": 8.0
+              },
+              {
+                "max_weights_gb": 40.0,
+                "value": 12.0
+              },
+              {
+                "max_weights_gb": 75.0,
+                "value": 25.0
+              }
+            ],
+            "op": "<=",
+            "stat": "p50",
+            "value": null
+          }
+        ]
+      },
+      "title": "Cold model load (SSD → first token possible)",
+      "unit": "s",
+      "variants": {}
+    },
+    "R1": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": "NFR-R1",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ tier budget B (T0 4.0 · T1 9.5 · T2 16/21/24 · T3 36/48 · T4 72/111 GB; hardware-tiers §2.2); measured M0 (2026-10-30): T1 cap chat-9b-q4 6.38/6.39 GB (4K ctx 7.40/7.45; image handoff 6.94/7.15; voice set 7.22 [IN-PIPELINE]) ≤ 9.5; T3-48 cap chat-35b-q4 20.7/20.7 GB ≤ 36; T2-24 chat+image co-resident 12.0 GB ≤ 16; T0 cap chat-0.8b 0.80 GB ≤ 4.0; T3-48 video 480p 26.5 GB ✓; measured on M5 Max; report.json keys m0.R1.T1.chat-9b-q4, m0.R1.T3-48.chat-35b-q4, m0.R1.T2-24.coresident, m0.R1.T0.chat-0.8b, m0.R1.voice.*, m0.R1.T3-48.video-480p. Miss: T3-48 video 720p 39.0 GB > 36 (one-shot TAEHV decode), A-M0-T07d (key m0.R1.T3-48.video-720p)",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 4.0
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 9.5
+          }
+        ],
+        "T2-24": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 16.0
+          }
+        ],
+        "T2-32": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 21.0
+          }
+        ],
+        "T2-36": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 24.0
+          }
+        ],
+        "T3-48": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 36.0
+          }
+        ],
+        "T3-64": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 48.0
+          }
+        ],
+        "T4-128": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 111.0
+          }
+        ],
+        "T4-96": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 72.0
+          }
+        ]
+      },
+      "title": "AntiChat peak (process `phys_footprint` + Metal allocated)",
+      "unit": "GB",
+      "variants": {}
+    },
+    "R3": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": "NFR-R3",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 300 MB RSS; ≤ 0.5% CPU averaged over 60 s; no GPU work",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 300.0
+          }
+        ]
+      },
+      "title": "Idle footprint (models unloaded)",
+      "unit": "MB",
+      "variants": {
+        "cpu": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "mean",
+              "unit": "%",
+              "value": 0.5,
+              "window_s": 60.0
+            }
+          ]
+        },
+        "gpu": {
+          "default": [
+            {
+              "op": "==",
+              "stat": "max",
+              "unit": "bytes",
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    "S2": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": "NFR-S2",
+      "source": "nfr.md",
+      "star": false,
+      "text": "Streamed text persisted every ≤ 1 s or 50 tokens; after a crash or kill, the chat reopens with the partial reply marked \"interrupted\" and a Retry button",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 1.0
+          }
+        ]
+      },
+      "title": "Mid-generation autosave",
+      "unit": "s",
+      "variants": {
+        "tokens": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "unit": "tokens",
+              "value": 50.0
+            }
+          ]
+        }
+      }
+    },
+    "S4": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-S4",
+      "source": "nfr.md",
+      "star": false,
+      "text": "A crash in the inference process does not crash the UI; the engine restarts ≤ 5 s and the UI shows a retry",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 5.0
+          }
+        ]
+      },
+      "title": "Engine isolation",
+      "unit": "s",
+      "variants": {}
+    },
+    "U1": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-U1",
+      "source": "nfr.md",
+      "star": true,
+      "text": "p50 ≤ 1.0 s (S2+), ≤ 1.5 s (S1); warm relaunch ≤ 0.5 s",
+      "tiers": {
+        "S1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "S2+": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ]
+      },
+      "title": "Launch to usable: Dock click → window shown with composer focused and typeable (cold launch, no models loaded)",
+      "unit": "s",
+      "variants": {
+        "warm": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 0.5
+            }
+          ]
+        }
+      }
+    },
+    "U10": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-U10",
+      "source": "nfr.md",
+      "star": false,
+      "text": "results ≤ 200 ms p95 for 10,000 local chats",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 200.0
+          }
+        ]
+      },
+      "title": "⌘K search over titles and message bodies",
+      "unit": "ms",
+      "variants": {}
+    },
+    "U11": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-U11",
+      "source": "nfr.md",
+      "star": false,
+      "text": "latest screen rendered ≤ 500 ms (virtualised list)",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 500.0
+          }
+        ]
+      },
+      "title": "Opening a 500-turn chat",
+      "unit": "ms",
+      "variants": {}
+    },
+    "U2": {
+      "direction": "lower",
+      "gate_stat": "p99",
+      "nfr": "NFR-U2",
+      "source": "nfr.md",
+      "star": true,
+      "text": "p99 < 100 ms, p50 ≤ 16 ms (one 60 Hz frame); independent of model state",
+      "tiers": {
+        "default": [
+          {
+            "op": "<",
+            "stat": "p99",
+            "value": 100.0
+          },
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 16.0
+          }
+        ]
+      },
+      "title": "Send acknowledgement: Return → user bubble + pending placeholder + send→stop swap",
+      "unit": "ms",
+      "variants": {}
+    },
+    "U4": {
+      "direction": "range",
+      "gate_stat": "p50",
+      "nfr": "NFR-U4",
+      "source": "nfr.md + M1.md AT-NFR-U4",
+      "star": false,
+      "text": "A status verb appears after 2.5 s without text; a seconds counter only for tool, image or video jobs | tolerance ± 100 ms from M1.md AT-NFR-U4",
+      "tiers": {
+        "default": [
+          {
+            "op": ">=",
+            "stat": "min",
+            "value": 2.4
+          },
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 2.6
+          }
+        ]
+      },
+      "title": "Pending-state label",
+      "unit": "s",
+      "variants": {}
+    },
+    "U5": {
+      "direction": "equal",
+      "gate_stat": "max",
+      "nfr": "NFR-U5",
+      "source": "nfr.md",
+      "star": false,
+      "text": "Reveal at a steady 30–60 Hz with a 150–250 ms per-word fade; no frame > 33 ms on the main thread while streaming (S1 included); no layout jump > 4 px on Markdown reflow",
+      "tiers": {
+        "default": [
+          {
+            "frame_ms": 33.0,
+            "op": "==",
+            "stat": "max",
+            "value": 0
+          }
+        ]
+      },
+      "title": "Stream render cadence",
+      "unit": "hitches",
+      "variants": {
+        "cadence": {
+          "default": [
+            {
+              "hi": 60.0,
+              "op": "within",
+              "stat": "p50",
+              "unit": "Hz",
+              "value": 30.0
+            }
+          ]
+        },
+        "fade": {
+          "default": [
+            {
+              "hi": 250.0,
+              "op": "within",
+              "stat": "p50",
+              "unit": "ms",
+              "value": 150.0
+            }
+          ]
+        },
+        "jump": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "unit": "px",
+              "value": 4.0
+            }
+          ]
+        }
+      }
+    },
+    "U6": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-U6",
+      "source": "nfr.md",
+      "star": false,
+      "text": "Generation halts and the UI is idle ≤ 300 ms after the click (p95 ≤ 1 s); partial text kept with an \"interrupted\" notice",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 300.0
+          },
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 1000.0
+          }
+        ]
+      },
+      "title": "Stop",
+      "unit": "ms",
+      "variants": {}
+    },
+    "U7": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-U7",
+      "source": "nfr.md",
+      "star": false,
+      "text": "Chat title shown ≤ 3 s after the first reply starts (T1+), ≤ 6 s (T0); never titles empty or voice-only-empty sessions",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 6.0
+          }
+        ],
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 3.0
+          }
+        ]
+      },
+      "title": "Auto-title",
+      "unit": "s",
+      "variants": {}
+    },
+    "U8": {
+      "direction": "higher",
+      "gate_stat": "p50",
+      "nfr": "NFR-U8",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≥ 55 fps at 60 Hz, ≥ 100 fps at 120 Hz (ProMotion)",
+      "tiers": {
+        "default": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 55.0
+          }
+        ]
+      },
+      "title": "Scrolling 1,000-message chat",
+      "unit": "fps",
+      "variants": {
+        "120hz": {
+          "default": [
+            {
+              "op": ">=",
+              "stat": "p50",
+              "value": 100.0
+            }
+          ]
+        }
+      }
+    },
+    "U9": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-U9",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 150 ms p95",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 150.0
+          }
+        ]
+      },
+      "title": "Global quick panel: hotkey → floating composer focused (app running)",
+      "unit": "ms",
+      "variants": {}
+    },
+    "V1": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V1",
+      "source": "nfr.md",
+      "star": true,
+      "text": "≤ 2.5 s | ≤ 1.5 s | ≤ 1.2 s | ≤ 1.0 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 2.5
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.5
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.2
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ]
+      },
+      "title": "Voice round-trip: end of user speech (last voiced frame) → first assistant audio sample, p50",
+      "unit": "s",
+      "variants": {}
+    },
+    "V10": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V10",
+      "source": "nfr.md",
+      "star": false,
+      "text": "STT model warm within 300 ms of mic-button hover / hotkey modifier press when RAM allows (T1+)",
+      "tiers": {
+        "T0": [],
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 300.0
+          }
+        ]
+      },
+      "title": "Predictive warm-up",
+      "unit": "ms",
+      "variants": {}
+    },
+    "V11": {
+      "direction": "higher",
+      "gate_stat": "p50",
+      "nfr": "NFR-V11",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≥ 10× real time (T1+); ≥ 4× (T0)",
+      "tiers": {
+        "T0": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 4.0
+          }
+        ],
+        "default": [
+          {
+            "op": ">=",
+            "stat": "p50",
+            "value": 10.0
+          }
+        ]
+      },
+      "title": "Audio-file transcription speed",
+      "unit": "x",
+      "variants": {}
+    },
+    "V1b": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": "NFR-V1b",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 3.5 s | ≤ 2.5 s | ≤ 2.0 s | ≤ 1.8 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 3.5
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 2.5
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 2.0
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 1.8
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 1.8
+          }
+        ]
+      },
+      "title": "same, p95",
+      "unit": "s",
+      "variants": {}
+    },
+    "V2": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V2",
+      "source": "nfr.md",
+      "star": false,
+      "text": "endpointing ≤ 450 ms (counted in V1) · STT final ≤ 100 ms · LLM TTFT ≤ 200 ms · first clause decoded ≤ 120 ms · TTS first chunk ≤ 100 ms · audio out ≤ 30 ms. Lower tiers: stages scale within their V1; LLM stage ≤ NFR-C1",
+      "tiers": {},
+      "title": "Best-tier (T3–T4) stage budget, each stage p50, summing to that tier's V1 (1.0 s)",
+      "unit": "ms",
+      "variants": {
+        "audio_out": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 30.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 30.0
+            }
+          ]
+        },
+        "endpointing": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 450.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 450.0
+            }
+          ]
+        },
+        "first_clause": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 120.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 120.0
+            }
+          ]
+        },
+        "llm_ttft": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 200.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 200.0
+            }
+          ]
+        },
+        "stt_final": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 100.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 100.0
+            }
+          ]
+        },
+        "tts_first_chunk": {
+          "T3": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 100.0
+            }
+          ],
+          "T4": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 100.0
+            }
+          ]
+        }
+      }
+    },
+    "V283_EOS_FINAL": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": null,
+      "source": "M3.md AT-283 (A-M3-04)",
+      "star": false,
+      "text": "p50 end-of-speech → final transcript ≤ 300 ms at T1",
+      "tiers": {
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 300.0
+          }
+        ]
+      },
+      "title": "End-of-turn decision → final transcript (R-283)",
+      "unit": "ms",
+      "variants": {}
+    },
+    "V3": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V3",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 200 ms; LLM generation cancelled ≤ 300 ms",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 200.0
+          }
+        ]
+      },
+      "title": "Barge-in: user speech onset → TTS silent",
+      "unit": "ms",
+      "variants": {
+        "cancel": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "p50",
+              "value": 300.0
+            }
+          ]
+        }
+      }
+    },
+    "V4": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": "NFR-V4",
+      "source": "nfr.md",
+      "star": false,
+      "text": "False turn split: one utterance with pauses < 1.2 s split into more than one turn | ≤ 2% of a 50-utterance fixture",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 2.0
+          }
+        ]
+      },
+      "title": "False turn split: one utterance with pauses < 1.2 s split into more than one turn",
+      "unit": "%",
+      "variants": {
+        "cafe": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "value": 2.0
+            }
+          ]
+        },
+        "fan": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "value": 2.0
+            }
+          ]
+        },
+        "keyboard": {
+          "default": [
+            {
+              "op": "<=",
+              "stat": "max",
+              "value": 2.0
+            }
+          ]
+        }
+      }
+    },
+    "V5": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V5",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 150 ms (all tiers)",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 150.0
+          }
+        ]
+      },
+      "title": "Dictation: hotkey/mic click → recording indicator",
+      "unit": "ms",
+      "variants": {}
+    },
+    "V6": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V6",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 1.0 s (T0), ≤ 0.6 s (T1+)",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.6
+          }
+        ]
+      },
+      "title": "Dictation partial text visible after speech starts",
+      "unit": "s",
+      "variants": {}
+    },
+    "V7": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V7",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 1.0 s | ≤ 0.4 s | ≤ 0.3 s | ≤ 0.3 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.4
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.3
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.3
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.3
+          }
+        ]
+      },
+      "title": "Dictation final: stop → final text in the composer (≤ 30 s utterance)",
+      "unit": "s",
+      "variants": {}
+    },
+    "V8": {
+      "direction": "lower",
+      "gate_stat": "p50",
+      "nfr": "NFR-V8",
+      "source": "nfr.md",
+      "star": false,
+      "text": "≤ 1.0 s | ≤ 0.5 s | ≤ 0.5 s | ≤ 0.4 s",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 1.0
+          }
+        ],
+        "T1": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.5
+          }
+        ],
+        "T2": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.5
+          }
+        ],
+        "T3": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.4
+          }
+        ],
+        "T4": [
+          {
+            "op": "<=",
+            "stat": "p50",
+            "value": 0.4
+          }
+        ]
+      },
+      "title": "Read aloud: click → first audio",
+      "unit": "s",
+      "variants": {}
+    },
+    "V9": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": "NFR-V9",
+      "source": "nfr.md",
+      "star": false,
+      "text": "WER ≤ 6% (T1+) and ≤ 10% (T0) on LibriSpeech test-clean subset + AntiChat fixtures | max over languages; CER for ja/zh (A-M3-02)",
+      "tiers": {
+        "T0": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 10.0
+          }
+        ],
+        "default": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 6.0
+          }
+        ]
+      },
+      "title": "STT accuracy",
+      "unit": "%",
+      "variants": {}
+    },
+    "composerDock": {
+      "direction": "lower",
+      "gate_stat": "max",
+      "nfr": null,
+      "source": "M1.md AT-001 / M1.T07",
+      "star": false,
+      "text": "animation duration (signpost `composerDock`) ≤ 300 ms",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "max",
+            "value": 300.0
+          }
+        ]
+      },
+      "title": "Composer docks after the first send (AT-001)",
+      "unit": "ms",
+      "variants": {}
+    },
+    "sidebarUpdate": {
+      "direction": "lower",
+      "gate_stat": "p95",
+      "nfr": null,
+      "source": "M1.md M1.T07 step 6",
+      "star": false,
+      "text": "visible update ≤ 100 ms (signpost `sidebarUpdate`)",
+      "tiers": {
+        "default": [
+          {
+            "op": "<=",
+            "stat": "p95",
+            "value": 100.0
+          }
+        ]
+      },
+      "title": "Sidebar update after a chat mutation (AT-011)",
+      "unit": "ms",
+      "variants": {}
+    }
+  },
+  "sources": [
+    "docs/prd/M1.md",
+    "docs/prd/M3.md",
+    "docs/research/02-target/hardware-tiers.md",
+    "docs/research/02-target/nfr.md"
+  ],
+  "speed_classes": {
+    "S1": [
+      "A18 Pro",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M1 Pro"
+    ],
+    "S2": [
+      "M2 Pro",
+      "M3 Pro",
+      "M4 Pro",
+      "M1 Max",
+      "M2 Max",
+      "M5"
+    ],
+    "S3": [
+      "M5",
+      "M6",
+      "M3 Max",
+      "M4 Max",
+      "M1 Ultra",
+      "M2 Ultra",
+      "M3 Ultra"
+    ],
+    "S4": [
+      "M5 Pro",
+      "M5 Max",
+      "M5 Ultra"
+    ]
+  }
+}

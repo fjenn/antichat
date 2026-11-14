@@ -1,0 +1,6 @@
+# M6.T21 AT-VQ-M6 vq-files-attach (VisualQAM6): the whole text-10p.pdf is prefilled (a long prefill so the
+# reading % is on screen for the capture), then the answer cites page 3.
+{"t": "title", "v": "Chapter 3", "delayMs": 300}
+{"t": "prefill", "ms": 9000, "steps": 45}
+{"t": "textDelta", "v": "Chapter 3 is about the almanac weir (p. 3).", "delayMs": 20}
+{"t": "done", "reason": "stop"}

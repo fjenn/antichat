@@ -1,0 +1,368 @@
+//
+//  SkillSearchService.swift
+//  osaurus
+//
+//  Wraps VecturaKit for hybrid search over SKILL.md files.
+//  Derived index — files on disk are the source of truth.
+//
+
+import CryptoKit
+import Foundation
+import VecturaKit
+import os
+
+public enum SkillSearchLogger {
+    static let search = Logger(subsystem: "ai.osaurus", category: "skill.search")
+}
+
+public struct SkillSearchResult: Sendable {
+    public let skill: Skill
+    public let searchScore: Float
+
+    public init(skill: Skill, searchScore: Float) {
+        self.skill = skill
+        self.searchScore = searchScore
+    }
+}
+
+/// Diagnostic snapshot for `SkillSearchService.searchWithDiagnostic`. Mirror
+/// of `ToolSearchDiagnostic` / `MethodSearchDiagnostic`; same usage gates
+/// (env-flag trace + offline eval).
+public struct SkillSearchDiagnostic: Sendable {
+    public struct Hit: Sendable {
+        public let name: String
+        public let score: Float
+        public init(name: String, score: Float) {
+            self.name = name
+            self.score = score
+        }
+    }
+
+    public let indexedSkillCount: Int
+    public let rawHits: [Hit]
+    public let acceptedHits: [Hit]
+    public let threshold: Float
+
+    public init(indexedSkillCount: Int, rawHits: [Hit], acceptedHits: [Hit], threshold: Float) {
+        self.indexedSkillCount = indexedSkillCount
+        self.rawHits = rawHits
+        self.acceptedHits = acceptedHits
+        self.threshold = threshold
+    }
+}
+
+public actor SkillSearchService {
+    public static let shared = SkillSearchService()
+
+    private static let defaultSearchThreshold: Float = 0.30
+
+    private var vectorDB: VecturaKit?
+    private var isInitialized = false
+    private var reverseIdMap: [String: UUID] = [:]
+
+    /// Skills whose `indexSkill` arrived before VecturaKit finished
+    /// initializing (startup CRUD races the launch embedding task). They
+    /// used to be silently dropped — the skill then never surfaced from
+    /// vector search until a manual rebuild. Keyed by skill id so a
+    /// create-then-edit burst indexes the final state once. Bounded as a
+    /// safety valve for the init-permanently-failed case; the library is
+    /// far smaller than the cap in practice.
+    private var pendingIndexSkills: [UUID: Skill] = [:]
+    private static let pendingIndexCap = 256
+
+    private init() {}
+
+    // MARK: - Initialization
+
+    public func initialize() async {
+        guard !isInitialized else { return }
+
+        let storageDir = OsaurusPaths.skills().appendingPathComponent("vectura", isDirectory: true)
+
+        for attempt in 1 ... 2 {
+            do {
+                OsaurusPaths.ensureExistsSilent(storageDir)
+
+                let config = try VecturaConfig(
+                    name: "osaurus-skills",
+                    directoryURL: storageDir,
+                    dimension: EmbeddingService.embeddingDimension,
+                    searchOptions: VecturaConfig.SearchOptions(
+                        defaultNumResults: 10,
+                        minThreshold: 0.3,
+                        hybridWeight: 0.7,
+                        k1: 1.2,
+                        b: 0.75
+                    ),
+                    memoryStrategy: .automatic()
+                )
+
+                vectorDB = try await VecturaKit(config: config, embedder: EmbeddingService.sharedEmbedder)
+                isInitialized = true
+                await rehydrateReverseIdMap()
+                SkillSearchLogger.search.info("VecturaKit initialized successfully for skills")
+                await drainPendingIndexSkills()
+                break
+            } catch {
+                if attempt == 1 {
+                    SkillSearchLogger.search.warning(
+                        "VecturaKit init failed for skills, deleting storage to recover: \(error)"
+                    )
+                    try? FileManager.default.removeItem(at: storageDir)
+                } else {
+                    SkillSearchLogger.search.error("VecturaKit init failed for skills (search unavailable): \(error)")
+                    vectorDB = nil
+                }
+            }
+        }
+    }
+
+    /// See `ToolSearchService.rehydrateReverseIdMap` for the rationale.
+    /// Skills are loaded from `SkillManager.shared.skills` (which is
+    /// populated from disk eagerly), so this is a cheap walk.
+    private func rehydrateReverseIdMap() async {
+        let allSkills = await MainActor.run { SkillManager.shared.skills }
+        for skill in allSkills {
+            _ = deterministicUUID(for: skill.id)
+        }
+        SkillSearchLogger.search.info("Skill reverse-id map rehydrated with \(allSkills.count) entries")
+    }
+
+    // MARK: - Indexing
+
+    public func indexSkill(_ skill: Skill) async {
+        guard let db = vectorDB else {
+            if pendingIndexSkills.count < Self.pendingIndexCap {
+                pendingIndexSkills[skill.id] = skill
+            }
+            return
+        }
+        do {
+            let id = deterministicUUID(for: skill.id)
+            let text = buildIndexText(for: skill)
+            _ = try await MediaActivityLogger.$embeddingPurpose.withValue("skill_index") {
+                try await db.addDocument(text: text, id: id)
+            }
+        } catch {
+            SkillSearchLogger.search.error("Failed to index skill \(skill.name): \(error)")
+        }
+    }
+
+    public func removeSkill(id: UUID) async {
+        pendingIndexSkills.removeValue(forKey: id)
+        guard let db = vectorDB else { return }
+        do {
+            let uuid = deterministicUUID(for: id)
+            try await db.deleteDocuments(ids: [uuid])
+            reverseIdMap.removeValue(forKey: uuid.uuidString)
+        } catch {
+            SkillSearchLogger.search.error("Failed to remove skill \(id) from index: \(error)")
+        }
+    }
+
+    /// Index the skills that were created/updated before VecturaKit came up.
+    private func drainPendingIndexSkills() async {
+        guard !pendingIndexSkills.isEmpty else { return }
+        let queued = Array(pendingIndexSkills.values)
+        pendingIndexSkills.removeAll()
+        for skill in queued {
+            await indexSkill(skill)
+        }
+        SkillSearchLogger.search.info("Indexed \(queued.count) skill(s) queued before initialization")
+    }
+
+    // MARK: - Search
+
+    public func search(
+        query: String,
+        topK: Int = 10,
+        threshold: Float? = nil
+    ) async -> [SkillSearchResult] {
+        guard topK > 0 else { return [] }
+        let effectiveThreshold = threshold ?? Self.defaultSearchThreshold
+        guard let db = vectorDB else {
+            return await searchLiveSkillsLexically(query: query, topK: topK, threshold: effectiveThreshold)
+        }
+        do {
+            let fetchCount = topK * 3
+            let results = try await MediaActivityLogger.$embeddingPurpose.withValue("skill_search") {
+                try await db.search(
+                    query: .text(query),
+                    numResults: fetchCount,
+                    threshold: effectiveThreshold
+                )
+            }
+
+            let scoreMap = Dictionary(
+                results.map { ($0.id.uuidString, Float($0.score)) },
+                uniquingKeysWith: { first, _ in first }
+            )
+
+            let matchedSkillIds = results.compactMap { reverseIdMap[$0.id.uuidString] }
+            guard !matchedSkillIds.isEmpty else {
+                return await searchLiveSkillsLexically(query: query, topK: topK, threshold: effectiveThreshold)
+            }
+
+            let allSkills = await MainActor.run { SkillManager.shared.skills }
+            let skillById = Dictionary(allSkills.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+            let accepted = Array(
+                matchedSkillIds.compactMap { skillId -> SkillSearchResult? in
+                    guard let skill = skillById[skillId] else { return nil }
+                    let uuid = deterministicUUID(for: skillId)
+                    guard let score = scoreMap[uuid.uuidString] else { return nil }
+                    return SkillSearchResult(skill: skill, searchScore: score)
+                }
+                .sorted { $0.searchScore > $1.searchScore }
+                .prefix(topK)
+            )
+            if !accepted.isEmpty { return accepted }
+            return await searchLiveSkillsLexically(query: query, topK: topK, threshold: effectiveThreshold)
+        } catch {
+            SkillSearchLogger.search.error("Skill search failed: \(error)")
+            return await searchLiveSkillsLexically(query: query, topK: topK, threshold: effectiveThreshold)
+        }
+    }
+
+    /// Diagnostic-capturing search. See `ToolSearchService.searchWithDiagnostic`
+    /// for the rationale of the two-pass design.
+    public func searchWithDiagnostic(
+        query: String,
+        topK: Int,
+        threshold: Float
+    ) async -> (results: [SkillSearchResult], diagnostic: SkillSearchDiagnostic) {
+        let indexedCount = await MainActor.run { SkillManager.shared.skills.count }
+        let raw = await search(query: query, topK: topK, threshold: 0.0)
+        let accepted = await search(query: query, topK: topK, threshold: threshold)
+        let diagnostic = SkillSearchDiagnostic(
+            indexedSkillCount: indexedCount,
+            rawHits: raw.map { SkillSearchDiagnostic.Hit(name: $0.skill.name, score: $0.searchScore) },
+            acceptedHits: accepted.map { SkillSearchDiagnostic.Hit(name: $0.skill.name, score: $0.searchScore) },
+            threshold: threshold
+        )
+        return (accepted, diagnostic)
+    }
+
+    // MARK: - Rebuild
+
+    public func rebuildIndex() async {
+        guard let db = vectorDB else { return }
+        do {
+            try await db.reset()
+            reverseIdMap.removeAll()
+
+            let allSkills = await MainActor.run { SkillManager.shared.skills }
+            var texts: [String] = []
+            var ids: [UUID] = []
+            texts.reserveCapacity(allSkills.count)
+            ids.reserveCapacity(allSkills.count)
+            for skill in allSkills {
+                let id = deterministicUUID(for: skill.id)
+                texts.append(buildIndexText(for: skill))
+                ids.append(id)
+            }
+            if !texts.isEmpty {
+                _ = try await MediaActivityLogger.$embeddingPurpose.withValue("skill_index") {
+                    try await db.addDocuments(texts: texts, ids: ids)
+                }
+            }
+            SkillSearchLogger.search.info("Skill index rebuilt with \(allSkills.count) skills")
+        } catch {
+            SkillSearchLogger.search.error("Failed to rebuild skill index: \(error)")
+        }
+    }
+
+    // MARK: - Helpers
+
+    /// Index name + keywords + description together. This used to be
+    /// keywords XOR description: any skill with even one keyword lost its
+    /// description signal entirely, so paraphrased queries that matched the
+    /// description but not the keyword list missed. Instructions stay out of
+    /// the index on purpose — they are workflow prose, not intent vocabulary,
+    /// and they drown the short high-signal fields.
+    private func buildIndexText(for skill: Skill) -> String {
+        var parts = [skill.name]
+        if !skill.keywords.isEmpty {
+            parts.append(skill.keywords.joined(separator: " "))
+        }
+        if !skill.description.isEmpty {
+            parts.append(skill.description)
+        }
+        return parts.joined(separator: " ")
+    }
+
+    private func searchLiveSkillsLexically(
+        query: String,
+        topK: Int,
+        threshold: Float
+    ) async -> [SkillSearchResult] {
+        guard topK > 0 else { return [] }
+        let queryTokens = Self.searchTokens(in: query)
+        guard !queryTokens.isEmpty else { return [] }
+
+        var skills = await MainActor.run { SkillManager.shared.skills }
+        if skills.isEmpty {
+            await SkillManager.shared.refresh()
+            skills = await MainActor.run { SkillManager.shared.skills }
+        }
+
+        let results = skills.compactMap { skill -> SkillSearchResult? in
+            let score = Self.lexicalScore(skill: skill, queryTokens: queryTokens)
+            guard score >= threshold else { return nil }
+            return SkillSearchResult(skill: skill, searchScore: score)
+        }
+        .sorted { lhs, rhs in
+            if lhs.searchScore == rhs.searchScore {
+                return lhs.skill.name.localizedCaseInsensitiveCompare(rhs.skill.name) == .orderedAscending
+            }
+            return lhs.searchScore > rhs.searchScore
+        }
+        .prefix(topK)
+
+        if !results.isEmpty {
+            SkillSearchLogger.search.info("Skill search using live lexical fallback")
+        }
+        return Array(results)
+    }
+
+    private static func lexicalScore(skill: Skill, queryTokens: Set<String>) -> Float {
+        let nameTokens = searchTokens(in: skill.name)
+        let keywordTokens = Set(skill.keywords.flatMap { searchTokens(in: $0) })
+        let descriptionTokens = searchTokens(in: skill.description)
+
+        let weightedMatches =
+            queryTokens.intersection(nameTokens).count * 3
+            + queryTokens.intersection(keywordTokens).count * 2
+            + queryTokens.intersection(descriptionTokens).count
+        guard weightedMatches > 0 else { return 0 }
+
+        let denominator = max(queryTokens.count * 3, 1)
+        let score = Float(weightedMatches) / Float(denominator)
+        return min(1.0, max(0.0, score))
+    }
+
+    private static func searchTokens(in text: String) -> Set<String> {
+        let tokens =
+            text
+            .lowercased()
+            .split { !$0.isLetter && !$0.isNumber }
+            .map(String.init)
+            .filter { $0.count >= 3 }
+        return Set(tokens)
+    }
+
+    private func deterministicUUID(for skillId: UUID) -> UUID {
+        let hash = SHA256.hash(data: Data("skill:\(skillId.uuidString)".utf8))
+        let bytes = Array(hash)
+        let uuid = UUID(
+            uuid: (
+                bytes[0], bytes[1], bytes[2], bytes[3],
+                bytes[4], bytes[5], bytes[6], bytes[7],
+                bytes[8], bytes[9], bytes[10], bytes[11],
+                bytes[12], bytes[13], bytes[14], bytes[15]
+            )
+        )
+        reverseIdMap[uuid.uuidString] = skillId
+        return uuid
+    }
+}

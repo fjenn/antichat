@@ -1,0 +1,27 @@
+# tools/ci/no-raw-process.py allow-list (M7.T13, D-026 note 6). Seeded with the launch sites that existed when M7.T13
+# started (`grep -rnE 'Process\(|posix_spawn|Subprocess\.run' Packages/ App/`). Every NEW spawn goes through
+# AntiChatPlatform/ProcessLauncher.swift; add a line here only with the owner's reason, never for a skill script (R-265).
+# Format: <path or glob>  # <one-line justification>
+
+# --- shipped code: engine children (M1/M4/M5, D-013) ---
+Packages/Engines/Sources/AntiChatEngines/LLM/LlamaServerSupervisor.swift  # M1 llama-server child: swift-subprocess with the fd-3 death pipe and own process group (helper side, not the app)
+Packages/Engines/Sources/AntiChatEngines/LLM/LlamaWatchdog.swift  # M1 llama-server watchdog: posix_spawn with POSIX_SPAWN_SETPGROUP and an inherited pipe fd (helper side)
+Packages/Engines/Sources/AntiChatEngines/Image/SDServerSupervisor.swift  # M4 sd-server child (D-013): swift-subprocess supervisor in the engine helper
+Packages/Engines/Sources/AntiChatEngines/Video/VideoRuntimeSupervisor.swift  # M5 video-runtime Python child: posix_spawn with its own process group and fd 3 (engine helper)
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/Launcher.swift  # M6.T17 filetools-runtime launcher inside AntiChatFileTools.xpc (App Sandbox jail, own process group; never the app process)
+
+# --- shipped code: fixed system tools, no user or model input in argv ---
+Packages/Platform/Sources/AntiChatPlatform/Runtimes/RuntimeInstaller.swift  # M6.T16 /usr/bin/ditto -x -k of a signed, hash-checked runtime zip (keeps framework symlinks)
+Packages/Platform/Sources/AntiChatPlatform/Storage/UninstallService.swift  # M8.T11 /usr/bin/nohup /bin/sh waiter that must outlive the app (detached; ProcessLauncher waits for exit)
+Packages/Platform/Sources/AntiChatPlatform/Diagnostics/SystemReport.swift  # M8.T09 /usr/bin/fdesetup isactive for the system report (read-only, no arguments from input)
+
+# --- DEBUG-only probes and bench mode compiled into the Debug app (not in Release) ---
+App/AntiChat/BenchMode.swift  # DEBUG bench mode: /usr/bin/pgrep for llama-server pids
+App/AntiChat/BenchAEC.swift  # bench mode (-Bench aec, M3.T12 AT-280): /usr/bin/afplay plays the scripted questions outside the VPIO echo reference
+App/AntiChat/BenchVoiceApproval.swift  # bench mode (-Bench voice-approval, M3.T12): /usr/bin/say -o renders the spoken answer to a WAV file (nothing plays)
+App/AntiChat/*Probe.swift  # DEBUG UI probes: /usr/sbin/screencapture of the app's own window (visual QA)
+
+# --- tests and their fixtures (never shipped) ---
+App/IntegrationTests/*.swift  # integration tests start fixture servers, helpers and CLIs
+App/UITests/*.swift  # UI tests relaunch the app and kill it (crash recovery)
+Packages/*/Tests/*/*.swift  # package tests start fixture servers, CLIs and crash children

@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""tools/vendor-sync: vendored-donor sync (P-platform-16; upstream.md §4). Run as `tools/vendor-sync <cmd>`.
+
+  gen-vendir                      regenerate Vendor/vendir.yml from donors.json + <name>-allowlist.tsv
+  sync                            vendir sync → Vendor/.upstream/<name>@<short>/, updates vendir.lock.yml
+  materialize <name>              copy allow-listed files pristine → compiled copy (never overwrites a patched
+                                  file), drop de-listed ones, write ORIGIN/LICENSE, apply access-rewrite.txt
+  access-rewrite <name>           re-apply access-rewrite.txt (internal → package, UP-OS-000)
+  vendored-json                   regenerate Vendor/VENDORED.json
+  verify [--offline]              vendir sync --locked into a temp dir and byte-compare Vendor/.upstream;
+                                  VENDORED.json current; compiled copies present; patch-lint
+  closure-check <name> [--tests]  build the donor target alone in a generated package (build/vendor-closure/);
+                                  --tests also runs the ported upstream tests; lists missing types on failure
+  report [--ports] [<name>…]      list upstream changes to allow-listed files since the pinned ref
+  bump <name> <ref> [--no-branch] 3-way merge the compiled copy onto a new upstream ref (files entering the
+                                  closure come from the donor's `carry`, if set)
+  backport <name> <old-ref>       rehearsal (M0.T03): carry the committed patched copy back onto an older
+                                  upstream ref (ours = patched head, base = pristine head, theirs = old);
+                                  allow-listed files absent at <old-ref> leave the closure and re-enter on bump
+  bump-from-renovate              Renovate postUpgradeTask: donors.json ref already rewritten → 3-way bump
+  finish <name>                   after resolving conflicts: materialize, access-rewrite, VENDORED.json, patch-lint
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I drops the script dir from sys.path
+from vendor_sync import core  # noqa: E402
+
+
+def main(argv: list[str]) -> int:
+    if not argv or argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
+    cmd, args = argv[0], [a for a in argv[1:] if not a.startswith("--")]
+    flags = {a for a in argv[1:] if a.startswith("--")}
+    if cmd == "gen-vendir":
+        core.gen_vendir()
+    elif cmd == "sync":
+        core.gen_vendir()
+        core.vendir_sync()
+    elif cmd == "materialize":
+        core.materialize(core.donor(args[0]))
+        core.write_vendored_json()
+    elif cmd == "access-rewrite":
+        core.access_rewrite(core.donor(args[0]))
+    elif cmd == "vendored-json":
+        core.write_vendored_json()
+    elif cmd == "verify":
+        return core.verify()
+    elif cmd == "closure-check":
+        return core.closure_check(args[0] if args else "osaurus", tests="--tests" in flags)
+    elif cmd == "report":
+        return core.report(args, "--ports" in flags)
+    elif cmd == "bump":
+        return core.bump(args[0], args[1], branch="--no-branch" not in flags)
+    elif cmd == "backport":
+        return core.backport(args[0], args[1])
+    elif cmd == "bump-from-renovate":
+        return core.bump_from_renovate()
+    elif cmd == "finish":
+        return core.finish(args[0])
+    else:
+        print(f"unknown command {cmd}\n{__doc__}", file=sys.stderr)
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

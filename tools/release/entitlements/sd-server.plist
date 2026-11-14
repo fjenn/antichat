@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Contents/Helpers/sd-server and Contents/Helpers/sd-cli (sd.cpp helpers of M0.T06/T07; same matrix row as
+     llama-server, ci-release.md §3; M0.T12): hardened runtime only, statically linked. -->
+<plist version="1.0">
+<dict/>
+</plist>

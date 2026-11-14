@@ -1,0 +1,97 @@
+# M1 dev model list (docs/prd/M1.md convention 4, M1.T02). Compiled by tools/dev/gen-dev-catalog.py into
+# catalog/dev-catalog.json (committed, generated; do not edit the JSON). Fetched with `make models-dev TIER=…`
+# through tools/dev/hf-fetch.py --catalog (anonymous, pinned, gated repos refused; D-007).
+# Pins and sizes: docs/research/06-models/model-matrix.md §1 (chat pins), §2.1 (download GB, ctx), §3 (starter),
+# §9.2 (evil-9b). M2 replaces the fetch path with antichat-cli + the signed catalog; this file stays as the dev list.
+# `smaller` chains the memory-fit guard (M1.T12): chat-35b-q4 → chat-g26 → chat-9b-q4 → chat-2b → chat-0.8b.
+version: 1
+models:
+  - key: chat-0.8b
+    slot: chat
+    engine: mlx
+    repo: mlx-community/Qwen3.5-0.8B-MLX-4bit
+    commit: 5d894f8cc4ef3e6c88537bf3746ed262f549da6a
+    files: ["*"]
+    size_gb: 0.65
+    context: 8192        # [ASSUMPTION] model-matrix §3 names no context for the starter; 8K = the T0 row
+    smaller: null
+  - key: chat-2b
+    slot: chat
+    engine: mlx
+    repo: mlx-community/Qwen3.5-2B-MLX-4bit
+    commit: 93760be4f1f69842a46bc13dbdc0f19e291392a3
+    files: ["*"]
+    size_gb: 1.75
+    context: 8192
+    smaller: chat-0.8b
+  - key: chat-9b-q4
+    slot: chat
+    engine: mlx
+    repo: mlx-community/Qwen3.5-9B-MLX-4bit
+    commit: 938d8919941c6e7efd3c7150eff7fe9d12afa631
+    files: ["*"]
+    size_gb: 5.98
+    context: 16384
+    smaller: chat-2b
+  - key: chat-g26
+    slot: chat
+    engine: mlx
+    repo: mlx-community/gemma-4-26b-a4b-it-4bit
+    commit: 0d77464eeb233a2da68ebf9d7dc4edaac7db956d
+    files: ["*"]
+    size_gb: 15.37
+    context: 32768
+    smaller: chat-9b-q4
+  - key: chat-35b-q4
+    slot: chat
+    engine: mlx
+    repo: mlx-community/Qwen3.6-35B-A3B-4bit
+    commit: 38740b847e4cb78f352aba30aa41c76e08e6eb46
+    files: ["*"]
+    size_gb: 20.43
+    context: 65536
+    smaller: chat-g26
+  - key: evil-9b
+    slot: evil
+    engine: llama
+    repo: llmfan46/Qwen3.5-9B-Ultra-Uncensored-Heretic-GGUF
+    commit: b93c15ba249eab3e624576411621d1d1d4696973
+    files:
+      - Qwen3.5-9B-Ultra-Uncensored-Heretic-Q4_K_M.gguf
+      - Qwen3.5-9B-mmproj-BF16.gguf
+      - README.md
+    size_gb: 6.45
+    context: 16384
+    smaller: null        # Evil never falls back to a smaller model (R-227, hardware-tiers §6)
+  - key: evil-35b-q4
+    slot: evil
+    engine: mlx
+    repo: froggeric/Qwen3.6-35B-A3B-Uncensored-Heretic-MLX-4bit
+    commit: 32939a6cef2750f18ccf352443f22f2e4dfe3613
+    files: ["*"]
+    size_gb: 20.43       # [ASSUMPTION] same base + quant as chat-35b-q4; the catalog sizes it from the HF tree
+    context: 65536
+    smaller: null        # Evil never falls back to a smaller model (R-227, hardware-tiers §6)
+  - key: chat-122b
+    slot: chat
+    engine: mlx
+    repo: mlx-community/Qwen3.5-122B-A10B-4bit
+    commit: e9c67b08899964be5fdd069bb1b4bc8907fe68f5
+    files: ["*"]
+    size_gb: 69.6        # [ASSUMPTION] model-matrix §1 "≈ 70 GB"; M7.T03 citation judge (AT-250 c2, T4 Normal chat model)
+    context: 65536
+    smaller: null        # judge only: never a fallback target
+# Non-chat files of the M0 `min` set (embed + voice), taken verbatim from tools/dev/models-m0.json.
+m0_keys: [embed, stt, stt-eou, stt-multi, tts, vad-files, turn]
+# Product catalog ids (catalog/models.yaml) installed under the id the app uses. turn-coreml is the turn model the
+# helper loads (VoiceModelRole.turn); since M2.T12 `models install --id turn` resolves the product's ONNX-only `turn`
+# (M0's dev `turn` was onnx/ + coreml/), so a dev store without turn-coreml had no turn model (M9.T05).
+catalog_keys: [turn-coreml]
+sets:
+  min: [chat-0.8b, embed, stt, tts, vad-files, turn, turn-coreml]
+  T0: [min, chat-2b]
+  T1: [T0, chat-9b-q4, stt-eou]  # M3.T03: live English partials (voice_t1)
+  T3: [T1, chat-g26, chat-35b-q4]
+  evil-T1: [T1, evil-9b]
+  evil-T3: [T3, evil-35b-q4]   # M2.T15 (AT-NFR-C7 T3 warm second variant, AT-239 T3)
+  judge: [chat-122b]           # M7.T03 citation judge (AT-250 c2)

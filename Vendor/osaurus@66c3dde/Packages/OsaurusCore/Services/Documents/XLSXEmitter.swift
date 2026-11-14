@@ -1,0 +1,454 @@
+//
+//  XLSXEmitter.swift
+//  osaurus
+//
+//  Writes the same conservative workbook subset the dependency-free XLSX
+//  reader can parse: sheets, sparse rows, scalar cell values, shared strings,
+//  merged ranges and formula cells (`<f>`, no cached value; the workbook asks
+//  the spreadsheet app to calculate on open). Whether a formula may be written
+//  at all is the export policy's decision (`WorkbookExportPolicy`); styling is
+//  rejected instead of being silently flattened.
+//
+
+import Foundation
+
+public struct XLSXEmitter: DocumentFormatEmitter {
+    public let formatId = "xlsx"
+
+    public init() {}
+
+    public func canEmit(_ document: StructuredDocument) -> Bool {
+        (document.formatId == formatId || document.representation.formatId == formatId)
+            && document.representation.underlying is Workbook
+    }
+
+    public func emit(_ document: StructuredDocument, to url: URL) async throws {
+        guard let workbook = document.representation.underlying as? Workbook else {
+            throw DocumentAdapterError.unsupportedFormat(formatId: document.formatId)
+        }
+
+        do {
+            let data = try Self.packageData(for: workbook)
+            try data.write(to: url, options: .atomic)
+        } catch let error as DocumentAdapterError {
+            throw error
+        } catch {
+            throw DocumentAdapterError.writeFailed(underlying: error.localizedDescription)
+        }
+    }
+
+    /// Synchronous package bytes for a workbook — for callers that already
+    /// run inside a serialized, non-async context (e.g. `db_export`).
+    static func packageBytes(for workbook: Workbook) throws -> Data {
+        try packageData(for: workbook)
+    }
+
+    // MARK: - Package assembly
+
+    private static let spreadsheetNamespace = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    private static let officeRelationshipNamespace =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    private static let packageRelationshipNamespace =
+        "http://schemas.openxmlformats.org/package/2006/relationships"
+    private static let worksheetRelationshipType =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
+    private static let sharedStringsRelationshipType =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"
+    private static let officeDocumentRelationshipType =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
+
+    private static func packageData(for workbook: Workbook) throws -> Data {
+        try validateForExport(workbook)
+        let sheets = workbook.sheets
+
+        var sharedStrings = SharedStringTable()
+        var worksheetEntries: [(path: String, xml: String)] = []
+        for sheet in sheets {
+            worksheetEntries.append(
+                (
+                    path: "xl/worksheets/sheet\(sheet.index + 1).xml",
+                    xml: try worksheetXML(for: sheet, sharedStrings: &sharedStrings)
+                )
+            )
+        }
+
+        var entries: [(path: String, data: Data)] = [
+            (
+                "[Content_Types].xml",
+                try utf8Data(contentTypesXML(sheetCount: sheets.count, hasSharedStrings: !sharedStrings.isEmpty))
+            ),
+            ("_rels/.rels", try utf8Data(rootRelationshipsXML())),
+            ("xl/workbook.xml", try utf8Data(workbookXML(for: sheets))),
+            (
+                "xl/_rels/workbook.xml.rels",
+                try utf8Data(
+                    workbookRelationshipsXML(sheetCount: sheets.count, hasSharedStrings: !sharedStrings.isEmpty)
+                )
+            ),
+        ]
+
+        if !sharedStrings.isEmpty {
+            entries.append(("xl/sharedStrings.xml", try utf8Data(sharedStringsXML(sharedStrings))))
+        }
+
+        for worksheet in worksheetEntries {
+            entries.append((worksheet.path, try utf8Data(worksheet.xml)))
+        }
+
+        var archive = ZipArchiveWriter()
+        do {
+            for entry in entries {
+                try archive.add(path: entry.path, data: entry.data)
+            }
+            return try archive.finalize()
+        } catch let error as ZipArchiveError {
+            throw writeFailed(error.localizedDescription)
+        }
+    }
+
+    private static func validateForExport(_ workbook: Workbook) throws {
+        // Formula cells are policy-gated upstream (`WorkbookWorkflowService.export`); the package writer
+        // writes whatever reached it.
+        let issues = WorkbookWorkflowService.validationIssues(for: workbook, policy: .xlsxExportWithFormulas)
+        guard let firstIssue = issues.first(where: { $0.severity == .error }) else { return }
+        switch firstIssue.code {
+        case .noRenderableCells, .noSheets:
+            throw DocumentAdapterError.emptyContent
+        default:
+            throw DocumentAdapterError.writeFailed(underlying: firstIssue.message)
+        }
+    }
+
+    private static func contentTypesXML(sheetCount: Int, hasSharedStrings: Bool) throws -> String {
+        var overrides: [String] = [
+            """
+            <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+            """
+        ]
+        if hasSharedStrings {
+            overrides.append(
+                """
+                <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+                """
+            )
+        }
+        for index in 1 ... sheetCount {
+            overrides.append(
+                """
+                <Override PartName="/xl/worksheets/sheet\(index).xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+                """
+            )
+        }
+
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+              <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+              <Default Extension="xml" ContentType="application/xml"/>
+              \(overrides.joined(separator: "\n  "))
+            </Types>
+            """
+    }
+
+    private static func rootRelationshipsXML() -> String {
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Relationships xmlns="\(packageRelationshipNamespace)">
+          <Relationship Id="rId1" Type="\(officeDocumentRelationshipType)" Target="xl/workbook.xml"/>
+        </Relationships>
+        """
+    }
+
+    private static func workbookXML(for sheets: [Workbook.Sheet]) throws -> String {
+        let hasFormulas = sheets.contains { sheet in
+            sheet.rows.contains { row in row.cells.contains { $0.formula?.isEmpty == false } }
+        }
+        let sheetXML = try sheets.map { sheet in
+            let escapedName = try escapeXMLAttribute(sheet.name)
+            return """
+                      <sheet name="\(escapedName)" sheetId="\(sheet.index + 1)" r:id="rId\(sheet.index + 1)"/>
+                """
+        }.joined(separator: "\n")
+
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <workbook xmlns="\(spreadsheetNamespace)" xmlns:r="\(officeRelationshipNamespace)">
+              <sheets>
+            \(sheetXML)
+              </sheets>\(hasFormulas ? "\n  <calcPr calcId=\"191029\" fullCalcOnLoad=\"1\"/>" : "")
+            </workbook>
+            """
+    }
+
+    private static func workbookRelationshipsXML(sheetCount: Int, hasSharedStrings: Bool) -> String {
+        var relationships = (1 ... sheetCount).map { index in
+            """
+              <Relationship Id="rId\(index)" Type="\(worksheetRelationshipType)" Target="worksheets/sheet\(index).xml"/>
+            """
+        }
+        if hasSharedStrings {
+            relationships.append(
+                """
+                  <Relationship Id="rId\(sheetCount + 1)" Type="\(sharedStringsRelationshipType)" Target="sharedStrings.xml"/>
+                """
+            )
+        }
+
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="\(packageRelationshipNamespace)">
+            \(relationships.joined(separator: "\n"))
+            </Relationships>
+            """
+    }
+
+    private static func worksheetXML(
+        for sheet: Workbook.Sheet,
+        sharedStrings: inout SharedStringTable
+    ) throws -> String {
+        let rows = try sheet.rows
+            .sorted { $0.number < $1.number }
+            .map { row in try rowXML(row, sheet: sheet, sharedStrings: &sharedStrings) }
+            .joined(separator: "\n")
+        let mergedRanges = try mergeCellsXML(sheet.mergedRanges)
+
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <worksheet xmlns="\(spreadsheetNamespace)">
+              <sheetData>
+            \(rows)
+              </sheetData>
+            \(mergedRanges)
+            </worksheet>
+            """
+    }
+
+    private static func rowXML(
+        _ row: Workbook.Row,
+        sheet: Workbook.Sheet,
+        sharedStrings: inout SharedStringTable
+    ) throws -> String {
+        let cells = try row.cells
+            .sorted { $0.columnNumber < $1.columnNumber }
+            .map { cell in try cellXML(cell, row: row, sheet: sheet, sharedStrings: &sharedStrings) }
+            .joined()
+        return """
+                <row r="\(row.number)">\(cells)</row>
+            """
+    }
+
+    private static func cellXML(
+        _ cell: Workbook.Cell,
+        row: Workbook.Row,
+        sheet: Workbook.Sheet,
+        sharedStrings: inout SharedStringTable
+    ) throws -> String {
+        guard cell.rowNumber == row.number else {
+            throw writeFailed(
+                "\(sheet.name)!\(cell.reference) rowNumber \(cell.rowNumber) does not match row \(row.number)"
+            )
+        }
+        let reference = try validatedCellReference(for: cell, sheetName: sheet.name)
+
+        if let formula = cell.formula, !formula.isEmpty {
+            return #"<c r="\#(reference)"><f>\#(try escapeXMLText(formula))</f></c>"#
+        }
+        switch cell.value {
+        case .empty:
+            return #"<c r="\#(reference)"/>"#
+        case .number(let value):
+            return #"<c r="\#(reference)"><v>\#(try numberText(value))</v></c>"#
+        case .string(let value):
+            let index = sharedStrings.index(for: value)
+            return #"<c r="\#(reference)" t="s"><v>\#(index)</v></c>"#
+        case .bool(let value):
+            return #"<c r="\#(reference)" t="b"><v>\#(value ? "1" : "0")</v></c>"#
+        }
+    }
+
+    private static func mergeCellsXML(_ ranges: [Workbook.CellRange]) throws -> String {
+        guard !ranges.isEmpty else { return "" }
+        let cells = try ranges.map { range in
+            guard isValidCellRangeReference(range.reference) else {
+                throw writeFailed("Invalid merged range '\(range.reference)'")
+            }
+            return #"  <mergeCell ref="\#(try escapeXMLAttribute(range.reference))"/>"#
+        }.joined(separator: "\n")
+
+        return """
+              <mergeCells count="\(ranges.count)">
+            \(cells)
+              </mergeCells>
+            """
+    }
+
+    private static func sharedStringsXML(_ table: SharedStringTable) throws -> String {
+        let items = try table.values.map { value in
+            let escaped = try escapeXMLText(value)
+            let space = needsPreservedXMLSpace(value) ? #" xml:space="preserve""# : ""
+            return """
+                  <si><t\(space)>\(escaped)</t></si>
+                """
+        }.joined(separator: "\n")
+
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sst xmlns="\(spreadsheetNamespace)" count="\(table.totalReferences)" uniqueCount="\(table.values.count)">
+            \(items)
+            </sst>
+            """
+    }
+
+    // MARK: - Validation
+
+    private static let maxRows = 1_048_576
+    private static let maxColumns = 16_384
+
+    private static func validatedCellReference(for cell: Workbook.Cell, sheetName: String) throws -> String {
+        let expected = cellReference(columnNumber: cell.columnNumber, rowNumber: cell.rowNumber)
+        guard let parsed = parseCellReference(cell.reference),
+            parsed.columnNumber == cell.columnNumber,
+            parsed.rowNumber == cell.rowNumber,
+            cell.reference.uppercased() == expected
+        else {
+            throw writeFailed("\(sheetName)!\(cell.reference) does not match row/column \(expected)")
+        }
+        return expected
+    }
+
+    private static func isValidCellRangeReference(_ reference: String) -> Bool {
+        let endpoints = reference.split(separator: ":", omittingEmptySubsequences: false)
+        guard endpoints.count == 1 || endpoints.count == 2 else { return false }
+        return endpoints.allSatisfy { parseCellReference(String($0)) != nil }
+    }
+
+    private static func parseCellReference(_ reference: String) -> (columnNumber: Int, rowNumber: Int)? {
+        var column = 0
+        var rowText = ""
+        var readingRow = false
+
+        for scalar in reference.unicodeScalars {
+            if CharacterSet.letters.contains(scalar), !readingRow {
+                let value = Int(scalar.value)
+                let upperA = Int(UnicodeScalar("A").value)
+                let lowerA = Int(UnicodeScalar("a").value)
+                if value >= upperA, value <= upperA + 25 {
+                    column = column * 26 + (value - upperA + 1)
+                } else if value >= lowerA, value <= lowerA + 25 {
+                    column = column * 26 + (value - lowerA + 1)
+                } else {
+                    return nil
+                }
+            } else if CharacterSet.decimalDigits.contains(scalar) {
+                readingRow = true
+                rowText.unicodeScalars.append(scalar)
+            } else {
+                return nil
+            }
+        }
+
+        guard column > 0, column <= maxColumns, let row = Int(rowText), row > 0, row <= maxRows else {
+            return nil
+        }
+        return (column, row)
+    }
+
+    private static func cellReference(columnNumber: Int, rowNumber: Int) -> String {
+        var column = columnNumber
+        var letters = ""
+        while column > 0 {
+            let remainder = (column - 1) % 26
+            let scalar = UnicodeScalar(65 + remainder)!
+            letters.insert(Character(scalar), at: letters.startIndex)
+            column = (column - 1) / 26
+        }
+        return "\(letters)\(rowNumber)"
+    }
+
+    private static func numberText(_ value: Double) throws -> String {
+        guard value.isFinite else {
+            throw writeFailed("XLSX emitter cannot write non-finite numbers")
+        }
+        let isIntegerInInt64Range =
+            value >= Double(Int64.min)
+            && value <= Double(Int64.max)
+            && value.rounded(.towardZero) == value
+        if isIntegerInInt64Range {
+            return String(Int64(value))
+        }
+        return String(value)
+    }
+
+    // MARK: - XML escaping
+
+    private static func utf8Data(_ xml: String) throws -> Data {
+        guard let data = xml.data(using: .utf8) else {
+            throw writeFailed("XML could not be encoded as UTF-8")
+        }
+        return data
+    }
+
+    private static func escapeXMLText(_ value: String) throws -> String {
+        try validateXMLCharacters(value)
+        return
+            value
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+    }
+
+    private static func escapeXMLAttribute(_ value: String) throws -> String {
+        try validateXMLCharacters(value)
+        return try escapeXMLText(value)
+            .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "'", with: "&apos;")
+    }
+
+    private static func validateXMLCharacters(_ value: String) throws {
+        for scalar in value.unicodeScalars where !isAllowedXMLCharacter(scalar) {
+            throw writeFailed("String contains a character XML 1.0 cannot encode")
+        }
+    }
+
+    private static func isAllowedXMLCharacter(_ scalar: UnicodeScalar) -> Bool {
+        switch scalar.value {
+        case 0x9, 0xA, 0xD:
+            return true
+        case 0x20 ... 0xD7FF, 0xE000 ... 0xFFFD, 0x10000 ... 0x10FFFF:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private static func needsPreservedXMLSpace(_ value: String) -> Bool {
+        guard let first = value.unicodeScalars.first,
+            let last = value.unicodeScalars.last
+        else { return false }
+        return CharacterSet.whitespacesAndNewlines.contains(first)
+            || CharacterSet.whitespacesAndNewlines.contains(last)
+    }
+
+    private static func writeFailed(_ message: String) -> DocumentAdapterError {
+        .writeFailed(underlying: message)
+    }
+}
+
+private struct SharedStringTable {
+    private var indices: [String: Int] = [:]
+    private(set) var values: [String] = []
+    private(set) var totalReferences = 0
+
+    var isEmpty: Bool { values.isEmpty }
+
+    mutating func index(for value: String) -> Int {
+        totalReferences += 1
+        if let index = indices[value] {
+            return index
+        }
+        let index = values.count
+        indices[value] = index
+        values.append(value)
+        return index
+    }
+}

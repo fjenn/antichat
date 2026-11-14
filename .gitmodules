@@ -1,0 +1,6 @@
+[submodule "Binaries/llama.cpp"]
+	path = Binaries/llama.cpp
+	url = https://github.com/ggml-org/llama.cpp
+[submodule "Binaries/sdcpp"]
+	path = Binaries/sdcpp
+	url = https://github.com/leejet/stable-diffusion.cpp

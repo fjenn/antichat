@@ -1,0 +1,7 @@
+{
+  "benchmark": "PaletteSearch",
+  "metric": "wallClock",
+  "p99_ms": 200,
+  "source": "NFR-U10 (docs/research/02-target/nfr.md: ⌘K results ≤ 200 ms p95 for 10,000 local chats); M1.T11 step 6 sets the bench bar at p99",
+  "fixture": "build/fixtures/big-10k.sqlite (python3 -I tools/fixtures/gen-chats.py --chats 10000 --long 1:1000)"
+}

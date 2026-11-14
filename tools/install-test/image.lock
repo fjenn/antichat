@@ -1,0 +1,5 @@
+# M8.T11: the clean macOS 26 VM image for make test-install ENV=tart (tools/install-test/tart-run.sh).
+# source: ghcr.io/cirruslabs/macos-tahoe-base:latest  →  local name antichat-clean-26.x
+# digest: sha256:65c3133a633fda8753cf1f71f2d55727792d534a2125b0032466563dcc8e58fd (pulled 2026-11-08 with Tart 2.41.1;
+#   50 GB disk, 33 GB on disk). tools/install-test/vm-release-smoke.sh clones it per run and deletes the clone.
+# Record `tart list --format json` digest here at the first pull.

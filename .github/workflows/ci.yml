@@ -1,0 +1,119 @@
+# CI (ci-release.md §1–§2; docs/prd/M1.md M1.T02). Jobs: audit → unit → integration-stub → ui-smoke, all on the
+# self-hosted M5 Max runner. `audit` is a required check (R-241 runs on every commit from M1 on, PRD §1.4 rule 7).
+# Forks never run on the self-hosted runner. Until the runner is registered (K-NEW-ARCH-3, a human step), the
+# same make targets run locally and their logs are attached under build/at/ (PRD §9).
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+env:
+  ANTICHAT_DEV_CONTAINER: ${{ github.workspace }}/../container
+jobs:
+  audit:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: false }
+      - name: pins
+        run: python3 -I tools/ci/pins-verify.py
+      - name: make audit (import graph, R-241, forbidden deps, patch-lint, copy-sync, URLSession lint, licences)
+        run: make audit
+      - name: audit self-tests (each audit fails on its seeded violation)
+        run: make audit-selftest
+  unit:
+    needs: audit
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test-unit
+  integration-stub:
+    needs: unit
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - run: make binaries CHECK=1
+      - run: make test-integration-stub
+  ui-smoke:
+    needs: integration-stub
+    runs-on: [self-hosted, macOS, ARM64, gpu]
+    concurrency: { group: gpu }
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - run: make binaries CHECK=1
+      - run: make test-ui FILTER=LaunchTests
+  # M1.T13 step 6: engine conformance (AT-229) + tool eval (AT-231) gate Renovate `engines` PRs and `Binaries/`
+  # bumps (renovate.json labels them `needs-conformance`; a Binaries/ submodule bump gets the label by hand).
+  # Required check for those PRs (branch protection, human step); T1 rows ≈ 45 min on the M5 Max (DoD ≤ 60 min).
+  conformance:
+    needs: integration-stub
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'needs-conformance')
+    runs-on: [self-hosted, macOS, ARM64, gpu]
+    concurrency: { group: gpu }
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - run: make binaries CHECK=1
+      - run: make test-unit FILTER='EventOrderingTests|ToolCallRecoveryConformanceTests|GrammarBuilderTests'
+      - run: make test-integration-real TIER=T1 FILTER=ConformanceSuite
+      - run: make test-integration-real TIER=T3 FILTER=ConformanceSuite
+      - run: make test-integration-real TIER=evil-T1 FILTER=ConformanceSuite
+      - run: make test-integration-real TIER=T1 FILTER=ToolEval
+      - run: python3 -I tools/at/conformance-report.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conformance
+          path: |
+            build/at/AT-229
+            build/at/AT-231
+  # R-285 AC7 (M4.T02 step 7): ChildSafetyCheck tests and calibration on every change to the package or its models.
+  # Job-level path filters do not exist in Actions, so a first step diffs against the base and skips otherwise.
+  child-safety:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, macOS, ARM64]
+    env:
+      CSC_PATHS: "Packages/ChildSafetyCheck/** catalog/models.yaml"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, submodules: false }
+      - id: changed
+        name: paths Packages/ChildSafetyCheck/**, catalog/models.yaml
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if git diff --name-only "$base" HEAD -- 'Packages/ChildSafetyCheck/' 'catalog/models.yaml' | grep -q .; then
+            echo "hit=1" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.changed.outputs.hit == '1'
+        name: swift test (stub detectors, mocked scores only; D-017)
+        run: swift test --package-path Packages/ChildSafetyCheck --parallel --disable-keychain
+  child-safety-calibration:
+    needs: child-safety
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, macOS, ARM64, gpu]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, submodules: false }
+      - id: changed
+        name: paths Packages/ChildSafetyCheck/**, catalog/models.yaml
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if git diff --name-only "$base" HEAD -- 'Packages/ChildSafetyCheck/' 'catalog/models.yaml' | grep -q .; then
+            echo "hit=1" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.changed.outputs.hit == '1'
+        name: calibration on the runner's private lawful proxies (aggregates only; fails on an F1/F2/F6/F7 regression)
+        run: |
+          python3 -I tools/csc/calibrate.py run
+          for at in F1 F2 F6; do python3 -I tools/csc/calibrate.py eval --at "$at"; done
+          make perf METRIC=F7 TIER=T1

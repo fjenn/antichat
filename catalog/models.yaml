@@ -1,0 +1,320 @@
+# M2.T04 (R-220, R-300; blueprint E §E.2.2): one entry per model key the signed catalog ships.
+# Source: docs/research/06-models/model-matrix.md §1 (Normal pins), §2 (roles), §9.2 (Evil pins), §11 (D-016/D-018).
+# `catalog-tool build` adds per file: size + sha256 (HF `lfs.oid`, or hashed once anonymously), the HF commit URL as
+# `sources[0]`, and `footprint.weights_gb` = Σ sizes / 1e9. Everything else here is authored.
+#   files      include globs (`*` also matches `/`); `.gitattributes` is never shipped.
+#   footprint  kv_per_token_kb, overhead_gb, active_gb (decode bytes for the speed guard; default = weights) —
+#              back-computed from the model-matrix §2.1 / §9.3 resident column (resident = w + kv×ctx/1e6 + o).
+#   requires   companion entries always installed with this one (text encoder, VAE, …).
+# Not in the catalog yet (unassigned in M2; their tasks add them): stt-fb, tts-stream (no files at the
+# pinned commit), tts-multi (no licence tag), bg/bg-lite (Apple Vision is the default),
+# img-mlx, chat-lfm3, the *-alt Evil builds.
+defaults:
+  apache: &apache {license: Apache-2.0, license_url: "https://www.apache.org/licenses/LICENSE-2.0", noncommercial_ok: false}
+  mit: &mit {license: MIT, license_url: "https://opensource.org/license/mit", noncommercial_ok: false}
+  ccby: &ccby {license: CC-BY-4.0, license_url: "https://creativecommons.org/licenses/by/4.0/", noncommercial_ok: false}
+  mlx: &mlx ["*.safetensors", "*.json", "*.jinja", "*.txt", "README.md"]
+
+models:
+  # ---- chat (Normal), mlx-swift-lm ----
+  - {key: chat-0.8b, repo: mlx-community/Qwen3.5-0.8B-MLX-4bit, commit: 5d894f8cc4ef3e6c88537bf3746ed262f549da6a, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 8192, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 12, overhead_gb: 0.3, active_gb: 0.45},
+     family: qwen3.5-0.8b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-0.8B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-2b, repo: mlx-community/Qwen3.5-2B-MLX-4bit, commit: 93760be4f1f69842a46bc13dbdc0f19e291392a3, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 8192, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 12, overhead_gb: 0.45, active_gb: 1.5},
+     family: qwen3.5-2b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-2B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-4b, repo: mlx-community/Qwen3.5-4B-MLX-4bit, commit: 32f3e8ecf65426fc3306969496342d504bfa13f3, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 16384, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 33, overhead_gb: 0.4, active_gb: 2.6},
+     family: qwen3.5-4b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-4B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-9b-q4, repo: mlx-community/Qwen3.5-9B-MLX-4bit, commit: 938d8919941c6e7efd3c7150eff7fe9d12afa631, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 16384, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 32, overhead_gb: 0.5, active_gb: 5.1},
+     family: qwen3.5-9b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-9B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-9b-q8, repo: mlx-community/Qwen3.5-9B-MLX-8bit, commit: 84f7c2deea248d8df56240f88102def51c7ed5d6, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 8bit, context_default: 32768, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 32, overhead_gb: 0.5, active_gb: 9.0},
+     family: qwen3.5-9b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-9B © Alibaba Cloud (Qwen team); MLX 8-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-g12, repo: mlx-community/gemma-4-12B-it-4bit, commit: 73bcf09092aa277861d5a191b989b666f7f32e8f, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 16384, context_max: 131072,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 40, overhead_gb: 0.6, active_gb: 6.0},
+     family: gemma-4-12b, chat_template: gemma4, shared_group: gemma4-tokenizer, <<: *apache,
+     # The repo carries no licence tag; Gemma 4 is Apache-2.0 since April 2026 (model-matrix §9.1).
+     attribution: "Gemma 4 12B © Google; MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-g26, repo: mlx-community/gemma-4-26b-a4b-it-4bit, commit: 0d77464eeb233a2da68ebf9d7dc4edaac7db956d, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 32768, context_max: 262144,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 28, overhead_gb: 1.0, active_gb: 2.5},
+     family: gemma-4-26b-a4b, chat_template: gemma4, shared_group: gemma4-tokenizer, <<: *apache,
+     attribution: "Gemma 4 26B-A4B © Google; MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-35b-q4, repo: mlx-community/Qwen3.6-35B-A3B-4bit, commit: 38740b847e4cb78f352aba30aa41c76e08e6eb46, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 21, overhead_gb: 1.0, active_gb: 2.0},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-35b-q6, repo: mlx-community/Qwen3.6-35B-A3B-6bit, commit: cb7e092ef8efe540bc3672c8929c4adbe5f4f759, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 6bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 21, overhead_gb: 1.0, active_gb: 2.6},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); MLX 6-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-35b-q8, repo: mlx-community/Qwen3.6-35B-A3B-8bit, commit: e06a74e6236a60c8367e1a3214e83d8b61b637b0, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 8bit, context_default: 131072, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 20, overhead_gb: 1.0, active_gb: 3.4},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); MLX 8-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-27b-q4, repo: mlx-community/Qwen3.8-27B-4bit, commit: 10c35caafbb80f7dc6a7a432cdd11af10a6d4818, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 64, overhead_gb: 1.0, active_gb: 14.5},
+     family: qwen3.8-27b, chat_template: qwen3.8, shared_group: qwen38-tokenizer, <<: *apache,
+     attribution: "Qwen3.8-27B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+  - {key: chat-122b, repo: mlx-community/Qwen3.5-122B-A10B-4bit, commit: e9c67b08899964be5fdd069bb1b4bc8907fe68f5, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 24, overhead_gb: 2.0, active_gb: 6.5},
+     family: qwen3.5-122b-a10b, chat_template: qwen3.5, shared_group: qwen35-tokenizer, <<: *apache,
+     attribution: "Qwen3.5-122B-A10B © Alibaba Cloud (Qwen team); MLX 4-bit conversion by mlx-community", modification_notice: quantized}
+
+  # ---- chat (Evil), §9.2: llama.cpp (GGUF + mmproj via llama-server) or mlx-swift-lm ----
+  - {key: evil-2b, repo: tvall43/Qwen3.5-2B-heretic-gguf, commit: b49fa6be881f769afc9c09402b78808fe8715a95,
+     files: [Qwen3.5-2B-heretic-Q4_K_M.gguf, mmproj-F16.gguf, README.md],
+     role: chat, engine: llama.cpp, format: gguf, quant: Q4_K_M, context_default: 8192, context_max: 262144,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 12, overhead_gb: 0.45, active_gb: 1.27},
+     family: qwen3.5-2b, chat_template: qwen3.5, <<: *apache,
+     attribution: "Qwen3.5-2B © Alibaba Cloud (Qwen team); Heretic v1.2.0 ablation and GGUF by tvall43", modification_notice: abliterated+quantized}
+  - {key: evil-4b, repo: mradermacher/Huihui-Qwen3.5-4B-abliterated-GGUF, commit: 9d3aebb998fcf084086a3d1c60c31035fcfbf8e1,
+     files: [Huihui-Qwen3.5-4B-abliterated.Q4_K_M.gguf, Huihui-Qwen3.5-4B-abliterated.mmproj-Q8_0.gguf, README.md],
+     role: chat, engine: llama.cpp, format: gguf, quant: Q4_K_M, context_default: 16384, context_max: 262144,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 33, overhead_gb: 0.4, active_gb: 2.71},
+     family: qwen3.5-4b, chat_template: qwen3.5, <<: *apache,
+     attribution: "Qwen3.5-4B © Alibaba Cloud (Qwen team); abliteration by huihui-ai; GGUF by mradermacher", modification_notice: abliterated+quantized}
+  - {key: evil-9b, repo: llmfan46/Qwen3.5-9B-Ultra-Uncensored-Heretic-GGUF, commit: b93c15ba249eab3e624576411621d1d1d4696973,
+     files: [Qwen3.5-9B-Ultra-Uncensored-Heretic-Q4_K_M.gguf, Qwen3.5-9B-mmproj-BF16.gguf, README.md],
+     role: chat, engine: llama.cpp, format: gguf, quant: Q4_K_M, context_default: 16384, context_max: 262144,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 32, overhead_gb: 0.5, active_gb: 5.53},
+     family: qwen3.5-9b, chat_template: qwen3.5, <<: *apache,
+     attribution: "Qwen3.5-9B © Alibaba Cloud (Qwen team); Heretic v1.2.0 ARA ablation and GGUF by llmfan46", modification_notice: abliterated+quantized}
+  - {key: evil-g26, repo: mlx-community/gemma-4-26B-A4B-it-heretic-4bit, commit: 1f1ae59040a78b1d717618f44c82757255925d26, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 32768, context_max: 262144,
+     capabilities: [vision, tools], footprint: {kv_per_token_kb: 28, overhead_gb: 1.0, active_gb: 2.5},
+     family: gemma-4-26b-a4b, chat_template: gemma4, shared_group: gemma4-tokenizer, <<: *apache,
+     attribution: "Gemma 4 26B-A4B © Google; Heretic ablation by coder3101; MLX 4-bit by mlx-community", modification_notice: abliterated+quantized}
+  - {key: evil-35b-q4, repo: froggeric/Qwen3.6-35B-A3B-Uncensored-Heretic-MLX-4bit, commit: 32939a6cef2750f18ccf352443f22f2e4dfe3613, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 21, overhead_gb: 1.0, active_gb: 2.0},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); Heretic MPOA ablation by llmfan46; MLX 4-bit by froggeric", modification_notice: abliterated+quantized}
+  - {key: evil-35b-q6, repo: froggeric/Qwen3.6-35B-A3B-Uncensored-Heretic-MLX-6bit, commit: 703a3ab7a228eef470240f007863acc079c5f283, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 6bit, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 21, overhead_gb: 1.0, active_gb: 2.6},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); Heretic MPOA ablation by llmfan46; MLX 6-bit by froggeric", modification_notice: abliterated+quantized}
+  - {key: evil-35b-q8, repo: froggeric/Qwen3.6-35B-A3B-Uncensored-Heretic-MLX-8bit, commit: cde01a657e7dd9d6b3033cc3821cc78a928a7a0c, files: *mlx,
+     role: chat, engine: mlx-swift-lm, format: mlx-safetensors, quant: 8bit, context_default: 131072, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 20, overhead_gb: 1.0, active_gb: 3.4},
+     family: qwen3.6-35b-a3b, chat_template: qwen3.6, shared_group: qwen36-tokenizer, <<: *apache,
+     attribution: "Qwen3.6-35B-A3B © Alibaba Cloud (Qwen team); Heretic MPOA ablation by llmfan46; MLX 8-bit by froggeric", modification_notice: abliterated+quantized}
+  - {key: evil-122b, repo: llmfan46/Qwen3.5-122B-A10B-Uncensored-Heretic-Native-MTP-Preserved-GGUF, commit: 5d7ec1c1d8b53d35f2d6ee3bb7c900b9ba4004b1,
+     files: [Qwen3.5-122B-A10B-Uncensored-Heretic-Native-MTP-Preserved-Q4_K_M.gguf, mmproj/Qwen3.5-122B-A10B-Uncensored-Heretic-Native-MTP-Preserved-mmproj-BF16.gguf, README.md],
+     role: chat, engine: llama.cpp, format: gguf, quant: Q4_K_M, context_default: 65536, context_max: 262144,
+     capabilities: [vision, tools, reasoning_toggle], footprint: {kv_per_token_kb: 12, overhead_gb: 2.0, active_gb: 7.0},
+     family: qwen3.5-122b-a10b, chat_template: qwen3.5, <<: *apache,
+     attribution: "Qwen3.5-122B-A10B © Alibaba Cloud (Qwen team); Heretic ablation and GGUF by llmfan46", modification_notice: abliterated+quantized}
+
+  # ---- embeddings / reranker ----
+  - {key: embed, repo: mlx-community/Qwen3-Embedding-0.6B-4bit-DWQ, commit: 6c3ae70858513f1a78e9cdca3cae330d9075cd2a, files: *mlx,
+     role: embed, engine: mlx-swift-lm, format: mlx-safetensors, quant: 4bit-DWQ, context_default: 8192, context_max: 32768,
+     capabilities: [], footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen3-Embedding-0.6B © Alibaba Cloud (Qwen team); MLX 4-bit DWQ by mlx-community", modification_notice: quantized}
+  - {key: embed-fb, repo: mlx-community/Qwen3-Embedding-0.6B-8bit, commit: 407ad2329cd30702720aafe83f74a1ba30fdfbca, files: *mlx,
+     role: embed, engine: mlx-swift-lm, format: mlx-safetensors, quant: 8bit, context_default: 8192, context_max: 32768,
+     capabilities: [], footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen3-Embedding-0.6B © Alibaba Cloud (Qwen team); MLX 8-bit by mlx-community", modification_notice: quantized}
+  - {key: rerank, repo: Qwen/Qwen3-Reranker-0.6B, commit: e61197ed45024b0ed8a2d74b80b4d909f1255473, files: *mlx,
+     role: rerank, engine: mlx-swift-lm, format: safetensors, quant: bf16, context_default: 8192, context_max: 32768,
+     capabilities: [], footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen3-Reranker-0.6B © Alibaba Cloud (Qwen team)", modification_notice: none}
+
+  # AT-250 c2 (A-M7-T03c): the per-sentence citation entailment check of web answers. MiniCheck-RoBERTa-Large
+  # (Tang et al. 2024, MIT) in the third-party Core ML packaging (fp16, 1 × 512, `support_prob`; CPU + ANE, never the
+  # GPU). Chosen over HHEM-2.1, ModernBERT/DeBERTa NLI and mDeBERTa on the independently labelled AT-250 spot-checks
+  # (AUC 0.85 / 0.89 held out vs ≤ 0.81). English-only: other answers keep the deterministic check.
+  - {key: cite-check, repo: simst/MiniCheck-RoBERTa-Large-CoreML, commit: 93a71197b718c83fef1368b6334cc71db68ef04d,
+     files: ["MiniCheckRoBERTa.mlpackage/*", tokenizer.json, tokenizer_config.json, special_tokens_map.json, vocab.json,
+             merges.txt, README.md],
+     role: cite_check, engine: coreml, format: mlpackage, quant: fp16, footprint: {kv_per_token_kb: 0, overhead_gb: 0.1},
+     <<: *mit, attribution: "MiniCheck-RoBERTa-Large © Liyan Tang et al. (MIT); Core ML conversion by simst", modification_notice: converted}
+
+  # ---- voice (Core ML on the ANE via FluidAudio; ONNX turn detector) ----
+  - {key: stt, repo: FluidInference/parakeet-ultra-coreml, commit: 95eaa59a39d4394f047a4dc5cce480388a60d1b6,
+     files: ["*.mlmodelc/*", "*.json", README.md], role: stt, engine: coreml, format: mlmodelc, quant: fp16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *ccby,
+     attribution: "Parakeet © NVIDIA (CC-BY-4.0); Core ML conversion by FluidInference", modification_notice: converted}
+  - {key: stt-eou, repo: FluidInference/parakeet-realtime-eou-120m-coreml, commit: 40a23f4c0b333aa17ad8c0f2ea47ec2347f2f355,
+     # [ASSUMPTION] the 160 ms chunk set is the live-English default; M3 (Voice) confirms it against FluidAudio.
+     files: ["160ms/*.mlmodelc/*", 160ms/vocab.json, config.json, metadata.json, tokenizer.model, vocab.json, README.md],
+     role: stt, engine: coreml, format: mlmodelc, quant: fp16, footprint: {kv_per_token_kb: 0, overhead_gb: 0},
+     license: NVIDIA-Open-Model-License, license_url: "https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/",
+     noncommercial_ok: false, attribution: "Parakeet realtime EOU 120M © NVIDIA; Core ML conversion by FluidInference", modification_notice: converted}
+  - {key: stt-multi, repo: argmaxinc/whisperkit-coreml, commit: 0f63a7800b00dd0226abd051b906c246e1907482,
+     # M3.T05: WhisperKit large-v3 turbo 632 MB, languages outside Parakeet's 25 (role stt_multi, on demand). The
+     # tokenizer (openai/whisper-large-v3) is a separate pinned key the model requires (WhisperKit loads it locally).
+     files: ["openai_whisper-large-v3-v20240930_turbo_632MB/*"], requires: [stt-multi-tok],
+     role: stt_multi, engine: coreml, format: mlmodelc, quant: fp16, footprint: {kv_per_token_kb: 0, overhead_gb: 0.4},
+     license: MIT, license_url: "https://opensource.org/license/mit", noncommercial_ok: false,
+     attribution: "Whisper © OpenAI (MIT); Core ML conversion by Argmax (MIT)", modification_notice: converted}
+  - {key: stt-multi-tok, repo: openai/whisper-large-v3, commit: 06f233fe06e710322aca913c1bc4249a0d71fce1,
+     files: [tokenizer.json, tokenizer_config.json, vocab.json, merges.txt, special_tokens_map.json, added_tokens.json, normalizer.json],
+     # format: the tokenizer JSON files of the stt-multi Core ML model (no weights; NFR-SEC2 safe formats only).
+     role: stt_multi, engine: coreml, format: mlmodelc, quant: none, footprint: {kv_per_token_kb: 0, overhead_gb: 0},
+     license: Apache-2.0, license_url: "https://www.apache.org/licenses/LICENSE-2.0", noncommercial_ok: false,
+     attribution: "Whisper tokenizer © OpenAI (Apache-2.0)", modification_notice: none}
+  - {key: tts, repo: FluidInference/kokoro-82m-coreml, commit: 2568276a60ff6e7f312afce3dc9e3f07521cb48d,
+     # FluidAudio 0.18.0 English KokoroAne set (tools/dev/models-m0.json); other languages are on-demand downloads.
+     files: ["ANE/*", "G2PEncoder.mlmodelc/*", "G2PDecoder.mlmodelc/*", g2p_vocab.json, vocab_index.json, config.json,
+             us_lexicon_cache.json, us_gold.json, us_silver.json, README.md,
+            # M3.T08 (R-053 ≥ 6 voices): Kokoro v1.0 English style vectors (JSON float arrays), converted to the ANE
+            # chain's flat fp32 .bin at load (FluidAudio KokoroAneVoicePack.load(fromJSON:)); af_heart ships as .bin.
+            voices/af_bella.json, voices/af_nicole.json, voices/af_sarah.json, voices/am_adam.json, voices/am_michael.json, voices/bf_emma.json, voices/bm_george.json],
+     raw_tensor_files: ["ANE/*.bin"],  # voice style vectors (raw float32), read by FluidAudio, not pickle
+     role: tts, engine: coreml, format: mlmodelc, quant: fp16, footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Kokoro-82M © hexgrad (Apache-2.0); Core ML conversion by FluidInference", modification_notice: converted}
+  - {key: vad-files, repo: FluidInference/silero-vad-coreml, commit: b419383c55c110e2c9271fa6ee0ea83d03c70d96,
+     files: ["*.mlmodelc/*", config.json, README.md], role: vad, engine: coreml, format: mlmodelc, quant: fp16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *mit,
+     attribution: "Silero VAD © Silero Team (MIT); Core ML conversion by FluidInference", modification_notice: converted}
+  - {key: turn, repo: pipecat-ai/smart-turn-v3, commit: f766f81d3cfdf7737ac64aad813d91bbfd56bf93,
+     files: [smart-turn-v3.2-cpu.onnx, README.md], role: vad, engine: onnx, format: onnx, quant: int8,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, license: BSD-2-Clause, license_url: "https://opensource.org/license/bsd-2-clause",
+     noncommercial_ok: false, attribution: "Smart Turn v3.2 © Daily / pipecat-ai", modification_notice: none}
+  # M3.T01 (A-M3-01): the same v3.2 weights in the Core ML packaging the vendored speech-swift SmartTurn.swift loads
+  # (third-party conversion, ungated, BSD-2); runs on the ANE/CPU beside Silero, never on the GPU.
+  - {key: turn-coreml, repo: aufklarer/Smart-Turn-v3.2-CoreML, commit: 75f069717f500947195fa1945c46ddb472559cff,
+     files: ["smart_turn.mlmodelc/*", config.json, LICENSE, README.md], role: vad, engine: coreml, format: mlmodelc, quant: fp16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, license: BSD-2-Clause, license_url: "https://opensource.org/license/bsd-2-clause",
+     noncommercial_ok: false, attribution: "Smart Turn v3.2 © Daily / pipecat-ai; Core ML conversion by aufklarer", modification_notice: converted}
+
+  # ---- photo (sd.cpp GGUF + safetensors VAEs; Core ML erase) ----
+  - {key: img-klein-q4, repo: leejet/FLUX.2-klein-4B-GGUF, commit: 3b1f5a9dc3abb32238b053aeb3d823c30afdacbd,
+     files: [flux-2-klein-4b-Q4_0.gguf, README.md], role: image, engine: sd.cpp, format: gguf, quant: Q4_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.5}, requires: [img-te-q4, img-vae-flux2], <<: *apache,
+     attribution: "FLUX.2 [klein] 4B © Black Forest Labs (Apache-2.0); GGUF by leejet", modification_notice: quantized}
+  - {key: img-klein-q8, repo: leejet/FLUX.2-klein-4B-GGUF, commit: 3b1f5a9dc3abb32238b053aeb3d823c30afdacbd,
+     files: [flux-2-klein-4b-Q8_0.gguf, README.md], role: image, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.5}, requires: [img-te-q8, img-vae-flux2], <<: *apache,
+     attribution: "FLUX.2 [klein] 4B © Black Forest Labs (Apache-2.0); GGUF by leejet", modification_notice: quantized}
+  - {key: img-zit-q8, repo: leejet/Z-Image-Turbo-GGUF, commit: c61c0e422dc8b541b7548cf33a4ef8302b0f8085,
+     files: [z_image_turbo-Q8_0.gguf, README.md], role: image, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.5}, requires: [img-te-q8, img-vae-zit], <<: *apache,
+     attribution: "Z-Image-Turbo © Tongyi-MAI (Apache-2.0); GGUF by leejet", modification_notice: quantized}
+  - {key: img-te-q4, repo: unsloth/Qwen3-4B-GGUF, commit: 22c9fc8a8c7700b76a1789366280a6a5a1ad1120,
+     files: [Qwen3-4B-Q4_K_M.gguf], role: image, engine: sd.cpp, format: gguf, quant: Q4_K_M,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, shared_group: img-te, <<: *apache,
+     attribution: "Qwen3-4B © Alibaba Cloud (Qwen team); GGUF by unsloth", modification_notice: quantized}
+  - {key: img-te-q8, repo: unsloth/Qwen3-4B-GGUF, commit: 22c9fc8a8c7700b76a1789366280a6a5a1ad1120,
+     files: [Qwen3-4B-Q8_0.gguf], role: image, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, shared_group: img-te, <<: *apache,
+     attribution: "Qwen3-4B © Alibaba Cloud (Qwen team); GGUF by unsloth", modification_notice: quantized}
+  - {key: img-vae-flux2, repo: Comfy-Org/Flux-2-Klein-4B, commit: 5b3abca5c0dc1ecd4eaf3340868d09063fc1c965,
+     files: [split_files/vae/flux2-vae.safetensors], role: image, engine: sd.cpp, format: safetensors, quant: bf16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "FLUX.2 VAE © Black Forest Labs (Apache-2.0); split by Comfy-Org", modification_notice: none}
+  - {key: img-vae-zit, repo: Comfy-Org/z_image_turbo, commit: 6fc90a3b1b653e935a0d175e260736de25b84df5,
+     files: [split_files/vae/ae.safetensors], role: image, engine: sd.cpp, format: safetensors, quant: bf16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Z-Image VAE © Tongyi-MAI (Apache-2.0); split by Comfy-Org", modification_notice: none}
+  - {key: img-edit-q4, repo: unsloth/Qwen-Image-Edit-2511-GGUF, commit: 52838251db242ddd8e8d0118de36c71006d7c397,
+     files: [qwen-image-edit-2511-Q4_K_M.gguf, README.md], role: image_edit, engine: sd.cpp, format: gguf, quant: Q4_K_M,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.5}, requires: [img-edit-lightning, img-edit-te, img-vae-qwen], <<: *apache,
+     attribution: "Qwen-Image-Edit-2511 © Alibaba Cloud (Qwen team); GGUF by unsloth", modification_notice: quantized}
+  - {key: img-edit-q8, repo: unsloth/Qwen-Image-Edit-2511-GGUF, commit: 52838251db242ddd8e8d0118de36c71006d7c397,
+     files: [qwen-image-edit-2511-Q8_0.gguf, README.md], role: image_edit, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.5}, requires: [img-edit-lightning, img-edit-te, img-vae-qwen], <<: *apache,
+     attribution: "Qwen-Image-Edit-2511 © Alibaba Cloud (Qwen team); GGUF by unsloth", modification_notice: quantized}
+  - {key: img-edit-lightning, repo: lightx2v/Qwen-Image-Edit-2511-Lightning, commit: 107d238d68b8387e32843d0b4a2e24ceb0d3ad86,
+     files: [Qwen-Image-Edit-2511-Lightning-4steps-V1.0-bf16.safetensors], role: image_edit, engine: sd.cpp, format: safetensors,
+     quant: bf16, footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen-Image-Edit-2511-Lightning LoRA © lightx2v", modification_notice: none}
+  - {key: img-edit-te, repo: ggml-org/Qwen2.5-VL-7B-Instruct-GGUF, commit: 508edd0afaa66bb9e9f40587acc2184f02daf1f6,
+     files: [Qwen2.5-VL-7B-Instruct-Q8_0.gguf, mmproj-Qwen2.5-VL-7B-Instruct-Q8_0.gguf], role: image_edit, engine: sd.cpp,
+     format: gguf, quant: Q8_0, footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen2.5-VL-7B-Instruct © Alibaba Cloud (Qwen team); GGUF by ggml-org", modification_notice: quantized}
+  - {key: img-vae-qwen, repo: Comfy-Org/Qwen-Image, commit: 1f12b17be14c89b026c51a91d67c32f84bb047bc,
+     files: [split_files/vae/qwen_image_vae.safetensors], role: image_edit, engine: sd.cpp, format: safetensors, quant: bf16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "Qwen-Image VAE © Alibaba Cloud (Qwen team); split by Comfy-Org", modification_notice: none}
+  - {key: img-upscale, repo: Comfy-Org/Real-ESRGAN, commit: 5fd49b7b278836f48af63ecd314d0f98ab336105,
+     files: [RealESRGAN_x4plus.safetensors], role: upscale, engine: sd.cpp, format: safetensors, quant: fp32,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.2}, license: BSD-3-Clause, license_url: "https://opensource.org/license/bsd-3-clause",
+     noncommercial_ok: false, attribution: "Real-ESRGAN © Xintao Wang et al. (BSD-3-Clause); safetensors by Comfy-Org", modification_notice: converted}
+  - {key: img-erase, repo: mlboydaisuke/LaMa-CoreML, commit: 5ed76e3799ab4cad31381750d29880c267477e18,
+     files: ["LaMa.mlpackage/*"], role: image_edit, engine: coreml, format: mlpackage, quant: fp16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0.2}, <<: *apache,
+     attribution: "LaMa © Samsung AI Center (Apache-2.0); Core ML conversion by mlboydaisuke", modification_notice: converted}
+
+  # ---- ChildSafetyCheck detectors (D-006, R-285 AC3; Packages/ChildSafetyCheck/README.md) ----
+  # The only classifiers in the catalog. Role `csam_check` = the assignments slot installed with Photo and Video, in
+  # both modes, and removed only with them. Off-the-shelf, used as published (A-M0-T08a: fp32 `onnx/model.onnx`).
+  # The optional Marqo second signal (`csc-nudity2`) is not shipped: it only adds blocks and cannot be calibrated
+  # without adult positives (D-019); at T_n2 0.50 it doubled SFW over-blocking (S-8 report).
+  - {key: csc-nudity, repo: sitatech/freepik_nsfw_detector_onnx, commit: 250a86051c7302bc6943ea35b9d778765ca13452,
+     files: [onnx/model.onnx, config.json, preprocessor_config.json, README.md], role: csam_check, engine: onnx,
+     format: onnx, quant: fp32, footprint: {kv_per_token_kb: 0, overhead_gb: 1.8}, requires: [csc-age, csc-age-bins], <<: *mit,
+     attribution: "Freepik image detector © Freepik (MIT); ONNX export by sitatech", modification_notice: converted}
+  - {key: csc-age, repo: Sam-Apostel/mivolo-v2-age-onnx, commit: 8eb4cd8f5dd4bd28df2c9a43b24bc54d6d139d36,
+     files: [mivolo_v2_age.onnx, README.md], role: csam_check, engine: onnx, format: onnx, quant: fp32,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "MiVOLO v2 © LayerTeam (Apache-2.0); ONNX export by Sam-Apostel", modification_notice: converted}
+  # Body-only second age signal (A-M4-T02b): SigLIP2 age bins, run by the package from the pinned safetensors with
+  # Accelerate (the pin has no ONNX file; D-007: no conversion published by us). Only adds blocks.
+  - {key: csc-age-bins, repo: prithivMLmods/Age-Classification-SigLIP2, commit: b41e62c0f7b338910c3139c76c183f8dba8a8aca,
+     files: [model.safetensors, config.json, preprocessor_config.json, README.md], role: csam_check, engine: accelerate,
+     format: safetensors, quant: fp32, footprint: {kv_per_token_kb: 0, overhead_gb: 0.1}, <<: *apache,
+     attribution: "Age-Classification-SigLIP2 © prithivMLmods (Apache-2.0), fine-tuned from google/siglip2-base-patch16-224",
+     modification_notice: none}
+
+  # ---- video (D-010: sizes reported separately from NFR-D3) ----
+  - {key: vid-5b, repo: FastVideo/FastMetal-5B-QAD, commit: 5e4819ec9c8dd062443cf015bd9022c700eca458,
+     files: ["*.safetensors", "*.json", "*.model", README.md], role: video, engine: fastmetal, format: safetensors, quant: QAD,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 1.0}, requires: [vid-taehv], <<: *apache,
+     attribution: "Wan2.2-TI2V-5B © Wan team, Alibaba (Apache-2.0); FastMetal QAD build by FastVideo", modification_notice: quantized}
+  - {key: vid-i2v, repo: QuantStack/Wan2.2-TI2V-5B-GGUF, commit: 57437632ddd08bdcbd1508c866aa22e126ed51d2,
+     files: [Wan2.2-TI2V-5B-Q8_0.gguf, VAE/Wan2.2_VAE.safetensors, README.md], role: video, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 1.0}, requires: [vid-te, vid-taehv], <<: *apache,
+     attribution: "Wan2.2-TI2V-5B © Wan team, Alibaba (Apache-2.0); GGUF by QuantStack", modification_notice: quantized}
+  - {key: vid-te, repo: city96/umt5-xxl-encoder-gguf, commit: b535255bee98c2b0a59ea7c0ae2dcd0c6657b3b7,
+     files: [umt5-xxl-encoder-Q8_0.gguf], role: video, engine: sd.cpp, format: gguf, quant: Q8_0,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *apache,
+     attribution: "UMT5-XXL encoder © Google (Apache-2.0); GGUF by city96", modification_notice: quantized}
+  # M5 review P1-1 (A-M0-T07a e, A-M0-T07b): TAEHV "TAEW2.2", the Wan2.2 tiny VAE — vid-5b's preview + final-frame
+  # decoder (FastMetal runtime) and vid-i2v's `--taesd` encode/decode (sd-server). Only on GitHub at the commit whose
+  # safetensors are tensor-equal to the `taew2_2.pth@563f40b` FastVideo pins (the HF copies are a later, different
+  # TAEW2.2), so this entry is `host: github` (commit-pinned raw URL, anonymous). Wan2.2 latent space (z 48): every
+  # assigned FastMetal / sd.cpp video model, T4 included (A-M5-13).
+  - {key: vid-taehv, host: github, repo: madebyollin/taehv, commit: fa579a9a726b0a55951998d73e309bfdf0abd342,
+     files: [safetensors/taew2_2.safetensors, LICENSE], role: video, engine: fastmetal, format: safetensors, quant: fp16,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0}, <<: *mit,
+     attribution: "TAEHV (TAEW2.2) © Ollin Boer Bohan (madebyollin), MIT", modification_notice: none}
+  # M5.T07 (R-292, A-M5-04, D-016): LTX-2.3 distilled-1.1 int4 (video + 48 kHz stereo sound), engine ltx-2-mlx@895201d
+  # in the video runtime; T3+ Normal only (K-014: Evil video stays on vid-5b, the Sound chip is hidden in Evil chats).
+  - {key: vid-ltx, repo: dgrauet/ltx-2.3-mlx-q4, commit: f306259444116d71927188af2fbbf7fdc1a8089a,
+     files: [transformer-distilled-1.1.safetensors, connector.safetensors, audio_vae.safetensors, vae_decoder.safetensors,
+             vae_encoder.safetensors, vocoder.safetensors, spatial_upscaler_x2_v1_1.safetensors, spatial_upscaler_x2_v1_1_config.json,
+             config.json, embedded_config.json, quantize_config.json, split_model.json, LICENSE, README.md],
+     role: video, engine: ltx-2-mlx, format: safetensors, quant: q4, capabilities: [audio], requires: [vid-ltx-te],
+     footprint: {kv_per_token_kb: 0, overhead_gb: 2.0},
+     license: LTX-2-Community-License, license_url: "https://huggingface.co/dgrauet/ltx-2.3-mlx-q4/blob/f306259444116d71927188af2fbbf7fdc1a8089a/LICENSE",
+     noncommercial_ok: false, attribution: "LTX-2.3 © Lightricks (LTX-2 Community License); MLX int4 build by dgrauet", modification_notice: quantized}
+  - {key: vid-ltx-te, repo: mlx-community/gemma-3-12b-it-4bit, commit: 86cc6a8dedbc456dd0e4af01a9d09f396f77e558,
+     files: ["*.safetensors", "*.json", tokenizer.model, README.md], role: video, engine: ltx-2-mlx, format: safetensors, quant: q4,
+     footprint: {kv_per_token_kb: 0, overhead_gb: 0},
+     license: Gemma-Terms-of-Use, license_url: "https://ai.google.dev/gemma/terms", noncommercial_ok: false,
+     attribution: "Gemma 3 12B it © Google (Gemma Terms of Use); MLX 4-bit by mlx-community", modification_notice: quantized}
+  # A-M5-13 (fix/t4-video): no vid-14b (FastVideo/FastMetal-14B-QAD@fbc5032, Wan2.1-T2V-14B). Measured on the T4 Mac it
+  # misses NFR-VID1 S4 (720p ≤ 1.5 min) by an order of magnitude at the T4 presets and runs outside its 480p/16 fps
+  # training setting there, so T4 text-to-video uses vid-5b (Wan2.2-TI2V-5B, native 720p × 121 f at 24 fps = the T4
+  # default preset). Not assigned anywhere, so not in the catalog: no 27 GB download for no use.

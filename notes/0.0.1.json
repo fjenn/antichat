@@ -1,0 +1,4 @@
+{"version": "0.0.1", "critical": false, "prerelease": false,
+ "items": [{"icon": "arrow.down.app", "title": "Updates itself", "body": "New versions download in the background and install when you restart."},
+           {"icon": "folder", "title": "Move to Applications", "body": "Opened from the disk image, AntiChat offers to move itself."},
+           {"icon": "questionmark.circle", "title": "Help that works offline", "body": "Help › AntiChat Help opens a short guide, no internet needed."}]}

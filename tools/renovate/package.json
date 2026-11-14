@@ -1,0 +1,8 @@
+{
+  "name": "antichat-renovate-runner",
+  "private": true,
+  "description": "Pinned Renovate CLI for local dry runs (upstream.md §5, §7 step 3; M0.T03 step 6). Install with `npm ci --ignore-scripts` into build/renovate/.",
+  "dependencies": {
+    "renovate": "44.160.1"
+  }
+}

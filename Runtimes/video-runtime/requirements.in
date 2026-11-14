@@ -1,0 +1,38 @@
+# Video runtime (M0.T07 step 1, P-media-11). Exact pins (D-014); the lock is requirements.lock (--generate-hashes).
+# Inputs = the imports of the torch-free Wan2.2-TI2V-5B closure (Vendor/FastVideo-allowlist.tsv `vendored` rows)
+# plus our driver (Packages/Engines/Python/antichat_video): mlx, numpy, safetensors; sentencepiece for the umT5
+# tokenizer (spiece.model of vid-5b); pillow for preview PNGs and the I2V init image.
+# Not shipped: torch / transformers / diffusers (A-M0-T07a), imageio + ffmpeg and tqdm (MP4 is AVAssetWriter in Swift).
+mlx==0.32.4
+mlx-metal==0.32.4
+numpy==2.5.4
+safetensors==0.8.0
+sentencepiece==0.2.2
+pillow==13.0.0
+# M5.T01 step 2: the generator server (M5.T02, FastAPI app on uvicorn over a unix socket) and their closure,
+# resolved once with `uv pip compile` and pinned exactly. uvicorn without the [standard] extras (pure-Python h11;
+# no uvloop/httptools/watchfiles Mach-Os).
+fastapi==0.162.2
+uvicorn==0.54.0
+pydantic==2.14.3
+pydantic-core==2.50.4
+starlette==1.10.0
+anyio==4.16.0
+h11==0.16.0
+click==8.5.1
+idna==3.20
+typing-extensions==4.16.0
+typing-inspection==0.4.5
+annotated-types==0.8.0
+annotated-doc==0.0.5
+opentelemetry-api==1.45.2
+# M5.T07 (R-292, A-M5-04): the LTX-2.3 engine ltx-2-mlx@895201d (vendored source: Vendor/ltx-2-mlx@895201d) and the
+# dependencies of its distilled T2V + audio path: mlx-lm (Gemma 3 text encoder; brings transformers + tokenizers for
+# the Gemma tokenizer), mlx-arsenal (kernels), huggingface-hub (imported by the loaders; HF_HUB_OFFLINE=1, no lookups:
+# models come as local paths), tqdm. Resolved once with `uv pip compile` (Python 3.12, macOS 26 arm64), pinned exactly.
+mlx-lm==0.32.2
+mlx-arsenal==0.18.0
+huggingface-hub==2.4.0
+tqdm==4.70.1
+transformers==5.22.2
+tokenizers==0.23.3

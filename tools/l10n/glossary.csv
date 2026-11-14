@@ -1,0 +1,46 @@
+term,de,fr,es,nl,pt,note
+AntiChat,AntiChat,AntiChat,AntiChat,AntiChat,AntiChat,brand: never translated or inflected
+Evil Mode,Evil Mode,Evil Mode,Evil Mode,Evil Mode,Evil Mode,product name: stays English; use the article/gender of the language naturally (der Evil Mode / le mode Evil Mode is wrong: write "Evil Mode" alone where possible)
+Evil (mode badge / switch),Evil,Evil,Evil,Evil,Evil,mode label next to Normal: stays English
+Normal (mode),Normal,Normal,Normal,Normaal,Normal,mode label next to Evil
+Mac,Mac,Mac,Mac,Mac,Mac,never "computer"
+macOS,macOS,macOS,macOS,macOS,macOS,
+chat (a conversation),Chat (der),discussion,chat (el),chat (de),conversa,"plural: Chats / discussions / chats / chats / conversas; 'New chat' = Neuer Chat / Nouvelle discussion / Nuevo chat / Nieuwe chat / Nova conversa"
+Chat (pack name),Chat,Chat,Chat,Chat,Chat,pack names are short nouns shown on cards
+Voice (pack name),Sprache,Voix,Voz,Spraak,Voz,
+Photo (pack name),Foto,Photo,Foto,Foto,Foto,
+Video (pack name),Video,Vidéo,Vídeo,Video,Vídeo,
+Incognito,Inkognito,Incognito,Incógnito,Incognito,Anônimo,"'Incognito chat' = Inkognito-Chat / Discussion incognito / Chat de incógnito / Incognitochat / Conversa anônima"
+Offline only,Nur offline,Hors ligne uniquement,Solo sin conexión,Alleen offline,Somente offline,privacy switch name
+offline,offline,hors ligne,sin conexión,offline,offline,
+Think harder,Gründlicher nachdenken,Réfléchir davantage,Pensar más a fondo,Beter nadenken,Pensar mais a fundo,composer toggle and retry action
+Settings,Einstellungen,Réglages,Ajustes,Instellingen,Ajustes,macOS naming per language
+Privacy & Data,Datenschutz & Daten,Confidentialité et données,Privacidad y datos,Privacy en gegevens,Privacidade e dados,settings section
+Memory (feature),Erinnerungen,Mémoire,Memoria,Geheugen,Memória,"one saved fact = eine Erinnerung / un souvenir / un recuerdo / een herinnering / uma memória"
+Project,Projekt,Projet,Proyecto,Project,Projeto,
+Library,Mediathek,Bibliothèque,Biblioteca,Bibliotheek,Biblioteca,sidebar item for generated pictures and clips
+Connectors,Konnektoren,Connecteurs,Conectores,Connectors,Conectores,
+Skills,Skills,Compétences,Habilidades,Vaardigheden,Habilidades,
+MCP server,MCP-Server,serveur MCP,servidor MCP,MCP-server,servidor MCP,MCP stays as is
+Code sandbox,Code-Sandbox,bac à sable de code,entorno aislado de código,codesandbox,sandbox de código,
+Pack,Paket,pack,paquete,pakket,pacote,"'Voice pack' style: Sprachpaket? no: write 'Paket Sprache' only if needed; prefer the pack name alone"
+model,Modell,modèle,modelo,model,modelo,AI model
+download (verb),herunterladen,télécharger,descargar,downloaden,baixar,
+download (noun),Download,téléchargement,descarga,download,download,
+GB,GB,Go,GB,GB,GB,French writes Go for gigabyte
+min (minutes abbr.),Min.,min,min,min,min,"keep the leading ~ for approximate times: ~7 Min."
+s (seconds abbr.),s,s,s,s,s,
+Web search,Websuche,recherche web,búsqueda web,zoeken op het web,pesquisa na web,
+Restart,Neu starten,Redémarrer,Reiniciar,Herstart,Reiniciar,
+Try again,Erneut versuchen,Réessayer,Reintentar,Opnieuw proberen,Tentar novamente,
+Cancel,Abbrechen,Annuler,Cancelar,Annuleer,Cancelar,
+Delete,Löschen,Supprimer,Eliminar,Verwijder,Apagar,
+Done,Fertig,OK,Listo,Gereed,OK,macOS convention per language
+Continue,Weiter,Continuer,Continuar,Ga door,Continuar,
+Back,Zurück,Retour,Atrás,Terug,Voltar,
+Archive (verb),Archivieren,Archiver,Archivar,Archiveer,Arquivar,
+Pin / Unpin,Anheften / Lösen,Épingler / Désépingler,Fijar / Desfijar,Vastzetten / Losmaken,Fixar / Desafixar,
+Relay,Relay,relais,relé,relay,relay,the Connectors relay server
+Composer,Eingabefeld,zone de saisie,cuadro de mensaje,invoerveld,caixa de mensagem,the message input field (never shown as a word 'composer')
+Quick panel,Schnellfenster,panneau rapide,panel rápido,snelpaneel,painel rápido,
+Help,Hilfe,Aide,Ayuda,Help,Ajuda,

@@ -1,0 +1,32 @@
+--- a/examples/server/main.cpp
++++ b/examples/server/main.cpp
+@@ -1,3 +1,7 @@
++// ANTICHAT-PATCH: UP-SD-001 unlink, AF_UNIX
++#include <sys/socket.h>
++#include <unistd.h>
++// ANTICHAT-PATCH-END
+ #include <cstdlib>
+ #include <iostream>
+ #include <mutex>
+@@ -167,8 +171,19 @@
+     register_sdcpp_api_endpoints(svr, runtime);
+     register_model_endpoints(svr, runtime);
+ 
+-    LOG_INFO("listening on: http://%s:%d\n", svr_params.listen_ip.c_str(), svr_params.listen_port);
+-    svr.listen(svr_params.listen_ip, svr_params.listen_port);
++    // ANTICHAT-PATCH: UP-SD-001 `--listen-ip unix:<path>` binds a unix-domain socket instead of TCP; the
++    // caller's 0700 parent directory is the access control (no token option exists); --listen-port is unused.
++    if (svr_params.listen_ip.rfind("unix:", 0) == 0) {
++        const std::string path = svr_params.listen_ip.substr(5);
++        ::unlink(path.c_str());
++        svr.set_address_family(AF_UNIX);
++        LOG_INFO("listening on: unix:%s\n", path.c_str());
++        svr.listen(path, 80);  // any non-zero port: httplib's port-0 lookup has no AF_UNIX case
++    } else {
++        LOG_INFO("listening on: http://%s:%d\n", svr_params.listen_ip.c_str(), svr_params.listen_port);
++        svr.listen(svr_params.listen_ip, svr_params.listen_port);
++    }
++    // ANTICHAT-PATCH-END
+ 
+     {
+         std::lock_guard<std::mutex> lock(async_job_manager.mutex);

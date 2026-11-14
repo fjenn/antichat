@@ -1,0 +1,6 @@
+(version 1)
+; M2.T03 (AT-209 AC1, test-strategy §7.1): deny every outbound IP connection; unix sockets (XPC, llama-server)
+; stay allowed. Used by run-offline.sh via sandbox-exec.
+(allow default)
+(deny network-outbound (remote ip))
+(allow network-outbound (remote unix-socket))

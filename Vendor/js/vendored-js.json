@@ -1,0 +1,130 @@
+{
+ "files": [
+  {
+   "package": "mermaid",
+   "version": "12.2.0",
+   "integrity": "sha512-w7nr/SFrLO7BaVTs3dQTvYSV6nYSBj0Yy9DjBhsIJtAcHqRzXSq4Pg32ujHZ/AdWsAMNEvvhbm5dt9E2tOiHzw==",
+   "resolved": "https://registry.npmjs.org/mermaid/-/mermaid-12.2.0.tgz",
+   "license": "MIT",
+   "upstream_path": "dist/mermaid.min.js",
+   "local_path": "Packages/UI/Sources/AntiChatUI/Resources/mermaid/mermaid.min.js",
+   "sha256": "a8a6a6f805b074a8261a2825c86f99c8054acb3b35f50bb7e24a4f9f2c3c3b9f",
+   "used_by": [
+    "P-shell-04"
+   ],
+   "license_file": "Vendor/js/licenses/mermaid.LICENSE"
+  },
+  {
+   "package": "docx",
+   "version": "9.15.0",
+   "integrity": "sha512-+7gjG6c7aHdi7Yr4idGCsLe6oCXomrCT9cq4SwdNKDH1IQKNIP5t4LIRtCrIYd87k3EO7YTl3VobYCy8Gd+6qg==",
+   "resolved": "https://registry.npmjs.org/docx/-/docx-9.15.0.tgz",
+   "license": "MIT",
+   "upstream_path": "dist/index.iife.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/docx.iife.js",
+   "sha256": "e018e1d4278f08ba2c04020cfe9ad799957436d74f4d68bfee86736cbf756fce",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/js/licenses/docx.LICENSE"
+  },
+  {
+   "package": "pptxgenjs",
+   "version": "4.0.1",
+   "integrity": "sha512-TeJISr8wouAuXw4C1F/mC33xbZs/FuEG6nH9FG1Zj+nuPcGMP5YRHl6X+j3HSUnS1f3at6k75ZZXPMZlA5Lj9A==",
+   "resolved": "https://registry.npmjs.org/pptxgenjs/-/pptxgenjs-4.0.1.tgz",
+   "license": "MIT",
+   "upstream_path": "dist/pptxgen.bundle.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/pptxgen.bundle.js",
+   "sha256": "4fb9eac5cfefb213e2d8743c2b7151025f31bfb3f834c73c12062916daa0f3f8",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/js/licenses/pptxgenjs.LICENSE"
+  },
+  {
+   "package": "vega",
+   "version": "6.4.0",
+   "integrity": "sha512-rHXCq2LpEWCLMjXBEj7hocY9G0/i5TGYRayGGSj06VTF4+l2IG2Z7oeZKCjWbUh/7hTE/mVhbaOPB72wCElh6g==",
+   "resolved": "https://registry.npmjs.org/vega/-/vega-6.4.0.tgz",
+   "license": "BSD-3-Clause",
+   "upstream_path": "build/vega.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/vega.min.js",
+   "sha256": "8f6a3587cf8d4f42c7e08120e3eb05d067e746d554e39d2dcf52acc0bd5ba28f",
+   "used_by": [
+    "P-files-tools-06"
+   ],
+   "license_file": "Vendor/js/licenses/vega.LICENSE"
+  },
+  {
+   "package": "vega-lite",
+   "version": "6.5.0",
+   "integrity": "sha512-fMXF6s0MrIg0UTWnLIfeFtgSLzVhyzSKobzGrh5rhS+mL6FOYFG3m7ouJ4U23gj65EK+gl9FIIT5w7wLNaAzkA==",
+   "resolved": "https://registry.npmjs.org/vega-lite/-/vega-lite-6.5.0.tgz",
+   "license": "BSD-3-Clause",
+   "upstream_path": "build/vega-lite.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/vega-lite.min.js",
+   "sha256": "83e215e84e308ee8688fa6503ba0f1cf8a3c05c0d61df2841a0b92bf86809e00",
+   "used_by": [
+    "P-files-tools-06"
+   ],
+   "license_file": "Vendor/js/licenses/vega-lite.LICENSE"
+  },
+  {
+   "package": "vega-embed",
+   "version": "7.3.0",
+   "integrity": "sha512-wQ8s5GaSzqoKgmRfbRolgBrjE2CP7ZKHXqH7NijxMqPjpdWxSs4Dn8tvp9g0giQvh2cK+3p56sxjWWM0wNngGw==",
+   "resolved": "https://registry.npmjs.org/vega-embed/-/vega-embed-7.3.0.tgz",
+   "license": "BSD-3-Clause",
+   "upstream_path": "build/vega-embed.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/vega-embed.min.js",
+   "sha256": "b1455caba2fb1a72fb46025ba0ba1316e2dbc7f0dd40a3f6040172bf9c08ba91",
+   "used_by": [
+    "P-files-tools-06"
+   ],
+   "license_file": "Vendor/js/licenses/vega-embed.LICENSE"
+  },
+  {
+   "package": "react",
+   "version": "18.3.1",
+   "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
+   "resolved": "https://registry.npmjs.org/react/-/react-18.3.1.tgz",
+   "license": "MIT",
+   "upstream_path": "umd/react.production.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/react.production.min.js",
+   "sha256": "d949f1c3687aedadcedac85261865f29b17cd273997e7f6b2bfc53b2f9d4c4dd",
+   "used_by": [
+    "A-M6-08"
+   ],
+   "license_file": "Vendor/js/licenses/react.LICENSE"
+  },
+  {
+   "package": "react-dom",
+   "version": "18.3.1",
+   "integrity": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==",
+   "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz",
+   "license": "MIT",
+   "upstream_path": "umd/react-dom.production.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/react-dom.production.min.js",
+   "sha256": "35f4f974f4b2bcd44da73963347f8952e341f83909e4498227d4e26b98f66f0d",
+   "used_by": [
+    "A-M6-08"
+   ],
+   "license_file": "Vendor/js/licenses/react-dom.LICENSE"
+  },
+  {
+   "package": "@babel/standalone",
+   "version": "7.29.13",
+   "integrity": "sha512-N8oXikyXZJfWWQoO26w+KLheK1P4itiJx15C29FNWpYsxYhbie2EyfZDvxZfBL+Gx+hInpGI0CO7y/pSh6hHkg==",
+   "resolved": "https://registry.npmjs.org/@babel/standalone/-/standalone-7.29.13.tgz",
+   "license": "MIT",
+   "upstream_path": "babel.min.js",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/js/babel.min.js",
+   "sha256": "2f811a1f14c78d7b3473733de1169fe900c92719dcc23fc2d9a60678e79a9130",
+   "used_by": [
+    "A-M6-08"
+   ],
+   "license_file": "Vendor/js/licenses/@babel__standalone.LICENSE"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "antichat-vendor-js",
+  "private": true,
+  "description": "Prebuilt dist JS loaded in sandboxed WKWebViews (upstream.md \u00a72 row Vendor/js). `make vendor-js` copies the dist files into the app resources and records their sha256 in Vendor/VENDORED.json.",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/standalone": "7.29.13",
+    "docx": "9.15.0",
+    "mermaid": "12.2.0",
+    "pptxgenjs": "4.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vega": "6.4.0",
+    "vega-embed": "7.3.0",
+    "vega-lite": "6.5.0"
+  }
+}

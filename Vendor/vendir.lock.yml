@@ -1,0 +1,81 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Upload release assets before publishing an existing draft...
+      sha: 66c3dde0b322e45c439a1aa6c628a8caea6d1705
+      tags:
+      - 0.25.33
+    path: .
+  path: Vendor/.upstream/osaurus@66c3dde
+- contents:
+  - git:
+      commitTitle: Add local music analysis and practice exports
+      sha: d53bcb333882ebbd7444ae059b270127565594a0
+      tags:
+      - v0.0.29-10-gd53bcb3
+    path: .
+  path: Vendor/.upstream/speech-swift@d53bcb3
+- contents:
+  - git:
+      commitTitle: '[bugfix] Fix extra work in VSA64 layout benchmark (#2027)'
+      sha: d9e6c3eb82a16250fe17747d6dc797243bd8012f
+      tags:
+      - v0.2.0-403-gd9e6c3eb8
+    path: .
+  path: Vendor/.upstream/FastVideo@d9e6c3e
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #158 from adamtheturtle/fix/ios-ci-package-scheme...'
+      sha: cf93b66c6f557677c70f95eed40374fa99c8034a
+      tags:
+      - v0.3.0
+    path: .
+  path: Vendor/.upstream/CommandPaletteKit@cf93b66
+- contents:
+  - git:
+      commitTitle: 'TUFF 9.6.0: read short prompts in one pass...'
+      sha: 22bb1af9b7b4225c98c7d5d0c3da2806764b50c5
+      tags:
+      - v9.6.0
+    path: .
+  path: Vendor/.upstream/TUFF@22bb1af
+- contents:
+  - githubRelease:
+      tag: v0.1.9
+      url: https://api.github.com/repos/asg017/sqlite-vec/releases/303570081
+    path: .
+  path: Vendor/.upstream/sqlite-vec@e9f598a
+- contents:
+  - git:
+      commitTitle: Bounds-check the fallback index in xls_getColor...
+      sha: 93f1ad5e2d8af092884204b8293c770f39691ea5
+      tags:
+      - v1.6.4-4-g93f1ad5
+    path: .
+  path: Vendor/.upstream/libxls@93f1ad5
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #707 from cyyecao-lappland/fix/openai-empty-stream-choices-20261002...'
+      sha: 729d5f52869c8280f599a9fa5cf27fc1df445602
+      tags:
+      - python_1.1.4-4-g729d5f5
+    path: .
+  path: Vendor/.upstream/agent-squad@729d5f5
+- contents:
+  - git:
+      commitTitle: 'feat(pipelines): port euler_cfg_pp_denoising_loop (#239)...'
+      sha: 895201df379b079c2154738bcf92005b7a371923
+      tags:
+      - v0.18.0-4-g895201d
+    path: .
+  path: Vendor/.upstream/ltx-2-mlx@895201d
+- contents:
+  - git:
+      commitTitle: Update podspec
+      sha: 70c5772c2ce84613ba539cb122e4065a9e33db5b
+      tags:
+      - v1.25
+    path: .
+  path: Vendor/.upstream/LetsMove@70c5772
+kind: LockConfig

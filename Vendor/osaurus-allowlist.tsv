@@ -1,0 +1,161 @@
+# mode	upstream path	reason (P-IDs from the seed, or 'closure: <type> ← <file>' for closure additions). M0.T02/T14.
+vendored	Packages/OsaurusCore/Folder/FileReadImageSupport.swift	P-files-tools-02
+watch	Packages/OsaurusCore/Managers/Chat/ChatDraftStore.swift	P-shell-15
+watch	Packages/OsaurusCore/Managers/Chat/ChatSessionImporter.swift	P-platform-10 (emits Osaurus ChatSessionData/ChatTurnData, which need the OpenAI wire ToolCall + Attachment models; ported onto AntiChat's message tree in M0.T11/M8 G-058, A-M0-06)
+watch	Packages/OsaurusCore/Managers/ProjectManager.swift	P-media-01
+vendored	Packages/OsaurusCore/Managers/SkillImportPolicy.swift	P-files-tools-16
+watch	Packages/OsaurusCore/Managers/SkillManager.swift	P-files-tools-16
+watch	Packages/OsaurusCore/Managers/SlashCommandRegistry.swift	P-shell-06
+watch	Packages/OsaurusCore/Managers/SpeechService.swift	P-media-03
+watch	Packages/OsaurusCore/Managers/TTSService.swift	P-media-04 (imports FluidAudio; chunker ported in T05/M3, A-M0-06)
+vendored	Packages/OsaurusCore/Managers/UncaughtExceptionLogger.swift	P-platform-09
+vendored	Packages/OsaurusCore/Models/Agent/Skill.swift	P-files-tools-16
+watch	Packages/OsaurusCore/Models/Chat/AtFileMenu.swift	P-shell-06
+vendored	Packages/OsaurusCore/Models/Chat/ConversationSummary.swift	P-shell-08
+vendored	Packages/OsaurusCore/Models/Configuration/GPUMemoryBudget.swift	P-platform-01
+vendored	Packages/OsaurusCore/Models/Configuration/MCPProviderTemplate.swift	P-files-tools-12
+vendored	Packages/OsaurusCore/Models/Configuration/SearchProviderCatalog.swift	P-files-tools-11
+vendored	Packages/OsaurusCore/Models/Configuration/SearchProviderConfiguration.swift	P-files-tools-11
+watch	Packages/OsaurusCore/Models/Memory/MemoryModels.swift	P-media-01
+watch	Packages/OsaurusCore/Models/Project/Project.swift	P-media-01
+watch	Packages/OsaurusCore/Models/Project/ProjectStore.swift	P-media-01
+vendored	Packages/OsaurusCore/Models/SystemPermission.swift	P-shell-20
+vendored	Packages/OsaurusCore/Models/Tool/ToolPermissionPolicy.swift	P-shell-06,P-shell-12
+watch	Packages/OsaurusCore/Services/Chat/AgentToolLoop.swift	P-shell-12
+watch	Packages/OsaurusCore/Services/Chat/ChatTitleService.swift	P-shell-02
+watch	Packages/OsaurusCore/Services/Chat/CompactionWatermark.swift	P-shell-08 (generic over Osaurus' OpenAI wire ChatMessage, which drags the inference stack; ported onto AntiChat's message model in M1 G-008, A-M0-06)
+watch	Packages/OsaurusCore/Services/Chat/ContextBudgetManager.swift	P-shell-08 (generic over Osaurus' OpenAI wire ChatMessage, which drags the inference stack; ported onto AntiChat's message model in M1 G-008, A-M0-06)
+watch	Packages/OsaurusCore/Services/Chat/ContextCompactionService.swift	P-shell-08
+vendored	Packages/OsaurusCore/Services/Chat/PromptManifest.swift	P-shell-07
+watch	Packages/OsaurusCore/Services/Chat/SystemPromptComposer.swift	P-shell-07
+vendored	Packages/OsaurusCore/Services/Chat/TokenEstimator.swift	P-shell-08
+vendored	Packages/OsaurusCore/Services/ChipProfile.swift	P-platform-01
+vendored	Packages/OsaurusCore/Services/ChunkedFileDownloader.swift	P-platform-03
+vendored	Packages/OsaurusCore/Services/Context/CapabilityQueryIntent.swift	P-shell-13
+vendored	Packages/OsaurusCore/Services/Documents/CSVAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/DOCXEmitter.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/DOCXEditor.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/OOXMLPackage.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/OOXMLText.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/PPTXEditor.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/XLSXEditor.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/XLSXFormula.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/OOXML/XLSXPreservation.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/PDFAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/PDFEditor.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/PPTXAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/PPTXEmitter.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/PlainTextAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/RichDocumentAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/RichTextPDFRenderer.swift	P-files-tools-05
+vendored	Packages/OsaurusCore/Services/Documents/XLSXAdapter.swift	P-files-tools-01
+vendored	Packages/OsaurusCore/Services/Documents/XLSXEmitter.swift	P-files-tools-05
+watch	Packages/OsaurusCore/Services/MediaGeneration/LocalVideoRequestPolicy.swift	P-media-11,P-media-12
+watch	Packages/OsaurusCore/Services/MediaGeneration/MediaJobStore.swift	P-media-10
+vendored	Packages/OsaurusCore/Services/MemoryPressureResponder.swift	P-shell-11
+vendored	Packages/OsaurusCore/Services/ModelRuntime/MetalGate.swift	P-shell-11
+vendored	Packages/OsaurusCore/Services/ModelRuntime/ModelLease.swift	P-shell-11
+vendored	Packages/OsaurusCore/Services/ModelRuntime/ModelResidencyManager.swift	P-shell-11
+watch	Packages/OsaurusCore/Services/NotificationService.swift	P-platform-15
+watch	Packages/OsaurusCore/Services/Sandbox/SandboxManager.swift	P-files-tools-09
+vendored	Packages/OsaurusCore/Services/Sandbox/Seatbelt/SeatbeltSandbox.swift	P-files-tools-14
+vendored	Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift	P-files-tools-10,P-files-tools-11
+vendored	Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift	P-files-tools-10
+vendored	Packages/OsaurusCore/Services/Search/SearchEngine.swift	P-files-tools-10
+vendored	Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift	P-files-tools-10
+vendored	Packages/OsaurusCore/Services/Search/SearchProviderKeychain.swift	P-files-tools-10,P-files-tools-11
+vendored	Packages/OsaurusCore/Services/Search/SearchReadability.swift	P-files-tools-10
+vendored	Packages/OsaurusCore/Services/Search/SearchStructuredDataStore.swift	P-files-tools-10
+vendored	Packages/OsaurusCore/Services/Search/SearchTypes.swift	P-files-tools-10
+watch	Packages/OsaurusCore/Services/Skill/SkillSearchService.swift	P-files-tools-16
+watch	Packages/OsaurusCore/Services/SupportDiagnosticsBundle.swift	P-platform-09
+vendored	Packages/OsaurusCore/Services/SwapPressureMonitor.swift	P-shell-11
+vendored	Packages/OsaurusCore/Services/SystemPermissionService.swift	P-shell-20
+watch	Packages/OsaurusCore/Services/Tool/ToolIndexService.swift	P-shell-12
+watch	Packages/OsaurusCore/Services/Tool/ToolSearchService.swift	P-shell-12
+watch	Packages/OsaurusCore/Services/UpdaterService.swift	P-platform-12
+vendored	Packages/OsaurusCore/Services/Voice/KeyboardSimulationService.swift	P-media-06
+vendored	Packages/OsaurusCore/Services/Voice/MarkdownStripper.swift	P-media-04
+watch	Packages/OsaurusCore/Services/Voice/TranscriptionOverlayWindowService.swift	P-media-06 (couples to ThemeManager/SpeechConfigurationStore/TranscriptionOverlayView; ported in M8, A-M0-06)
+watch	Packages/OsaurusCore/Tools/CapabilityTools.swift	P-shell-12
+watch	Packages/OsaurusCore/Tools/RenderChartTool.swift	P-files-tools-06
+vendored	Packages/OsaurusCore/Utils/ZipArchive.swift	P-files-tools-01
+watch	Packages/OsaurusCore/Views/Chat/AtFileMenuPopup.swift	P-shell-06
+watch	Packages/OsaurusCore/Views/Chat/ImportGuideSheet.swift	P-platform-10 (Osaurus theme environment; ported onto AntiChatDesign in M8, A-M0-06)
+watch	Packages/OsaurusCore/Views/Chat/NativeArtifactCardView.swift	P-files-tools-07
+watch	Packages/OsaurusCore/Views/Chat/SlashCommandPopup.swift	P-shell-06
+watch	Packages/OsaurusCore/Views/Common/PickerCardStyle.swift	P-shell-06
+watch	Packages/OsaurusCore/Views/Memory/MemoryView.swift	P-media-01
+vendored	Packages/OsaurusCore/Views/Onboarding/DesignSystem/OnboardingComponents.swift	P-platform-05
+vendored	Packages/OsaurusCore/Views/Onboarding/DesignSystem/OnboardingDesign.swift	P-platform-05
+vendored	Packages/OsaurusCore/Views/Onboarding/DesignSystem/OnboardingMotion.swift	P-platform-05
+watch	Packages/OsaurusCore/Views/Onboarding/OnboardingView.swift	P-platform-05
+watch	Packages/OsaurusCore/Views/Settings/MCPProviderDirectoryView.swift	P-files-tools-12
+watch	Packages/OsaurusCore/Views/Voice/VoiceInputOverlay.swift	P-media-02
+vendored	Packages/OsaurusCore/Models/Documents/CSVDocument.swift	closure: CSVCell ← CSVAdapter.swift, CSVDelimiter ← CSVAdapter.swift, CSVDocument ← CSVAdapter.swift …
+vendored	Packages/OsaurusCore/Models/Documents/DocumentAdapterError.swift	closure: DocumentAdapterError ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Models/Documents/DocumentAnchor.swift	closure: DocumentAnchor ← CSVAdapter.swift, DocumentSourceLocation ← CSVAdapter.swift, DocumentSourceRange ← CSVAdapter.swift …
+vendored	Packages/OsaurusCore/Models/Documents/DocumentFormatAdapter.swift	closure: DocumentFormatAdapter ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Models/Documents/DocumentFormatEmitter.swift	closure: DocumentFormatEmitter ← DOCXEmitter.swift
+vendored	Packages/OsaurusCore/Models/Documents/DocumentLimits.swift	closure: DocumentLimits ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Models/Documents/DocumentStructure.swift	closure: DocumentElement ← CSVAdapter.swift, DocumentStructure ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Models/Documents/RichTextSourceDocument.swift	closure: RichTextSourceDocument ← DOCXEmitter.swift
+vendored	Packages/OsaurusCore/Models/Documents/StructuredDocument.swift	closure: AnyStructuredRepresentation ← CSVAdapter.swift, StructuredDocument ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Services/Documents/CSVRowParser.swift	closure: CSVRowParser ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Services/Documents/DocumentFileInspector.swift	closure: DocumentFileInspector ← CSVAdapter.swift
+vendored	Packages/OsaurusCore/Services/Documents/MarkdownRichTextRenderer.swift	closure: MarkdownRichTextRenderer ← DOCXEmitter.swift
+vendored	Packages/OsaurusCore/Services/Plugin/FormatAdapter.swift	closure: DocumentReference ← CSVAdapter.swift, FormatAdapter ← CSVAdapter.swift, FormatAdapterError ← CSVAdapter.swift …
+vendored	Packages/OsaurusCore/Models/Documents/DocumentSecurityMetadata.swift	closure: DocumentSecurityMetadata ← StructuredDocument.swift
+vendored	Packages/OsaurusCore/Utils/Localization.swift	closure: L ← SystemPermission.swift
+vendored	Packages/OsaurusCore/Models/Documents/PlainTextRepresentation.swift	closure: PlainTextRepresentation ← PlainTextAdapter.swift
+vendored	Packages/OsaurusCore/Models/Documents/RichDocumentRepresentation.swift	closure: RichDocumentBlock ← RichDocumentAdapter.swift, RichDocumentRepresentation ← RichDocumentAdapter.swift, RichDocumentSourceFormat ← RichDocumentAdapter.swift
+vendored	Packages/OsaurusCore/Services/ModelFileIntegrity.swift	closure: ModelFileIntegrity ← ChunkedFileDownloader.swift
+vendored	Packages/OsaurusCore/Services/Keychain/Keychain.swift	closure: Keychain ← SearchProviderKeychain.swift
+vendored	Packages/OsaurusCore/Services/Keychain/KeychainQueryHelpers.swift	closure: KeychainQueryHelpers ← SearchProviderKeychain.swift
+vendored	Packages/OsaurusCore/Models/Documents/Workbook.swift	closure: Workbook ← XLSXEmitter.swift
+vendored	Packages/OsaurusCore/Services/Documents/WorkbookWorkflowService.swift	closure: WorkbookWorkflowService ← XLSXEmitter.swift
+vendored	Packages/OsaurusCore/Utils/MainThreadOperationLedger.swift	closure: MainThreadOperationLedger ← Keychain.swift
+vendored	Packages/OsaurusCore/Managers/Documents/DocumentFormatRegistry.swift	closure: DocumentFormatRegistry ← WorkbookWorkflowService.swift
+vendored	Packages/OsaurusCore/Models/Documents/PresentationDocument.swift	closure: PresentationDocument ← PPTXAdapter.swift, PresentationDocumentKind ← PPTXAdapter.swift, PresentationSlide ← PPTXAdapter.swift …
+vendored	Packages/OsaurusCore/Utils/RuntimeEnvironment.swift	closure: RuntimeEnvironment ← SystemPermissionService.swift
+vendored	Packages/OsaurusCore/Models/Documents/DocumentFormatStreamer.swift	closure: DocumentFormatStreamer ← DocumentFormatRegistry.swift
+vendored	Packages/OsaurusCore/Services/Provider/RemoteImagePayloadPolicy.swift	closure: RemoteImagePayloadPolicy ← FileReadImageSupport.swift
+vendored	Packages/OsaurusCore/Services/Documents/DocumentOperation.swift	closure: DocumentOperation ← DOCXEditor.swift
+vendored	Packages/OsaurusCore/Views/Onboarding/OnboardingTokens.swift	closure: onAppearAfter ← OnboardingMotion.swift
+vendored	Packages/OsaurusCore/Models/Documents/PDFDocumentRepresentation.swift	closure: PDFPageRepresentation ← PDFAdapter.swift, PDFTable ← PDFAdapter.swift, PDFTableCell ← PDFAdapter.swift …
+vendored	Packages/OsaurusCore/Services/Documents/PDFReadingOrder.swift	closure: PDFReadingOrder ← PDFAdapter.swift
+vendored	Packages/OsaurusCore/Services/Documents/PDFTableDetector.swift	closure: PDFTableDetector ← PDFAdapter.swift
+vendored	Packages/OsaurusCore/Managers/Documents/DocumentAdaptersBootstrap.swift	closure: DocumentAdaptersBootstrap ← ported tests (CSVAdapterTests, XLSXAdapterTests, PPTXAdapterTests, XLSXEmitterTests); registers the vendored adapters/emitters
+vendored	Packages/OsaurusCore/Services/Documents/CSVEmitter.swift	closure: CSVEmitter ← DocumentAdaptersBootstrap.swift
+vendored	Packages/OsaurusCore/Services/Documents/PDFEmitter.swift	closure: PDFEmitter ← DocumentAdaptersBootstrap.swift
+test	Packages/OsaurusCore/Tests/Service/ChunkedFileDownloaderTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/ChipProfileTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/MetalGateTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/ModelLeaseTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/ModelResidencyManagerTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/SwapPressureMonitorTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/CapabilityQueryIntentTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Service/KeychainTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Search/DeclarativeSearchBackendTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Search/SearchProviderConfigurationTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Search/SearchEngineCascadeTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Search/SearchDiagnosticsExtractionTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Search/NativeSearchBackendTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/CSVAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/PDFAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/PPTXAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/XLSXAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/XLSXEmitterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/PlainTextAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/RichDocumentAdapterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/WorkbookWorkflowServiceTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/PDFReadingOrderTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/PDFTableDetectorTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/DocumentSecurityMetadataTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/DocumentStructureTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/DocumentFormatRegistryTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Documents/OpenXMLZipFixture.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Utils/ZipArchiveWriterTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Sandbox/SeatbeltSandboxTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/Model/GPUMemoryBudgetTests.swift	ported upstream test (M0.T14 step 10)
+test	Packages/OsaurusCore/Tests/MCPOAuth/MCPProviderTemplateTests.swift	ported upstream test (M0.T14 step 10)

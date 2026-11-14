@@ -1,0 +1,2 @@
+# mode	upstream path	reason (P-IDs). M2.T09 (P-platform-05 RL-005): the download ETA estimator (warm-up, reused bytes, 30 s refresh).
+vendored	Sources/TUFFApp/Core/Installation/DownloadETAEstimator.swift	P-platform-05 RL-005

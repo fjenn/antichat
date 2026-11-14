@@ -1,0 +1,4 @@
+{"version": "0.0.2", "critical": false, "prerelease": false,
+ "items": [{"icon": "link", "title": "Connections", "body": "Link Gmail, Calendar, GitHub, Notion and more in Settings › Tools & Connections."},
+           {"icon": "lock", "title": "Sign in in your browser", "body": "Each service signs you in on its own page. AntiChat never sees your password."},
+           {"icon": "xmark.circle", "title": "Disconnect any time", "body": "Remove a connection, or all of them, from the same settings page."}]}

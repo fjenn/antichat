@@ -1,0 +1,642 @@
+{
+ "cases": [
+  {
+   "args": "{\"filename\":\"Line Chart Temperatures.csv\",\"format\":\"csv\",\"sheets\":[{\"columns\":[{\"header\":\"Month\",\"type\":\"text\"},{\"header\":\"Temperature\",\"type\":\"number\"}],\"name\":\"Monthly Temperatures\",\"rows\":[[\"January\",25],[\"February\",28],[\"March\",30],[\"April\",32],[\"May\",35],[\"June\",38],[\"July\",40],[\"August\",42],[\"September\",45],[\"October\",48],[\"November\",50],[\"December\",52]]},{\"chart\":{\"categories\":\"Month\",\"type\":\"line\",\"values\":[\"Temperature\"]},\"name\":\"Line Chart\"}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "csv",
+   "id": "csv-08",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a CSV file named \"Line Chart Temperatures\": monthly temperatures with a line chart.",
+   "recorded_error": "{\"errors\":[\"$.sheets: a CSV file has exactly one sheet (got 2)\",\"$.sheets[0].chart: CSV cannot hold a chart; use xlsx\",\"$.sheets[1].chart: \\\"Month\\\" is not a cell range like A2:A13\",\"$.sheets[1].chart: \\\"Temperature\\\" is not a cell range like A2:A13\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Timesheet.csv\",\"format\":\"csv\",\"sheets\":\"[{\\\"name\\\": \\\"Weekly Timesheet\\\", \\\"columns\\\": [{\\\"header\\\": \\\"Day\\\", \\\"type\\\": \\\"text\\\"}, {\\\"header\\\": \\\"Hours\\\", \\\"type\\\": \\\"number\\\"}], \\\"rows\\\": [[\\\"Monday\\\", 8], [\\\"Tuesday\\\", 8], [\\\"Wednesday\\\", 8], [\\\"Thursday\\\", 8], [\\\"Friday\\\", 8], [\\\"Saturday\\\", 0], [\\\"Sunday\\\", 0], [\\\"Total\\\", 40]]}]}\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "csv",
+   "id": "csv-14",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a CSV file named \"Timesheet\": a weekly timesheet with hours and a total.",
+   "recorded_error": "the arguments do not match the schema: $.sheets: not array",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "csv",
+   "id": "csv-16",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a CSV file named \"Stock Prices\": daily closing prices with dates and a line chart.",
+   "recorded_error": "cut off at the output limit",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Stock Prices.csv\",\"format\":\"csv\",\"sheets\":\"[{\\\"name\\\": \\\"Daily Closing Prices\\\", \\\"columns\\\": [{\\\"header\\\": \\\"Date\\\", \\\"type\\\": \\\"text\\\"}, {\\\"header\\\": \\\"Closing Price\\\", \\\"type\\\": \\\"number\\\"}], \\\"rows\\\": [[\\\"2026-11-09\\\", 150.25], [\\\"2026-11-10\\\", 152.75], [\\\"2026-11-11\\\", 155.5], [\\\"2026-11-12\\\", 158.0], [\\\"2026-11-13\\\", 160.25], [\\\"2026-11-14\\\", 162.5], [\\\"2026-11-15\\\", 165.75], [\\\"2026-11-16\\\", 168.0], [\\\"2026-11-17\\\", 170.25], [\\\"2026-11-18\\\", 172.5]]}\"}",
+   "at": "AT-273",
+   "call": 1,
+   "format": "csv",
+   "id": "csv-16",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a CSV file named \"Stock Prices\": daily closing prices with dates and a line chart.",
+   "recorded_error": "the arguments do not match the schema: $.sheets: not array",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Three Sheet Workbook\",\"format\":\"xlsx\",\"sheets\":[{\"name\":\"Year 1\"},{\"name\":\"Year 2\"},{\"name\":\"Year 3\"}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "csv",
+   "id": "csv-24",
+   "images": [],
+   "produced": "csv-24.xlsx",
+   "prompt": "Make me a CSV file named \"Three Sheet Workbook\": a workbook with three sheets for three years.",
+   "recorded_error": "{\"artifact_id\":\"01a1d067-5567-7030-a872-ecc16770fe50\",\"file\":\"Three Sheet Workbook.xlsx\",\"format\":\"xlsx\",\"path\":\"/var/folders/cq/vwv2ndf128g350dwwnlvxwjw0000gn/T/fileout-8153F1C0-4C17-428B-BEAB-A9D18F014F78/2026/fe08386afaf5d470b6ad43d86538d1dc1447adfa9b65f836b01951b1063de1ce.xlsx\",\"size\":5963,\"vers",
+   "state": "done",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Everything Workbook.csv\",\"format\":\"csv\",\"sheets\":[{\"autofilter\":true,\"columns\":[{\"header\":\"Name\",\"type\":\"text\"},{\"header\":\"Age\",\"type\":\"number\"},{\"header\":\"Active\",\"type\":\"bool\"},{\"header\":\"Date\",\"type\":\"date\"},{\"header\":\"Salary\",\"type\":\"currency\"},{\"header\":\"Percent\",\"type\":\"percent\"}],\"formulas\":{\"Average Percent\":\"=AVERAGE([@Percent])\",\"Total\":\"=SUM([@Age])\",\"Total Salary\":\"=SUM([@Salary])\"},\"freeze_header\":true,\"name\":\"Sheet1\",\"rows\":[[\"John\",25,true,\"2026-01-01\",\"$50,000\",\"50%\"],[\"Jane\",30,false,\"2026-02-01\",\"$60,000\",\"60%\"],[\"Bob\",35,true,\"2026-03-01\",\"$70,000\",\"70%\"]]},{\"autofilter\":true,\"columns\":[{\"header\":\"Category\",\"type\":\"text\"},{\"header\":\"Value\",\"type\":\"number\"}],\"freeze_header\":true,\"name\":\"Sheet2\",\"rows\":[[\"A\",10],[\"B\",20],[\"C\",30],[\"D\",40],[\"E\",50]]}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "csv",
+   "id": "csv-30",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a CSV file named \"Everything Workbook\": a workbook using every feature: formats, formulas, chart, two sheets and booleans.",
+   "recorded_error": "{\"errors\":[\"$.sheets: a CSV file has exactly one sheet (got 2)\",\"$.sheets[0].formulas: CSV cannot hold formulas; use xlsx\",\"$.sheets[0].formulas: \\\"Total\\\" is not a cell like B14\",\"$.sheets[0].formulas: \\\"Total Salary\\\" is not a cell like B14\",\"$.sheets[0].formulas: \\\"Average Percent\\\" is not a cell",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"format\":\"docx\",\"markdown\":\"# Garden Photo Notes\\n\\n## Photo 1\\n![Garden Scene](01a1d069-ffd7-73bf-8b5b-b17e3ece6797)\\n\\n*Caption: A beautiful view of the garden with vibrant flowers and lush greenery.*\\n\\n## Photo 2\\n![Garden Detail](01a1d069-ffd7-73c1-854b-6d268ca75faa)\\n\\n*Caption: A close-up shot of a blooming flower in the garden.*\",\"title\":\"Garden Photo Notes\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "docx",
+   "id": "docx-04",
+   "images": [
+    "img-001",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a Word document titled \"Garden Photo Notes\": a short document with two of the attached photos and captions (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.markdown: image ref \\\"01a1d069-ffd7-73bf-8b5b-b17e3ece6797\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d069-ffd7-73c1-854b-6d268ca75faa\\\" is not in `images`\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"docx\",\"images\":[{\"alt\":\"Travel photo\",\"ref\":\"photo1\"}],\"markdown\":\"# Travel Itinerary\\n\\n## Day-by-Day Schedule\\n\\n| Day | Date | Activity | Location | Time |\\n|-----|------|----------|----------|------|\\n| 1 | 2026-11-12 | Arrival and Check-in | Hotel Plaza | 14:00 |\\n| 2 | 2026-11-13 | City Tour | Downtown | 09:00 |\\n| 3 | 2026-11-14 | Beach Day | Coastal Resort | 10:00 |\\n| 4 | 2026-11-15 | Museum Visit | Art Gallery | 11:00 |\\n| 5 | 2026-11-16 | Departure | Airport | 08:00 |\\n\\n## Highlights\\n\\n- Explore the vibrant city culture.\\n- Relax on the pristine beaches.\\n- Enjoy world-class art exhibitions.\\n\\n![Travel Photo](photo1)\",\"title\":\"Travel Itinerary\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "docx",
+   "id": "docx-22",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a Word document titled \"Travel Itinerary\": a travel itinerary with a day-by-day table and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"photo1\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"docx\",\"images\":[{\"alt\":\"Photo 1\",\"ref\":\"01a1d06f-95b5-71cb-ade2-7fa2a585d6df\"}],\"markdown\":\"# Lab Report\\n\\n## Introduction\\nThis lab report presents the findings from our recent experiment. The objective was to analyze the data collected and draw meaningful conclusions.\\n\\n## Methods\\nThe experiment was conducted using standard laboratory procedures. Samples were prepared and analyzed according to the established protocol.\\n\\n## Results\\nThe results of the experiment are summarized in the table below:\\n\\n| Sample ID | Measurement 1 | Measurement 2 | Measurement 3 |\\n|-----------|---------------|---------------|---------------|\\n| A         | 12.5          | 15.3          | 14.7          |\\n| B         | 10.2          | 13.8          | 12.9          |\\n| C         | 11.8          | 14.5          | 13.6          |\\n\\n## Discussion\\nThe data shows a consistent trend across all samples. The variations in measurements can be attributed to the experimental conditions.\\n\\n## Conclusion\\nIn conclusion, the experiment was successful in achieving its objectives. The results support the hypothesis that the experimental conditions have a significant impact on the measurements.\\n\\n> \\\"The results of this experiment are both surprising and enlightening.\\\"\\n\\n![Photo 1](01a1d06f-95b5-71cb-ade2-7fa2a585d6df)\",\"style\":\"report\",\"title\":\"Lab Report\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "docx",
+   "id": "docx-25",
+   "images": [
+    "img-004"
+   ],
+   "produced": null,
+   "prompt": "Make me a Word document titled \"Lab Report\": a lab report with a results table, a quote and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d06f-95b5-71cb-ade2-7fa2a585d6df\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"docx\",\"markdown\":\"# Photo Gallery\\n\\n## Photo 1\\n![Photo 1](01a1d070-d67d-721d-b1f1-075009d0bd80)\\n\\n## Photo 2\\n![Photo 2](01a1d070-d67d-721f-9219-ac2fb6db06a3)\\n\\n## Photo 3\\n![Photo 3](01a1d070-d67d-7221-9344-8b31dc8d34cf)\",\"title\":\"Photo Gallery\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "docx",
+   "id": "docx-29",
+   "images": [
+    "img-001",
+    "img-005",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a Word document titled \"Photo Gallery\": a gallery page with three photos (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.markdown: image ref \\\"01a1d070-d67d-721d-b1f1-075009d0bd80\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d070-d67d-721f-9219-ac2fb6db06a3\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d070-d67d-7221-9344-8b31dc8d34cf\\\" is not in `images`\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"docx\",\"images\":[{\"ref\":\"01a1d071-26c7-737d-a32a-b283eb08fbc4\"}],\"markdown\":\"# Kitchen Sink\\n\\nThis document demonstrates every element available in the document creation tool.\\n\\n## Headings\\n\\nHere are some example headings:\\n\\n- Heading 1\\n- Heading 2\\n- Heading 3\\n- Heading 4\\n- Heading 5\\n- Heading 6\\n\\n## Lists\\n\\n### Unordered List\\n\\n- Item 1\\n- Item 2\\n- Item 3\\n- Item 4\\n- Item 5\\n- Item 6\\n\\n### Ordered List\\n\\n1. Step 1\\n2. Step 2\\n3. Step 3\\n4. Step 4\\n5. Step 5\\n6. Step 6\\n\\n## Table\\n\\n| Column 1 | Column 2 | Column 3 |\\n|----------|----------|----------|\\n| Data 1   | Data 2   | Data 3   |\\n| Data 4   | Data 5   | Data 6   |\\n| Data 7   | Data 8   | Data 9   |\\n\\n## Code\\n\\n```python\\ndef hello_world():\\n    print(\\\"Hello, World!\\\")\\n```\\n\\n## Quote\\n\\n> \\\"This is a quote example.\\\"\\n\\n## Rule\\n\\n---\\n\\n## Image\\n\\n![Image 1](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n![Image 2](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n![Image 3](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n![Image 4](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n![Image 5](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n![Image 6](01a1d071-26c7-737d-a32a-b283eb08fbc4)\\n\\n## Scripts\\n\\n### Script 1\\n\\n```javascript\\nconsole.log(\\\"Script 1\\\");\\n```\\n\\n### Script 2\\n\\n```javascript\\nconsole.log(\\\"Script 2\\\");\\n```\\n\\n### Script 3\\n\\n```javascript\\nconsole.log(\\\"Script 3\\\");\\n```\\n\\n### Script 4\\n\\n```javascript\\nconsole.log(\\\"Script 4\\\");\\n```\\n\\n### Script 5\\n\\n```javascript\\nconsole.log(\\\"Script 5\\\");\\n```\\n\\n### Script 6\\n\\n```javascript\\nconsole.log(\\\"Script 6\\\");\\n```\\n\\n---\\n\\nThat's all for the Kitchen Sink document!\",\"title\":\"Kitchen Sink\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "docx",
+   "id": "docx-30",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a Word document titled \"Kitchen Sink\": a document that uses every element: headings, lists, table, code, quote, rule, image, and six scripts (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d071-26c7-737d-a32a-b283eb08fbc4\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"md\",\"markdown\":\"# Garden Photo Notes\\n\\n## Photo 1\\n![Garden Scene](01a1d072-7b7a-707d-aca1-440cf1954fd1)\\n\\n*Caption: A beautiful view of the garden with vibrant flowers and lush greenery.*\\n\\n## Photo 2\\n![Garden Detail](01a1d072-7b7a-707f-a049-97e8dc6eb063)\\n\\n*Caption: A close-up shot of a blooming flower in the garden.*\",\"title\":\"Garden Photo Notes\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "md",
+   "id": "md-04",
+   "images": [
+    "img-001",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a Markdown file titled \"Garden Photo Notes\": a short document with two of the attached photos and captions (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.markdown: image ref \\\"01a1d072-7b7a-707d-aca1-440cf1954fd1\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d072-7b7a-707f-a049-97e8dc6eb063\\\" is not in `images`\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "md",
+   "id": "md-16",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Markdown file titled \"Annual Inventory\": a long inventory table that spans several pages.",
+   "recorded_error": "cut off at the output limit",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"md\",\"images\":[{\"ref\":\"01a1d079-e495-72b0-be8e-edd86994008a\"}],\"markdown\":\"# Travel Itinerary\\n\\n## Day-by-Day Schedule\\n\\n| Day | Date | Activity | Location |\\n|-----|------|----------|----------|\\n| 1 | 2026-11-12 | Arrival and Check-in | Buenos Aires |\\n| 2 | 2026-11-13 | City Tour | Buenos Aires |\\n| 3 | 2026-11-14 | Day Trip to Iguazu Falls | Iguazu |\\n| 4 | 2026-11-15 | Explore Patagonia | El Calafate |\\n| 5 | 2026-11-16 | Departure | Buenos Aires |\\n\\n## Photos\\n\\n![Photo 1](01a1d079-e495-72b0-be8e-edd86994008a)\",\"title\":\"Travel Itinerary\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "md",
+   "id": "md-22",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a Markdown file titled \"Travel Itinerary\": a travel itinerary with a day-by-day table and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d079-e495-72b0-be8e-edd86994008a\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"md\",\"images\":[{\"ref\":\"01a1d07a-8630-71cd-8cfc-ec5c0bcbfa23\"}],\"markdown\":\"# Lab Report\\n\\n## Introduction\\nThis lab report presents the findings from our recent experiment.\\n\\n## Results\\nThe following table summarizes the key results:\\n\\n| Parameter | Value |\\n|-----------|-------|\\n| Measurement 1 | 45.2 |\\n| Measurement 2 | 67.8 |\\n| Measurement 3 | 89.1 |\\n\\n## Quote\\n> \\\"The results were more significant than expected.\\\"\\n\\n## Photo\\n![Photo](photo_01a1d07a-8630-71cd-8cfc-ec5c0bcbfa23)\",\"title\":\"Lab Report\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "md",
+   "id": "md-25",
+   "images": [
+    "img-004"
+   ],
+   "produced": null,
+   "prompt": "Make me a Markdown file titled \"Lab Report\": a lab report with a results table, a quote and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d07a-8630-71cd-8cfc-ec5c0bcbfa23\\\"\",\"$.markdown: image ref \\\"photo_01a1d07a-8630-71cd-8cfc-ec5c0bcbfa23\\\" is not in `images`\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"md\",\"images\":[{\"ref\":\"photo1\"},{\"ref\":\"photo2\"},{\"ref\":\"photo3\"},{\"ref\":\"photo4\"},{\"ref\":\"photo5\"},{\"ref\":\"photo6\"}],\"markdown\":\"# Kitchen Sink\\n\\n## Introduction\\n\\nThis document demonstrates every element available in Markdown.\\n\\n## Headings\\n\\nHere are different levels of headings:\\n\\n- Level 1: # Heading\\n- Level 2: ## Heading\\n- Level 3: ### Heading\\n- Level 4: #### Heading\\n- Level 5: ##### Heading\\n- Level 6: ###### Heading\\n\\n## Lists\\n\\n### Unordered List\\n\\n- Item 1\\n- Item 2\\n- Item 3\\n  - Nested item 1\\n  - Nested item 2\\n\\n### Ordered List\\n\\n1. First item\\n2. Second item\\n3. Third item\\n   1. Nested first\\n   2. Nested second\\n\\n## Table\\n\\n| Name | Age | City |\\n|------|-----|------|\\n| John | 30  | New York |\\n| Jane | 25  | London |\\n\\n## Code\\n\\n```python\\ndef greet(name):\\n    return f\\\"Hello, {name}!\\\"\\n```\\n\\n## Quote\\n\\n> \\\"The only way to do great work is to love what you do.\\\"\\n> — Steve Jobs\\n\\n## Rule\\n\\n---\\n\\n## Image\\n\\n![Photo 1](photo1)\\n\\n![Photo 2](photo2)\\n\\n![Photo 3](photo3)\\n\\n![Photo 4](photo4)\\n\\n![Photo 5](photo5)\\n\\n![Photo 6](photo6)\\n\\n## Scripts\\n\\n### Script 1\\n\\n```javascript\\nconsole.log(\\\"Script 1\\\");\\n```\\n\\n### Script 2\\n\\n```bash\\necho \\\"Script 2\\\"\\n```\\n\\n### Script 3\\n\\n```python\\nprint(\\\"Script 3\\\")\\n```\\n\\n### Script 4\\n\\n```ruby\\nputs \\\"Script 4\\\"\\n```\\n\\n### Script 5\\n\\n```perl\\nprint \\\"Script 5\\\\n\\\";\\n```\\n\\n### Script 6\\n\\n```php\\necho \\\"Script 6\\\";\\n```\\n\\n## Conclusion\\n\\nThis document showcases all the elements available in Markdown.\",\"title\":\"Kitchen Sink\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "md",
+   "id": "md-30",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a Markdown file titled \"Kitchen Sink\": a document that uses every element: headings, lists, table, code, quote, rule, image, and six scripts (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"photo4\\\"\",\"$.images: no attachment or file with id \\\"photo1\\\"\",\"$.images: no attachment or file with id \\\"photo5\\\"\",\"$.images: no attachment or file with id \\\"photo3\\\"\",\"$.images: no attachment or file with id \\\"photo2\\\"\",\"$.images: no attachment",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"pdf\",\"images\":[{\"alt\":\"Garden Scene\",\"ref\":\"01a1d07d-4d57-7078-b8ae-a31786629bbc\"},{\"alt\":\"Garden Detail\",\"ref\":\"01a1d07d-4d57-707a-8a6e-d013266ff38b\"}],\"markdown\":\"# Garden Photo Notes\\n\\n## Photo 1\\n![Garden Scene](garden-scene)\\n\\n*A beautiful garden scene with lush greenery and vibrant flowers, showcasing the natural beauty of the outdoor space.*\\n\\n## Photo 2\\n![Garden Detail](garden-detail)\\n\\n*A close-up view of the garden's intricate details, highlighting the textures and colors of the plants.*\",\"style\":\"report\",\"title\":\"Garden Photo Notes\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-04",
+   "images": [
+    "img-001",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Garden Photo Notes\": a short document with two of the attached photos and captions (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d07d-4d57-707a-8a6e-d013266ff38b\\\"\",\"$.images: no attachment or file with id \\\"01a1d07d-4d57-7078-b8ae-a31786629bbc\\\"\",\"$.markdown: image ref \\\"garden-scene\\\" is not in `images`\",\"$.markdown: image ref \\\"garden-detail\\\" is not in `images`\"],\"",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-16",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Annual Inventory\": a long inventory table that spans several pages.",
+   "recorded_error": "cut off at the output limit",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"pdf\",\"images\":[{\"ref\":\"photo1\"}],\"markdown\":\"# Travel Itinerary\\n\\n## Day-by-Day Schedule\\n\\n| Day | Date | Activity | Location |\\n|-----|------|----------|----------|\\n| 1 | 2026-11-12 | Arrival and Check-in | Buenos Aires |\\n| 2 | 2026-11-13 | City Tour | Buenos Aires |\\n| 3 | 2026-11-14 | Day Trip to Iguazu Falls | Iguazu Falls |\\n| 4 | 2026-11-15 | Visit to Patagonia | El Calafate |\\n| 5 | 2026-11-16 | Departure | Buenos Aires |\\n\\n## Photo Gallery\\n\\n![Photo 1](photo1)\\n\\n*Photo 1: A beautiful view of the destination.*\",\"title\":\"Travel Itinerary\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-22",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Travel Itinerary\": a travel itinerary with a day-by-day table and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"photo1\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"pdf\",\"images\":[{\"alt\":\"Photo 1\",\"ref\":\"01a1d083-3161-738a-908a-6eb07da9abc1\"}],\"markdown\":\"# Lab Report\\n\\n## Introduction\\nThis lab report presents the findings from our recent experiment. The objective was to analyze the data collected and provide a comprehensive overview of the results.\\n\\n## Results\\nThe following table summarizes the key findings from our experiment:\\n\\n| Parameter | Value |\\n|-----------|-------|\\n| Measurement 1 | 45.2 |\\n| Measurement 2 | 67.8 |\\n| Measurement 3 | 89.1 |\\n\\n## Conclusion\\nAs stated in our findings, \\\"The results indicate a significant improvement in performance.\\\" This quote highlights the main takeaway from our experiment.\\n\\n![Photo 1](01a1d083-3161-738a-908a-6eb07da9abc1)\",\"title\":\"Lab Report\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-25",
+   "images": [
+    "img-004"
+   ],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Lab Report\": a lab report with a results table, a quote and a photo (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"01a1d083-3161-738a-908a-6eb07da9abc1\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"pdf\",\"markdown\":\"# Photo Gallery\\n\\n## Gallery Page\\n\\n### Photo 1\\n![Photo 1](01a1d084-cfb4-71c6-ad3b-44108d4ac756)\\n\\n### Photo 2\\n![Photo 2](01a1d084-cfb4-71c8-b7d5-926b38e54e42)\\n\\n### Photo 3\\n![Photo 3](01a1d084-cfb4-71ca-837d-dbeac06cafb6)\",\"title\":\"Photo Gallery\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-29",
+   "images": [
+    "img-001",
+    "img-005",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Photo Gallery\": a gallery page with three photos (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.markdown: image ref \\\"01a1d084-cfb4-71c6-ad3b-44108d4ac756\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d084-cfb4-71c8-b7d5-926b38e54e42\\\" is not in `images`\",\"$.markdown: image ref \\\"01a1d084-cfb4-71ca-837d-dbeac06cafb6\\\" is not in `images`\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"format\":\"pdf\",\"images\":[{\"ref\":\"photo1\"},{\"ref\":\"photo2\"},{\"ref\":\"photo3\"},{\"ref\":\"photo4\"},{\"ref\":\"photo5\"},{\"ref\":\"photo6\"}],\"markdown\":\"# Kitchen Sink\\n\\n## Introduction\\n\\nThis document demonstrates the use of various Markdown elements.\\n\\n### Lists\\n\\nHere is an unordered list:\\n- Item 1\\n- Item 2\\n- Item 3\\n\\nHere is an ordered list:\\n1. First item\\n2. Second item\\n3. Third item\\n\\n### Table\\n\\n| Name | Age | City |\\n|------|-----|------|\\n| John | 30  | New York |\\n| Jane | 25  | Los Angeles |\\n\\n### Code\\n\\n```python\\ndef greet(name):\\n    return f\\\"Hello, {name}!\\\"\\n```\\n\\n### Quote\\n\\n> \\\"The only way to do great work is to love what you do.\\\" - Steve Jobs\\n\\n### Rule\\n\\n---\\n\\n### Image\\n\\n![Photo 1](photo1)\\n\\n![Photo 2](photo2)\\n\\n![Photo 3](photo3)\\n\\n![Photo 4](photo4)\\n\\n![Photo 5](photo5)\\n\\n![Photo 6](photo6)\\n\\n### Scripts\\n\\n```python\\nprint(\\\"Script 1\\\")\\n```\\n\\n```javascript\\nconsole.log(\\\"Script 2\\\");\\n```\\n\\n```bash\\necho \\\"Script 3\\\"\\n```\\n\\n```sql\\nSELECT * FROM users;\\n```\\n\\n```html\\n<div>Script 4<\\/div>\\n```\\n\\n```css\\nbody { background: blue; }\\n```\\n\\n### Conclusion\\n\\nThis document showcases the capabilities of Markdown.\",\"title\":\"Kitchen Sink\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "pdf",
+   "id": "pdf-30",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a PDF titled \"Kitchen Sink\": a document that uses every element: headings, lists, table, code, quote, rule, image, and six scripts (use the attached photos).",
+   "recorded_error": "{\"errors\":[\"$.images: no attachment or file with id \\\"photo5\\\"\",\"$.images: no attachment or file with id \\\"photo1\\\"\",\"$.images: no attachment or file with id \\\"photo2\\\"\",\"$.images: no attachment or file with id \\\"photo6\\\"\",\"$.images: no attachment or file with id \\\"photo4\\\"\",\"$.images: no attachment",
+   "state": "failed",
+   "tool": "create_document"
+  },
+  {
+   "args": "{\"filename\":\"Grade Book.xlsx\",\"sheets\":\"[{\\\"columns\\\": [{\\\"header\\\": \\\"Student Name\\\", \\\"type\\\": \\\"text\\\"}, {\\\"header\\\": \\\"Math\\\", \\\"type\\\": \\\"number\\\"}, {\\\"header\\\": \\\"Science\\\", \\\"type\\\": \\\"number\\\"}, {\\\"header\\\": \\\"English\\\", \\\"type\\\": \\\"number\\\"}, {\\\"header\\\": \\\"History\\\", \\\"type\\\": \\\"number\\\"}, {\\\"header\\\": \\\"Average\\\", \\\"type\\\": \\\"number\\\"}], \\\"freeze_header\\\": true, \\\"name\\\": \\\"Student Grades\\\", \\\"rows\\\": [[\\\"Alice\\\", 85, 90, 78, 88], [\\\"Bob\\\", 92, 85, 95, 80], [\\\"Charlie\\\", 78, 88, 82, 75], [\\\"Diana\\\", 88, 95, 90, 85], [\\\"Eve\\\", 80, 75, 85, 90], [\\\"Frank\\\", 95, 80, 88, 92], [\\\"Grace\\\", 82, 85, 78, 88], [\\\"Henry\\\", 75, 90, 85, 80], [\\\"Ivy\\\", 88, 92, 95, 85], [\\\"Jack\\\", 90, 88, 80, 95]]}\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-03",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Grade Book\": a grade book with averages per student.",
+   "recorded_error": "the arguments do not match the schema: $.sheets: not array",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Market Share Pie.xlsx\",\"sheets\":[{\"chart\":{\"categories\":[\"Company A\",\"Company B\",\"Company C\"],\"type\":\"pie\",\"values\":[\"45\",\"30\",\"25\"]},\"columns\":[{\"header\":\"Company\",\"type\":\"text\"},{\"header\":\"Share\",\"type\":\"number\"}],\"name\":\"Market Share\",\"rows\":[[\"Company A\",45],[\"Company B\",30],[\"Company C\",25]]}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-09",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Market Share Pie\": market share with a pie chart.",
+   "recorded_error": "the arguments do not match the schema: $.sheets[0].chart.categories: not string",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Expense Bar Chart.xlsx\",\"sheets\":[{\"columns\":[{\"header\":\"Category\",\"type\":\"text\"},{\"header\":\"Amount\",\"type\":\"number\"}],\"name\":\"Expenses\",\"rows\":[[\"Food\",150],[\"Transportation\",80],[\"Utilities\",200],[\"Entertainment\",120],[\"Shopping\",300],[\"Health\",180],[\"Education\",90],[\"Other\",50]]},{\"chart\":{\"categories\":\"Category\",\"title\":\"Expenses per Category\",\"type\":\"bar\",\"values\":[\"Amount\"]},\"name\":\"Bar Chart\"}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-11",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Expense Bar Chart\": expenses per category with a bar chart.",
+   "recorded_error": "{\"errors\":[\"$.sheets[1].chart: \\\"Category\\\" is not a cell range like A2:A13\",\"$.sheets[1].chart: \\\"Amount\\\" is not a cell range like A2:A13\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Loan Calculator.xlsx\",\"sheets\":[{\"columns\":[{\"header\":\"Loan Amount\",\"type\":\"number\"},{\"header\":\"Annual Interest Rate\",\"type\":\"number\"},{\"header\":\"Loan Term (Years)\",\"type\":\"number\"},{\"header\":\"Monthly Payment\",\"type\":\"number\"},{\"header\":\"Total Payment\",\"type\":\"number\"},{\"header\":\"Total Interest\",\"type\":\"number\"}],\"formulas\":{\"Monthly Payment\":\"=PMT(Annual Interest Rate\\/12, Loan Term*12, -Loan Amount)\",\"Total Interest\":\"=Total Payment - Loan Amount\",\"Total Payment\":\"=Monthly Payment*Loan Term*12\"},\"name\":\"Loan Calculator\",\"rows\":[[10000,0.05,5,null,null,null],[20000,0.06,10,null,null,null],[50000,0.04,15,null,null,null]]}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-13",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Loan Calculator\": a loan calculator with a PMT formula.",
+   "recorded_error": "{\"errors\":[\"$.sheets[0].formulas: \\\"Total Interest\\\" is not a cell like B14\",\"$.sheets[0].formulas: \\\"Total Payment\\\" is not a cell like B14\",\"$.sheets[0].formulas: \\\"Monthly Payment\\\" is not a cell like B14\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Timesheet.xlsx\",\"sheets\":[{\"columns\":[{\"header\":\"Day\",\"type\":\"text\"},{\"header\":\"Hours\",\"type\":\"number\"},{\"header\":\"Total\",\"type\":\"number\"}],\"formulas\":{\"Total\":\"=SUM(B2:B8)\"},\"name\":\"Weekly Timesheet\",\"rows\":[[\"Monday\",8],[\"Tuesday\",8],[\"Wednesday\",8],[\"Thursday\",8],[\"Friday\",8],[\"Saturday\",0],[\"Sunday\",0],[null,null,null]]}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-14",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Timesheet\": a weekly timesheet with hours and a total.",
+   "recorded_error": "{\"errors\":[\"$.sheets[0].formulas: \\\"Total\\\" is not a cell like B14\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-16",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Stock Prices\": daily closing prices with dates and a line chart.",
+   "recorded_error": "cut off at the output limit",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Fixed Column Widths\",\"format\":\"xlsx\",\"sheets\":[{\"column_widths\":[\"auto\"],\"name\":\"Sheet1\"}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-18",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Fixed Column Widths\": a table with explicit column widths.",
+   "recorded_error": "the arguments do not match the schema: $.sheets[0].column_widths: matches no anyOf branch",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Negative Values\",\"format\":\"xlsx\",\"sheets\":\"[{\\\"columns\\\": [{\\\"header\\\": \\\"Item\\\", \\\"type\\\": \\\"text\\\"}, {\\\"header\\\": \\\"Amount\\\", \\\"type\\\": \\\"number\\\"}], \\\"freeze_header\\\": true, \\\"name\\\": \\\"Profit and Loss\\\", \\\"rows\\\": [[\\\"Item 1\\\", 100], [\\\"Item 2\\\", -50], [\\\"Item 3\\\", 200], [\\\"Item 4\\\", -75], [\\\"Item 5\\\", 300]]}\"}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-26",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Negative Values\": profit and loss with negative values in red.",
+   "recorded_error": "the arguments do not match the schema: $.sheets: not array",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Everything Workbook\",\"sheets\":[{\"autofilter\":true,\"columns\":[{\"header\":\"Name\",\"type\":\"text\"},{\"header\":\"Age\",\"type\":\"number\"},{\"header\":\"Active\",\"type\":\"bool\"},{\"header\":\"Salary\",\"type\":\"currency\"},{\"header\":\"Date\",\"type\":\"date\"},{\"header\":\"Percent\",\"type\":\"percent\"}],\"data_ref\":\"Sheet1Data\",\"formulas\":{\"Avg\":\"=AVERAGE(Age)\",\"Total\":\"=SUM(Age)\",\"TotalSalary\":\"=SUM(Salary)\"},\"freeze_header\":true,\"name\":\"Sheet1\"},{\"chart\":{\"categories\":\"Category\",\"title\":\"Category Values\",\"type\":\"column\",\"values\":[\"Value\"]},\"columns\":[{\"header\":\"Category\",\"type\":\"text\"},{\"header\":\"Value\",\"type\":\"number\"}],\"data_ref\":\"Sheet2Data\",\"name\":\"Sheet2\"}]}",
+   "at": "AT-273",
+   "call": 0,
+   "format": "xlsx",
+   "id": "xlsx-30",
+   "images": [],
+   "produced": null,
+   "prompt": "Make me a Excel spreadsheet named \"Everything Workbook\": a workbook using every feature: formats, formulas, chart, two sheets and booleans.",
+   "recorded_error": "{\"errors\":[\"$.sheets[0].data_ref: no query result \\\"Sheet1Data\\\" in this chat\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_spreadsheet"
+  },
+  {
+   "args": "{\"filename\":\"Quarterly Review\",\"slides\":[{\"layout\":\"title\",\"title\":\"Quarterly Review\"},{\"bullets\":[\"Key achievements\",\"Performance metrics\",\"Strategic wins\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d08f-8a2a-70cd-9bed-a23d139aad35\",\"layout\":\"image\"},{\"bullets\":[\"Detailed breakdown\",\"Trends and insights\",\"Next steps\"],\"image_ref\":\"01a1d08f-8a2b-7151-9136-5bfafa1d338f\",\"layout\":\"title_bullets_image\",\"notes\":\"Please review the detailed metrics and insights. The photo on this slide illustrates the key trends we discussed.\",\"subtitle\":\"In-depth analysis\",\"title\":\"Details\"}],\"theme\":\"clean\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-01",
+   "images": [
+    "img-001",
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Quarterly Review\" in the clean theme: a title slide, the highlights, a photo slide and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d08f-8a2a-70cd-9bed-a23d139aad35\\\"\",\"$.slides[3].image_ref: no attachment or file with id \\\"01a1d08f-8a2b-7151-9136-5bfafa1d338f\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Team Offsite\",\"slides\":[{\"layout\":\"title\",\"title\":\"Team Offsite\"},{\"bullets\":[\"Key achievements\",\"Team milestones\",\"Future goals\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d08f-e0cd-719d-9745-03efc8355685\",\"layout\":\"image\",\"notes\":\"This slide features a photo from our team offsite.\"}],\"theme\":\"paper\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-03",
+   "images": [
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Team Offsite\" in the paper theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d08f-e0cd-719d-9745-03efc8355685\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Garden Club Talk\",\"slides\":[{\"layout\":\"title\",\"title\":\"Garden Club Talk\"},{\"bullets\":[\"Key points to cover\",\"Important updates\",\"Upcoming events\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"bullets\":[\"Detailed information\",\"Photo showcase\",\"Q&A session\"],\"image_ref\":\"01a1d08f-fb4a-72fd-86bb-42be8fc9179b\",\"layout\":\"title_bullets_image\",\"notes\":\"Please refer to the attached photo for visual context. This slide will provide detailed information about the garden club activities and upcoming events.\",\"title\":\"Details\"}],\"theme\":\"bold\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-04",
+   "images": [
+    "img-005"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Garden Club Talk\" in the bold theme: a title slide, the highlights and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d08f-fb4a-72fd-86bb-42be8fc9179b\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Onboarding Basics.pptx\",\"slides\":[{\"layout\":\"title\",\"title\":\"Onboarding Basics\"},{\"bullets\":[\"Key onboarding steps\",\"Team introduction\",\"Tools and resources\",\"First week goals\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d090-214a-7058-896e-821b57a63ab6\",\"layout\":\"image\",\"notes\":\"Welcome slide with team photo to set a friendly tone.\"}],\"theme\":\"clean\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-05",
+   "images": [
+    "img-005"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Onboarding Basics\" in the clean theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d090-214a-7058-896e-821b57a63ab6\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Reading Club\",\"slides\":[{\"layout\":\"title\",\"title\":\"Reading Club\"},{\"bullets\":[\"Key takeaways from the session\",\"Favorite books discussed\",\"Upcoming meeting details\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d090-5e76-73f6-bf04-2fc77dfd2f5f\",\"layout\":\"image\",\"notes\":\"This photo captures the group's enthusiasm and engagement during the reading session.\"},{\"bullets\":[\"Date: November 15, 2026\",\"Time: 18:00\",\"Location: Community Center Room 3\",\"Contact: readingclub@example.com\"],\"image_ref\":\"01a1d090-5e76-73f8-8a03-bb5f9b111225\",\"layout\":\"title_bullets_image\",\"notes\":\"Please review the details carefully and RSVP by November 10th.\",\"subtitle\":\"Session Information\",\"title\":\"Details\"}],\"theme\":\"paper\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-07",
+   "images": [
+    "img-002",
+    "img-003"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Reading Club\" in the paper theme: a title slide, the highlights, a photo slide and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d090-5e76-73f6-bf04-2fc77dfd2f5f\\\"\",\"$.slides[3].image_ref: no attachment or file with id \\\"01a1d090-5e76-73f8-8a03-bb5f9b111225\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Market Overview\",\"slides\":[{\"layout\":\"title\",\"title\":\"Market Overview\"},{\"bullets\":[\"Key market trends\",\"Competitive landscape\",\"Growth opportunities\",\"Risk factors\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d090-932a-712a-93f9-0031660325fb\",\"layout\":\"image\",\"notes\":\"This slide provides a visual overview of the current market landscape. Please refer to the speaker notes for detailed insights.\",\"title\":\"Market Overview\"}],\"theme\":\"clean\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-09",
+   "images": [
+    "img-004"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Market Overview\" in the clean theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d090-932a-712a-93f9-0031660325fb\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Weekly Standup.pptx\",\"slides\":[{\"layout\":\"title\",\"title\":\"Weekly Standup\"},{\"bullets\":[\"Key achievements from the week\",\"Important milestones reached\",\"Team wins and successes\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"bullets\":[\"Detailed breakdown of project progress\",\"Challenges and solutions\",\"Next steps and action items\"],\"image_ref\":\"01a1d090-b503-7021-8275-055644a14485\",\"layout\":\"title_bullets_image\",\"notes\":\"Please review the attached photo for detailed project metrics and team progress. We will discuss the challenges faced and how we overcame them. Next steps include finalizing the current sprint and preparing for the upcoming release.\",\"title\":\"Details\"}],\"theme\":\"dusk\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-10",
+   "images": [
+    "img-001"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Weekly Standup\" in the dusk theme: a title slide, the highlights and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d090-b503-7021-8275-055644a14485\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Quarterly Review\",\"slides\":[{\"layout\":\"title\",\"title\":\"Quarterly Review\"},{\"bullets\":[\"Key achievements\",\"Performance metrics\",\"Upcoming goals\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d090-e3f8-70e0-8b02-5a9768ba966a\",\"layout\":\"image\",\"notes\":\"This slide features the attached photo. Please refer to the image for visual context.\",\"title\":\"Photo Slide\"}],\"theme\":\"paper\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-11",
+   "images": [
+    "img-001"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Quarterly Review\" in the paper theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d090-e3f8-70e0-8b02-5a9768ba966a\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Team Offsite\",\"slides\":[{\"layout\":\"title\",\"title\":\"Team Offsite\"},{\"bullets\":[\"Key achievements\",\"Team milestones\",\"Success stories\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d091-23f1-73af-98b1-75f855990c52\",\"layout\":\"image\"},{\"bullets\":[\"Date and location\",\"Attendees\",\"Agenda\"],\"image_ref\":\"01a1d091-23f1-73b1-93d8-b8f801591f4c\",\"layout\":\"title_bullets_image\",\"notes\":\"This slide provides a comprehensive overview of the team offsite event, including key details about the date, location, and agenda. The image on the right captures the team enjoying the event.\",\"subtitle\":\"Event Overview\",\"title\":\"Details\"}],\"theme\":\"clean\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-13",
+   "images": [
+    "img-003",
+    "img-004"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Team Offsite\" in the clean theme: a title slide, the highlights, a photo slide and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d091-23f1-73af-98b1-75f855990c52\\\"\",\"$.slides[3].image_ref: no attachment or file with id \\\"01a1d091-23f1-73b1-93d8-b8f801591f4c\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Onboarding Basics\",\"slides\":[{\"layout\":\"title\",\"title\":\"Onboarding Basics\"},{\"bullets\":[\"Key steps for new hires\",\"Essential resources\",\"Team introduction\",\"First week schedule\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d091-725f-732c-9749-31417359013e\",\"layout\":\"image\",\"notes\":\"Welcome image for the onboarding session.\"}],\"theme\":\"paper\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-15",
+   "images": [
+    "img-005"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Onboarding Basics\" in the paper theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d091-725f-732c-9749-31417359013e\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Budget 2027\",\"slides\":[{\"layout\":\"title\",\"title\":\"Budget 2027\"},{\"bullets\":[\"Increased funding for infrastructure projects\",\"Reduced operational costs by 15%\",\"New initiatives for community development\",\"Focus on digital transformation\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"bullets\":[\"Detailed breakdown of expenses and revenue\",\"Allocation of funds across departments\",\"Timeline for implementation\",\"Key performance indicators\"],\"image_ref\":\"01a1d091-915b-73f0-87b3-aaa410e0f886\",\"layout\":\"title_bullets_image\",\"notes\":\"This slide provides a comprehensive overview of the budget details. Please refer to the attached image for a visual representation of the data. The speaker notes should highlight the key points discussed in the presentation.\",\"title\":\"Details\"}],\"theme\":\"bold\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-16",
+   "images": [
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Budget 2027\" in the bold theme: a title slide, the highlights and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d091-915b-73f0-87b3-aaa410e0f886\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Reading Club\",\"slides\":[{\"layout\":\"title\",\"title\":\"Reading Club\"},{\"bullets\":[\"Key takeaways from the session\",\"Favorite books discussed\",\"Upcoming meeting details\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d091-b342-7197-bf5a-7b7a999ad69f\",\"layout\":\"image\",\"notes\":\"This photo captures the group enjoying the book discussion.\"}],\"theme\":\"clean\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-17",
+   "images": [
+    "img-002"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Reading Club\" in the clean theme: a title slide, the highlights, a photo slide, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d091-b342-7197-bf5a-7b7a999ad69f\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  },
+  {
+   "args": "{\"filename\":\"Market Overview\",\"slides\":[{\"layout\":\"title\",\"title\":\"Market Overview\"},{\"bullets\":[\"Key market trends\",\"Competitive landscape\",\"Growth opportunities\"],\"layout\":\"bullets\",\"title\":\"Highlights\"},{\"image_ref\":\"01a1d091-e702-731b-b307-43179426cec3\",\"layout\":\"image\",\"notes\":\"This image provides a visual overview of the market landscape.\"},{\"bullets\":[\"Market segmentation\",\"Customer demographics\",\"Regional performance\"],\"image_ref\":\"01a1d091-e702-731d-ae6b-b4d7c05af7f7\",\"layout\":\"title_bullets_image\",\"notes\":\"Detailed breakdown of market segments and performance metrics.\",\"subtitle\":\"In-depth analysis\",\"title\":\"Details\"}],\"theme\":\"paper\"}",
+   "at": "AT-275",
+   "call": 0,
+   "format": "pptx",
+   "id": "pptx-19",
+   "images": [
+    "img-004",
+    "img-005"
+   ],
+   "produced": null,
+   "prompt": "Make me a slide deck called \"Market Overview\" in the paper theme: a title slide, the highlights, a photo slide and a details slide with a photo, with speaker notes. Use the attached photos.",
+   "recorded_error": "{\"errors\":[\"$.slides[2].image_ref: no attachment or file with id \\\"01a1d091-e702-731b-b307-43179426cec3\\\"\",\"$.slides[3].image_ref: no attachment or file with id \\\"01a1d091-e702-731d-ae6b-b4d7c05af7f7\\\"\"],\"repair\":true}",
+   "state": "failed",
+   "tool": "create_presentation"
+  }
+ ],
+ "source": "M9.T05 Phase B, round-60 build, T1 chat-9b-q4 (antichat-bench fileout-golden): build/at/AT-273/t05/model/fileout-golden.json and build/at/AT-275/t05/model/fileout-golden.json (every call of every prompt that made no file or a file of the wrong format)"
+}

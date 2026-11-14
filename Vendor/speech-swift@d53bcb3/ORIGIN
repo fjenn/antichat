@@ -1,0 +1,8 @@
+name: speech-swift
+repo: https://github.com/soniqo/speech-swift
+ref: d53bcb333882ebbd7444ae059b270127565594a0
+fetched: 2026-10-30 (vendir.lock.yml)
+license: Apache-2.0  (LICENSE copied to ./LICENSE)
+paths: see Vendor/speech-swift-allowlist.tsv (vendored + test rows; 5 files)
+patches: UP-SS-001, UP-SS-002, UP-SS-003 (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

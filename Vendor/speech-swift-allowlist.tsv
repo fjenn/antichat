@@ -1,0 +1,7 @@
+# mode	upstream path	reason (P-IDs). M0.T05 (P-media-03).
+vendored	Sources/AudioCommon/FullDuplexAudioIO.swift	P-media-03
+vendored	Sources/SpeechVAD/SmartTurn.swift	P-media-03
+vendored	Sources/SpeechVAD/StreamingVADProcessor.swift	P-media-03 (RL-005: 32 ms Silero onset/offset state machine; vendored in M3.T01 for G-037, consumed by M3.T09)
+watch	Sources/AudioCommon/CoreMLLoader.swift	P-media-03 (SmartTurn's loader; replaced by a plain MLModel load, UP-SS-001)
+vendored	Sources/SpeechVAD/Configuration.swift	P-media-03 (VADConfig / TurnCompletionConfig for StreamingVADProcessor)
+vendored	Sources/AudioCommon/Protocols.swift	P-media-03 (StreamingVADProvider / TurnCompletionProvider / SpeechSegment; restores SmartTurn's conformance, UP-SS-001 revisit)

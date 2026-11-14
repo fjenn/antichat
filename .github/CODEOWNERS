@@ -1,0 +1,7 @@
+# M1.T02 (test-strategy §9): every R-241 allow-list change needs the lead's sign-off.
+# The handle is a placeholder for the lead until the public GitHub repo exists (human step, PRD §9).
+/tools/ci/r241-allowlist.yml @AntiChat/lead
+/tools/ci/r241-audit.py      @AntiChat/lead
+/Packages/ChildSafetyCheck/  @AntiChat/lead
+# M1.T14 DoD: the prompt layer resources (base persona, style sentences) are reviewed by the lead.
+/Packages/Harness/Resources/prompts/ @AntiChat/lead

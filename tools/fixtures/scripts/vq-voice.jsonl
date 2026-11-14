@@ -1,0 +1,89 @@
+# Visual QA vq-m3 voice leg: the typed packing question before the voice states (S-16).
+{"t":"title","v":"Spring weekend in Lisbon","delayMs":400}
+{"t":"textDelta","v":"For","delayMs":15}
+{"t":"textDelta","v":" a","delayMs":15}
+{"t":"textDelta","v":" spring","delayMs":15}
+{"t":"textDelta","v":" weekend","delayMs":15}
+{"t":"textDelta","v":" in","delayMs":15}
+{"t":"textDelta","v":" Lisbon,","delayMs":15}
+{"t":"textDelta","v":" pack","delayMs":15}
+{"t":"textDelta","v":" light","delayMs":15}
+{"t":"textDelta","v":" layers:\n\n-","delayMs":15}
+{"t":"textDelta","v":" **Clothes:**","delayMs":15}
+{"t":"textDelta","v":" T-shirts,","delayMs":15}
+{"t":"textDelta","v":" a","delayMs":15}
+{"t":"textDelta","v":" light","delayMs":15}
+{"t":"textDelta","v":" jumper","delayMs":15}
+{"t":"textDelta","v":" for","delayMs":15}
+{"t":"textDelta","v":" the","delayMs":15}
+{"t":"textDelta","v":" evenings","delayMs":15}
+{"t":"textDelta","v":" and","delayMs":15}
+{"t":"textDelta","v":" a","delayMs":15}
+{"t":"textDelta","v":" thin","delayMs":15}
+{"t":"textDelta","v":" rain","delayMs":15}
+{"t":"textDelta","v":" jacket\n-","delayMs":15}
+{"t":"textDelta","v":" **Shoes:**","delayMs":15}
+{"t":"textDelta","v":" comfortable","delayMs":15}
+{"t":"textDelta","v":" walking","delayMs":15}
+{"t":"textDelta","v":" shoes","delayMs":15}
+{"t":"textDelta","v":" with","delayMs":15}
+{"t":"textDelta","v":" good","delayMs":15}
+{"t":"textDelta","v":" grip,","delayMs":15}
+{"t":"textDelta","v":" as","delayMs":15}
+{"t":"textDelta","v":" the","delayMs":15}
+{"t":"textDelta","v":" hills","delayMs":15}
+{"t":"textDelta","v":" and","delayMs":15}
+{"t":"textDelta","v":" cobbles","delayMs":15}
+{"t":"textDelta","v":" are","delayMs":15}
+{"t":"textDelta","v":" steep\n-","delayMs":15}
+{"t":"textDelta","v":" **Extras:**","delayMs":15}
+{"t":"textDelta","v":" sunglasses,","delayMs":15}
+{"t":"textDelta","v":" sunscreen","delayMs":15}
+{"t":"textDelta","v":" and","delayMs":15}
+{"t":"textDelta","v":" a","delayMs":15}
+{"t":"textDelta","v":" small","delayMs":15}
+{"t":"textDelta","v":" day","delayMs":15}
+{"t":"textDelta","v":" bag\n\nSpring","delayMs":15}
+{"t":"textDelta","v":" days","delayMs":15}
+{"t":"textDelta","v":" are","delayMs":15}
+{"t":"textDelta","v":" mild,","delayMs":15}
+{"t":"textDelta","v":" but","delayMs":15}
+{"t":"textDelta","v":" the","delayMs":15}
+{"t":"textDelta","v":" wind","delayMs":15}
+{"t":"textDelta","v":" off","delayMs":15}
+{"t":"textDelta","v":" the","delayMs":15}
+{"t":"textDelta","v":" river","delayMs":15}
+{"t":"textDelta","v":" can","delayMs":15}
+{"t":"textDelta","v":" be","delayMs":15}
+{"t":"textDelta","v":" cool","delayMs":15}
+{"t":"textDelta","v":" after","delayMs":15}
+{"t":"textDelta","v":" sunset.","delayMs":15}
+# Round 65 (S-16): the spoken follow-up (vq-m3.sh's WAV, "And what about shoes for the hills?") gets its own answer.
+{"t":"turn"}
+{"t": "textDelta", "v": "Comfortable", "delayMs": 40}
+{"t": "textDelta", "v": " walking", "delayMs": 40}
+{"t": "textDelta", "v": " shoes", "delayMs": 40}
+{"t": "textDelta", "v": " with", "delayMs": 40}
+{"t": "textDelta", "v": " good", "delayMs": 40}
+{"t": "textDelta", "v": " grip", "delayMs": 40}
+{"t": "textDelta", "v": " are", "delayMs": 40}
+{"t": "textDelta", "v": " best.", "delayMs": 40}
+{"t": "textDelta", "v": " Lisbon's", "delayMs": 40}
+{"t": "textDelta", "v": " hills", "delayMs": 40}
+{"t": "textDelta", "v": " and", "delayMs": 40}
+{"t": "textDelta", "v": " cobbles", "delayMs": 40}
+{"t": "textDelta", "v": " are", "delayMs": 40}
+{"t": "textDelta", "v": " steep", "delayMs": 40}
+{"t": "textDelta", "v": " and", "delayMs": 40}
+{"t": "textDelta", "v": " can", "delayMs": 40}
+{"t": "textDelta", "v": " be", "delayMs": 40}
+{"t": "textDelta", "v": " slippery", "delayMs": 40}
+{"t": "textDelta", "v": " after", "delayMs": 40}
+{"t": "textDelta", "v": " rain,", "delayMs": 40}
+{"t": "textDelta", "v": " so", "delayMs": 40}
+{"t": "textDelta", "v": " leave", "delayMs": 40}
+{"t": "textDelta", "v": " the", "delayMs": 40}
+{"t": "textDelta", "v": " smooth", "delayMs": 40}
+{"t": "textDelta", "v": " soles", "delayMs": 40}
+{"t": "textDelta", "v": " at", "delayMs": 40}
+{"t": "textDelta", "v": " home.", "delayMs": 40}

@@ -1,0 +1,8 @@
+name: libxls
+repo: https://github.com/libxls/libxls
+ref: 93f1ad5e2d8af092884204b8293c770f39691ea5
+fetched: 2026-11-10 (vendir.lock.yml)
+license: BSD-2-Clause  (LICENSE copied to ./LICENSE)
+paths: see Vendor/libxls-allowlist.tsv (vendored + test rows; 14 files)
+patches: none (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

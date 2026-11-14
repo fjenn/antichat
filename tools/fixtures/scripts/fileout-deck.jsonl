@@ -1,0 +1,6 @@
+# Q-015 XCUITest catch-up (PresentationTests, AT-275): create_presentation, three slides, then the answer.
+{"t": "title", "v": "Garden club deck", "delayMs": 50}
+{"t": "toolCallDone", "id": "call_1", "name": "create_presentation", "args": "{\"filename\": \"Garden club\", \"theme\": \"clean\", \"slides\": [{\"layout\": \"title\", \"title\": \"Garden club\", \"subtitle\": \"Spring season\"}, {\"layout\": \"bullets\", \"title\": \"This month\", \"bullets\": [\"Seed swap on Saturday\", \"Compost workshop\", \"New allotment plots\"]}, {\"layout\": \"bullets\", \"title\": \"Join us\", \"bullets\": [\"Meet every Tuesday\", \"All ages welcome\"]}]}", "delayMs": 20}
+{"t": "turn"}
+{"t": "textDelta", "v": "The three-slide deck is above.", "delayMs": 20}
+{"t": "done", "reason": "stop"}

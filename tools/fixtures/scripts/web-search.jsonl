@@ -1,0 +1,9 @@
+# M7.T03 AT-080 c3 / AT-250 c1 (SearchProbe `chip` / `reopen` legs, -ScriptedWebSearch YES): the forced web_search
+# step, then an answer citing [1]…[9] of which only 1–4 are fetched (the scripted tool's sources).
+{"t":"title","v":"Latest macOS version","delayMs":200}
+{"t":"toolCallDone","id":"call_ws1","name":"web_search","args":"{\"queries\":[\"latest macOS version\"]}","delayMs":30}
+{"t":"turn"}
+{"t":"textDelta","v":"The latest macOS is macOS 27 [1].","delayMs":20}
+{"t":"textDelta","v":" It shipped this autumn [2][3].","delayMs":20}
+{"t":"textDelta","v":" Apple lists the supported Macs [4].","delayMs":20}
+{"t":"textDelta","v":" Some sites guess at the next one [5] [6] [7, 8] [9].","delayMs":20}

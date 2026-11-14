@@ -1,0 +1,7 @@
+# URLSession lint allow-list (architecture §3 rule 5; tools/ci/url-session-lint.py). Each entry: path (glob),
+# match (regex on the line), justification, reviewer, until (the milestone that removes it).
+- path: Packages/Engines/Sources/AntiChatEngines/Image/SDServerClient.swift
+  match: 'URLSessionConfiguration\.ephemeral|URLSession\(configuration: c\)'
+  justification: M0.T06 spike client for the helper-local sd-server (loopback only, inside AntiChatEngine.xpc, which has no AntiChatNetwork); replaced by the UnixHTTPClient socket path with the sd-server socket UP patch (M0-report §8, M4).
+  reviewer: lead
+  until: M4

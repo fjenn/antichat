@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antichat.app/schema/catalog-v2.schema.json",
+  "title": "AntiChat model catalog, schema 2 (blueprint E §E.2.2; M2.T04)",
+  "type": "object",
+  "required": ["schema", "catalog_version", "issued", "expires", "min_app_version", "revoked", "roles", "tone_sentence", "on_demand", "assignments", "models"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": 2},
+    "catalog_version": {"type": "integer", "minimum": 1},
+    "issued": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "expires": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "min_app_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "revoked": {"type": "array", "items": {"$ref": "#/$defs/revocation"}},
+    "roles": {"type": "array", "items": {"type": "string"}},
+    "tone_sentence": {"type": "string", "minLength": 1},
+    "on_demand": {"type": "array", "items": {"type": "string"}},
+    "assignments": {
+      "type": "object",
+      "propertyNames": {"pattern": "^T[0-4](-\\d+)?$"},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["S1", "S2", "S3", "S4"],
+        "additionalProperties": false,
+        "properties": {"S1": {"$ref": "#/$defs/cell"}, "S2": {"$ref": "#/$defs/cell"}, "S3": {"$ref": "#/$defs/cell"}, "S4": {"$ref": "#/$defs/cell"}}
+      }
+    },
+    "models": {"type": "object", "additionalProperties": {"$ref": "#/$defs/model"}},
+    "runtimes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/runtime"}},
+    "search_engines": {"type": "array", "items": {"type": "object"}},
+    "mcp_curated": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "runtime": {
+      "description": "M6.T16 (D-026): a downloadable runtime component (catalog/runtimes.yaml); unzips to Runtimes/<name>@<version>/.",
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "sha256", "size_bytes", "url", "min_app_version", "tiers", "signature_mode"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "url": {"type": "string", "pattern": "^https?://.+\\.zip$"},
+        "min_app_version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+        "tiers": {"type": "array", "minItems": 1, "items": {"enum": ["T0", "T1", "T2", "T3", "T4"]}},
+        "signature_mode": {"enum": ["adhoc", "dev", "devid"]}
+      }
+    },
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.\\-]*$"},
+    "reason": {"type": "string", "pattern": "^[A-Za-z0-9_]+$"},
+    "revocation": {
+      "type": "object", "required": ["id", "action", "reason"], "additionalProperties": false,
+      "properties": {"id": {"$ref": "#/$defs/id"}, "action": {"enum": ["disable", "warn"]}, "reason": {"enum": ["corrupt", "license", "takedown"]}}
+    },
+    "chatPick": {
+      "type": "object", "required": ["model", "ctx"], "additionalProperties": false,
+      "properties": {"model": {"$ref": "#/$defs/id"}, "ctx": {"type": "integer", "minimum": 2048}, "step_down": {"$ref": "#/$defs/id"}}
+    },
+    "packSlot": {
+      "type": "object", "required": ["normal", "evil"], "additionalProperties": false,
+      "properties": {"normal": {"type": "array", "items": {"$ref": "#/$defs/id"}, "minItems": 1}, "evil": {"type": "array", "items": {"$ref": "#/$defs/id"}, "minItems": 1}}
+    },
+    "cell": {
+      "type": "object", "required": ["chat", "title"], "additionalProperties": false,
+      "properties": {
+        "chat": {
+          "type": "object", "required": ["fast_first"], "additionalProperties": false,
+          "properties": {
+            "normal": {"$ref": "#/$defs/chatPick"}, "normal_reason": {"$ref": "#/$defs/reason"},
+            "evil": {"$ref": "#/$defs/chatPick"}, "evil_reason": {"$ref": "#/$defs/reason"},
+            "evil_family_reason": {"type": "string"}, "fast_first": {"$ref": "#/$defs/id"}
+          }
+        },
+        "embed": {"$ref": "#/$defs/id"}, "embed_reason": {"$ref": "#/$defs/reason"},
+        "rerank": {"$ref": "#/$defs/id"}, "rerank_reason": {"$ref": "#/$defs/reason"},
+        "stt_multi": {"$ref": "#/$defs/id"}, "stt_multi_reason": {"$ref": "#/$defs/reason"},
+        "title": {"type": "string", "pattern": "^(@chat|@chat_fast|[a-z0-9][a-z0-9.\\-]*)$"},
+        "csam_check": {"$ref": "#/$defs/id"}, "csam_check_reason": {"$ref": "#/$defs/reason"},
+        "cite_check": {"$ref": "#/$defs/id"},
+        "voice": {"$ref": "#/$defs/packSlot"}, "voice_reason": {"$ref": "#/$defs/reason"},
+        "photo": {"$ref": "#/$defs/packSlot"}, "photo_reason": {"$ref": "#/$defs/reason"},
+        "video": {"$ref": "#/$defs/packSlot"}, "video_reason": {"$ref": "#/$defs/reason"}
+      }
+    },
+    "file": {
+      "type": "object", "required": ["path", "size", "sha256", "sources"], "additionalProperties": false,
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "size": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "sources": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^https://(huggingface\\.co/[^/]+/[^/]+/resolve|raw\\.githubusercontent\\.com/[^/]+/[^/]+)/[0-9a-f]{40}/"}},
+        "chunk": {
+          "type": "object", "required": ["size", "sha256"], "additionalProperties": false,
+          "properties": {"size": {"type": "integer", "minimum": 1}, "sha256": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["role", "engine", "format", "capabilities", "footprint", "noncommercial_ok", "repo", "commit", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "role": {"type": "string"},
+        "engine": {"enum": ["mlx-swift-lm", "llama.cpp", "coreml", "sd.cpp", "fastmetal", "ltx-2-mlx", "onnx", "accelerate"]},
+        "engine_min": {"type": "string"},
+        "format": {"enum": ["mlx-safetensors", "safetensors", "gguf", "mlmodelc", "mlpackage", "onnx"]},
+        "quant": {"type": "string"},
+        "context_default": {"type": "integer"}, "context_max": {"type": "integer"},
+        "capabilities": {"type": "array", "items": {"type": "string"}},
+        "footprint": {
+          "type": "object", "required": ["weights_gb", "kv_per_token_kb", "overhead_gb"], "additionalProperties": false,
+          "properties": {"weights_gb": {"type": "number", "minimum": 0}, "kv_per_token_kb": {"type": "number", "minimum": 0},
+                         "overhead_gb": {"type": "number", "minimum": 0}, "active_gb": {"type": "number", "minimum": 0}}
+        },
+        "family": {"type": "string"}, "chat_template": {"type": "string"}, "shared_group": {"type": "string"},
+        "requires": {"type": "array", "items": {"$ref": "#/$defs/id"}},
+        "raw_tensor_files": {"type": "array", "items": {"type": "string"}},
+        "supersedes": {"type": "array", "items": {"$ref": "#/$defs/id"}},
+        "release_notes": {"type": "string"},
+        "license": {"type": "string"}, "license_url": {"type": "string"}, "attribution": {"type": "string"},
+        "modification_notice": {"enum": ["quantized", "abliterated+quantized", "converted", "none"]},
+        "noncommercial_ok": {"type": "boolean"},
+        "repo": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "files": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/file"}}
+      }
+    }
+  }
+}

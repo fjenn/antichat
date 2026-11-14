@@ -1,0 +1,11 @@
+# Load progress 0→100% over 8 s (20 steps), first time only; then a short reply (M1.T19 QueueTests).
+{"t":"load","ms":8000,"steps":20}
+{"t":"title","v":"Greeting while loading","delayMs":300}
+{"t":"textDelta","v":"Ready","delayMs":20}
+{"t":"textDelta","v":" now.","delayMs":20}
+{"t":"textDelta","v":" What","delayMs":20}
+{"t":"textDelta","v":" would","delayMs":20}
+{"t":"textDelta","v":" you","delayMs":20}
+{"t":"textDelta","v":" like","delayMs":20}
+{"t":"textDelta","v":" to","delayMs":20}
+{"t":"textDelta","v":" do?","delayMs":20}

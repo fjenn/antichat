@@ -1,0 +1,16 @@
+# Q-015 XCUITest catch-up (FileVersionTests, AT-273): every request writes the same spreadsheet file name, so the
+# second request ("Add a total row") makes version 2 of the first file.
+# Q-015 r5: a request plays segment k = the assistant messages in its prompt. The first turn's tool step and the second
+# user turn both play segment 1 (a turn is stored as one assistant message), so `when` picks the step by the user's
+# words: the first turn's answer, or the second turn's own create_spreadsheet call (its answer is segment 2), which names
+# the first file as `revises` (`{{artifact}}`, R-273 AC4: the same file name alone makes a new file). Before, the second
+# turn replayed the answer and no version 2 was ever written.
+{"t": "title", "v": "Budget", "delayMs": 50}
+{"t": "toolCallDone", "id": "call_1", "name": "create_spreadsheet", "args": "{\"filename\": \"Budget\", \"format\": \"xlsx\", \"sheets\": [{\"name\": \"Budget\", \"columns\": [{\"header\": \"Item\", \"type\": \"text\"}, {\"header\": \"Cost\", \"type\": \"currency\"}], \"rows\": [[\"Rent\", 900], [\"Food\", 300], [\"Travel\", 120]]}]}", "delayMs": 20}
+{"t": "turn"}
+{"t": "textDelta", "v": "The budget spreadsheet is above.", "delayMs": 20, "when": "budget spreadsheet"}
+{"t": "done", "reason": "stop", "when": "budget spreadsheet"}
+{"t": "toolCallDone", "id": "call_1", "name": "create_spreadsheet", "args": "{\"filename\": \"Budget\", \"format\": \"xlsx\", \"sheets\": [{\"name\": \"Budget\", \"columns\": [{\"header\": \"Item\", \"type\": \"text\"}, {\"header\": \"Cost\", \"type\": \"currency\"}], \"rows\": [[\"Rent\", 900], [\"Food\", 300], [\"Travel\", 120], [\"Total\", 1320]]}], \"revises\": \"{{artifact}}\"}", "delayMs": 20, "when": "total row"}
+{"t": "turn"}
+{"t": "textDelta", "v": "Added a total row: version 2 is above.", "delayMs": 20}
+{"t": "done", "reason": "stop"}

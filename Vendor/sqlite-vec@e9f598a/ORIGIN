@@ -1,0 +1,8 @@
+name: sqlite-vec
+repo: https://github.com/asg017/sqlite-vec
+ref: e9f598abfa0c06b328d8fe5da9c3760cce74be10
+fetched: 2026-11-03 (vendir.lock.yml)
+license: MIT  (LICENSE copied to ./LICENSE)
+paths: see Vendor/sqlite-vec-allowlist.tsv (vendored + test rows; 2 files)
+patches: none (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

@@ -1,0 +1,4 @@
+# Public test-key fingerprints (base64 raw Ed25519). A release-keys build that pins any of them fails (gen-keys-swift.py).
+Lfhwtsep1tKBCxpS4LkzzJhO7uuNCWyI7p/eS8X8hlQ=	sparkle-test (catalog/test-keys/sparkle-test.pub)
+pAicWX6Ull7ObNLP62rrmlIRPIumQcmHOKBnv9rHpZc=	catalog-a (fixtures/catalog/test-keys/catalog-a.pub)
+S31zXwjbyKjDBGAVndHvOEmHgrSsRW9+5xH9FCEJJEM=	catalog-b (fixtures/catalog/test-keys/catalog-b.pub)

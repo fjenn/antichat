@@ -1,0 +1,24 @@
+# M7.T06 step 8 (R-081 AC4, P-files-tools-12): the "Popular connections" list, compiled into catalog.json
+# `mcp_curated` by `catalog-tool build` and signed with the rest of the catalog. Display-only data: nothing connects
+# until the user adds one (R-081 AC1). Prefilled from the vendored Osaurus MCPProviderTemplate (osaurus@2922745),
+# filtered to remote servers whose auth AntiChat supports (none, pasted bearer token, OAuth 2.1 with DCR or CIMD;
+# manual-OAuth vendors such as Asana, Slack, HubSpot left out). A readOnlyHint tool of a server listed here (verified
+# catalog only) starts on Always allow; everything else asks. `cimd_only` entries stay hidden until AntiChat's client
+# metadata document is published (M7.T07).
+# Live probe 2026-11-05 (POST initialize, 2025-11-25): huggingface, deepwiki, exa_search answered 200; the others
+# 401 with a WWW-Authenticate challenge (reachable, sign-in needed). Fields: catalog/README.md "mcp_curated".
+servers:
+  - {id: github, name: GitHub, url: "https://api.githubcopilot.com/mcp/", auth: token, category: Developer, icon: chevron.left.forwardslash.chevron.right, tagline: "Browse repos, issues, and pull requests via Copilot", help_url: "https://docs.github.com/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server"}
+  - {id: linear, name: Linear, url: "https://mcp.linear.app/mcp", auth: oauth, category: Developer, icon: chart.bar.doc.horizontal.fill, tagline: "Read and update Linear issues, projects, and cycles"}
+  - {id: sentry, name: Sentry, url: "https://mcp.sentry.dev/mcp", auth: oauth, category: Developer, icon: exclamationmark.shield.fill, tagline: "Investigate Sentry issues, traces, and releases"}
+  - {id: huggingface, name: Hugging Face, url: "https://huggingface.co/mcp", auth: oauth, category: Developer, icon: face.smiling.fill, tagline: "Search models, datasets, papers, and Spaces"}
+  - {id: deepwiki, name: DeepWiki, url: "https://mcp.deepwiki.com/mcp", auth: none, category: Developer, icon: book.closed.fill, tagline: "Q&A over any public GitHub repo"}
+  - {id: cloudflare, name: Cloudflare, url: "https://mcp.cloudflare.com/mcp", auth: oauth, category: Developer, icon: cloud.fill, tagline: "Manage your Cloudflare account, workers, and DNS"}
+  - {id: vercel, name: Vercel, url: "https://mcp.vercel.com/", auth: oauth, category: Developer, icon: triangle.fill, tagline: "Manage Vercel projects, deploys, and DNS"}
+  - {id: supabase, name: Supabase, url: "https://mcp.supabase.com/mcp", auth: oauth, category: Developer, icon: bolt.horizontal.circle.fill, tagline: "Manage Supabase Postgres, auth, and storage"}
+  - {id: neon, name: Neon, url: "https://mcp.neon.tech/mcp", auth: oauth, category: Developer, icon: cylinder.fill, tagline: "Query and manage Neon Postgres databases"}
+  - {id: netlify, name: Netlify, url: "https://netlify-mcp.netlify.app/mcp", auth: oauth, category: Developer, icon: network, tagline: "Manage Netlify sites, deploys, and DNS"}
+  - {id: notion, name: Notion, url: "https://mcp.notion.com/mcp", auth: oauth, category: Business Productivity, icon: doc.text.fill, tagline: "Read and edit your Notion pages and databases"}
+  - {id: atlassian, name: Atlassian, url: "https://mcp.atlassian.com/v2/mcp", auth: oauth, category: Business Productivity, icon: square.stack.3d.up.fill, tagline: "Search and edit Jira and Confluence content"}
+  - {id: exa_search, name: Exa Search, url: "https://mcp.exa.ai/mcp", auth: none, category: Business Productivity, icon: magnifyingglass, tagline: "AI-native web search and content extraction"}
+  - {id: stripe, name: Stripe, url: "https://mcp.stripe.com", auth: oauth, category: Finance & Accounting, icon: creditcard.fill, tagline: "Read and manage Stripe customers, charges, and subscriptions"}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- AD-HOC MODE ONLY (A-M0-09, A-M0-T12a). tools/release/sign.sh --mode adhoc merges these keys into the app's and
+     AntiChatEngine.xpc's entitlements; --mode dev|devid never reads this file and fails if the signed app carries
+     the key. Reason: under the hardened runtime, library validation rejects every non-platform library whose
+     Team ID differs from the process's, and an ad-hoc signature has no Team ID, so even Sparkle.framework and
+     onnxruntime.framework re-signed ad-hoc by sign.sh are refused ("mapping process and mapped file
+     (non-platform) have different Team IDs", S-6 report). A Developer ID / Apple Development signature gives
+     every nested binary the same Team ID, which removes the need (ci-release.md §3 matrix: no exemption). -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

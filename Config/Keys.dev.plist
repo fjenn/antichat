@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- M10.T04 (R-305 AC2): public keys, DEV channel: the committed test keys (Debug builds and adhoc/dev RCs, ANTICHAT_ALLOW_DEV_KEYS=1).
+     Forks replace these values (and Config/Endpoints.plist) and rebuild; no code change. Public keys only, never private.
+     tools/release/gen-keys-swift.py turns them into PinnedKeys.swift; build-release.sh stamps SUPublicEDKey. -->
+<plist version="1.0">
+<dict>
+	<key>SparklePublicEDKey</key>
+	<string>Lfhwtsep1tKBCxpS4LkzzJhO7uuNCWyI7p/eS8X8hlQ=</string>
+	<key>SparklePublicEDKeyBackup</key>
+	<string></string>
+	<key>CatalogPublicKeyA</key>
+	<string>pAicWX6Ull7ObNLP62rrmlIRPIumQcmHOKBnv9rHpZc=</string>
+	<key>CatalogPublicKeyB</key>
+	<string>S31zXwjbyKjDBGAVndHvOEmHgrSsRW9+5xH9FCEJJEM=</string>
+</dict>
+</plist>

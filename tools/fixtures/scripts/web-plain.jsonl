@@ -1,0 +1,5 @@
+# M7.T03 AT-080 c4 (SearchProbe `consent` leg): offline, the Web search chip is on but no web tool is offered; the
+# model answers from what it knows (a stray [1] is dropped: there are no sources).
+{"t":"title","v":"Latest macOS version","delayMs":200}
+{"t":"textDelta","v":"From what I know, the latest macOS","delayMs":20}
+{"t":"textDelta","v":" is macOS 26 Tahoe [1].","delayMs":20}

@@ -1,0 +1,26 @@
+{
+  "id": "wikipedia",
+  "name": "Wikipedia",
+  "enabled": true,
+  "kind": "declarative",
+  "parser": "declarative",
+  "url_template": "https://{lang}.wikipedia.org/w/api.php",
+  "endpoint": {
+    "url": "https://{lang}.wikipedia.org/w/api.php",
+    "method": "GET",
+    "headers": {},
+    "query": [
+      {"name": "action", "value": "query"},
+      {"name": "list", "value": "search"},
+      {"name": "srsearch", "value": "{{raw_query}}"},
+      {"name": "format", "value": "json"},
+      {"name": "srlimit", "value": "10"}
+    ],
+    "body": [],
+    "response": {"resultsPath": "query.search", "item": {"title": "title", "snippet": "snippet", "publishedDate": "timestamp"}},
+    "timeout": 5
+  },
+  "url_from_title": "https://{lang}.wikipedia.org/wiki/{title}",
+  "safe_param": {"off": "", "on": ""},
+  "min_app_version": "0.1.0"
+}

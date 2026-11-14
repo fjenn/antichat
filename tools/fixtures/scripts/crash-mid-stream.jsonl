@@ -1,0 +1,42 @@
+# 40 words, then the engine dies (helper: process exit; in-process: engine.restarted).
+{"t":"textDelta","v":"The","delayMs":25}
+{"t":"textDelta","v":" quiet","delayMs":25}
+{"t":"textDelta","v":" harbour","delayMs":25}
+{"t":"textDelta","v":" town","delayMs":25}
+{"t":"textDelta","v":" wakes","delayMs":25}
+{"t":"textDelta","v":" slowly.","delayMs":25}
+{"t":"textDelta","v":" Fishing","delayMs":25}
+{"t":"textDelta","v":" boats","delayMs":25}
+{"t":"textDelta","v":" knock","delayMs":25}
+{"t":"textDelta","v":" against","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" pier","delayMs":25}
+{"t":"textDelta","v":" while","delayMs":25}
+{"t":"textDelta","v":" gulls","delayMs":25}
+{"t":"textDelta","v":" argue","delayMs":25}
+{"t":"textDelta","v":" over","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" morning","delayMs":25}
+{"t":"textDelta","v":" catch.","delayMs":25}
+{"t":"textDelta","v":" A","delayMs":25}
+{"t":"textDelta","v":" baker","delayMs":25}
+{"t":"textDelta","v":" props","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" door","delayMs":25}
+{"t":"textDelta","v":" open","delayMs":25}
+{"t":"textDelta","v":" so","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" smell","delayMs":25}
+{"t":"textDelta","v":" of","delayMs":25}
+{"t":"textDelta","v":" warm","delayMs":25}
+{"t":"textDelta","v":" bread","delayMs":25}
+{"t":"textDelta","v":" drifts","delayMs":25}
+{"t":"textDelta","v":" down","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" lane,","delayMs":25}
+{"t":"textDelta","v":" and","delayMs":25}
+{"t":"textDelta","v":" the","delayMs":25}
+{"t":"textDelta","v":" first","delayMs":25}
+{"t":"textDelta","v":" ferry","delayMs":25}
+{"t":"textDelta","v":" sounds","delayMs":25}
+{"t":"crash"}

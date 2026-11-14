@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "source": "blueprint C §C.6, B §B1.6/B2.6/B3.6/B4.6 [ASSUMPTION]; A-M6-06: top-k per tier lives only here",
+  "architecture": "Harness resource (architecture §2 AntiChatHarness): per-tier evidence budgets the prompt layer reads. M6.T02 adds files.*; M7.T01 adds search, tools, skills, connections (A-M7-04).",
+  "files": {
+    "retrieval_top_k": {"T0": 4, "T1": 6, "T2": 8, "T3": 10, "T4": 12},
+    "prefill_tps_note": "R-270 AC1 prefill_tps per chat model key (K-NEW-FILES-2, A-M6-T02a): median of build/perf/raw chat-*/inproc-* runs with >= 1k prompt tokens on the build Mac; unmeasured keys scale by parameter count from the nearest measured one.",
+    "prefill_tps": {
+      "chat-0.8b": 19500,
+      "chat-2b": 9000,
+      "chat-4b": 4500,
+      "chat-9b-q4": 2034,
+      "chat-9b-q8": 1800,
+      "chat-27b-q4": 900,
+      "chat-35b-q4": 2890
+    },
+    "prefill_tps_tier_default_note": "A-M6-T02a lead decision: a chat key missing above (e.g. after a catalog model update) or a non-positive value uses this conservative per-tier rate (below every measured default model of the tier), so the rule leans to excerpts instead of a slow inline prefill.",
+    "prefill_tps_tier_default": {"T0": 300, "T1": 500, "T2": 600, "T3": 700, "T4": 800},
+    "duckdb_note": "M6.T07 [ASSUMPTION] (R-272): per-chat in-memory DuckDB memory_limit (MB) and the sheet profile block cap (tokens).",
+    "duckdb_memory_mb": {"T0": 256, "T1": 512, "T2": 1024, "T3": 2048, "T4": 2048},
+    "sheet_profile_tokens": {"T0": 1500, "T1": 3000, "T2": 3000, "T3": 3000, "T4": 3000}
+  },
+  "search": {
+    "source": "blueprint B §B1.6 (queries, evidence_tokens, reranker), §B1.2 step 4 (pages = top K fetched), §B1.2 step 3 (free_race_budget_s = the 2.5 s engine timeout) [ASSUMPTION, owner Phase 6/7]; A-M7-04; evidence_tokens T3 kept at 10000 (M9.T05: 3000 met AT-254 but dropped AT-250 c2 T3 to 0.888 on held-out-5; the T3 latency fix is the harness-written forced search call, WebSearchTools.directSearchTiers)",
+    "queries": {"T0": 1, "T1": 2, "T2": 3, "T3": 3, "T4": 3},
+    "pages": {"T0": 3, "T1": 4, "T2": 5, "T3": 6, "T4": 6},
+    "evidence_tokens": {"T0": 1500, "T1": 3000, "T2": 6000, "T3": 10000, "T4": 16000},
+    "reranker": {"T0": false, "T1": false, "T2": true, "T3": true, "T4": true},
+    "free_race_budget_s": {"T0": 2.5, "T1": 2.5, "T2": 2.5, "T3": 2.5, "T4": 2.5},
+    "fetch_deadline_s_note": "M9.T05 (AT-254 T3 first token, cold page caches): the turn answers with the pages fetched by this many seconds after the fetch starts; a later page is used as its search snippet and its fetch finishes in the background into the page cache. A tier without a cell waits for every page (5 s page timeout). T3 tuned on 2 x 20 cold turns each (search-availability rows 21-40, private page caches): first token p50 4.23 s at 1.0 s vs 4.89 s at 1.5 s vs 6.08 s without (build/at/AT-254/t3-deadline/).",
+    "fetch_deadline_s": {"T3": 1.0}
+  },
+  "tools": {
+    "source": "blueprint B §B4.6 (max_per_step, schema_token_cap, result_cap, max_steps; B2.6 agrees) [ASSUMPTION, owner Phase 6]; A-M7-04; max_per_step T1/T2 = 4 = R-235 AC2 (A-M7-T14a (a), lead decision 2026-11-10; B4.6 had 5/8)",
+    "max_per_step": {"T0": 3, "T1": 4, "T2": 4, "T3": 12, "T4": 16},
+    "schema_token_cap": {"T0": 600, "T1": 1200, "T2": 2500, "T3": 4000, "T4": 6000},
+    "result_cap": {"T0": 1000, "T1": 2000, "T2": 4000, "T3": 8000, "T4": 8000},
+    "max_steps": {"T0": 2, "T1": 3, "T2": 5, "T3": 8, "T4": 8}
+  },
+  "skills": {
+    "source": "blueprint B §B3.6 (candidates_m, max_active, body_tokens; T3-T4 row used for T3 and T4) [ASSUMPTION, owner Phase 6]; theta: blank in the blueprint at every tier (B3.2 \"tuned in Phase 6\") → 0.5, kept by the M7.T13 eval (build/at/AT-263/2026-11-08-T{0,1}.json: T0 chat-2b θ 0.5 M 2 pre-load → correct 0.90 false 0.06; T1 chat-9b-q4 θ 0.5 M 3 no pre-load → correct 0.975 false 0.01; T2–T4 untuned, T2 leg in M11 B5); preload: T0 only (K-NEW-SKILL-1); A-M7-04",
+    "candidates_m": {"T0": 2, "T1": 3, "T2": 5, "T3": 8, "T4": 8},
+    "max_active": {"T0": 1, "T1": 2, "T2": 3, "T3": 5, "T4": 5},
+    "body_tokens": {"T0": 1500, "T1": 3000, "T2": 5000, "T3": 5000, "T4": 5000},
+    "theta": {"T0": 0.5, "T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5},
+    "preload": {"T0": true, "T1": false, "T2": false, "T3": false, "T4": false}
+  },
+  "connections": {
+    "source": "blueprint B §B2.6 (T0: 3 local servers, 10 min idle shutdown); T1-T4 blank → the nearest lower tier (T0) value [ASSUMPTION]; A-M7-04",
+    "max_local_servers": {"T0": 3, "T1": 3, "T2": 3, "T3": 3, "T4": 3},
+    "idle_shutdown_min": {"T0": 10, "T1": 10, "T2": 10, "T3": 10, "T4": 10}
+  }
+}

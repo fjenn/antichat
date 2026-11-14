@@ -1,0 +1,12 @@
+# File tools runtime (M6.T15 step 2; P-files-tools-09 list + blueprint C §C.2.4). Exact pins (D-014); the lock is
+# requirements.lock (uv pip compile --generate-hashes, binary wheels only, aarch64-apple-darwin, Python 3.13).
+# Never PyMuPDF (AGPL, excluded). Bump: edit a pin here, re-run the compile line in build.sh's header, rebuild.
+numpy==2.5.4
+pandas==3.1.1
+openpyxl==3.1.5
+python-docx==1.2.0
+python-pptx==1.0.2
+matplotlib==3.11.2
+pillow==13.0.0
+xlsxwriter==3.3.1
+pypdf==6.21.4

@@ -1,0 +1,28 @@
+{
+  "name": "antichat-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsx scripts/local-server.ts",
+    "make-env": "tsx scripts/make-env.ts",
+    "dump-keys": "tsx scripts/dump-keys.ts"
+  },
+  "dependencies": {
+    "@composio/core": "0.27.0",
+    "@upstash/ratelimit": "2.2.0",
+    "@upstash/redis": "1.41.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vercel": "65.12.1",
+    "vitest": "5.1.0"
+  }
+}

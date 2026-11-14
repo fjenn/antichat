@@ -1,0 +1,6 @@
+# AT-270 UI leg (FilesExcerptTests): a prefill long enough to show "Reading <file> · n%" (real prefill progress,
+# NFR-C5) and the map-reduce "Summarising section n of N · p%" line; basic.jsonl reports no prefill at all.
+{"t":"prefill","ms":3000,"steps":15}
+{"t":"textDelta","v":"Page 7 describes the weir","delayMs":20}
+{"t":"textDelta","v":" and its almanac (p. 7).","delayMs":20}
+{"t":"done","reason":"stop"}

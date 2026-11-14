@@ -1,0 +1,9 @@
+# M6.T21 AT-VQ-M6 vq-files-out (VisualQAM6): create_document → PDF card + panel, create_chart (inline values the
+# user typed) → chart card, then the answer.
+{"t": "title", "v": "Weir notes summary", "delayMs": 300}
+{"t": "toolCallDone", "id": "call_1", "name": "create_document", "args": "{\"format\": \"pdf\", \"title\": \"Weir notes summary\", \"markdown\": \"# Weir notes\\n\\nThe almanac weir holds the river at a steady level through the dry months.\\n\\n| Month | Flow (m\\u00b3/s) |\\n|---|---|\\n| Jan | 12.4 |\\n| Feb | 10.9 |\\n| Mar | 15.2 |\\n| Apr | 18.7 |\\n\", \"page_size\": \"A4\", \"style\": \"report\"}", "delayMs": 20}
+{"t": "turn"}
+{"t": "toolCallDone", "id": "call_2", "name": "create_chart", "args": "{\"title\": \"Monthly flow\", \"vega_lite_spec\": {\"$schema\": \"https://vega.github.io/schema/vega-lite/v6.json\", \"data\": {\"values\": [{\"month\": \"Jan\", \"flow\": 12.4}, {\"month\": \"Feb\", \"flow\": 10.9}, {\"month\": \"Mar\", \"flow\": 15.2}, {\"month\": \"Apr\", \"flow\": 18.7}]}, \"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"month\", \"type\": \"ordinal\", \"sort\": null}, \"y\": {\"field\": \"flow\", \"type\": \"quantitative\", \"title\": \"Flow (m\\u00b3/s)\"}}}}", "delayMs": 20}
+{"t": "turn"}
+{"t": "textDelta", "v": "The PDF summary and the monthly flow chart are above.", "delayMs": 20}
+{"t": "done", "reason": "stop"}

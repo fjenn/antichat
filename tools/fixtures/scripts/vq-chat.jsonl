@@ -1,0 +1,360 @@
+# Visual QA vq-m9 legs (m9, m9-edit, m9-mac): one reply per prompt the probe sends, picked by `when`.
+# Titles stay the chat's temporary title (the scripted engine has one title line per script).
+{"t":"textDelta","v":"##","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" A","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" relaxed","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" weekend","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" by","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" harbour\n\nKeep","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" it","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" slow","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" close","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" to","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" water:\n\n1.","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" **Saturday","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" morning:**","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" coffee","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" on","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" quay","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" while","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" fishing","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" boats","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" come","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" in,","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" then","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" walk","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" out","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" to","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" lighthouse.\n2.","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" **Saturday","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" afternoon:**","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" browse","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" market","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" square","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" take","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" short","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" ferry","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" ride","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" around","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" bay.\n3.","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" **Sunday:**","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" late","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" breakfast,","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" castle","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" ruins","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" on","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" hill,","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" long","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" lunch","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" before","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" you","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" head","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" home.\n\n|","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" When","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Plan","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |\n|---|---|\n|","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Sat","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" AM","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Quay","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" lighthouse","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |\n|","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Sat","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" PM","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Market","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" ferry","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |\n|","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Sun","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" Castle","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" lunch","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" |\n\nWant","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" me","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" to","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" suggest","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" places","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" to","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":" eat?","delayMs":15,"when":"harbour town"}
+{"t":"textDelta","v":"##","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" A","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" quiet","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" weekend","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" in","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" fishing","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" village\n\nA","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" smaller","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" place","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" suits","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" slower","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" pace:\n\n1.","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" **Saturday:**","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" watch","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" morning","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" catch","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" land,","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" then","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" follow","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" cliff","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" path","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" to","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" next","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" cove.\n2.","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" **Saturday","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" evening:**","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" grilled","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" fish","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" at","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" harbour","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" inn","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" walk","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" along","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" breakwater","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" at","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" sunset.\n3.","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" **Sunday:**","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" borrow","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" kayak","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" if","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" sea","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" is","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" calm,","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" or","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" read","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" on","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" beach","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" until","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" afternoon","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" bus.\n\nShall","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" I","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" add","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" rainy-day","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":" backup?","delayMs":15,"when":"fishing village"}
+{"t":"textDelta","v":"For","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" coast","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" in","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" April,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" pack","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" for","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" sun,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" wind","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" shower","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" or","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" two:\n\n-","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" **Layers:**","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" light","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" waterproof","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" jacket,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" warm","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" jumper","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" couple","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" of","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" T-shirts\n-","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" **Shoes:**","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" comfortable","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" walking","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" shoes","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" with","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" good","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" grip,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" plus","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" sandals","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" for","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" evenings\n-","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" **Extras:**","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" sunglasses,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" sunscreen,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" small","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" umbrella","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" reusable","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" water","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" bottle\n\nThe","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" sea","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" is","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" still","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" cold","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" in","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" April,","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" so","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" swimsuit","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" is","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":" optional.","delayMs":15,"when":"pack for the coast"}
+{"t":"textDelta","v":"Three","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" seafood","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" dishes","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" worth","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" trying:\n\n1.","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" **Grilled","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" sardines:**","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" simply","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" salted","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" charred,","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" served","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" on","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" bread.\n2.","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" **Clams","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" in","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" white","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" wine:**","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" cooked","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" with","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" garlic","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" coriander;","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" ask","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" for","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" extra","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" bread","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" for","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" sauce.\n3.","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" **Seafood","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" rice:**","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" a","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" soupy","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" rice","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" with","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" prawns,","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" mussels","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" and","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" squid,","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" made","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" for","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" sharing.\n\nIf","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" you","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" only","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" try","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" one,","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" make","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" it","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" the","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" grilled","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":" sardines.","delayMs":15,"when":"seafood"}
+{"t":"textDelta","v":"2","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" +","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 2","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" =","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 4.","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" Start","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" at","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 2","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" and","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" count","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" up","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" two","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" more:","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 3,","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" then","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 4.","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" It","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" is","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" also","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 2","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" ×","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 2,","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" so","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" for","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" the","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" number","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" 2","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" adding","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" it","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" to","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" itself","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" and","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" multiplying","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" it","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" by","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" itself","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" give","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" the","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" same","delayMs":40,"when":"2+2"}
+{"t":"textDelta","v":" answer.","delayMs":40,"when":"2+2"}
+# VQ round 65: a slow reply the m9 leg stops mid-stream (S-08 stopped), and an engine error (S-08 error + Retry).
+{"t":"textDelta","v":"Start","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" at","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" harbour","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" wall","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" at","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" low","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" tide,","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" follow","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" shingle","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" path","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" past","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" old","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" boathouse,","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" then","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" climb","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" cliff","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" steps","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" to","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" lighthouse","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" and","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" come","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" back","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" along","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" dunes","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" before","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" tide","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" turns","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" again","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" in","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" the","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" late","delayMs":140,"when":"lighthouse walk"}
+{"t":"textDelta","v":" afternoon.","delayMs":140,"when":"lighthouse walk"}
+{"t":"error","code":"engine.stalled","when":"tide times"}

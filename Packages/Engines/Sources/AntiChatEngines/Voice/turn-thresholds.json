@@ -1,0 +1,15 @@
+{
+  "onsetMs": 250,
+  "holdMs": 300,
+  "smartTurnThreshold": 0.99,
+  "rechecks": [
+    { "afterMs": 600, "threshold": 0.99 },
+    { "afterMs": 800, "threshold": 0.99 }
+  ],
+  "requireSentenceEnd": true,
+  "sentenceEnd": { "afterMs": 900, "threshold": 0.5 },
+  "sentenceCapMs": 1200,
+  "openEnd": { "afterMs": 1500, "threshold": 0.8 },
+  "maxSilenceMs": 2000,
+  "levelGateDb": 10
+}

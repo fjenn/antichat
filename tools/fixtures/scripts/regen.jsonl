@@ -1,0 +1,9 @@
+# Versioned replies (M1.T10 J03EditVersionsTests): {{v}} = the n-th play of that turn, so each regenerate /
+# edit of the same turn gets a distinguishable reply. Markdown, so Copy has rich text to write.
+{"t":"textDelta","v":"Answer v{{v}}:","delayMs":15}
+{"t":"textDelta","v":" the harbour town has","delayMs":15}
+{"t":"textDelta","v":" **three** piers","delayMs":15}
+{"t":"textDelta","v":" and a `lighthouse`.","delayMs":15}
+{"t":"turn"}
+{"t":"textDelta","v":"Follow-up v{{v}}:","delayMs":15}
+{"t":"textDelta","v":" the ferry leaves at noon.","delayMs":15}

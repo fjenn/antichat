@@ -1,0 +1,4 @@
+{"version": "0.0.3", "critical": false, "prerelease": false,
+ "items": [{"icon": "cube", "title": "New pack icons", "body": "Chat, Voice, Photo and Video have new 3D icons in setup and Settings."},
+           {"icon": "flame", "title": "Evil Mode icon", "body": "Evil Mode gets its own 3D icon too."},
+           {"icon": "checkmark.seal", "title": "Test fixes", "body": "Fixes to the test suite behind this release."}]}

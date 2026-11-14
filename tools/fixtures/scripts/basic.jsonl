@@ -1,0 +1,9 @@
+# Short greeting, then done (M1.T07 WindowLayoutTests, M1.T19 J02).
+{"t":"title","v":"Harbour town weekend plan","delayMs":400}
+{"t":"textDelta","v":"Hello!","delayMs":20}
+{"t":"textDelta","v":" How","delayMs":20}
+{"t":"textDelta","v":" can","delayMs":20}
+{"t":"textDelta","v":" I","delayMs":20}
+{"t":"textDelta","v":" help","delayMs":20}
+{"t":"textDelta","v":" you","delayMs":20}
+{"t":"textDelta","v":" today?","delayMs":20}

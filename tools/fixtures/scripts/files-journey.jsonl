@@ -1,0 +1,3 @@
+{"t":"prefill","ms":4000,"steps":20}
+{"t":"textDelta","v":"Chapter 3 is about the almanac weir (p. 3).","delayMs":20}
+{"t":"done","reason":"stop"}

@@ -1,0 +1,139 @@
+//
+//  ToolPermissionPolicy.swift
+//  osaurus
+//
+//  Permission model for tools and optional capability requirements.
+//
+
+import Foundation
+
+package enum ToolPermissionPolicy: String, Codable, Sendable {
+    case auto
+    case ask
+    case deny
+
+    var displayName: String {
+        switch self {
+        case .auto: return L("Auto")
+        case .ask: return L("Ask")
+        case .deny: return L("Deny")
+        }
+    }
+}
+
+/// Global "auto-allow all tool calls" chat setting (default off). When on,
+/// tools whose effective policy is `.ask` run without showing the interactive
+/// approval card. It only replaces the interactive prompt: `.deny` policies,
+/// external-surface / headless denials, and non-tool security confirmations
+/// (e.g. provider credential moves, spawn first-use prompts) are unaffected.
+enum ToolApprovalSettings {
+    static let autoAllowAllDefaultsKey = "chatAutoAllowAllTools"
+
+    static var autoAllowAll: Bool {
+        UserDefaults.standard.bool(forKey: autoAllowAllDefaultsKey)
+    }
+}
+
+extension ToolPermissionPolicy {
+    /// Strictness rank for strictest-wins composition: `deny` > `ask` > `auto`.
+    package var strictnessRank: Int {
+        switch self {
+        case .auto: return 0
+        case .ask: return 1
+        case .deny: return 2
+        }
+    }
+
+    /// Strictest-wins combinator. A global user setting can NARROW an
+    /// argument-resolved policy (auto → ask, anything → deny) but can never
+    /// loosen one — and vice versa.
+    package static func strictest(
+        _ lhs: ToolPermissionPolicy,
+        _ rhs: ToolPermissionPolicy
+    ) -> ToolPermissionPolicy {
+        lhs.strictnessRank >= rhs.strictnessRank ? lhs : rhs
+    }
+}
+
+/// Optional extension protocol for tools that declare requirements and default policy.
+protocol PermissionedTool {
+    /// Capability/requirement identifiers, e.g. "permission:web", "permission:folder", "tool:browser"
+    var requirements: [String] { get }
+    /// Default policy suggested by the tool (host configuration may override)
+    var defaultPermissionPolicy: ToolPermissionPolicy { get }
+    /// Whether the tool runs its OWN purpose-built interactive approval
+    /// inside its body (e.g. `osaurus_config`'s in-chat plan-review card).
+    /// When true, an `.ask` policy resolution skips the generic
+    /// args-JSON approval panel — showing it would be a redundant double
+    /// prompt that hides the real diff. `.deny` still denies, and the
+    /// tool body remains responsible for gating headless/external
+    /// surfaces. Defaults to `false`.
+    var handlesOwnApproval: Bool { get }
+}
+
+extension PermissionedTool {
+    var handlesOwnApproval: Bool { false }
+}
+
+/// Argument-aware permission resolution for tools whose approval semantics
+/// depend on WHAT is being asked, not just which tool is called (e.g.
+/// `agent_channel_publish`, where the referenced destination binding's
+/// outbound mode decides between auto / interactive confirm). The registry
+/// combines the resolved value with the configured per-tool policy using
+/// `ToolPermissionPolicy.strictest`, so a user setting can narrow a binding
+/// but a permissive binding can never loosen a user setting.
+protocol ContextualPermissionedTool: PermissionedTool {
+    /// Resolve the policy for one specific invocation. Must be side-effect
+    /// free — it runs before any approval prompt and before execution.
+    func resolveContextualPermissionPolicy(argumentsJSON: String) async -> ToolPermissionPolicy
+
+    /// Whether an `.ask` resolution that CANNOT be prompted (an unattended
+    /// schedule/watcher dispatch with nobody present to answer a card) may
+    /// proceed into the tool body, which must then convert the invocation
+    /// into a QUEUED operator approval instead of executing the privileged
+    /// action (`agent_channel_publish` records a pending outbox item). This
+    /// lets a global `.ask` narrow an autonomous destination to
+    /// approval-required on unattended runs instead of stalling or failing
+    /// them. Defaults to `false`: unattended `.ask` stays denied for tools
+    /// that execute their effect directly. Must be side-effect free.
+    func unattendedAskQueuesForApproval(argumentsJSON: String) async -> Bool
+}
+
+extension ContextualPermissionedTool {
+    func unattendedAskQueuesForApproval(argumentsJSON: String) async -> Bool { false }
+}
+
+// ANTICHAT-PATCH: UP-OS-027 strip KnowledgeWritePreviewingTool (Osaurus knowledge-write approval UI; the knowledge subsystem is not vendored)
+// ANTICHAT-PATCH-END
+
+/// A tool whose approval can never be pre-granted: every single call shows the
+/// card, and neither "Allow for This Task" nor "Always Allow" is offered.
+///
+/// Exists for `delete_knowledge`. Deletion is the highest-blast-radius
+/// operation in the knowledge feature, it is irreversible from the user's
+/// point of view without going through the write log, and it is exactly what
+/// osaurus#2439 asked for ("delete all of them") and got wrong. A lease
+/// granted for a bulk WRITE must not silently authorize removal later in the
+/// same run, which is what a shared `.ask` gate would do.
+///
+/// Deliberately narrow. This is not "high risk" as a general concept; it is a
+/// specific refusal to let a blanket grant cover destruction.
+protocol PerCallApprovalTool {
+    /// Marker only. Conformance is the whole contract.
+    var requiresApprovalEveryCall: Bool { get }
+}
+
+extension PerCallApprovalTool {
+    var requiresApprovalEveryCall: Bool { true }
+}
+
+/// Argument-aware variant of `PerCallApprovalTool`: the same tool call is
+/// pre-grantable for some arguments and per-call for others. `mail_compose`
+/// / `mail_reply` create a draft by default (a lease may cover that) but
+/// SEND when `send: true`, and a send on the user's behalf must show its
+/// card every time — "Allow for this run" taken for a draft must never
+/// silently authorise an outgoing email later in the same turn. Must be
+/// side-effect free: it runs before approval and before execution.
+protocol ArgumentAwarePerCallApprovalTool {
+    func requiresApprovalEveryCall(argumentsJSON: String) -> Bool
+}

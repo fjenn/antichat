@@ -1,0 +1,3 @@
+# actionlint: labels of the self-hosted runners (ci-release §1).
+self-hosted-runner:
+  labels: [gpu, m5max]

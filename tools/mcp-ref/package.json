@@ -1,0 +1,15 @@
+{
+  "name": "antichat-mcp-ref",
+  "private": true,
+  "description": "M7.T06/T07 reference MCP servers for InteropTests (R-258) and the OAuth reference AS (R-257). Dev/test only; never shipped. `npm ci --ignore-scripts` (lockfile-exact; never npx --yes).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "dependencies": {
+    "@modelcontextprotocol/server-everything": "2.2.1",
+    "@modelcontextprotocol/server-filesystem": "2.2.0",
+    "@modelcontextprotocol/server-memory": "2.1.0",
+    "@modelcontextprotocol/server": "2.3.1",
+    "@modelcontextprotocol/node": "2.1.1"
+  }
+}

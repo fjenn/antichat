@@ -1,0 +1,330 @@
+{
+ "schema": 1,
+ "fps": 24,
+ "resolutions": [
+  {
+   "name": "480p",
+   "landscape": [
+    832,
+    480
+   ],
+   "portrait": [
+    480,
+    832
+   ],
+   "square": [
+    640,
+    640
+   ]
+  },
+  {
+   "name": "720p",
+   "landscape": [
+    1280,
+    704
+   ],
+   "portrait": [
+    704,
+    1280
+   ],
+   "square": [
+    960,
+    960
+   ]
+  },
+  {
+   "name": "1080p",
+   "landscape": [
+    1920,
+    1088
+   ],
+   "portrait": [
+    1088,
+    1920
+   ],
+   "square": [
+    1408,
+    1408
+   ]
+  }
+ ],
+ "frames": [
+  {
+   "resolution": "480p",
+   "short": 73,
+   "medium": 121
+  },
+  {
+   "resolution": "720p",
+   "short": 81,
+   "medium": 121
+  },
+  {
+   "resolution": "1080p",
+   "short": 81,
+   "medium": 121
+  }
+ ],
+ "models": [
+  {
+   "key": "vid-5b",
+   "multiple": 32,
+   "frame_step": 4,
+   "steps": 3,
+   "steps_min": 1,
+   "steps_max": 3
+  },
+  {
+   "key": "vid-i2v",
+   "multiple": 32,
+   "frame_step": 4,
+   "steps": 20,
+   "steps_min": 20,
+   "steps_max": 20
+  },
+  {
+   "key": "vid-ltx",
+   "multiple": 64,
+   "frame_step": 8,
+   "steps": 11,
+   "steps_min": 11,
+   "steps_max": 11
+  }
+ ],
+ "tiers": [
+  {
+   "tier": "T2",
+   "speed_class": "S1",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p"
+   ],
+   "i2v_resolutions": [],
+   "default_length": "short",
+   "default_resolution": "480p",
+   "default_shape": "landscape",
+   "max_frames": 73,
+   "t2v_model": "vid-5b",
+   "note": "Shown-lite"
+  },
+  {
+   "tier": "T2",
+   "speed_class": "S2",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 81,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T2",
+   "speed_class": "S3",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 81,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T2",
+   "speed_class": "S4",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 81,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T3",
+   "speed_class": "S1",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 121,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T3",
+   "speed_class": "S2",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 121,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T3",
+   "speed_class": "S3",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 121,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T3",
+   "speed_class": "S4",
+   "lengths": [
+    "short"
+   ],
+   "resolutions": [
+    "480p",
+    "720p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "short",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 121,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T4",
+   "speed_class": "S1",
+   "lengths": [
+    "short",
+    "medium"
+   ],
+   "resolutions": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "medium",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 241,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T4",
+   "speed_class": "S2",
+   "lengths": [
+    "short",
+    "medium"
+   ],
+   "resolutions": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "medium",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 241,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T4",
+   "speed_class": "S3",
+   "lengths": [
+    "short",
+    "medium"
+   ],
+   "resolutions": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "medium",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 241,
+   "t2v_model": "vid-5b"
+  },
+  {
+   "tier": "T4",
+   "speed_class": "S4",
+   "lengths": [
+    "short",
+    "medium"
+   ],
+   "resolutions": [
+    "480p",
+    "720p",
+    "1080p"
+   ],
+   "i2v_resolutions": [
+    "480p"
+   ],
+   "default_length": "medium",
+   "default_resolution": "720p",
+   "default_shape": "landscape",
+   "max_frames": 241,
+   "t2v_model": "vid-5b"
+  }
+ ]
+}

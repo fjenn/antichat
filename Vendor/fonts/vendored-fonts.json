@@ -1,0 +1,134 @@
+{
+ "files": [
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSans-Regular.ttf",
+   "license": "OFL-1.1",
+   "sha256": "478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSans/hinted/ttf/NotoSans-Bold.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSans-Bold.ttf",
+   "license": "OFL-1.1",
+   "sha256": "1df075a380fc7cb898acf64c1f7b3b4dd780de3caa860178bf929de35817a913",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSans/hinted/ttf/NotoSans-Italic.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSans-Italic.ttf",
+   "license": "OFL-1.1",
+   "sha256": "467e3f89eeca4108bb8710a2b9e0cf2281ac56d5b0609211a83776d0505eecb5",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSans/hinted/ttf/NotoSans-BoldItalic.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSans-BoldItalic.ttf",
+   "license": "OFL-1.1",
+   "sha256": "1b602a9d6353be42c91df097a4857b69fa2696f26703d7a33b54a15d87c2622c",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSerif/hinted/ttf/NotoSerif-Regular.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSerif-Regular.ttf",
+   "license": "OFL-1.1",
+   "sha256": "19e72cd8d595fae5bd74a5206f5d938512e1183d4fed7abb1ec1be1d7efa5f88",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSerif/hinted/ttf/NotoSerif-Bold.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSerif-Bold.ttf",
+   "license": "OFL-1.1",
+   "sha256": "96656aa5cec8f1d6fd0e804c1fad397e1a1cfa082e6642124e0bda68cd8363ce",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSerif/hinted/ttf/NotoSerif-Italic.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSerif-Italic.ttf",
+   "license": "OFL-1.1",
+   "sha256": "749e80e313ef711f9373c6cce17c72297ef05490b3dcda7967d1d5d90bf1183f",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSansMono/hinted/ttf/NotoSansMono-Regular.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSansMono-Regular.ttf",
+   "license": "OFL-1.1",
+   "sha256": "65b5e2b2c4a1fba9ae8be1f026cb35b03dcb8886d9b2a4147054fde12f7e767d",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSansHebrew/hinted/ttf/NotoSansHebrew-Regular.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSansHebrew-Regular.ttf",
+   "license": "OFL-1.1",
+   "sha256": "cdefaf8efd47045f6820928eba84db5bed7557539328952b5f828315485e02ee",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  },
+  {
+   "repo": "notofonts/notofonts.github.io",
+   "tag": "noto-monthly-release-2026.11.01",
+   "sha": "412a7edb2c8c535d1066157e5b17e661fd5591fe",
+   "upstream_path": "fonts/NotoSansHebrew/hinted/ttf/NotoSansHebrew-Bold.ttf",
+   "local_path": "Packages/Tools/Sources/AntiChatTools/Resources/fonts/NotoSansHebrew-Bold.ttf",
+   "license": "OFL-1.1",
+   "sha256": "da9226e886c245a7e11673c24dec82bded64d8574c1e1f03983bf89297d2aaa8",
+   "used_by": [
+    "P-files-tools-05"
+   ],
+   "license_file": "Vendor/fonts/licenses/notofonts.github.io.LICENSE"
+  }
+ ]
+}

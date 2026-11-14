@@ -1,0 +1,12 @@
+# regen.jsonl at a watchable pace (Q-015 r5, J03EditVersionsTests.testActionBar "hidden while streaming"): the 15 ms
+# deltas ended a regenerated reply in ~60 ms, before an accessibility client could see it stream (Stop never seen).
+# Same text and {{v}} versions, every delta 500 ms (≈ 2 s of streaming). regen.jsonl stays as it is (perf journeys).
+# Also J08IncognitoTests, whose every turn waits to see Stop. r6: the follow-up turn's deltas are 1 s (≈ 2 s of
+# streaming): at 500 ms its Stop showed ~1 s, between two of XCTest's 1 s existence polls (J08 missed it).
+{"t":"textDelta","v":"Answer v{{v}}:","delayMs":500}
+{"t":"textDelta","v":" the harbour town has","delayMs":500}
+{"t":"textDelta","v":" **three** piers","delayMs":500}
+{"t":"textDelta","v":" and a `lighthouse`.","delayMs":500}
+{"t":"turn"}
+{"t":"textDelta","v":"Follow-up v{{v}}:","delayMs":1000}
+{"t":"textDelta","v":" the ferry leaves at noon.","delayMs":1000}

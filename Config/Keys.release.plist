@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CatalogPublicKeyA</key>
+	<string>ba25a2nyP6tlRRT7xOoZXxkVyb70/MQnSaU3lHgQmMM=</string>
+	<key>CatalogPublicKeyB</key>
+	<string>kDogkQh0zhAwl3YFRo8Hj5d0ZxG3yg3a7PhURe9n16Y=</string>
+	<key>SparklePublicEDKey</key>
+	<string>rirueghUAAjPNC6ZwqmzZ6/owdAOfHEgS1dG0Mzzfvw=</string>
+	<key>SparklePublicEDKeyBackup</key>
+	<string>03moUiJFcIuA59o1rWT96ZkwsJ7aIzUoWIu7/irvrZ4=</string>
+</dict>
+</plist>

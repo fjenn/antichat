@@ -1,0 +1,805 @@
+{
+ "source": "docs/research/05-fork/selection.md \u00a711 per-gap table (D-012, 2026-10-30), transcribed once by M0.T13; A pw cross-checked against registry/gaps.json estimate_pw; P0 share = p0_reqs/reqs (P0 and P0+P1 requirements of the gap in registry/requirements.json; the table prints it to 2 decimals)",
+ "f1r_shell_gaps": [
+  "G-001",
+  "G-002",
+  "G-003",
+  "G-004",
+  "G-005",
+  "G-006",
+  "G-015",
+  "G-016",
+  "G-018"
+ ],
+ "expected_sums": {
+  "A": [
+   103.4,
+   140.2
+  ],
+  "F1": [
+   83.0,
+   110.3
+  ],
+  "F1-R": [
+   89.4,
+   116.8
+  ],
+  "F2": [
+   83.7,
+   114.8
+  ]
+ },
+ "d012": {
+  "g067_unmeasured_pw": 2.5,
+  "one_time": {
+   "A_scaffold": 1.0,
+   "F1_prune": 5.0,
+   "monolith_friction_ratio": 0.1,
+   "F2_strip_and_sidecars": 5.5
+  },
+  "yearly": {
+   "A": 4.5,
+   "F1": 5.0,
+   "F1-R": 5.0,
+   "F2": 18.0
+  },
+  "osaurus_share_of_A_yearly": 2.25,
+  "expected_3yr": {
+   "A": 156,
+   "F1": 141,
+   "F1-R": 149,
+   "F2": 174
+  },
+  "switch_ratio": 1.2
+ },
+ "gaps": [
+  {
+   "gap": "G-001",
+   "a_pw": 5.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.5,
+   "f2_factor": 0.6,
+   "f1_pw_table": 2.5,
+   "f2_pw_table": 3.0,
+   "p0_reqs": 4,
+   "reqs": 4
+  },
+  {
+   "gap": "G-002",
+   "a_pw": 2.0,
+   "p0_share": 0.8,
+   "f1_factor": 0.4,
+   "f2_factor": 0.5,
+   "f1_pw_table": 0.8,
+   "f2_pw_table": 1.0,
+   "p0_reqs": 4,
+   "reqs": 5
+  },
+  {
+   "gap": "G-003",
+   "a_pw": 1.5,
+   "p0_share": 0.75,
+   "f1_factor": 1.3,
+   "f2_factor": 0.2,
+   "f1_pw_table": 1.95,
+   "f2_pw_table": 0.3,
+   "p0_reqs": 3,
+   "reqs": 4
+  },
+  {
+   "gap": "G-004",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.4,
+   "f2_factor": 0.2,
+   "f1_pw_table": 0.6,
+   "f2_pw_table": 0.3,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-005",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.9,
+   "f2_factor": 0.7,
+   "f1_pw_table": 1.35,
+   "f2_pw_table": 1.05,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-006",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.5,
+   "f2_factor": 0.6,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.9,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-007",
+   "a_pw": 2.0,
+   "p0_share": 0.6,
+   "f1_factor": 0.5,
+   "f2_factor": 0.7,
+   "f1_pw_table": 1.0,
+   "f2_pw_table": 1.4,
+   "p0_reqs": 3,
+   "reqs": 5
+  },
+  {
+   "gap": "G-008",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.3,
+   "f2_factor": 0.5,
+   "f1_pw_table": 0.45,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-009",
+   "a_pw": 2.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.8,
+   "f2_factor": 0.5,
+   "f1_pw_table": 1.6,
+   "f2_pw_table": 1.0,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-010",
+   "a_pw": 3.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.2,
+   "f2_factor": 0.5,
+   "f1_pw_table": 4.2,
+   "f2_pw_table": 1.75,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-011",
+   "a_pw": 4.0,
+   "p0_share": 0.5,
+   "f1_factor": 0.65,
+   "f2_factor": 0.85,
+   "f1_pw_table": 2.6,
+   "f2_pw_table": 3.4,
+   "p0_reqs": 3,
+   "reqs": 6
+  },
+  {
+   "gap": "G-012",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.4,
+   "f2_factor": 0.8,
+   "f1_pw_table": 0.6,
+   "f2_pw_table": 1.2,
+   "p0_reqs": 3,
+   "reqs": 3
+  },
+  {
+   "gap": "G-013",
+   "a_pw": 4.0,
+   "p0_share": 1.0,
+   "f1_factor": 1.1,
+   "f2_factor": 0.95,
+   "f1_pw_table": 4.4,
+   "f2_pw_table": 3.8,
+   "p0_reqs": 4,
+   "reqs": 4
+  },
+  {
+   "gap": "G-014",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.2,
+   "f2_factor": 0.6,
+   "f1_pw_table": 1.8,
+   "f2_pw_table": 0.9,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-015",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.5,
+   "f2_factor": 1.0,
+   "f1_pw_table": 0.38,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-016",
+   "a_pw": 3.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.8,
+   "f2_factor": 0.5,
+   "f1_pw_table": 2.4,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 3,
+   "reqs": 3
+  },
+  {
+   "gap": "G-017",
+   "a_pw": 1.5,
+   "p0_share": 0.5,
+   "f1_factor": 0.7,
+   "f2_factor": 0.7,
+   "f1_pw_table": 1.05,
+   "f2_pw_table": 1.05,
+   "p0_reqs": 1,
+   "reqs": 2
+  },
+  {
+   "gap": "G-018",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.4,
+   "f2_factor": 0.8,
+   "f1_pw_table": 0.3,
+   "f2_pw_table": 0.6,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-019",
+   "a_pw": 2.0,
+   "p0_share": 0.5,
+   "f1_factor": 0.7,
+   "f2_factor": 0.6,
+   "f1_pw_table": 1.4,
+   "f2_pw_table": 1.2,
+   "p0_reqs": 2,
+   "reqs": 4
+  },
+  {
+   "gap": "G-020",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.25,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.94,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-021",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-022",
+   "a_pw": 1.5,
+   "p0_share": 0.5,
+   "f1_factor": 0.5,
+   "f2_factor": 0.5,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 1,
+   "reqs": 2
+  },
+  {
+   "gap": "G-023",
+   "a_pw": 2.0,
+   "p0_share": 0.33,
+   "f1_factor": 0.85,
+   "f2_factor": 1.5,
+   "f1_pw_table": 1.7,
+   "f2_pw_table": 3.0,
+   "p0_reqs": 1,
+   "reqs": 3
+  },
+  {
+   "gap": "G-024",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 0.5,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-025",
+   "a_pw": 4.0,
+   "p0_share": 0.67,
+   "f1_factor": 0.8,
+   "f2_factor": 0.75,
+   "f1_pw_table": 3.2,
+   "f2_pw_table": 3.0,
+   "p0_reqs": 2,
+   "reqs": 3
+  },
+  {
+   "gap": "G-026",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 0.9,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.35,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-027",
+   "a_pw": 7.0,
+   "p0_share": 0.33,
+   "f1_factor": 1.0,
+   "f2_factor": 0.7,
+   "f1_pw_table": 7.0,
+   "f2_pw_table": 4.9,
+   "p0_reqs": 1,
+   "reqs": 3
+  },
+  {
+   "gap": "G-028",
+   "a_pw": 2.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.85,
+   "f2_factor": 0.9,
+   "f1_pw_table": 1.7,
+   "f2_pw_table": 1.8,
+   "p0_reqs": 5,
+   "reqs": 5
+  },
+  {
+   "gap": "G-029",
+   "a_pw": 0.75,
+   "p0_share": 0.5,
+   "f1_factor": 0.7,
+   "f2_factor": 0.2,
+   "f1_pw_table": 0.52,
+   "f2_pw_table": 0.15,
+   "p0_reqs": 1,
+   "reqs": 2
+  },
+  {
+   "gap": "G-030",
+   "a_pw": 2.0,
+   "p0_share": 0.33,
+   "f1_factor": 0.5,
+   "f2_factor": 0.5,
+   "f1_pw_table": 1.0,
+   "f2_pw_table": 1.0,
+   "p0_reqs": 1,
+   "reqs": 3
+  },
+  {
+   "gap": "G-031",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 0.7,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.52,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-032",
+   "a_pw": 1.5,
+   "p0_share": 0.0,
+   "f1_factor": 0.7,
+   "f2_factor": 0.8,
+   "f1_pw_table": 1.05,
+   "f2_pw_table": 1.2,
+   "p0_reqs": 0,
+   "reqs": 1
+  },
+  {
+   "gap": "G-033",
+   "a_pw": 2.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.9,
+   "f2_factor": 0.9,
+   "f1_pw_table": 1.8,
+   "f2_pw_table": 1.8,
+   "p0_reqs": 3,
+   "reqs": 3
+  },
+  {
+   "gap": "G-034",
+   "a_pw": 1.5,
+   "p0_share": 0.67,
+   "f1_factor": 0.4,
+   "f2_factor": 0.5,
+   "f1_pw_table": 0.6,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 4,
+   "reqs": 6
+  },
+  {
+   "gap": "G-035",
+   "a_pw": 4.0,
+   "p0_share": 0.0,
+   "f1_factor": 0.5,
+   "f2_factor": 0.7,
+   "f1_pw_table": 2.0,
+   "f2_pw_table": 2.8,
+   "p0_reqs": 0,
+   "reqs": 6
+  },
+  {
+   "gap": "G-036",
+   "a_pw": 1.5,
+   "p0_share": 0.33,
+   "f1_factor": 0.4,
+   "f2_factor": 1.25,
+   "f1_pw_table": 0.6,
+   "f2_pw_table": 1.88,
+   "p0_reqs": 1,
+   "reqs": 3
+  },
+  {
+   "gap": "G-037",
+   "a_pw": 4.0,
+   "p0_share": 0.8,
+   "f1_factor": 0.85,
+   "f2_factor": 1.2,
+   "f1_pw_table": 3.4,
+   "f2_pw_table": 4.8,
+   "p0_reqs": 4,
+   "reqs": 5
+  },
+  {
+   "gap": "G-038",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.5,
+   "f2_factor": 1.2,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 1.8,
+   "p0_reqs": 3,
+   "reqs": 3
+  },
+  {
+   "gap": "G-039",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.1,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.65,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-040",
+   "a_pw": 1.5,
+   "p0_share": 0.0,
+   "f1_factor": 0.5,
+   "f2_factor": 1.0,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 0,
+   "reqs": 3
+  },
+  {
+   "gap": "G-041",
+   "a_pw": 4.0,
+   "p0_share": 0.57,
+   "f1_factor": 0.7,
+   "f2_factor": 1.15,
+   "f1_pw_table": 2.8,
+   "f2_pw_table": 4.6,
+   "p0_reqs": 4,
+   "reqs": 7
+  },
+  {
+   "gap": "G-042",
+   "a_pw": 4.0,
+   "p0_share": 0.67,
+   "f1_factor": 0.8,
+   "f2_factor": 1.0,
+   "f1_pw_table": 3.2,
+   "f2_pw_table": 4.0,
+   "p0_reqs": 2,
+   "reqs": 3
+  },
+  {
+   "gap": "G-043",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-044",
+   "a_pw": 2.0,
+   "p0_share": 1.0,
+   "f1_factor": 0.7,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.4,
+   "f2_pw_table": 2.0,
+   "p0_reqs": 4,
+   "reqs": 4
+  },
+  {
+   "gap": "G-045",
+   "a_pw": 8.0,
+   "p0_share": 0.4,
+   "f1_factor": 0.9,
+   "f2_factor": 1.05,
+   "f1_pw_table": 7.2,
+   "f2_pw_table": 8.4,
+   "p0_reqs": 2,
+   "reqs": 5
+  },
+  {
+   "gap": "G-046",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.8,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.2,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-047",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.5,
+   "f2_factor": 0.6,
+   "f1_pw_table": 0.38,
+   "f2_pw_table": 0.45,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-048",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.1,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.65,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-049",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 0.8,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.6,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-050",
+   "a_pw": 4.0,
+   "p0_share": 0.71,
+   "f1_factor": 1.0,
+   "f2_factor": 0.8,
+   "f1_pw_table": 4.0,
+   "f2_pw_table": 3.2,
+   "p0_reqs": 5,
+   "reqs": 7
+  },
+  {
+   "gap": "G-051",
+   "a_pw": 2.0,
+   "p0_share": 0.75,
+   "f1_factor": 0.8,
+   "f2_factor": 0.8,
+   "f1_pw_table": 1.6,
+   "f2_pw_table": 1.6,
+   "p0_reqs": 3,
+   "reqs": 4
+  },
+  {
+   "gap": "G-052",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.9,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.35,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-053",
+   "a_pw": 4.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.9,
+   "f2_factor": 0.9,
+   "f1_pw_table": 4.05,
+   "f2_pw_table": 4.05,
+   "p0_reqs": 5,
+   "reqs": 5
+  },
+  {
+   "gap": "G-054",
+   "a_pw": 1.5,
+   "p0_share": 0.67,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 2,
+   "reqs": 3
+  },
+  {
+   "gap": "G-055",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.7,
+   "f2_factor": 0.8,
+   "f1_pw_table": 1.05,
+   "f2_pw_table": 1.2,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-056",
+   "a_pw": 2.0,
+   "p0_share": 1.0,
+   "f1_factor": 1.25,
+   "f2_factor": 1.2,
+   "f1_pw_table": 2.5,
+   "f2_pw_table": 2.4,
+   "p0_reqs": 4,
+   "reqs": 4
+  },
+  {
+   "gap": "G-057",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-058",
+   "a_pw": 2.0,
+   "p0_share": 0.33,
+   "f1_factor": 0.75,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 2.0,
+   "p0_reqs": 1,
+   "reqs": 3
+  },
+  {
+   "gap": "G-059",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.6,
+   "f2_factor": 1.1,
+   "f1_pw_table": 0.45,
+   "f2_pw_table": 0.83,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-060",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.4,
+   "f2_factor": 0.6,
+   "f1_pw_table": 0.3,
+   "f2_pw_table": 0.45,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-061",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.7,
+   "f2_factor": 0.5,
+   "f1_pw_table": 1.05,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-062",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.5,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-063",
+   "a_pw": 0.75,
+   "p0_share": 0.5,
+   "f1_factor": 0.8,
+   "f2_factor": 0.8,
+   "f1_pw_table": 0.6,
+   "f2_pw_table": 0.6,
+   "p0_reqs": 1,
+   "reqs": 2
+  },
+  {
+   "gap": "G-064",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.1,
+   "f1_pw_table": 1.5,
+   "f2_pw_table": 1.65,
+   "p0_reqs": 2,
+   "reqs": 2
+  },
+  {
+   "gap": "G-065",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 0.4,
+   "f2_factor": 1.0,
+   "f1_pw_table": 0.3,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 1,
+   "reqs": 1
+  },
+  {
+   "gap": "G-066",
+   "a_pw": 1.5,
+   "p0_share": 0.5,
+   "f1_factor": 0.7,
+   "f2_factor": 0.4,
+   "f1_pw_table": 1.05,
+   "f2_pw_table": 0.6,
+   "p0_reqs": 1,
+   "reqs": 2
+  },
+  {
+   "gap": "G-067",
+   "a_pw": 1.5,
+   "p0_share": 1.0,
+   "f1_factor": 0.0,
+   "f2_factor": 0.3,
+   "f1_pw_table": 0.0,
+   "f2_pw_table": 0.45,
+   "p0_reqs": 8,
+   "reqs": 8
+  },
+  {
+   "gap": "G-068",
+   "a_pw": 0.75,
+   "p0_share": 1.0,
+   "f1_factor": 1.0,
+   "f2_factor": 1.0,
+   "f1_pw_table": 0.75,
+   "f2_pw_table": 0.75,
+   "p0_reqs": 4,
+   "reqs": 4
+  }
+ ]
+}

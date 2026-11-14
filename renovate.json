@@ -1,0 +1,149 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "From upstream.md \u00a75. Inactive (enabled: false) until the public repo exists (M0.T01; PRD \u00a79).",
+  "enabled": false,
+  "extends": [
+    "config:recommended",
+    ":pinAllExceptPeerDependencies",
+    ":disableRateLimiting"
+  ],
+  "timezone": "Europe/Amsterdam",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "enabledManagers": [
+    "swift",
+    "git-submodules",
+    "npm",
+    "github-actions",
+    "custom.regex"
+  ],
+  "git-submodules": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "swift"
+      ],
+      "rangeStrategy": "pin",
+      "groupName": "swift-ui-deps",
+      "matchPackageNames": [
+        "sindresorhus/Defaults",
+        "sindresorhus/KeyboardShortcuts",
+        "SvenTiigi/WhatsNewKit",
+        "orchetect/MenuBarExtraAccess",
+        "siteline/swiftui-introspect",
+        "LiYanan2004/MarkdownView"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "ml-explore/mlx-swift-lm",
+        "FluidInference/FluidAudio",
+        "argmaxinc/argmax-oss-swift",
+        "microsoft/onnxruntime-swift-package-manager"
+      ],
+      "groupName": "engines",
+      "labels": [
+        "engine-bump",
+        "needs-conformance"
+      ],
+      "automerge": false
+    },
+    {
+      "matchPackageNames": [
+        "sparkle-project/Sparkle"
+      ],
+      "labels": [
+        "release-critical"
+      ],
+      "automerge": false
+    },
+    {
+      "matchPackageNames": [
+        "groue/GRDB.swift"
+      ],
+      "labels": [
+        "storage"
+      ],
+      "automerge": false
+    },
+    {
+      "matchManagers": [
+        "git-submodules"
+      ],
+      "matchPackageNames": [
+        "llama.cpp",
+        "sdcpp"
+      ],
+      "labels": [
+        "binary-bump",
+        "needs-conformance"
+      ]
+    },
+    {
+      "matchFileNames": [
+        "relay/**"
+      ],
+      "groupName": "relay",
+      "labels": [
+        "relay"
+      ],
+      "automerge": false
+    },
+    {
+      "matchFileNames": [
+        "site/**"
+      ],
+      "groupName": "site",
+      "automerge": true,
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ]
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "pinDigests": true,
+      "automerge": true
+    },
+    {
+      "description": "Donor bumps re-run the 3-way merge (tools/vendor-sync bump-from-renovate); needs allowedCommands in the self-hosted global config. Never automerged.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "Vendor/donors.json"
+      ],
+      "labels": [
+        "vendor-bump"
+      ],
+      "automerge": false,
+      "postUpgradeTasks": {
+        "commands": [
+          "tools/vendor-sync bump-from-renovate"
+        ],
+        "executionMode": "branch"
+      }
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Vendored donors (Vendor/donors.json; upstream.md \u00a74). vendir.yml is generated from donors.json, so the digest is tracked there.",
+      "managerFilePatterns": [
+        "/^Vendor/donors\\.json$/"
+      ],
+      "matchStrings": [
+        "\"repo\": \"https://github\\.com/(?<depName>[^\"]+)\",\\s*\"ref\": \"(?<currentDigest>[0-9a-f]{40})\""
+      ],
+      "datasourceTemplate": "git-refs",
+      "packageNameTemplate": "https://github.com/{{{depName}}}",
+      "currentValueTemplate": "main",
+      "versioningTemplate": "git"
+    }
+  ]
+}

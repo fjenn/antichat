@@ -1,0 +1,38 @@
+# Runtime components (M6.T16; architecture §9.1; D-026: the format is generic, M5.T01's video runtime adds its entry
+# here instead of forking). `make catalog` copies every entry into the signed catalog's `runtimes[]` (NFR-SEC7);
+# RuntimeInstaller downloads `url`, checks `sha256`, unzips to Runtimes/<name>@<version>/ and validates every
+# signature. `sha256` / `size_bytes` / `signature_mode` are written by tools/release/sign-runtime.sh
+# --update-catalog (the SIGNED zip's values; `make runtime-filetools SIGN=1`). Fields:
+#   name            folder + registry id (lowercase, [a-z0-9-])
+#   version         x.y.z (the folder is <name>@<version>)
+#   sha256          lowercase hex of the signed zip
+#   size_bytes      zip size (NFR-D2 preflight: free ≥ size + 10 GB)
+#   url             the GitHub Release asset (fjenn/antichat, tag runtimes-<date>); `make site-dev` serves a local copy
+#   min_app_version oldest app that can use it
+#   tiers           hardware tiers that may install it (T0…T4)
+#   signature_mode  adhoc | dev | devid (devid + notarization in M10, A-M6-09)
+runtimes:
+  - name: filetools-runtime
+    version: "0.1.0"
+    sha256: ca5e7c13f80e063c368e5f182516ffede5470bccab717f47ba93ab056e30ecd9
+    size_bytes: 73854527
+    url: "https://github.com/fjenn/antichat/releases/download/runtimes-2026-11-13/filetools-runtime-0.1.0.zip"
+    min_app_version: "0.0.1"
+    tiers: [T0, T1, T2, T3, T4]
+    signature_mode: devid
+  # M5.T01 (P-media-11): CPython 3.12 + MLX + FastVideo + antichat_video; Video pack tiers (hardware-tiers §4.5).
+  # 0.3.0 (M5.T07, A-M5-04): + ltx-2-mlx@895201d (LTX-2.3 with sound) and its mlx-lm / transformers closure.
+  # 0.3.1 (M5.T14 review): no file-writing driver; the shipped launcher has no --pytest mode.
+  # 0.3.2 (NFR-VID3 memory miss): a cancelled / failed job's arrays are collected before the MLX cache is cleared.
+  # 0.3.3 (perf/t4-video, NFR-VID1): DiT forward compiled (upstream compile=True, bit-identical), RGBA8 conversion on
+  #   the GPU (byte-identical), and /frames serves the decoded frames while the job runs (the check overlaps the decode).
+  # 0.3.4 (fix/t05-video, VID2): previews at the requested short side, only for the steps the helper shows.
+  # 0.3.5 (fix/t05-video-t4): step previews decoded in chunks (bounded footprint at T4; same frames as one-shot).
+  - name: video-runtime
+    version: "0.3.5"
+    sha256: 8d022df52a80508413e81f1ca726308a1751ebc9abd1f53f9e83e1642392d62e
+    size_bytes: 177085676
+    url: "https://github.com/fjenn/antichat/releases/download/runtimes-2026-11-13/video-runtime-0.3.5.zip"
+    min_app_version: "0.0.1"
+    tiers: [T2, T3, T4]
+    signature_mode: devid

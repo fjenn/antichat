@@ -1,0 +1,91 @@
+{
+ "AtomicBot-ai/atomic-chat-core@6c7e9e8": {
+  "license": "MIT",
+  "verified": "2026-11-05 from the package.json (license field; no LICENSE file) at AtomicBot-ai/atomic-chat-core@6c7e9e8 (GitHub API: none (404); licence from the text of package.json (license field; no LICENSE file))"
+ },
+ "Blaizzy/mlx-video@87db56a51758fefb748a359b90a5283bb8ba4837": {
+  "file": "Blaizzy-mlx-video-87db56a517-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at Blaizzy/mlx-video@87db56a51758fefb748a359b90a5283bb8ba4837"
+ },
+ "Blaizzy/nativ@72f4b91": {
+  "file": "Blaizzy-nativ-72f4b91-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at Blaizzy/nativ@72f4b91"
+ },
+ "FrigadeHQ/hob@d02efe9ce330004955b2e5e11053d2faa2e0ca54": {
+  "file": "FrigadeHQ-hob-d02efe9ce3-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at FrigadeHQ/hob@d02efe9ce330004955b2e5e11053d2faa2e0ca54"
+ },
+ "agentskills/agentskills@69ef37e942": {
+  "file": "agentskills-agentskills-69ef37e942-LICENSE",
+  "license": "Apache-2.0",
+  "verified": "2026-11-07 from the LICENSE at agentskills/agentskills@69ef37e942 (M7.T12 SkillValidator port)"
+ },
+ "aurelio-labs/semantic-router@aef8310": {
+  "file": "aurelio-labs-semantic-router-aef8310-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at aurelio-labs/semantic-router@aef8310"
+ },
+ "beeware/briefcase@0bdaaf5fd6": {
+  "file": "beeware-briefcase-0bdaaf5fd6-LICENSE",
+  "license": "BSD-3-Clause",
+  "verified": "2026-11-08 from the LICENSE at beeware/briefcase@0bdaaf5fd6 (M6.T16 tools/release/sign-runtime.sh port; adopted by M5.T01)"
+ },
+ "deedy5/ddgs@8e74959141": {
+  "file": "deedy5-ddgs-8e74959141-LICENSE.md",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE.md at deedy5/ddgs@8e74959141"
+ },
+ "janhq/jan@42bc7d2df1": {
+  "file": "janhq-jan-42bc7d2df1-LICENSE",
+  "license": "Apache-2.0",
+  "verified": "2026-11-05 from the LICENSE at janhq/jan@42bc7d2df1 (GitHub API: NOASSERTION; licence from the text of LICENSE)"
+ },
+ "janhq/jan@7890e41": {
+  "file": "janhq-jan-7890e41-LICENSE",
+  "license": "Apache-2.0",
+  "verified": "2026-11-05 from the LICENSE at janhq/jan@7890e41 (GitHub API: NOASSERTION; licence from the text of LICENSE)"
+ },
+ "johnbean393/Sidekick@83b3e6e": {
+  "file": "johnbean393-Sidekick-83b3e6e-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at johnbean393/Sidekick@83b3e6e"
+ },
+ "mem0ai/mem0@26cdefb46600c0fa5953c4b5ee5003c125539fc4": {
+  "file": "mem0ai-mem0-26cdefb466-LICENSE",
+  "license": "Apache-2.0",
+  "verified": "2026-11-05 from the LICENSE at mem0ai/mem0@26cdefb46600c0fa5953c4b5ee5003c125539fc4"
+ },
+ "mhayes853/sqlite-vec-data@f980c99": {
+  "file": "mhayes853-sqlite-vec-data-f980c99-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at mhayes853/sqlite-vec-data@f980c99"
+ },
+ "ollama/ollama@04088e7": {
+  "file": "ollama-ollama-04088e7-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at ollama/ollama@04088e7"
+ },
+ "ollama/ollama@4d22e65": {
+  "file": "ollama-ollama-4d22e65-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at ollama/ollama@4d22e65"
+ },
+ "osaurus-ai/osaurus@2922745": {
+  "file": "osaurus-ai-osaurus-2922745-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-05 from the LICENSE at osaurus-ai/osaurus@2922745"
+ },
+ "osaurus-ai/osaurus@66c3dde": {
+  "file": "osaurus-ai-osaurus-66c3dde-LICENSE",
+  "license": "MIT",
+  "verified": "2026-11-10 from the LICENSE at osaurus-ai/osaurus@66c3dde (0.25.33; byte-identical to @2922745), M9.T09"
+ },
+ "soniqo/speech-core@ee5e023": {
+  "file": "soniqo-speech-core-ee5e023-LICENSE",
+  "license": "Apache-2.0",
+  "verified": "2026-11-07 from the LICENSE at soniqo/speech-core@ee5e0230278ad552db230ff0de7fd5494d8e2ed8"
+ }
+}

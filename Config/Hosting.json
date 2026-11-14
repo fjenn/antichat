@@ -1,0 +1,9 @@
+{
+  "_doc": "M10.T05/T10 hosting switch (D-007/D-010; ci-release §7). The ONE place for public hosts. tools/release/set-hosting.py writes the release values into Config/Endpoints.plist and site/public/.well-known/security.txt; `--check` (make audit) keeps them in sync. Placeholders stay until the owner provides the domain, the public repo and the inboxes (docs/prd/M10-owner-steps.md); endpoints-check --strict refuses them for a release.",
+  "siteURL": "https://antichat.ai",
+  "githubRepo": "fjenn/antichat",
+  "supportEmail": "finn.jennen@gmail.com",
+  "securityEmail": "finn.jennen@gmail.com",
+  "abuseEmail": "finn.jennen@gmail.com",
+  "relayURL": "https://antichat-relay.vercel.app"
+}

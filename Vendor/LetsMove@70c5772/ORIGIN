@@ -1,0 +1,8 @@
+name: LetsMove
+repo: https://github.com/potionfactory/LetsMove
+ref: 70c5772c2ce84613ba539cb122e4065a9e33db5b
+fetched: 2026-11-08 (vendir.lock.yml)
+license: Public-Domain (no LICENSE file upstream; README "License: Public domain")
+paths: see Vendor/LetsMove-allowlist.tsv (vendored + test rows; 28 files)
+patches: UP-LM-001, UP-LM-002 (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

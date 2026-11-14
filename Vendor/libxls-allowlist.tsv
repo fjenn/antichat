@@ -1,0 +1,15 @@
+# mode	upstream path	reason (P-IDs). M6.T07 (A-M6-10): libxls v1.6.4 library sources (BIFF .xls reader for SheetLoader / XLSAdapter).
+vendored	include/libxls/brdb.c.h	A-M6-10
+vendored	include/libxls/brdb.h	A-M6-10
+vendored	include/libxls/endian.h	A-M6-10
+vendored	include/libxls/locale.h	A-M6-10
+vendored	include/libxls/ole.h	A-M6-10
+vendored	include/libxls/xlsstruct.h	A-M6-10
+vendored	include/libxls/xlstool.h	A-M6-10
+vendored	include/libxls/xlstypes.h	A-M6-10
+vendored	include/xls.h	A-M6-10
+vendored	src/endian.c	A-M6-10
+vendored	src/locale.c	A-M6-10
+vendored	src/ole.c	A-M6-10
+vendored	src/xls.c	A-M6-10
+vendored	src/xlstool.c	A-M6-10

@@ -1,0 +1,13 @@
+# slow-load.jsonl with a 12 s load (30 steps, the same 2.5 steps/s): QueueTests.testTypeBeforeReady sends, removes,
+# checks the DB twice and sends again inside the load (~8.5 s in Q-015 r6; at 8 s the second send found the model
+# ready and nothing queued). Text otherwise identical.
+{"t":"load","ms":12000,"steps":30}
+{"t":"title","v":"Greeting while loading","delayMs":300}
+{"t":"textDelta","v":"Ready","delayMs":20}
+{"t":"textDelta","v":" now.","delayMs":20}
+{"t":"textDelta","v":" What","delayMs":20}
+{"t":"textDelta","v":" would","delayMs":20}
+{"t":"textDelta","v":" you","delayMs":20}
+{"t":"textDelta","v":" like","delayMs":20}
+{"t":"textDelta","v":" to","delayMs":20}
+{"t":"textDelta","v":" do?","delayMs":20}

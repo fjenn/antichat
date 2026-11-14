@@ -1,0 +1,6 @@
+# M7.T03 AT-080 c3 Read this URL (SearchProbe `readurl` leg, -ScriptedWebSearch YES): the forced read_url step on the
+# pasted URL, then an answer citing the page.
+{"t":"title","v":"Summarise a page","delayMs":200}
+{"t":"toolCallDone","id":"call_ru1","name":"read_url","args":"{\"url\":\"https://example.org/article\"}","delayMs":30}
+{"t":"turn"}
+{"t":"textDelta","v":"The page says hello [1].","delayMs":20}

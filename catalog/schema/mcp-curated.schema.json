@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://antichat.app/schema/mcp-curated.schema.json",
+  "title": "AntiChat catalog mcp_curated section (M7.T06, R-081 AC4)",
+  "type": "array",
+  "minItems": 10,
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "url", "auth", "category", "tagline", "icon"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+      "name": {"type": "string", "minLength": 1},
+      "url": {"type": "string", "pattern": "^https://"},
+      "auth": {"enum": ["none", "token", "oauth"]},
+      "category": {"type": "string"},
+      "tagline": {"type": "string"},
+      "icon": {"type": "string"},
+      "cimd_only": {"type": "boolean"},
+      "help_url": {"type": "string", "pattern": "^https://"}
+    }
+  }
+}

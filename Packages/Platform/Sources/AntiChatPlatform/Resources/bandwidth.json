@@ -1,0 +1,159 @@
+{
+ "_comment": "Ported from AlexsJones/llmfit@d52eac4:llmfit-core/src/hardware.rs:3550-3600 (MIT) Apple Silicon bandwidth table; per-GPU-core rows (M3/M4/M5 Max), A18 Pro, M5 Ultra, M6 and speed classes from docs/research/02-target/hardware-tiers.md \u00a71.1/\u00a72.3. Lookup: chip + gpuCores, then chip + ramGB, then chip alone.",
+ "rows": [
+  {
+   "chip": "A18 Pro",
+   "bandwidthGBs": 60,
+   "speedClass": "S1",
+   "gpuCores": 5
+  },
+  {
+   "chip": "M1",
+   "bandwidthGBs": 68,
+   "speedClass": "S1"
+  },
+  {
+   "chip": "M1 Pro",
+   "bandwidthGBs": 200,
+   "speedClass": "S1"
+  },
+  {
+   "chip": "M1 Max",
+   "bandwidthGBs": 400,
+   "speedClass": "S2"
+  },
+  {
+   "chip": "M1 Ultra",
+   "bandwidthGBs": 800,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M2",
+   "bandwidthGBs": 100,
+   "speedClass": "S1"
+  },
+  {
+   "chip": "M2 Pro",
+   "bandwidthGBs": 200,
+   "speedClass": "S2"
+  },
+  {
+   "chip": "M2 Max",
+   "bandwidthGBs": 400,
+   "speedClass": "S2"
+  },
+  {
+   "chip": "M2 Ultra",
+   "bandwidthGBs": 800,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M3",
+   "bandwidthGBs": 100,
+   "speedClass": "S1"
+  },
+  {
+   "chip": "M3 Pro",
+   "bandwidthGBs": 150,
+   "speedClass": "S2"
+  },
+  {
+   "chip": "M3 Max",
+   "bandwidthGBs": 300,
+   "speedClass": "S3",
+   "gpuCores": 30
+  },
+  {
+   "chip": "M3 Max",
+   "bandwidthGBs": 400,
+   "speedClass": "S3",
+   "gpuCores": 40
+  },
+  {
+   "chip": "M3 Max",
+   "bandwidthGBs": 400,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M3 Ultra",
+   "bandwidthGBs": 800,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M4",
+   "bandwidthGBs": 120,
+   "speedClass": "S1"
+  },
+  {
+   "chip": "M4 Pro",
+   "bandwidthGBs": 273,
+   "speedClass": "S2"
+  },
+  {
+   "chip": "M4 Max",
+   "bandwidthGBs": 410,
+   "speedClass": "S3",
+   "gpuCores": 32
+  },
+  {
+   "chip": "M4 Max",
+   "bandwidthGBs": 546,
+   "speedClass": "S3",
+   "gpuCores": 40
+  },
+  {
+   "chip": "M4 Max",
+   "bandwidthGBs": 546,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M4 Ultra",
+   "bandwidthGBs": 819,
+   "speedClass": "S3"
+  },
+  {
+   "chip": "M5",
+   "bandwidthGBs": 153.6,
+   "speedClass": "S3",
+   "speedClassBeforeOS26_2": "S2"
+  },
+  {
+   "chip": "M5 Pro",
+   "bandwidthGBs": 307,
+   "speedClass": "S4"
+  },
+  {
+   "chip": "M5 Max",
+   "bandwidthGBs": 460,
+   "speedClass": "S4",
+   "gpuCores": 32
+  },
+  {
+   "chip": "M5 Max",
+   "bandwidthGBs": 614,
+   "speedClass": "S4",
+   "gpuCores": 40
+  },
+  {
+   "chip": "M5 Max",
+   "bandwidthGBs": 614,
+   "speedClass": "S4"
+  },
+  {
+   "chip": "M5 Ultra",
+   "bandwidthGBs": 1228.8,
+   "speedClass": "S4"
+  },
+  {
+   "chip": "M6",
+   "bandwidthGBs": 153,
+   "speedClass": "S3",
+   "ramGB": 16
+  },
+  {
+   "chip": "M6",
+   "bandwidthGBs": 170,
+   "speedClass": "S3"
+  }
+ ]
+}

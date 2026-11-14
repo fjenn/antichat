@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- File tools interpreter (bin/ft-python; M6.T16 step 1, final set from the S-files-sandbox spike, M6.T17).
+     The sandboxed AntiChatFileTools.xpc posix_spawns it: app-sandbox + inherit make it run inside the service's
+     own App Sandbox (no container of its own, no network unless the service has it). Briefcase's
+     cs.allow-unsigned-executable-memory is NOT needed (numpy/pandas/matplotlib/ctypes ran without it).
+     tools/release/sign-runtime.sh merges entitlements/adhoc-extra.plist (cs.disable-library-validation) in ad-hoc
+     mode only: without a Team ID, library validation refuses the runtime's ad-hoc Python.framework. -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.inherit</key>
+	<true/>
+</dict>
+</plist>

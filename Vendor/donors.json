@@ -1,0 +1,115 @@
+{
+ "osaurus": {
+  "repo": "https://github.com/osaurus-ai/osaurus",
+  "ref": "66c3dde0b322e45c439a1aa6c628a8caea6d1705",
+  "license": "MIT",
+  "target": "OsaurusVendored",
+  "test_target": "OsaurusVendoredTests",
+  "extra_include": [
+   "LICENSE"
+  ],
+  "exclude": [
+   "Packages/OsaurusCore/Services/Documents/ExternalOfficeRuntimeDetector.swift",
+   "Packages/OsaurusCore/Services/Search/OsaurusRouterSearchBackend.swift",
+   "Packages/OsaurusCore/Views/Chat/NativeChartView.swift"
+  ]
+ },
+ "speech-swift": {
+  "repo": "https://github.com/soniqo/speech-swift",
+  "ref": "d53bcb333882ebbd7444ae059b270127565594a0",
+  "license": "Apache-2.0",
+  "root": "Sources",
+  "target": "SpeechSwiftVendored",
+  "test_target": "SpeechSwiftVendoredTests",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "FastVideo": {
+  "repo": "https://github.com/hao-ai-lab/FastVideo",
+  "ref": "d9e6c3eb82a16250fe17747d6dc797243bd8012f",
+  "license": "Apache-2.0",
+  "_doc": "M0.T07 (P-media-11): Python resource donor, no SwiftPM target; Runtimes/video-runtime/build.py copies the vendored rows into the video runtime.",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "CommandPaletteKit": {
+  "repo": "https://github.com/adamtheturtle/CommandPaletteKit",
+  "ref": "cf93b66c6f557677c70f95eed40374fa99c8034a",
+  "license": "MIT",
+  "_doc": "M1.T11 (P-shell-05): v0.3.0. 69acb38 is the annotated tag object, cf93b66 its peeled commit (peeled-tag rule, A-M0-01; A-M1-T11a). Swift sources only: Resources/Localizable.xcstrings is not vendored (the target has no Bundle.module lookups).",
+  "root": "Sources/CommandPaletteKit",
+  "target": "CommandPaletteKit",
+  "test_target": "CommandPaletteKitTests",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "TUFF": {
+  "repo": "https://github.com/tuff-app/TUFF",
+  "ref": "22bb1af9b7b4225c98c7d5d0c3da2806764b50c5",
+  "license": "Apache-2.0",
+  "_doc": "M2.T09 (P-platform-05 RL-005): DownloadETAEstimator.swift only (Foundation-only, 114 lines), the ETA behind ProgressAggregator. Its English DownloadETAFormatter strings are not used (copy-deck keys are).",
+  "root": "Sources/TUFFApp/Core/Installation",
+  "target": "TUFFVendored",
+  "test_target": "TUFFVendoredTests",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "sqlite-vec": {
+  "repo": "https://github.com/asg017/sqlite-vec",
+  "ref": "e9f598abfa0c06b328d8fe5da9c3760cce74be10",
+  "license": "MIT",
+  "_doc": "M2.T16 (P-media-15): v0.1.9 amalgamation (release asset; sqlite-vec.c is byte-identical to the file at e9f598a). C target SQLiteVec, built with SQLITE_CORE + SQLITE_VEC_STATIC against the system SQLite. LICENSE = upstream LICENSE-MIT (the archive ships none).",
+  "github_release": {
+   "slug": "asg017/sqlite-vec",
+   "tag": "v0.1.9",
+   "asset": "sqlite-vec-0.1.9-amalgamation.tar.gz"
+  },
+  "root": ".",
+  "target": "SQLiteVec",
+  "test_target": "SQLiteVecTests"
+ },
+ "libxls": {
+  "repo": "https://github.com/libxls/libxls",
+  "ref": "93f1ad5e2d8af092884204b8293c770f39691ea5",
+  "license": "BSD-2-Clause",
+  "_doc": "M6.T07 (A-M6-10, R-272 AC1 XLS): v1.6.4 (latest release tag, 2026-10-12; lightweight tag = commit 34c7cc6). C target CLibXLS (library sources only; the xls2csv CLI is not vendored). config.h is ours (Packages/Knowledge/Sources/CLibXLSBridge/config, via headerSearchPath) so the vendored copy stays pristine; Swift reaches xls.h through the CLibXLSBridge module.",
+  "root": ".",
+  "target": "CLibXLS",
+  "test_target": "CLibXLSTests",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "agent-squad": {
+  "repo": "https://github.com/2FastLabs/agent-squad",
+  "ref": "729d5f52869c8280f599a9fa5cf27fc1df445602",
+  "license": "Apache-2.0",
+  "_doc": "M3.T01 (P-media-03): PlaybackClock.swift only (AVFoundation + os): played-ms accounting for spoken-span truncation on barge-in (R-282 AC2, M3.T10).",
+  "root": "swift/Sources/AgentSquadAudio",
+  "target": "AgentSquadVendored",
+  "test_target": "AgentSquadVendoredTests",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "ltx-2-mlx": {
+  "repo": "https://github.com/dgrauet/ltx-2-mlx",
+  "ref": "895201df379b079c2154738bcf92005b7a371923",
+  "license": "MIT",
+  "_doc": "M5.T07 (P-media-11 source 3, A-M5-04): Python resource donor (LTX-2.3 MLX engine, video + 48 kHz stereo audio), no SwiftPM target; tools/runtime/build_video_runtime.py copies the vendored rows (ltx_core_mlx, ltx_pipelines_mlx) into the video runtime.",
+  "extra_include": [
+   "LICENSE"
+  ]
+ },
+ "LetsMove": {
+  "repo": "https://github.com/potionfactory/LetsMove",
+  "ref": "70c5772c2ce84613ba539cb122e4065a9e33db5b",
+  "license": "Public-Domain",
+  "_doc": "M10.T02 (P-platform-13, R-225 AC3): PFMoveApplication + its MoveApplication.strings (public domain). Local SwiftPM ObjC target, -fno-objc-arc.",
+  "target": "LetsMoveVendored"
+ }
+}

@@ -1,0 +1,34 @@
+# Visual QA vq-m9 m9-crash leg (S-25 failure states): one failure per prompt, picked by `when`. The crash comes last
+# (with the helper engine the process dies and the script restarts).
+{"t":"error","code":"model.notEnoughMemory","when":"iliad"}
+{"t":"textDelta","v":"Day","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" one:","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" start","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" in","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" Alfama","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" with","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" a","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" morning","delayMs":25,"when":"lisbon"}
+{"t":"textDelta","v":" walk","delayMs":25,"when":"lisbon"}
+{"t":"error","code":"engine.stalled","when":"lisbon"}
+{"t":"error","code":"model.corrupt","when":"tides"}
+{"t":"textDelta","v":"The","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" quiet","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" harbour","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" town","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" wakes","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" slowly.","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" Fishing","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" boats","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" knock","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" against","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" pier","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" while","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" gulls","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" argue","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" over","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" the","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" morning","delayMs":25,"when":"harbour town"}
+{"t":"textDelta","v":" catch.","delayMs":25,"when":"harbour town"}
+{"t":"crash","when":"harbour town"}

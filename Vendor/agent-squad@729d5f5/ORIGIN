@@ -1,0 +1,8 @@
+name: agent-squad
+repo: https://github.com/2FastLabs/agent-squad
+ref: 729d5f52869c8280f599a9fa5cf27fc1df445602
+fetched: 2026-11-04 (vendir.lock.yml)
+license: Apache-2.0  (LICENSE copied to ./LICENSE)
+paths: see Vendor/agent-squad-allowlist.tsv (vendored + test rows; 1 files)
+patches: none (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

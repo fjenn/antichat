@@ -1,0 +1,6 @@
+# Q-015 XCUITest catch-up (ChartCardTests, AT-274): create_chart with the values the user typed (3, 5, 8 as bars).
+{"t": "title", "v": "Three bars", "delayMs": 50}
+{"t": "toolCallDone", "id": "call_1", "name": "create_chart", "args": "{\"title\": \"Three values\", \"vega_lite_spec\": {\"$schema\": \"https://vega.github.io/schema/vega-lite/v6.json\", \"data\": {\"values\": [{\"item\": \"A\", \"value\": 3}, {\"item\": \"B\", \"value\": 5}, {\"item\": \"C\", \"value\": 8}]}, \"mark\": \"bar\", \"encoding\": {\"x\": {\"field\": \"item\", \"type\": \"ordinal\", \"sort\": null}, \"y\": {\"field\": \"value\", \"type\": \"quantitative\"}}}}", "delayMs": 20}
+{"t": "turn"}
+{"t": "textDelta", "v": "The bar chart of 3, 5 and 8 is above.", "delayMs": 20}
+{"t": "done", "reason": "stop"}

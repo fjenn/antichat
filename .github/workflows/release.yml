@@ -1,0 +1,67 @@
+# M10.T08 (R-305 AC1/AC3; ci-release §2–§8): tag v* → the same steps as tools/release/release.sh on the self-hosted
+# runner, environment `release` (required reviewer = the owner). Produces a DRAFT GitHub Release only; publishing,
+# the site deploy and the appcast go live by hand after checklist items 12–13 (tools/release/CHECKLIST.md).
+# Secrets (environment `release`): DEVID_P12_BASE64, DEVID_P12_PASSWORD, KEYCHAIN_PASSWORD, NOTARY_APPLE_ID,
+# NOTARY_TEAM_ID, NOTARY_PASSWORD (app-specific), SPARKLE_PRIVATE_KEY. Catalog key B / Sparkle backup never go here.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    # Fork PRs never reach the self-hosted runner: tags only, on this repository.
+    if: github.repository_owner == github.actor || github.event_name == 'push'
+    runs-on: [self-hosted, macOS, ARM64]
+    environment: release
+    timeout-minutes: 240
+    env:
+      SIGNING_MODE: devid
+    steps:
+      - uses: actions/checkout@v5
+        with: {submodules: true, fetch-depth: 0}
+      - name: Version from the tag
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - name: Temporary keychain with the Developer ID certificate + notary profile
+        env:
+          DEVID_P12_BASE64: ${{ secrets.DEVID_P12_BASE64 }}
+          DEVID_P12_PASSWORD: ${{ secrets.DEVID_P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        run: |
+          kc="$RUNNER_TEMP/build.keychain-db"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
+          security set-keychain-settings -lut 21600 "$kc"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
+          printf '%s' "$DEVID_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/devid.p12"
+          security import "$RUNNER_TEMP/devid.p12" -k "$kc" -P "$DEVID_P12_PASSWORD" -T /usr/bin/codesign
+          rm -f "$RUNNER_TEMP/devid.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$kc" >/dev/null
+          security list-keychains -d user -s "$kc" "$HOME/Library/Keychains/login.keychain-db"
+          xcrun notarytool store-credentials AntiChat-notary --apple-id "$NOTARY_APPLE_ID" --team-id "$NOTARY_TEAM_ID" \
+            --password "$NOTARY_PASSWORD" --keychain "$kc"
+          echo "RELEASE_KEYCHAIN=$kc" >> "$GITHUB_ENV"
+      - name: Sparkle key file (runner temp only)
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: umask 077 && printf '%s' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key" && echo "SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
+      - name: Pipeline (tests, audit, build, sign, notarize, DMG, sums, stable appcast)
+        run: tools/release/release.sh
+      - name: Draft GitHub Release (DMG + SHA256SUMS + .sig); publishing stays manual
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --draft --title "AntiChat $APP_VERSION" --notes-file "notes/$APP_VERSION.md" \
+            build/release/AntiChat-"$APP_VERSION".dmg build/release/SHA256SUMS build/release/SHA256SUMS.sig
+      - uses: actions/upload-artifact@v4
+        with: {name: appcast, path: site/public/appcast.xml}
+      - name: Checklist in the summary
+        run: cat tools/release/CHECKLIST.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Clean up keys and the temporary keychain
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/sparkle.key"
+          [ -n "${RELEASE_KEYCHAIN:-}" ] && security delete-keychain "$RELEASE_KEYCHAIN" || true

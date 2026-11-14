@@ -1,0 +1,10 @@
+# ~6 s of reasoning (120 × 50 ms), then the answer (M1.T15 ThinkHarderTests).
+{"t":"reasoningDelta","v":" thinking","delayMs":50,"repeat":120}
+{"t":"textDelta","v":"After","delayMs":20}
+{"t":"textDelta","v":" thinking","delayMs":20}
+{"t":"textDelta","v":" it","delayMs":20}
+{"t":"textDelta","v":" over:","delayMs":20}
+{"t":"textDelta","v":" the","delayMs":20}
+{"t":"textDelta","v":" answer","delayMs":20}
+{"t":"textDelta","v":" is","delayMs":20}
+{"t":"textDelta","v":" 42.","delayMs":20}

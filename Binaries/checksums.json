@@ -1,0 +1,29 @@
+{
+  "llama-server": {
+    "config": "a05e0fa83440",
+    "reproduced": true,
+    "sha256": "8072eeb2bd96063fd13714fcd050eb3300c4cc8799bf1c7a5743faa765866a9d",
+    "size": 20122976,
+    "submodule": "Binaries/llama.cpp",
+    "submodule_sha": "45c8ea837489be1304500dd1d298f2a671c985d4",
+    "toolchain": "Xcode 27.2 Build version 27B52; Apple clang version 21.0.0 (clang-2100.4.1.1); cmake version 4.4.4"
+  },
+  "sd-cli": {
+    "config": "5649a4e401e4",
+    "reproduced": true,
+    "sha256": "0fa07dc6709aae8c841dc5dc1afeafab7d113d34a12c135b75ae230fb868ab8c",
+    "size": 47031528,
+    "submodule": "Binaries/sdcpp",
+    "submodule_sha": "e239e4b0fd3de49834cec67031a44796ca465abc",
+    "toolchain": "Xcode 27.2 Build version 27B52; Apple clang version 21.0.0 (clang-2100.4.1.1); cmake version 4.4.4"
+  },
+  "sd-server": {
+    "config": "5649a4e401e4",
+    "reproduced": true,
+    "sha256": "1d8dda7f7e47750fd7f3ddb539046448f95fcedd1571f2900c97e9c40e58b6c4",
+    "size": 48032824,
+    "submodule": "Binaries/sdcpp",
+    "submodule_sha": "e239e4b0fd3de49834cec67031a44796ca465abc",
+    "toolchain": "Xcode 27.2 Build version 27B52; Apple clang version 21.0.0 (clang-2100.4.1.1); cmake version 4.4.4"
+  }
+}

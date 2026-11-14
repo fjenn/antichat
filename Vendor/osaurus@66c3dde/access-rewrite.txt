@@ -1,0 +1,86 @@
+# UP-OS-000: declarations AntiChat modules use, made `package` (internal → package) by
+# `tools/vendor-sync access-rewrite osaurus`. Format: <upstream path>:<pristine line>:<declaration name>.
+# ChipProfile: hardware probe for AntiChatPlatform (P-platform-01; M0.T04 bench, M2 G-049).
+Packages/OsaurusCore/Services/ChipProfile.swift:26:ChipProfile
+Packages/OsaurusCore/Services/ChipProfile.swift:30:Tier
+Packages/OsaurusCore/Services/ChipProfile.swift:39:brandString
+Packages/OsaurusCore/Services/ChipProfile.swift:42:generation
+Packages/OsaurusCore/Services/ChipProfile.swift:43:tier
+Packages/OsaurusCore/Services/ChipProfile.swift:45:physicalMemoryBytes
+Packages/OsaurusCore/Services/ChipProfile.swift:48:gpuCoreCount
+Packages/OsaurusCore/Services/ChipProfile.swift:52:recommendedMaxWorkingSetBytes
+Packages/OsaurusCore/Services/ChipProfile.swift:57:hasGPUNeuralAccelerators
+Packages/OsaurusCore/Services/ChipProfile.swift:61:policyTier
+Packages/OsaurusCore/Services/ChipProfile.swift:66:current
+Packages/OsaurusCore/Services/ChipProfile.swift:74:detect
+# GPUMemoryBudget: the working-set budget AntiChatPlatform's ModelSelector uses (P-platform-01).
+Packages/OsaurusCore/Models/Configuration/GPUMemoryBudget.swift:53:GPUMemoryBudget
+Packages/OsaurusCore/Models/Configuration/GPUMemoryBudget.swift:59:comfortableBudgetRatio
+Packages/OsaurusCore/Models/Configuration/GPUMemoryBudget.swift:152:budgetGB
+# ChunkedFileDownloader: parallel ranged model downloads for AntiChatPlatform (P-platform-03; M0.T10 S-12, M2 G-051).
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:16:HuggingFaceFileMetadata
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:21:commitSHA
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:23:size
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:25:sha256
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:26:acceptsRanges
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:28:isChunkable
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:84:ChunkedFileDownloader
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:87:minimumChunkableSize
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:96:maxConcurrentChunks
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:116:probe
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:177:download
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:360:pause
+Packages/OsaurusCore/Services/ChunkedFileDownloader.swift:368:invalidate
+# CapabilityQueryIntent: the conversational-abstain gate AntiChatHarness' ToolSelection runs before tools are offered (P-shell-12, M1.T16).
+Packages/OsaurusCore/Services/Context/CapabilityQueryIntent.swift:31:CapabilityQueryIntent
+Packages/OsaurusCore/Services/Context/CapabilityQueryIntent.swift:42:isConversationalAbstain
+# ToolPermissionPolicy: the auto/ask/deny policy and its strictest-wins combinator AntiChatHarness' PermissionGate composes (P-shell-12, M1.T16).
+Packages/OsaurusCore/Models/Tool/ToolPermissionPolicy.swift:10:ToolPermissionPolicy
+Packages/OsaurusCore/Models/Tool/ToolPermissionPolicy.swift:39:strictnessRank
+Packages/OsaurusCore/Models/Tool/ToolPermissionPolicy.swift:50:strictest
+# M7.T01 (P-files-tools-10/-11): the keyless engines' parsers, challenge checks, HTML helpers and the declarative executor's request builder / response mapper, so AntiChatTools' engines run them over the gated search transport (Fetch → parse split; the vendored search() bodies stay unused).
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:28:DDGScrapeBackend
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:57:isChallengePage
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:65:parseHTML
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:153:BraveScrapeBackend
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:176:parseHTML
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:13:SearchHTML
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:14:urlEncode
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:18:decodeHTMLEntities
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:55:stripHTML
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:65:sourceDomain
+Packages/OsaurusCore/Services/Search/SearchHTMLHelpers.swift:154:isLikelyChallengePage
+Packages/OsaurusCore/Services/Search/SearchTypes.swift:296:SearchHTTPClient
+Packages/OsaurusCore/Services/Search/SearchTypes.swift:297:userAgents
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:14:DeclarativeSearchBackend
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:72:BuiltRequest
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:73:url
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:74:headers
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:75:body
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:80:buildRequest
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:229:mapResponse
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:237:BingScrapeBackend
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:258:isChallengePage
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:263:parseHTML
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:29:definitionId
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:31:search
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:154:definitionId
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:156:search
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:238:definitionId
+Packages/OsaurusCore/Services/Search/NativeSearchBackends.swift:240:search
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:20:definitionId
+Packages/OsaurusCore/Services/Search/DeclarativeSearchBackend.swift:22:search
+# M7.T02 (P-files-tools-10): the readability extractor as AntiChat's HTML extraction fallback (ReadabilityFallback).
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:12:SearchExtractionStatus
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:24:SearchReadability
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:37:Extraction
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:38:markdown
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:40:title
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:41:byline
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:42:lang
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:44:status
+Packages/OsaurusCore/Services/Search/SearchReadability.swift:257:extract
+# UncaughtExceptionLogger: installed at launch by AntiChatPlatform's CrashCollector (M8.T09, P-platform-09).
+Packages/OsaurusCore/Managers/UncaughtExceptionLogger.swift:10:UncaughtExceptionLogger
+Packages/OsaurusCore/Managers/UncaughtExceptionLogger.swift:11:logPath
+Packages/OsaurusCore/Managers/UncaughtExceptionLogger.swift:18:install

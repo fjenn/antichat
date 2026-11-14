@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- M2.T04 step 8: service endpoints (M8/M10 add keys). M10: the release values are written from Config/Hosting.json
+     by tools/release/set-hosting.py (make audit checks they agree); edit Hosting.json, not these. CatalogURL = the Debug catalog host (`make site-dev`);
+     `-CatalogURL <url>` overrides it in Debug. M10 sets the production URL. -->
+<plist version="1.0">
+<dict>
+	<key>CatalogURL</key>
+	<string>https://antichat.ai/catalog/v2/catalog.json</string>
+	<!-- M10: Debug twins (Endpoints.swift): Debug builds read <Key>Dev, Release builds the production key above. -->
+	<key>CatalogURLDev</key>
+	<string>http://localhost:4321/catalog/v2/catalog.json</string>
+	<!-- M8.T01: [Update AntiChat] in the newer-data window when no updater is wired (dev: the local site). -->
+	<key>DownloadURL</key>
+	<string>https://antichat.ai/download/</string>
+	<key>DownloadURLDev</key>
+	<string>http://localhost:4321/download</string>
+	<!-- M8.T09: Report a problem / crash Send hand-offs (placeholders until the public repo and inbox exist, PRD §9;
+	     tests read these values, never a literal). AntiChat itself sends nothing. -->
+	<key>IssuesURL</key>
+	<string>https://github.com/fjenn/antichat/issues</string>
+	<key>SupportEmail</key>
+	<string>finn.jennen@gmail.com</string>
+	<!-- M10.T03: Sparkle appcasts (UpdateFeed). AppcastURL = the production feed (production EdDSA key builds);
+	     AppcastDevURL = the dev feed for dev-keys builds (adhoc/dev RCs). Interim host until the domain (Q3, M10.T05). -->
+	<key>AppcastURL</key>
+	<string>https://antichat.ai/appcast.xml</string>
+	<key>AppcastDevURL</key>
+	<string>https://antichat.ai/appcast-dev.xml</string>
+	<key>ReleasesURLPrefix</key>
+	<string>https://github.com/fjenn/antichat/releases/download/</string>
+	<!-- M7.T11: the Composio relay (`make relay-dev` locally; `-RelayURL <url>` overrides it in Debug). Written by
+	     tools/release/set-hosting.py from Config/Hosting.json `relayURL` (release 2: the deployed relay). Empty = no relay:
+	     release builds hide the Composio connectors (RelayClient.isAvailable), and the strict endpoints check fails. -->
+	<key>RelayURL</key>
+	<string>https://antichat-relay.vercel.app</string>
+</dict>
+</plist>

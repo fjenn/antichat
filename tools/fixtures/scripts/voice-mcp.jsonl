@@ -1,0 +1,7 @@
+# M3.T13 AT-057 AC1 (VoiceToolsTests, -ScriptedMCP fixtures/web/mcp/scripted-server.jsonl, connection "Team Chat" added
+# through Settings): a voice turn calls the connection's search_messages; turn 2 (after the result) answers. Q-015 r4:
+# replaces fixtures/scripts/voice-mcp.jsonl, which called the bare `search_messages` (a connection's tools are offered as
+# `team_chat_<tool>`, as in mcp-send-message.jsonl), so the call never reached the connection.
+{"t":"toolCallDone","id":"call_1","name":"team_chat_search_messages","args":"{\"query\":\"standup\"}","delayMs":200}
+{"t":"turn"}
+{"t":"textDelta","v":"The team chat has two messages about the standup.","delayMs":30}

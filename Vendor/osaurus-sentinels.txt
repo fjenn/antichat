@@ -1,0 +1,17 @@
+# Sentinels for vendored (non-test) osaurus files: code matching a regex here was stripped or rebranded by a
+# UP row, so it must not come back. A bump's 3-way merge re-introduces it silently when upstream adds a new
+# occurrence (found in the M0.T03 rehearsal: a new Apple Events probe, a new "ai.osaurus" logger and a new
+# "Allows Osaurus …" string all merged cleanly). Checked by tools/ci/patch-lint.py rule 6; comment lines skip.
+# Format: <python regex> TAB <UP row: why>
+NSAppleScript\(|/usr/bin/osascript	UP-OS-018: no Apple Events or osascript (automation is a VISION §4 non-goal; R-265)
+openApplication\(	UP-OS-018: no app launch
+AudioInputManager	UP-OS-018: Osaurus audio manager not vendored
+HuggingFaceAuth	UP-OS-001: anonymous downloads only (D-01)
+URLSession\(|URLSession\.shared|GlobalProxySettings	UP-OS-002: every session comes from OsaurusNetworkHooks (D-02)
+InsightsService|SearchActivityLogger	UP-OS-003: activity rows via OsaurusNetworkHooks.recordActivity (D-03)
+enterPIIDetection|enterImageGeneration|Rampart\w*\(	UP-OS-017: no PII-filter or in-process image lane
+KnowledgeWritePreviewingTool	UP-OS-027: knowledge-write subsystem not vendored
+OsaurusPaths\.	UP-OS-020: AntiChat owns its data paths
+"ai\.osaurus|com\.dinoki|osaurus-seatbelt|Logs/Osaurus|\[Osaurus\]	UP-OS-033: rebrand identifiers
+L\("[^"]*Osaurus|"Osaurus"	UP-OS-013/018: user-facing copy names AntiChat
+googleCSE|google_cse	R-248 AC2 / AT-248 c2: no Google search provider is compiled (UP-OS-039, M7.T01)

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "about_you_header": "About the user:",
+  "how_to_respond_header": "How the user wants you to respond:",
+  "presets": {
+    "default": "",
+    "professional": "Use a professional style: polished and precise.",
+    "friendly": "Use a friendly style: warm and chatty.",
+    "candid": "Use a candid style: direct and encouraging.",
+    "efficient": "Use an efficient style: concise and plain.",
+    "quirky": "Use a quirky style: playful and imaginative."
+  },
+  "characteristics": {
+    "warmth": { "more": "Be warmer than usual.", "less": "Be less warm than usual." },
+    "enthusiasm": { "more": "Be more enthusiastic than usual.", "less": "Be less enthusiastic than usual." },
+    "headers_lists": { "more": "Use more headers and lists.", "less": "Use fewer headers and lists." },
+    "emoji": { "more": "Use more emoji.", "less": "Use fewer emoji." }
+  }
+}

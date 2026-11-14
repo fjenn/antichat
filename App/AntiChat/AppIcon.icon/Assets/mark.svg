@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <mask id="cut">
+      <rect width="1024" height="1024" fill="white"/>
+      <!-- the winding path from the artwork, carved through the bubble -->
+      <path d="M 300 590 C 380 640, 430 520, 512 540 C 594 560, 620 430, 724 404"
+            fill="none" stroke="black" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <path mask="url(#cut)" fill="#FFFFFF"
+        d="M 512 196 C 700 196 836 322 836 488 C 836 654 700 780 512 780 C 470 780 430 774 393 762
+           L 268 828 C 252 836 236 822 242 806 L 278 712 C 220 657 188 578 188 488 C 188 322 324 196 512 196 Z"/>
+</svg>

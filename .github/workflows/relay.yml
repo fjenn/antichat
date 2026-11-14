@@ -1,0 +1,22 @@
+# M7.T10 (R-255, architecture §8.5): typecheck + vitest (mock Composio E2E over the fixture JSONL) for the relay.
+# Preview deploys are human-only (`npx vercel deploy` when `vercel whoami` succeeds); this job never deploys.
+name: relay
+on:
+  pull_request:
+    paths: ["relay/**", ".github/workflows/relay.yml", "tools/fixtures/make-composio-fixtures.py"]
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: {submodules: true}
+      - uses: actions/setup-node@v5
+        with: {node-version-file: relay/.nvmrc}
+      - name: Install (lockfile, no install scripts)
+        run: cd relay && npm ci --ignore-scripts
+      - name: Typecheck
+        run: cd relay && npm run typecheck
+      - name: Tests (mock Composio, in-memory limiter)
+        run: cd relay && npm test
+      - name: Key dump after a full mocked session (AT-255 c6)
+        run: cd relay && npm run dump-keys

@@ -1,0 +1,5 @@
+# M7.T06/T16 journey 12 (ToolApprovalUITests, VisualQAM7 vq-j12; -ScriptedMCP fixtures/web/mcp/scripted-server.jsonl,
+# server "Team Chat"): one write call of the connection (send_message, destructiveHint → the ApprovalCard), then the answer.
+{"t":"toolCallDone","id":"call_1","name":"team_chat_send_message","args":"{\"channel\":\"general\",\"text\":\"hi\"}","delayMs":1}
+{"t":"turn"}
+{"t":"textDelta","v":"Done.","delayMs":1}

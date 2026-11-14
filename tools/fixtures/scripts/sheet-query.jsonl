@@ -1,0 +1,6 @@
+# M6.T08 (AT-272 check 2 UI leg): turn 1 calls query_data on the attached budget-20k.xlsx; turn 2 answers.
+{"t":"title","v":"Totals by region","delayMs":300}
+{"t":"toolCallDone","id":"call_1","name":"query_data","args":"{\"sql\":\"SELECT region, round(sum(amount), 2) AS total FROM Transactions GROUP BY region ORDER BY total DESC\"}","delayMs":20}
+{"t":"turn"}
+{"t":"textDelta","v":"Totals","delayMs":20}
+{"t":"textDelta","v":" by region are in the table above.","delayMs":20}

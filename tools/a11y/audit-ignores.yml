@@ -1,0 +1,194 @@
+# AccessibilityAuditTests ignore list (M9.T03 step 1). Empty by default: nothing is ignored. Each entry needs
+# evidence and the lead's sign-off:
+# - element: <accessibilityIdentifier>
+#   issue: <audit type, e.g. hitRegion>
+#   reason: <why it cannot be fixed in our code; Apple Feedback id>
+#   reviewer: <who signed off, date>
+- element: _XCUI:FullScreenWindow
+  issue: parentChild
+  reason: >-
+    AppKit's own window full-screen (green) button. On macOS 26 every standard NSWindow exposes unnamed AXGroup
+    children inside AXFullScreenButton (checked 2026-11-10 with an AX dump: Terminal and TextEdit show the same child
+    group); the audit reports the group as "Parent/Child mismatch". The button and its children are created by
+    NSThemeFrame, not by AntiChat (no titlebar accessory or custom traffic lights in our code), so there is nothing to
+    fix on our side. Scope: elements inside that button's frame, parentChild only.
+  reviewer: lead (orchestrator) 2026-11-10 — accepted: scope limited to AppKit NSThemeFrame full-screen button children, parentChild only; AX dump evidence shows the same in Terminal and TextEdit. Apple Feedback to be filed with the M9.T03 hit-test report.
+- element: sidebar
+  issue: sufficientElementDescription
+  scope: sameFrame
+  reason: >-
+    SwiftUI's own NavigationSplitView sidebar column: the `sidebar` List (AXOutline, named "Sidebar") sits in an
+    unnamed AXGroup with exactly its frame. A plain NavigationSplitView shows the same group with or without our
+    footer inset, and a label set from SwiftUI lands on a new wrapper group instead of that one
+    (tools/a11y/repros/navsplit-sidebar-group.swift, macOS 26, 2026-11-10). Scope: the element with the outline's
+    exact frame, element description only; the rows inside the sidebar are still audited.
+  reviewer: lead (orchestrator) 2026-11-10 — accepted, SwiftUI-owned NavigationSplitView column group, standalone repro
+- element: _XCUI:ZoomWindow
+  issue: parentChild
+  reason: >-
+    The same AppKit title-bar widget as `_XCUI:FullScreenWindow`, in its plain zoom form: SwiftUI's Settings window
+    (it cannot go full screen) and the main window while a sheet is attached (S-22) show AXZoomButton instead. Its
+    unnamed AXGroup child names another element as its AXParent, and that parent does not list it: the audit's
+    "Parent/Child mismatch". Terminal, Safari and TextEdit show the same inconsistent child on their green button
+    (tools/a11y/repros/titlebar-zoom-button-children.swift `others`, read-only, macOS 26, 2026-11-11: the child's
+    AXParent is not the button and does not list it). Freshly created bare NSWindows do not grow the child (`own`
+    mode), so the repro cannot show the zoom form in isolation; the AntiChat AX dumps show the same Group > Group under
+    `_XCUI:ZoomWindow` as under `_XCUI:FullScreenWindow`. NSThemeFrame creates the button and its children; AntiChat
+    adds nothing to the title bar. Scope: elements inside that button's frame, parentChild only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, AppKit titlebar zoom button children, parentChild only, same class as _XCUI:FullScreenWindow; Terminal/Safari/TextEdit show the same in running apps
+- element: labelsHiddenSwitch
+  issue: parentChild
+  scope: countMatched
+  reason: >-
+    SwiftUI's labels-hidden `.switch` Toggle (every Settings switch: SettingsRow shows the label beside it) is exposed
+    as a thin AppKit element, and the audit reports one "Parent/Child mismatch" with no element per switch. A bare
+    window with plain SwiftUI switches shows the same (tools/a11y/repros/labels-hidden-switch-parentchild.swift,
+    audited by AccessibilityAuditTests/testReproLabelsHiddenSwitch). Not an identifier lookup: AccessibilityAuditTests
+    counts element-less parentChild issues on S-21 (per scroll position) and S-18 and requires the count to lie in
+    [switches, attributable] (A-M9-T03b, lead decision 2026-11-11): at least the switches in the window tree (AXCheckBox
+    with subrole AXToggle, on or off screen, read with the AX API from the app's exact pid each time; each switch
+    reliably produces one), at most switches + 1 when the app's AXFocusedUIElement is a text field + `progressIndicator`
+    + `quickPanelRecorderClear`. The audit does not report every non-switch source every time (a15: the focused search
+    field and the recorder's clear button together gave one issue on General; Voice's level meter gave none), so the
+    upper bound is not an equality. Fewer than the switches, or any issue beyond the attributable total, fails: every
+    element-less issue is explained by an AppKit/SwiftUI-owned element we can name, and our own code adds none. Without AX trust the test reads the same facts
+    through XCUITest (check boxes labelled by their own description; the element with keyboard focus), checked against
+    the audit by testReproLabelsHiddenSwitch. In the app the count is the same at every scroll position (Settings › Tools:
+    10 at each page while 0–7 switches were visible; General 9 = 8 switches + the focused search field). The repro, audited
+    2026-11-11: 0/1/3/5 labels-hidden switches → 0/1/3/5; 3 switches with labels shown → 0; one focused TextField → 1;
+    2 switches + a focused field → 3.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, SwiftUI focused TextField/labels-hidden switch element-less parentChild, exact-count, switches in the window tree, repro labels-hidden-switch-parentchild.swift
+- element: disabledSettingsRowLabel
+  issue: contrast
+  scope: inactive
+  reason: >-
+    The label of a Settings row with a disabledReason (SettingsRow) stays `text.disabled`, as disabled rows must look
+    disabled; WCAG 1.4.3 exempts inactive user-interface components from the contrast minimum. SettingsRow marks the
+    label disabled (`.disabled`), so it reports isEnabled false; the test skips contrast issues on S-21 for static
+    texts that are not enabled, and nothing else. The reason line under the label (text.secondary) is still audited.
+  reviewer: lead (orchestrator) 2026-11-11
+- element: onb.4.subtitle
+  issue: contrast
+  reason: >-
+    Onboarding step 4 (S-04) texts on the glass panels and on the art fail the XCUITest contrast audit although they
+    measure well above WCAG AA on screen. Measured on the settled step-4 capture testOnboarding takes right before
+    that audit (a12, 2026-11-11, build/onboarding-shots/scrim-chips-v3-step4.png), text extreme vs median
+    background, sRGB relative luminance; a more opaque panel (FA, a13) did not change the audit result. This element:
+    the subtitle on the art, 8.2:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.mac.facts
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): the mac facts line, 14.6:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.mac.note
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): "Your models stay…", 7.2:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.search.note
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): "Your search words…", 7.2:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.row.chat
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): the Chat row, 7.6:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.row.voice
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): the Voice row, 7.5:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: onb.4.row.photo
+  issue: contrast
+  reason: >-
+    As `onb.4.subtitle` (same capture and method): the Photo row, 7.5:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 7.2–14.6:1 on settled capture, audit samples translucent glass
+- element: settings.row.toolAccess.description
+  issue: contrast
+  reason: >-
+    Settings › Tools & Connections (S-21): footnote text that wraps to two lines, now `text.primary` on
+    `surface.canvas` / `surface.sunken`, fails the XCUITest contrast audit although it measures far above WCAG AA;
+    the same style on one line passes. Measured on the full-screen capture the test attaches when the audit
+    reports contrast (a14, 2026-11-11, "S-21 settings.nav.tools (scrolled 1|2|3) contrast"), text extreme vs
+    median background, sRGB relative luminance. This element: the Tool access note, 18.1:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.huggingface
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Hugging Face, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.deepwiki
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): DeepWiki, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.supabase
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Supabase, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.neon
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Neon, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.netlify
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Netlify, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.notion
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Notion, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.atlassian
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same capture and method): Atlassian, 17.7:1. Contrast only, this exact identifier only.
+  reviewer: lead (orchestrator) 2026-11-11 — accepted, measured 17.7–18.1:1 on the attached capture; wrapped small text audit artefact
+- element: mcpDirectory.tagline.linear
+  issue: contrast
+  reason: >-
+    As `settings.row.toolAccess.description` (same artefact: a wrapped two-line footnote in `text.primary` on the card,
+    far above WCAG AA): Linear. Reported by the RC e8fe19986 audit (S-21 settings.nav.tools scrolled 2|3). Contrast
+    only, this exact identifier only.
+  reviewer: coordinator 2026-11-13 — approved, the same wrapped small text audit artefact as the accepted taglines
+- element: mcpDirectory.tagline.sentry
+  issue: contrast
+  reason: >-
+    As `mcpDirectory.tagline.linear` (same capture and artefact): Sentry. Contrast only, this exact identifier only.
+  reviewer: coordinator 2026-11-13 — approved, the same wrapped small text audit artefact as the accepted taglines
+- element: mcpDirectory.tagline.cloudflare
+  issue: contrast
+  reason: >-
+    As `mcpDirectory.tagline.linear` (same capture and artefact): Cloudflare. Contrast only, this exact identifier only.
+  reviewer: coordinator 2026-11-13 — approved, the same wrapped small text audit artefact as the accepted taglines
+- element: mcpDirectory.tagline.stripe
+  issue: contrast
+  reason: >-
+    As `mcpDirectory.tagline.linear` (same capture and artefact): Stripe. Contrast only, this exact identifier only.
+  reviewer: coordinator 2026-11-13 — approved, the same wrapped small text audit artefact as the accepted taglines
+- element: progressIndicator
+  issue: parentChild
+  scope: countMatched
+  reason: >-
+    One element-less "Parent/Child mismatch" per AppKit-backed progress indicator (AXProgressIndicator,
+    AXBusyIndicator: SwiftUI ProgressView) in the audited window, read by tools/ci/a11y-axstate each audit. In-app
+    evidence (a14, 2026-11-11): Settings › Capabilities 7 issues = 4 switches + 3 pack-row progress bars; Storage 1 =
+    1 busy indicator. A standalone repro with three linear ProgressViews showed none, so the trigger is not isolated
+    (docs/prd/M11-candidates.md §G). A term of the upper bound of `labelsHiddenSwitch` (A-M9-T03b).
+  reviewer: lead 2026-11-11 — accepted on in-app helper evidence (capabilities 3 indicators, storage 1 busy indicator, general 1 orphan); standalone repro inconclusive, revisit in M11
+- element: quickPanelRecorderClear
+  issue: parentChild
+  scope: countMatched
+  reason: >-
+    The quick-panel hotkey recorder (KeyboardShortcuts RecorderCocoa) keeps an AXClearButton its AXChildren do not
+    list after its cancel-cell swap (tools/a11y/repros/searchfield-cancel-cell-swap.swift). In-app evidence (a14):
+    Settings › General scrolled to it, 9 issues = 8 switches + that orphan, the only element out of the tree. Counted
+    only while a11y-axstate finds that orphan on `settings.control.quickPanelHotkey`; the other recorders' orphans
+    produced no issue (a12, Shortcuts section). A term of the upper bound of `labelsHiddenSwitch` (A-M9-T03b).
+  reviewer: lead 2026-11-11 — accepted on in-app helper evidence (capabilities 3 indicators, storage 1 busy indicator, general 1 orphan); standalone repro inconclusive, revisit in M11

@@ -1,0 +1,50 @@
+# M2.T04 (R-220 AC5, R-300 AC2): lint + build + verify the signed catalog on PRs touching the catalog.
+name: catalog
+on:
+  # M10.T04 step 5: the manual catalog release (environment `release`, required reviewer = the owner).
+  workflow_dispatch:
+  pull_request:
+    paths: ["catalog/**", "site/public/catalog/**", "tools/catalog-tool/**", "tools/ci/catalog-schema-check.py",
+            "Packages/Platform/Sources/AntiChatPlatform/Resources/catalog-baseline.json*"]
+jobs:
+  catalog:
+    if: github.event_name == 'pull_request'
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+        with: {submodules: true}
+      - name: Re-resolve against Hugging Face (anonymous) and diff the lockfile
+        run: make catalog CHECK=1
+      - name: Lint the published catalog
+        run: swift run --disable-keychain -q catalog-tool lint site/public/catalog/v2/catalog.json
+      - name: Schema + completeness
+        run: python3 -I tools/ci/catalog-schema-check.py site/public/catalog/v2/catalog.json
+      - name: Signature, sources, lint and reproducibility tests
+        run: make test-unit FILTER=CatalogLintTests,CatalogSourcesTests,CatalogVerifyTests
+      - name: Baseline equals the published catalog
+        run: cmp site/public/catalog/v2/catalog.json Packages/Platform/Sources/AntiChatPlatform/Resources/catalog-baseline.json
+
+  # M10.T04 step 5 (ci-release §6.3): build → sign with key A (secret CATALOG_PRIVATE_KEY_A, environment `release`;
+  # key B never goes to CI) → publish into site/public/catalog/v2/ (+ immutable <catalog_version>.json) → the site
+  # deploy picks it up. Runs only by hand; until the key ceremony there is no secret and the job stops at the check.
+  catalog-release:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, macOS, ARM64]
+    environment: release
+    steps:
+      - uses: actions/checkout@v5
+        with: {submodules: true}
+      - name: Production keys present (refuses the committed test keys)
+        run: python3 -I tools/release/gen-keys-swift.py --release-ready
+      - name: Build, lint and sign with key A (key file only in the runner's temp dir)
+        env:
+          CATALOG_PRIVATE_KEY_A: ${{ secrets.CATALOG_PRIVATE_KEY_A }}
+        run: |
+          key="$RUNNER_TEMP/catalog-a.key"
+          umask 077 && printf '%s' "$CATALOG_PRIVATE_KEY_A" > "$key"
+          make catalog CATALOG_KEY="$key"
+          rm -f "$key"
+      - name: The signed catalog verifies under the release keys
+        run: swift tools/release/verify-catalog.swift site/public/catalog/v2/catalog.json site/public/catalog/v2/catalog.json.sig Config/Keys.release.plist
+      - uses: actions/upload-artifact@v4
+        with: {name: catalog-v2, path: site/public/catalog/v2/}

@@ -1,0 +1,2 @@
+# mode	upstream path	reason (P-IDs). M3.T01 (P-media-03): played-ms clock behind spoken-span truncation (R-282 AC2).
+vendored	swift/Sources/AgentSquadAudio/PlaybackClock.swift	P-media-03

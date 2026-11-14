@@ -1,0 +1,6 @@
+# M3.T13 AT-057 AC2 (VoiceToolsTests): a voice turn calls create_document; turn 2 (after the result) answers. Q-015 r4:
+# replaces fixtures/scripts/voice-create-file.jsonl, whose call had no `markdown` (required by create_document), so the
+# file card said "Couldn't create the file." and no spoken pointer was added.
+{"t":"toolCallDone","id":"call_1","name":"create_document","args":"{\"format\":\"docx\",\"title\":\"Shopping list\",\"markdown\":\"# Shopping list\\n\\n- Bread\\n- Milk\\n- Apples\"}","delayMs":200}
+{"t":"turn"}
+{"t":"textDelta","v":"Here is your list.","delayMs":30}

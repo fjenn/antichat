@@ -1,0 +1,32 @@
+# M8.T09 step 4 (R-218 AC4): the issue form AntiChat's Report a problem opens (`<IssuesURL>/new?template=bug.yml`).
+# The app pre-fills `title` and `body`; the body carries "What happened", "Steps" and the "Versions" block.
+name: Bug report
+description: Something in AntiChat didn't work.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened
+      description: AntiChat fills this in from the Report a problem form.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. …\n2. …"
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: App version and build, macOS, chip, RAM, tier, speed class, model ids and catalog version (no chats).
+      render: text

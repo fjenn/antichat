@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""M7.T11 (AT-256): writes fixtures/web/mcp/composio-write-slugs-50.json — 50 write and 50 read Composio tool slugs
+for gmail / googlecalendar / googledrive / slack / notion / github / linear with the tag hints Composio's ToolRouter
+returns (readOnlyHint / createHint / updateHint / destructiveHint, toolRouter.types.ts @a81ccf0914). Data only: slug
+names as published in Composio's public toolkit docs; a few write slugs carry no tags on purpose (the verb rule
+decides) and some use verbs outside the token list (COPY, STAR, UPDATES) to prove unknown verbs still ask.
+Run: python3 -I tools/fixtures/make-composio-slugs.py fixtures/web/mcp/composio-write-slugs-50.json
+"""
+import json
+import sys
+
+C, U, D = ["createHint"], ["updateHint"], ["destructiveHint"]
+WRITE = [
+    ("GMAIL_SEND_EMAIL", C), ("GMAIL_REPLY_TO_THREAD", C), ("GMAIL_CREATE_EMAIL_DRAFT", C), ("GMAIL_SEND_DRAFT", C),
+    ("GMAIL_DELETE_MESSAGE", D), ("GMAIL_DELETE_DRAFT", D), ("GMAIL_MOVE_TO_TRASH", D), ("GMAIL_CREATE_LABEL", C),
+    ("GMAIL_ADD_LABEL_TO_EMAIL", U), ("GMAIL_REMOVE_LABEL", D),
+    ("GOOGLECALENDAR_CREATE_EVENT", C), ("GOOGLECALENDAR_UPDATE_EVENT", U), ("GOOGLECALENDAR_PATCH_EVENT", U),
+    ("GOOGLECALENDAR_DELETE_EVENT", D), ("GOOGLECALENDAR_QUICK_ADD", C), ("GOOGLECALENDAR_REMOVE_ATTENDEE", D),
+    ("GOOGLECALENDAR_CREATE_CALENDAR", None),
+    ("GOOGLEDRIVE_UPLOAD_FILE", C), ("GOOGLEDRIVE_CREATE_FOLDER", C), ("GOOGLEDRIVE_CREATE_FILE_FROM_TEXT", C),
+    ("GOOGLEDRIVE_ADD_FILE_SHARING_PREFERENCE", U), ("GOOGLEDRIVE_MOVE_FILE", U), ("GOOGLEDRIVE_COPY_FILE", None),
+    ("GOOGLEDRIVE_GOOGLE_DRIVE_DELETE_FOLDER_OR_FILE_ACTION", D),
+    ("SLACK_SENDS_A_MESSAGE_TO_A_SLACK_CHANNEL", C), ("SLACK_CHAT_POST_MESSAGE", None),
+    ("SLACK_DELETES_A_MESSAGE_FROM_A_CHAT", D), ("SLACK_UPDATES_A_SLACK_MESSAGE", U),
+    ("SLACK_ADD_REACTION_TO_AN_ITEM", C), ("SLACK_CREATE_CHANNEL", C), ("SLACK_INVITE_USERS_TO_A_SLACK_CHANNEL", U),
+    ("SLACK_ARCHIVE_A_SLACK_CONVERSATION", D),
+    ("NOTION_CREATE_NOTION_PAGE", C), ("NOTION_ADD_PAGE_CONTENT", U), ("NOTION_UPDATE_PAGE", U),
+    ("NOTION_ARCHIVE_NOTION_PAGE", D), ("NOTION_DELETE_BLOCK", D), ("NOTION_INSERT_ROW_DATABASE", C),
+    ("NOTION_CREATE_COMMENT", None),
+    ("GITHUB_CREATE_AN_ISSUE", C), ("GITHUB_CREATE_A_PULL_REQUEST", C), ("GITHUB_MERGE_A_PULL_REQUEST", U),
+    ("GITHUB_DELETE_A_REPOSITORY", D), ("GITHUB_ADD_ASSIGNEES_TO_AN_ISSUE", U),
+    ("GITHUB_CREATE_OR_UPDATE_FILE_CONTENTS", U), ("GITHUB_STAR_A_REPOSITORY_FOR_THE_AUTHENTICATED_USER", None),
+    ("LINEAR_CREATE_LINEAR_ISSUE", C), ("LINEAR_UPDATE_ISSUE", U), ("LINEAR_DELETE_LINEAR_ISSUE", D),
+    ("LINEAR_CREATE_LINEAR_COMMENT", C),
+]
+R = ["readOnlyHint"]
+READ = [
+    "GMAIL_FETCH_EMAILS", "GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID", "GMAIL_LIST_LABELS", "GMAIL_GET_PROFILE",
+    "GMAIL_LIST_DRAFTS", "GMAIL_LIST_THREADS", "GMAIL_GET_ATTACHMENT", "GMAIL_SEARCH_PEOPLE",
+    "GOOGLECALENDAR_FIND_EVENT", "GOOGLECALENDAR_LIST_CALENDARS", "GOOGLECALENDAR_GET_CALENDAR",
+    "GOOGLECALENDAR_FIND_FREE_SLOTS", "GOOGLECALENDAR_EVENTS_LIST", "GOOGLECALENDAR_GET_CURRENT_DATE_TIME",
+    "GOOGLEDRIVE_FIND_FILE", "GOOGLEDRIVE_FIND_FOLDER", "GOOGLEDRIVE_LIST_FILES", "GOOGLEDRIVE_DOWNLOAD_FILE",
+    "GOOGLEDRIVE_GET_FILE_METADATA", "GOOGLEDRIVE_LIST_SHARED_DRIVES", "GOOGLEDRIVE_GET_ABOUT",
+    "SLACK_FETCH_CONVERSATION_HISTORY", "SLACK_LIST_ALL_CHANNELS", "SLACK_LIST_ALL_USERS",
+    "SLACK_SEARCH_MESSAGES", "SLACK_FIND_USERS", "SLACK_FETCH_TEAM_INFO", "SLACK_LIST_PINNED_ITEMS",
+    "NOTION_SEARCH_NOTION_PAGE", "NOTION_FETCH_DATA", "NOTION_GET_ABOUT_ME", "NOTION_LIST_USERS",
+    "NOTION_QUERY_DATABASE", "NOTION_FETCH_NOTION_BLOCK", "NOTION_RETRIEVE_COMMENT",
+    "GITHUB_LIST_REPOSITORIES_FOR_THE_AUTHENTICATED_USER", "GITHUB_GET_A_REPOSITORY", "GITHUB_LIST_ISSUES",
+    "GITHUB_GET_AN_ISSUE", "GITHUB_LIST_PULL_REQUESTS", "GITHUB_SEARCH_CODE", "GITHUB_GET_THE_AUTHENTICATED_USER",
+    "GITHUB_FIND_PULL_REQUESTS",
+    "LINEAR_LIST_LINEAR_ISSUES", "LINEAR_GET_LINEAR_ISSUE", "LINEAR_LIST_LINEAR_PROJECTS", "LINEAR_LIST_LINEAR_TEAMS",
+    "LINEAR_GET_CURRENT_USER", "LINEAR_SEARCH_ISSUES", "LINEAR_LIST_LINEAR_LABELS",
+]
+
+
+def main(out: str) -> None:
+    assert len(WRITE) == 50 and len({s for s, _ in WRITE}) == 50, len(WRITE)
+    assert len(READ) == 50 and len(set(READ)) == 50, len(READ)
+    doc = {
+        "source": "Composio public toolkit docs (slug names); tag hints per toolRouter.types.ts @a81ccf0914",
+        "write": [{"slug": s, "toolkit": s.split("_")[0].lower(), "tags": t or []} for s, t in WRITE],
+        "read": [{"slug": s, "toolkit": s.split("_")[0].lower(), "tags": R} for s in READ],
+    }
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=1)
+        f.write("\n")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

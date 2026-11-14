@@ -1,0 +1,8 @@
+name: FastVideo
+repo: https://github.com/hao-ai-lab/FastVideo
+ref: d9e6c3eb82a16250fe17747d6dc797243bd8012f
+fetched: 2026-10-30 (vendir.lock.yml)
+license: Apache-2.0  (LICENSE copied to ./LICENSE)
+paths: see Vendor/FastVideo-allowlist.tsv (vendored + test rows; 13 files)
+patches: UP-FV-001, UP-FV-002 (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

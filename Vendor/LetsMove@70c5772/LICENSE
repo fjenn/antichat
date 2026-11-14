@@ -1,0 +1,9 @@
+LetsMove (potionfactory/LetsMove @ 70c5772c2ce84613ba539cb122e4065a9e33db5b) is in the public domain.
+
+Upstream ships no LICENSE file. Its README states "License: Public domain", and every source file carries the
+dedication, e.g. PFMoveApplication.h / PFMoveApplication.m:
+
+    Created by Andy Kim at Potion Factory LLC on 9/17/09
+    The contents of this file are dedicated to the public domain.
+
+This file records that dedication for AntiChat's licence scan (tools/acknowledgments.py); it adds no terms.

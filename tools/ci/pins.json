@@ -1,0 +1,50 @@
+{
+  "_doc": "Canonical pins (architecture.md §9.3, D-013, D-014; settled in M0.T01). Checked by tools/ci/pins-verify.py against Package.resolved, .gitmodules/submodule status, Vendor/vendir.lock.yml and tools/toolchain.lock. Entries with \"when\": \"present\" are checked only once they appear.",
+  "swiftpm": {
+    "mlx-swift-lm": {"url": "https://github.com/ml-explore/mlx-swift-lm", "revision": "ec4c966a663895cd052a9c58d06a1e6f3d96d01b", "tag_base": "3.32.3", "ahead": 89, "note": "M9.T09: main d7b94ee does not build (c9a9a3d uses Logger without import os); ec4c966 is its parent"},
+    "fluidaudio": {"url": "https://github.com/FluidInference/FluidAudio", "exact": "0.18.3", "tag": "v0.18.3", "commit": "c8b41f98eae668794dd0083bbe028fe7e6585051", "note": "M9.T09: 0.18.0 -> 0.18.3; v0.18.3 is a lightweight tag (no ^{} line), so tag = commit (was annotated b6a8b39 at 0.18.0, A-M0-01)"},
+    "swift-huggingface": {"url": "https://github.com/huggingface/swift-huggingface", "revision": "3bee3b605349a274292bbfcc14d66c55ae7331e1", "traits": [], "note": "trait Xet off"},
+    "grdb.swift": {"url": "https://github.com/groue/GRDB.swift", "exact": "7.12.0", "commit": "92a554cd0d5e8d67cb18993c6054e73fe42c066c"},
+    "sparkle": {"url": "https://github.com/sparkle-project/Sparkle", "exact": "2.10.1", "commit": "ab7d71291238df6e0492143b120c9b696a35f603"},
+    "swift-subprocess": {"url": "https://github.com/swiftlang/swift-subprocess", "exact": "1.0.2"},
+    "eventsource": {"url": "https://github.com/mattt/EventSource", "exact": "1.6.0"},
+    "swift-log": {"url": "https://github.com/apple/swift-log.git", "exact": "1.17.0", "note": "M7.T06: direct for MCP Transport.logger (was transitive via swift-sdk)"},
+    "swift-async-algorithms": {"url": "https://github.com/apple/swift-async-algorithms", "exact": "1.1.7"},
+    "cocoalumberjack": {"url": "https://github.com/CocoaLumberjack/CocoaLumberjack", "exact": "3.10.0"},
+    "zipfoundation": {"url": "https://github.com/weichsel/ZIPFoundation", "exact": "0.9.20"},
+    "swift-sdk": {"url": "https://github.com/modelcontextprotocol/swift-sdk", "revision": "3059fd5cfb0d693cf086e4cfcbb8d17894b04a36", "tag_base": "0.12.1", "tag_commit": "a0ae212ebf6eab5f754c3129608bc5557637e605", "ahead": 24, "note": "D-013 (later-dated) wins over architecture §9.3; 0.12.1 is a lightweight tag (no ^{} line)"},
+    "keyboardshortcuts": {"url": "https://github.com/sindresorhus/KeyboardShortcuts", "exact": "3.1.0", "commit": "772133d9dbe800fdac0473226822994c5c162c58", "tag_object": "c1ae5382211bc21d493a6b6c92e0bd6b24f97bc1", "note": "peeled 3.1.0^{} commit wins (K-NEW-ARCH-4)"},
+    "onnxruntime-swift-package-manager": {"url": "https://github.com/microsoft/onnxruntime-swift-package-manager", "exact": "1.24.2", "lockfile": "Packages/ChildSafetyCheck/Package.resolved"},
+    "kanna": {"url": "https://github.com/tid-kijyun/Kanna", "exact": "6.1.0", "commit": "3c73af6d3859d9240db60aef233941a715387744", "source": "K-NEW-ARCH-2 latest tag at bootstrap (2026-10-30, git ls-remote)", "when": "present"},
+    "argmax-oss-swift": {"url": "https://github.com/argmaxinc/argmax-oss-swift", "exact": "1.1.1", "commit": "1bbc57cb7fe6410248a685b1c5a3c6d56adc2ed4", "note": "M3.T01 P-media-05: product WhisperKit (AntiChatEngines only); pulls swift-argument-parser 1.8.2 transitively", "when": "present"},
+    "menubarextraaccess": {"url": "https://github.com/orchetect/MenuBarExtraAccess", "exact": "1.3.1", "when": "present"},
+    "markdownview": {"url": "https://github.com/LiYanan2004/MarkdownView", "exact": "3.0.0", "commit": "6f452b55635246224a3329362e4e11cd3d592a30", "tag_object": "4de25d7fd8d46b1786b49e1aea19ee9ebdae6e66", "note": "M1.T09 P-shell-04; packet @4de25d7 is the annotated tag object, the peeled 3.0.0^{} commit wins (as K-NEW-ARCH-4)", "when": "present"},
+    "swift-markdown": {"url": "https://github.com/swiftlang/swift-markdown.git", "exact": "0.9.0", "commit": "25cb61d3482054b09ae76ca4f281b1bfe7fe5a43", "note": "M1.T09: MarkdownView's parser (from: 0.8.0), pinned exact at the version it resolves", "when": "present"},
+    "defaults": {"url": "https://github.com/sindresorhus/Defaults", "exact": "9.0.9", "commit": "00a7465a0668a87fa159e779b9d80f1f9652357e", "tag_object": "1e69cc39e6ae0aebe3a85464d4c0a0f01bb988a4", "note": "M1.T08; architecture P-shell-16 @1e69cc3 is the annotated tag object, the peeled 9.0.9^{} commit wins (as K-NEW-ARCH-4)", "when": "present"},
+    "whatsnewkit": {"url": "https://github.com/SvenTiigi/WhatsNewKit", "exact": "2.2.1", "when": "present"},
+    "swiftui-introspect": {"url": "https://github.com/siteline/swiftui-introspect", "exact": "27.1.0", "when": "present"},
+    "package-benchmark": {"url": "https://github.com/ordo-one/package-benchmark", "exact": "1.38.1", "commit": "ca4a9d300fc15d38132853c2e30462337b33c43f", "lockfile": "Benchmarks/Package.resolved", "note": "P-shell-19; test-only Benchmarks/ package (A-M1-T02a)"},
+    "duckdb-swift": {"url": "https://github.com/duckdb/duckdb-swift", "revision": "095e449567dce3d87b4112a74358731cf501bfce", "revision_prefix": "095e449", "note": "M6.T07 P-files-tools-03: main HEAD = packet pin (no tags upstream); DuckDB v2.1.0-dev84836 amalgamation, no extensions beyond the bundled core_functions/parquet/icu/json", "when": "present"},
+    "libxlsxwriter": {"url": "https://github.com/jmcnamara/libxlsxwriter", "revision": "2894634d65cee6021901a165bfc2bb0fad6da193", "revision_prefix": "2894634d65", "note": "M6.T10 P-files-tools-05 (A-M6-02): tag v1.2.4; BSD-2-Clause (+ minizip zlib, tmpfileplus MPL-2.0, md5 public domain; K-NEW-FILES-11)", "when": "present"},
+    "tppdf": {"url": "https://github.com/techprimate/TPPDF", "exact": "2.6.1", "commit": "975049c0e1022922580b7927e030901604024925", "note": "M6.T09 P-files-tools-05 (A-M6-02): lightweight tag 2.6.1", "when": "present"},
+    "trafilatura-swift": {"url": "https://github.com/nchapman/trafilatura-swift", "revision": "e051b5e56268e98726414715174eced59ecf98d7", "note": "M7.T02 P-files-tools-10: binary target TrafilaturaFFI.xcframework (trafilatura-rs v0.6.0, sha256 56c2d65b…94d7 in its Package.swift)", "when": "present"},
+    "yams": {"url": "https://github.com/jpsim/Yams", "exact": "6.2.2", "commit": "a27b21e0c81c5bf42049b897a62aaf387e80f279", "note": "M2.T04: catalog-tool; M7.T12: linked into the app for SKILL.md frontmatter (OsaurusVendored Skill.swift UP-OS-041, AntiChatTools Skills)"},
+    "swift-snapshot-testing": {"url": "https://github.com/pointfreeco/swift-snapshot-testing", "exact": "1.19.7", "commit": "1488390b0735e726564b948bf08b384398bdab5c", "source": "latest tag at M1.T03 (2026-10-30, git ls-remote); test-only (AntiChatDesignTests), test-strategy §4.3", "test_only": true}
+  },
+  "submodules": {
+    "Binaries/llama.cpp": {"url": "https://github.com/ggml-org/llama.cpp", "commit": "45c8ea837489be1304500dd1d298f2a671c985d4", "tag": "b12254", "note": "2026-11-10 security bump from b11669: e01c9f18 Metal FA OOB write, 9b8446b9 Metal matrix-offset overflow, f1168ac4 grammar recursion limit, 372dc5ca invalid UTF-8 in tool-call args"},
+    "Binaries/sdcpp": {"url": "https://github.com/leejet/stable-diffusion.cpp", "commit": "e239e4b0fd3de49834cec67031a44796ca465abc"},
+    "fixtures": {"url_suffix": "AntiChat-fixtures.git", "commit": "any", "note": "pinned by the superproject gitlink; local file:// remote until the public repo exists"}
+  },
+  "vendir": {
+    "osaurus": {"commit": "66c3dde0b322e45c439a1aa6c628a8caea6d1705", "when": "present"},
+    "libxls": {"commit": "93f1ad5e2d8af092884204b8293c770f39691ea5", "tag_base": "v1.6.4", "ahead": 4, "licence": "BSD-2-Clause", "note": "M6.T07 A-M6-10: vendored at v1.6.4 (2026-10-12); 2026-11-10 bumped to main 93f1ad5 (v1.6.4+4, untagged) for 3 fuzz-found memory fixes in the xls_getCSS path (93f1ad5, 5bfc669, ddd6b8c)", "when": "present"}
+  },
+  "toolchain": {
+    "xcode": "27.2",
+    "vendir": "0.46.3"
+  },
+  "assets": {
+    "opendyslexic": {"_doc": "M1.T23 dyslexia-friendly chat font (Settings → Appearance). Upstream release zip pinned by sha256; the bundled OTFs and OFL text by their own sha256.", "url": "https://github.com/antijingoist/opendyslexic/releases/download/v0.91.12/opendyslexic-0.910.12-rc2-2019.10.17.zip", "tag": "v0.91.12", "commit": "449a41bbc25f7363c540ad112dfcef2f7b340c0a", "licence": "OFL-1.1", "sha256": "b92d7fcb9409f2bcfd23b65ac71647256eb49c429f4fbb1cc870381fc93eb486", "files": {"Packages/Design/Sources/AntiChatDesign/Resources/Fonts/OpenDyslexic-Bold-Italic.otf": "214a86e8d9b45811cadc211fa1b370b95792061e4f11ef338fcd5d9a23a0d3c2", "Packages/Design/Sources/AntiChatDesign/Resources/Fonts/OpenDyslexic-Bold.otf": "0901b984a2c3fdc67e3fb8e2d7e1d373bd6d54c3fab9c6b5017f736a25d8ff13", "Packages/Design/Sources/AntiChatDesign/Resources/Fonts/OpenDyslexic-Italic.otf": "e8efc68ec6e871096fba9de132770b27bf6dffd3e258c077ce83407c4045f982", "Packages/Design/Sources/AntiChatDesign/Resources/Fonts/OpenDyslexic-OFL.txt": "caafcccfb70fc72458fcbda812ec8f0a06cb300cbabb87eabbb30b946124394b", "Packages/Design/Sources/AntiChatDesign/Resources/Fonts/OpenDyslexic-Regular.otf": "c1a0cbf814a75a61abdf0f18143d347222b85e51209f47f8b685a1e0ca594b88"}}
+  }
+}

@@ -1,0 +1,9 @@
+{"t":"caps","reasoning":false}
+# A model without reasoning (Think harder disabled, M1.T15).
+{"t":"textDelta","v":"Here","delayMs":20}
+{"t":"textDelta","v":" is","delayMs":20}
+{"t":"textDelta","v":" a","delayMs":20}
+{"t":"textDelta","v":" direct","delayMs":20}
+{"t":"textDelta","v":" answer","delayMs":20}
+{"t":"textDelta","v":" without","delayMs":20}
+{"t":"textDelta","v":" thinking.","delayMs":20}

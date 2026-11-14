@@ -1,0 +1,446 @@
+# XcodeGen spec for the THIN AntiChat.xcodeproj (architecture.md §1.2; M0.T01 step 5, A-M0-02).
+# Regenerate with `make xcodeproj`; the generated project is committed too.
+name: AntiChat
+options:
+  bundleIdPrefix: app.antichat
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+packages:
+  AntiChatKit:
+    path: .
+settings:
+  base:
+    SWIFT_VERSION: "6"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: NO
+    ENABLE_HARDENED_RUNTIME: YES
+    DEAD_CODE_STRIPPING: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+targetTemplates:
+  # M6.T17 (architecture §1.2, §4 row 5; A-M6-11) + A-M6-T21a (a): one App-Sandboxed File tools service per slot.
+  # Identical code and entitlements; only the bundle id differs, and with it the App Sandbox container, so the
+  # kernel keeps each slot's chat files apart. `.Net` ids carry network.client (used only when "Allow network for
+  # code" is on). Debug also reads the AntiChat-Dev Runtimes folder (FileTools[Net]-Debug.entitlements); Release
+  # only AntiChat's. Links AntiChatFileToolsHost only.
+  FileToolsSlot:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: App/FileToolsHelper
+        excludes: ["*.entitlements", "*.plist"]
+    settings:
+      base:
+        PRODUCT_NAME: ${productName}
+        PRODUCT_BUNDLE_IDENTIFIER: ${bundleID}
+        INFOPLIST_FILE: App/FileToolsHelper/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        # A test build makes Xcode inject testing entitlements (absolute-path read-only "/", testmanagerd
+        # mach-lookups, get-task-allow) into sandboxed targets, which would void the jail under test. The
+        # service is never debugged through them: sign exactly the files below (FileToolsJailTests checks it).
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: App/FileToolsHelper/${entitlements}-Debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: App/FileToolsHelper/${entitlements}.entitlements
+    dependencies:
+      - package: AntiChatKit
+        product: AntiChatFileToolsHost
+targets:
+  AntiChat:
+    type: application
+    platform: macOS
+    sources:
+      - path: App/AntiChat
+        excludes: ["Resources/Help/**", "Resources/HelpL10n/**", "Resources/Legal/**"]
+      # M8.T11: Help › How to Uninstall (offline; the M10 website page source).
+      - path: App/AntiChat/Resources/Help/uninstall.md
+        buildPhase: resources
+      # M10.T07 (R-303 AC1): the short offline guide (Help › AntiChat Help when offline).
+      - path: App/AntiChat/Resources/Help/guide.md
+        buildPhase: resources
+      # M9.T04 (R-102): the help pages in de/fr/es/nl/pt (HelpL10n/<lang>/*.md; English stays in Resources/Help).
+      - path: App/AntiChat/Resources/HelpL10n
+        type: folder
+        buildPhase: resources
+      # M10.T06 (R-217 AC2): the legal pages, versioned (tools/site/legal-sync.py copies them from site/).
+      - path: App/AntiChat/Resources/Legal
+        type: folder
+        buildPhase: resources
+      # M10.T07 (R-303 AC2): What's new items (notes/<ver>.json; notes-check.py).
+      - path: notes
+        type: folder
+        buildPhase: resources
+      # M2.T04 step 8: service endpoints (CatalogURL); read by CatalogEndpoint at launch.
+      - path: Config/Endpoints.plist
+        buildPhase: resources
+    info:
+      path: App/AntiChat/Info.plist
+      properties:
+        CFBundleDisplayName: AntiChat
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: "0.0.3"
+        CFBundleVersion: "1"
+        # M2.T01 (R-200 AC4, D-014): arm64 only; the system refuses macOS < 26.
+        LSArchitecturePriority: [arm64]
+        LSMinimumSystemVersion: "26.0"
+        # Q-015 r4 (M9.T03): AntiChatApplication works around the SwiftUI ScrollView accessibility hit-test defect.
+        NSPrincipalClass: AntiChatApplication
+        # copy-deck key voice.permission
+        NSMicrophoneUsageDescription: "AntiChat needs the microphone to hear you. Your voice stays on this Mac."
+        # copy-deck key perm.location.why (M8.T08, R-091 AC3): asked only when the user turns on location for search.
+        NSLocationUsageDescription: "AntiChat uses your approximate location only to make web search results local. It never leaves this Mac except as a country-level hint in searches."
+        NSLocationWhenInUseUsageDescription: "AntiChat uses your approximate location only to make web search results local. It never leaves this Mac except as a country-level hint in searches."
+        # Sparkle TEST key (catalog/test-keys/sparkle-test.pub; M0.T12, ci-release.md §6.1 "Before M10"). The M10 key
+        # ceremony replaces it; the release build must refuse test keys (G-061).
+        SUPublicEDKey: "Lfhwtsep1tKBCxpS4LkzzJhO7uuNCWyI7p/eS8X8hlQ="
+        # M10.T03 (R-219 AC1, NFR-PR5): daily background checks, silent download + install on quit, no profiling,
+        # signed feeds only, no installer launcher service (not sandboxed). The feed URL comes from
+        # Config/Endpoints.plist through UpdaterBridge.feedURLString (never SUFeedURL).
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUScheduledCheckInterval: 86400
+        SUEnableSystemProfiling: false
+        SUEnableInstallerLauncherService: false
+        SURequireSignedFeed: true
+        SUVerifyUpdateBeforeExtraction: true
+    entitlements:
+      path: App/AntiChat/AntiChat.entitlements
+      properties:
+        # architecture.md §1.2: not sandboxed; hardened runtime; no JIT; microphone input.
+        com.apple.security.device.audio-input: true
+        # M8.T08 (R-091 AC3): hardened-runtime resource access for CoreLocation (approximate location for search).
+        com.apple.security.personal-information.location: true
+    settings:
+      base:
+        PRODUCT_NAME: AntiChat
+        # M0.T04 (A-M0-13): embedded Sparkle/onnxruntime frameworks need an rpath, else dyld aborts at launch.
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+        INFOPLIST_FILE: App/AntiChat/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # M6.T17: "Seal File Tools entitlements" re-signs the embedded File tools services (codesign reads the whole
+        # bundle, which the per-file script sandbox cannot declare); the app's phases still declare their I/O.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChat.dev
+        Release:
+          PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChat
+    dependencies:
+      - package: AntiChatKit
+        product: AntiChatUI
+      - target: AntiChatEngine
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      # M1.T12 (A-M1-T12a): second launchd job for the same helper (respawn-throttle-free restart, NFR-S4).
+      - target: AntiChatEngineStandby
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      # M6.T17 / A-M6-T21a (a): the File tools sandbox slots (App Sandbox, no network) and their network variants
+      # (R-018 AC2). One bundle id = one container per slot: a chat leased to a slot cannot see another slot's files.
+      - target: AntiChatFileToolsSlot1
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      - target: AntiChatFileToolsSlot2
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      - target: AntiChatFileToolsSlot3
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      - target: AntiChatFileToolsNetSlot1
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      - target: AntiChatFileToolsNetSlot2
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      - target: AntiChatFileToolsNetSlot3
+        embed: true
+        codeSign: true
+        copy:
+          destination: plugins
+          subpath: ../XPCServices
+      # M1.T12 step 4: orphan watchdog for llama-server / sd-server / the video child → Contents/Helpers.
+      - target: llama-watchdog
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Helpers
+    postBuildScripts:
+      # M6.T17 (A-M6-T17a): a TEST build makes Xcode add testing entitlements to every sandboxed target
+      # (temporary-exception absolute-path read-only "/", testmanagerd mach-lookups), which would void the jail the
+      # integration suites test. Re-sign the embedded File tools services with exactly their own entitlements before
+      # the app itself is signed (this phase runs before the app's CodeSign). FileToolsJailTests asserts the result.
+      - name: Seal File Tools entitlements
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - $(SRCROOT)/App/FileToolsHelper/FileTools.entitlements
+          - $(SRCROOT)/App/FileToolsHelper/FileTools-Debug.entitlements
+          - $(SRCROOT)/App/FileToolsHelper/FileToolsNet.entitlements
+          - $(SRCROOT)/App/FileToolsHelper/FileToolsNet-Debug.entitlements
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot1.xpc/Contents/MacOS/AntiChatFileToolsSlot1
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot1.xpc/Contents/_CodeSignature/CodeResources
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot2.xpc/Contents/MacOS/AntiChatFileToolsSlot2
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot2.xpc/Contents/_CodeSignature/CodeResources
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot3.xpc/Contents/MacOS/AntiChatFileToolsSlot3
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsSlot3.xpc/Contents/_CodeSignature/CodeResources
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot1.xpc/Contents/MacOS/AntiChatFileToolsNetSlot1
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot1.xpc/Contents/_CodeSignature/CodeResources
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot2.xpc/Contents/MacOS/AntiChatFileToolsNetSlot2
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot2.xpc/Contents/_CodeSignature/CodeResources
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot3.xpc/Contents/MacOS/AntiChatFileToolsNetSlot3
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/XPCServices/AntiChatFileToolsNetSlot3.xpc/Contents/_CodeSignature/CodeResources
+        script: |
+          set -euo pipefail
+          suffix=""; [ "${CONFIGURATION}" = "Debug" ] && suffix="-Debug"
+          for v in "" Net; do
+            for k in 1 2 3; do
+              xpc="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/XPCServices/AntiChatFileTools${v}Slot${k}.xpc"
+              [ -d "$xpc" ] || { echo "error: $xpc missing"; exit 1; }
+              ents="${SRCROOT}/App/FileToolsHelper/FileTools${v}${suffix}.entitlements"
+              /usr/bin/codesign --force --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" --timestamp=none --generate-entitlement-der \
+                --entitlements "$ents" "$xpc"
+              if /usr/bin/codesign -d --entitlements - --xml "$xpc" 2>/dev/null | grep -q "absolute-path\|mach-lookup"; then
+                echo "error: $xpc still carries injected entitlements"; exit 1
+              fi
+            done
+          done
+      - name: Copy Helpers
+        basedOnDependencyAnalysis: true
+        inputFiles:
+          - $(SRCROOT)/build/binaries/llama-server
+          - $(SRCROOT)/build/binaries/sd-server
+          - $(SRCROOT)/build/binaries/sd-cli
+          - $(SRCROOT)/Binaries/checksums.json
+          - $(SRCROOT)/tools/binaries/stage.sh
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/llama-server
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/sd-server
+          - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/sd-cli
+        script: |
+          set -euo pipefail
+          dest="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Helpers"
+          mkdir -p "$dest"
+          for bin in llama-server sd-server sd-cli; do  # sd-cli: M0.T07 I2V (sd.cpp vid_gen)
+            src="${SRCROOT}/build/binaries/$bin"
+            if [ ! -f "$src" ]; then
+              echo "error: $src missing (run make binaries)"; exit 1
+            fi
+            cp -f "$src" "$dest/$bin"
+          done
+          # Never embed a stale build: the copies must match Binaries/checksums.json (make build/build-release
+          # restage from the cache first via tools/binaries/stage.sh; integration M1 W2+T12).
+          "${SRCROOT}/tools/binaries/stage.sh" --verify-dir "$dest"
+  AntiChatEngine:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: App/EngineHelper
+        excludes: ["llama-watchdog/**"]
+    info:
+      path: App/EngineHelper/Info.plist
+      properties:
+        CFBundleDisplayName: AntiChatEngine
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: "0.0.3"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "26.0"
+        XPCService:
+          ServiceType: Application
+    settings:
+      base:
+        PRODUCT_NAME: AntiChatEngine
+        PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChat.Engine
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks @executable_path/../../../../Frameworks"
+        INFOPLIST_FILE: App/EngineHelper/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+    dependencies:
+      - package: AntiChatKit
+        product: AntiChatEngineHost
+  # M1.T12 (A-M1-T12a): trampoline XPC service; execs AntiChatEngine.xpc's binary under its own service name.
+  AntiChatEngineStandby:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: App/EngineStandby
+    info:
+      path: App/EngineStandby/Info.plist
+      properties:
+        CFBundleDisplayName: AntiChatEngineStandby
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: "0.0.3"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: "26.0"
+        XPCService:
+          ServiceType: Application
+    settings:
+      base:
+        PRODUCT_NAME: AntiChatEngineStandby
+        PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChat.EngineStandby
+        INFOPLIST_FILE: App/EngineStandby/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+  AntiChatFileToolsSlot1:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsSlot1
+      bundleID: app.antichat.AntiChat.FileTools.slot1
+      entitlements: FileTools
+  AntiChatFileToolsSlot2:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsSlot2
+      bundleID: app.antichat.AntiChat.FileTools.slot2
+      entitlements: FileTools
+  AntiChatFileToolsSlot3:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsSlot3
+      bundleID: app.antichat.AntiChat.FileTools.slot3
+      entitlements: FileTools
+  AntiChatFileToolsNetSlot1:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsNetSlot1
+      bundleID: app.antichat.AntiChat.FileTools.Net.slot1
+      entitlements: FileToolsNet
+  AntiChatFileToolsNetSlot2:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsNetSlot2
+      bundleID: app.antichat.AntiChat.FileTools.Net.slot2
+      entitlements: FileToolsNet
+  AntiChatFileToolsNetSlot3:
+    templates: [FileToolsSlot]
+    templateAttributes:
+      productName: AntiChatFileToolsNetSlot3
+      bundleID: app.antichat.AntiChat.FileTools.Net.slot3
+      entitlements: FileToolsNet
+  # M1.T12 step 4: tiny watchdog (ported from Sidekick, P-shell-10); no package dependencies.
+  llama-watchdog:
+    type: tool
+    platform: macOS
+    sources:
+      - path: App/EngineHelper/llama-watchdog
+      - path: Packages/Engines/Sources/AntiChatEngines/LLM/LlamaWatchdog.swift
+    settings:
+      base:
+        PRODUCT_NAME: llama-watchdog
+        PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChat.llama-watchdog
+        SKIP_INSTALL: YES
+  AntiChatUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: App/UITests
+    settings:
+      base:
+        PRODUCT_NAME: AntiChatUITests
+        PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChatUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: AntiChat
+        # Q-015 catch-up: the ad-hoc signed UI-test runner and bundle have no team ID, so under the hardened runtime
+        # library validation refuses to dlopen the bundle ("different Team IDs"). Test-only target; the app keeps it.
+        ENABLE_HARDENED_RUNTIME: NO
+    dependencies:
+      - target: AntiChat
+  # M1.T02: integration tests hosted by AntiChat.app, so the embedded AntiChatEngine.xpc and
+  # Contents/Helpers/llama-server are present (docs/prd/M1.md convention 3). `make test-integration-stub|real`.
+  AntiChatIntegrationTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: App/IntegrationTests
+    settings:
+      base:
+        PRODUCT_NAME: AntiChatIntegrationTests
+        PRODUCT_BUNDLE_IDENTIFIER: app.antichat.AntiChatIntegrationTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/AntiChat.app/Contents/MacOS/AntiChat"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: AntiChat
+      # M1.T05: EngineClient for the XPC suites (app-side only; never AntiChatEngines, architecture §3 rule 1).
+      - package: AntiChatKit
+        product: AntiChatHarness
+schemes:
+  AntiChat-Debug:
+    build:
+      targets:
+        AntiChat: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - AntiChatUITests
+    archive:
+      config: Release
+  AntiChat-Release:
+    build:
+      targets:
+        AntiChat: all
+    run:
+      config: Release
+    archive:
+      config: Release
+  AntiChat-Offline:
+    build:
+      targets:
+        AntiChat: all
+    run:
+      config: Debug
+      commandLineArguments:
+        "-OfflineOnly YES": true
+  # M1.T02: shared test schemes (docs/prd/M1.md convention 3). UI tests isolate the app container per run
+  # (App/UITests/UITestSupport.swift passes -ANTICHAT_DEV_CONTAINER $TMPDIR/antichat-uitest-<uuid>).
+  AntiChat-UITests:
+    build:
+      targets:
+        AntiChat: all
+        AntiChatUITests: [test]
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - AntiChatUITests
+  AntiChat-IntegrationTests:
+    build:
+      targets:
+        AntiChat: all
+        AntiChatIntegrationTests: [test]
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - AntiChatIntegrationTests

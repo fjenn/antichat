@@ -1,0 +1,8 @@
+name: CommandPaletteKit
+repo: https://github.com/adamtheturtle/CommandPaletteKit
+ref: cf93b66c6f557677c70f95eed40374fa99c8034a
+fetched: 2026-10-30 (vendir.lock.yml)
+license: MIT  (LICENSE copied to ./LICENSE)
+paths: see Vendor/CommandPaletteKit-allowlist.tsv (vendored + test rows; 30 files)
+patches: UP-CP-001, UP-CP-002, UP-CP-003 (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

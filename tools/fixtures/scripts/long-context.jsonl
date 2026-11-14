@@ -1,0 +1,2 @@
+# ~600-token replies so 6 turns cross 85% of a 4,096-token window (M1.T18 ContextTests).
+{"t":"textDelta","v":" context","delayMs":2,"repeat":600}

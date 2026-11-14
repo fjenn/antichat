@@ -1,0 +1,4 @@
+[
+  {"trigger": {"url-filter": ".*"}, "action": {"type": "block"}},
+  {"trigger": {"url-filter": "^about:"}, "action": {"type": "ignore-previous-rules"}}
+]

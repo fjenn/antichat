@@ -1,0 +1,8 @@
+name: TUFF
+repo: https://github.com/tuff-app/TUFF
+ref: 22bb1af9b7b4225c98c7d5d0c3da2806764b50c5
+fetched: 2026-11-03 (vendir.lock.yml)
+license: Apache-2.0  (LICENSE copied to ./LICENSE)
+paths: see Vendor/TUFF-allowlist.tsv (vendored + test rows; 1 files)
+patches: none (Vendor/UPSTREAM_PATCHES.md)
+access-rewrite: internal→package on declarations listed in access-rewrite.txt (UP-OS-000, mechanical, re-applied by vendor-sync)

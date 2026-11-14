@@ -1,0 +1,6 @@
+# M3.T13 AT-057 AC1 (VoiceToolsTests, -ScriptedWebSearch YES): a voice turn calls web_search; turn 2 (after the result)
+# answers. Q-015 r4: replaces fixtures/scripts/voice-web-search.jsonl, whose `{"query": …}` failed web_search's schema
+# (`queries`, an array, is required), so the tool always "didn't work".
+{"t":"toolCallDone","id":"call_1","name":"web_search","args":"{\"queries\":[\"harbour town weather\"]}","delayMs":200}
+{"t":"turn"}
+{"t":"textDelta","v":"According to the forecast, it will be sunny in the harbour town.","delayMs":30}
