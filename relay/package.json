@@ -14,7 +14,7 @@
     "dump-keys": "tsx scripts/dump-keys.ts"
   },
   "dependencies": {
-    "@composio/core": "0.27.0",
+    "@composio/core": "0.29.0",
     "@upstash/ratelimit": "2.2.0",
     "@upstash/redis": "1.41.0"
   },
