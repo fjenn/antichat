@@ -1,8 +1,9 @@
-// M2.T19 (S-03; R-201 AC4, R-211, R-227): Evil Mode. Dark-red world, a centred 640 pt column: title, subtitle, the
-// honest body (read by VoiceOver before the toggle), EvilToggle (off by default). On → AdultCheckbox slides in (Reduce
-// Motion: no slide), CostDelta "Evil adds {size}" with the updated total, the availability line per chosen pack and the
-// disk rule re-run; the red Continue stays disabled until the box is ticked (and while the disk is short). Off →
-// Continue proceeds without Evil. Footnote `onb.3.later`. The on-block keeps its place while off (no column jump).
+// M2.T19 (S-03; R-201 AC4, R-211, R-227): Evil Mode. Dark-red world; the owner's Prometh design (Prometh
+// Onboarding EvilReveal, spacious): a centred stack with room between the parts — the big title, the one-line subtitle
+// that says what it is, one short body line, "Enable Evil Mode" over the switch (off by default), then the red
+// Continue. On → the single 18+ self-declaration and one quiet size line fade in under the switch (their space is kept
+// while off, so nothing jumps); Continue stays disabled until the box is ticked (and while the disk is short).
+// The availability line shows only when some chosen pack has no Evil build. Scales down on short windows.
 import AntiChatDesign
 import AntiChatPlatform
 import SwiftUI
@@ -12,85 +13,92 @@ struct Step3Evil: View {
     let size: CGSize
     @EffectiveReduceMotion private var reduceMotion
 
+    /// 1 at the reference height; smaller windows (min 640 pt) tighten type and gaps together.
+    private var k: CGFloat { min(1, max(0.68, (size.height - 210) / 640)) }
+
     var body: some View {
-        // M10 visual QA (S-03): the reference's centred stack — title, subtitle, body, the switch under its label, the
-        // note and the red Continue, all on the centre line; no row card around the switch.
         VStack(alignment: .center, spacing: 0) {
             Text(CopyKey("onb.3.title"))
-                .font(.system(size: 64, weight: .semibold))
-                .tracking(-1.5)
+                .font(.system(size: 84 * k, weight: .medium))
+                .tracking(-2.8 * k)
                 .foregroundStyle(Color.onbTextHeadline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilitySortPriority(4)
             Text(CopyKey("onb.3.subtitle"))
-                .font(.system(size: 28, weight: .regular))
-                .tracking(-0.4)
-                .foregroundStyle(Color.onbTextBody)
-                .padding(.top, 10)
+                .font(.system(size: 36 * k, weight: .regular))
+                .tracking(-0.8 * k)
+                .foregroundStyle(Color.onbTextHeadline)
+                .padding(.top, 34 * k)
                 .accessibilitySortPriority(3)
             Text(CopyKey("onb.3.body"))
-                .font(.system(size: 15))
-                .lineSpacing(4)
+                .font(.system(size: 20 * k))
+                .lineSpacing(6 * k)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(Color.onbTextHeadline)  // white + lift: the 15 pt body over the art (RC e8fe19986 audit)
+                .foregroundStyle(Color.white.opacity(0.82))
                 .onbTextShadow()
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: 560)
-                .padding(.top, 18)
+                .frame(maxWidth: 520)
+                .padding(.top, 26 * k)
                 .accessibilitySortPriority(2)  // the body is read before the toggle (S-03)
-            VStack(alignment: .center, spacing: 12) {
-                EvilToggle(isOn: Binding(get: { model.evilOn }, set: { on in
-                    withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
-                        model.evilOn = on
-                        if !on { model.adultConfirmed = false }
-                    }
-                }))
-                // M10 visual QA (S-03 A1): the block keeps its place while Evil is off (hidden, out of the focus and
-                // VoiceOver order), so turning the switch on fades it in without the column jumping ~30 pt.
-                VStack(alignment: .center, spacing: 10) {
-                    AdultCheckbox(isOn: $model.adultConfirmed)
-                    CostDelta(model: model)
+            EvilToggle(isOn: Binding(get: { model.evilOn }, set: { on in
+                withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
+                    model.evilOn = on
+                    if !on { model.adultConfirmed = false }
+                }
+            }), scale: k)
+            .padding(.top, 56 * k)
+            .accessibilitySortPriority(1)
+            // Kept in place while off (hidden, out of the focus and VoiceOver order): turning the switch on fades it in.
+            VStack(alignment: .center, spacing: 10) {
+                AdultCheckbox(isOn: $model.adultConfirmed)
+                CostDelta(model: model)
+                if model.evilPlan.map({ !$0.unavailablePacks.isEmpty }) ?? false {
                     AvailabilityLine(text: model.evilAvailabilityLine, available: model.evilPlan?.isAvailable ?? false)
                 }
-                .padding(.top, 6)
-                .opacity(model.evilOn ? 1 : 0)
-                .offset(y: model.evilOn || reduceMotion ? 0 : -8)
-                .disabled(!model.evilOn)
-                .accessibilityHidden(!model.evilOn)
             }
-            .padding(.top, 30)
-            .accessibilitySortPriority(1)
+            .padding(.top, 22 * k)
+            .opacity(model.evilOn ? 1 : 0)
+            .offset(y: model.evilOn || reduceMotion ? 0 : -8)
+            .disabled(!model.evilOn)
+            .accessibilityHidden(!model.evilOn)
+            PillButton(CopyText(CopyKey("onb.cta.continue")), style: .evil) { model.next() }
+                .keyboardShortcut(.defaultAction)
+                .disabled(model.evilContinueBlocked != nil)
+                .help(model.evilContinueBlocked?.string ?? "")
+                .accessibilityIdentifier("onb.3.continue")
+                .padding(.top, 30 * k)
             Text(CopyKey("onb.3.later"))
                 .font(.system(size: 13))
-                .foregroundStyle(Color.onbTextMeta)
-                .padding(.top, 16)
-            PillButton(CopyText(CopyKey("onb.cta.continue")), style: .evil) { model.next() }
-            .keyboardShortcut(.defaultAction)
-            .disabled(model.evilContinueBlocked != nil)
-            .help(model.evilContinueBlocked?.string ?? "")
-            .accessibilityIdentifier("onb.3.continue")
-            .padding(.top, 18)
+                .foregroundStyle(Color.white.opacity(0.55))
+                .padding(.top, 14 * k)
         }
-        .frame(width: min(640, size.width - 2 * OnboardingLayout.margin))
+        .frame(width: min(720, size.width - 2 * OnboardingLayout.margin))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-/// `onb.3.toggle`: the label over a centred switch (red track when on; a real Toggle for VoiceOver).
+/// `onb.3.toggle`: the label over a centred switch (Prometh EvilSwitch: 52 × 28, red track when on; a real Toggle for
+/// VoiceOver).
 struct EvilToggle: View {
     @Binding var isOn: Bool
+    var scale: CGFloat = 1
     var body: some View {
         Button { isOn.toggle() } label: {
-            VStack(spacing: 10) {
+            VStack(spacing: 18 * scale) {
                 Text(CopyKey("onb.3.toggle"))
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundStyle(Color.onbTextHeadline)
-                Capsule()
-                    .fill(isOn ? Color.evilOnboardingCta : Color.white.opacity(0.22))
-                    .overlay(alignment: isOn ? .trailing : .leading) {
-                        Circle().fill(Color.white).padding(2.5).shadow(color: .black.opacity(0.3), radius: 1.5, y: 1)
-                    }
-                    .frame(width: 46, height: 27)
+                ZStack {
+                    Capsule().fill(isOn ? Color.evilOnboardingCta : Color.white.opacity(0.14))
+                    Capsule().strokeBorder(Color.white.opacity(isOn ? 0.16 : 0.22), lineWidth: 1)
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 22, height: 22)
+                        .shadow(color: .black.opacity(0.2), radius: 1, y: 0.5)
+                        .frame(maxWidth: .infinity, alignment: isOn ? .trailing : .leading)
+                        .padding(3)
+                }
+                .frame(width: 52, height: 28)
             }
             .contentShape(Rectangle())
         }
@@ -128,13 +136,13 @@ struct CostDelta: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 Text(model.evilCostLine)
-                    .font(.system(size: 14, weight: .semibold).monospacedDigit())
-                    .foregroundStyle(Color.onbTextHeadline)
+                    .font(.system(size: 13, weight: .medium).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.72))
                     .accessibilityIdentifier("onb.3.cost")
                 Text(verbatim: "·").foregroundStyle(Color.onbTextMeta)
                 Text(model.totalLine)
-                    .font(.system(size: 14).monospacedDigit())
-                    .foregroundStyle(Color.onbTextBody)
+                    .font(.system(size: 13).monospacedDigit())
+                    .foregroundStyle(Color.white.opacity(0.55))
             }
             if case .short(let gb) = model.disk {
                 Label { Text(CopyText(CopyKey("onb.diskShort"), ["gb": String(gb)])) } icon: {

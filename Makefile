@@ -144,7 +144,7 @@ verify-signing:
 	tools/release/verify-signing.sh --mode $(SIGNING_MODE) --out build/release/verify build/release/AntiChat.app
 notarize:
 	tools/release/notarize.sh --mode $(SIGNING_MODE) --out build/release/notary \
-	  $(if $(filter dmg,$(TARGET)),--dmg build/release/AntiChat-$(APP_VERSION).dmg,--app build/release/AntiChat.app)
+	  $(if $(filter dmg,$(TARGET)),--dmg build/release/AntiChat-Installer-$(APP_VERSION).dmg,--app build/release/AntiChat.app)
 # M10.T02: DMG (dmgbuild, no Finder scripting) → sign (dev/devid) → NFR-D1 gate → devid: notarize + staple →
 # verify-dmg.sh. Background art: build/release-venv/bin/python -I tools/release/dmg/make-background.py.
 dmg:

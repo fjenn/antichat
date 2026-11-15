@@ -25358,37 +25358,37 @@
       "localizations": {
         "de": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Fast keine Ablehnungen, Inhalte für Erwachsene erlaubt. Antworten können falsch, anstößig oder explizit sein. Du bist dafür verantwortlich, wie du Evil Mode nutzt. Eines ist in jedem Modus gesperrt: sexuelle Bilder oder Videos mit Minderjährigen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Near-zero refusals, adult content allowed. It can be wrong, offensive or explicit. You're responsible for how you use it. One thing is blocked in every mode: sexual images or video involving minors."
+            "value": "Zero restrictions, including adult content. It does not account for ethical concerns."
           }
         },
         "es": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Casi ninguna negativa, contenido para adultos permitido. Puede equivocarse, ser ofensivo o explícito. Tú eres responsable de cómo lo usas. Hay una cosa bloqueada en todos los modos: imágenes o vídeos sexuales con menores."
           }
         },
         "fr": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Presque aucun refus, contenu pour adultes autorisé. Il peut se tromper, choquer ou être explicite. Vous êtes responsable de l’usage que vous en faites. Une seule chose est bloquée dans tous les modes : les images ou vidéos sexuelles impliquant des mineurs."
           }
         },
         "nl": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Bijna geen weigeringen, inhoud voor volwassenen toegestaan. Het kan fout, beledigend of expliciet zijn. Jij bent verantwoordelijk voor hoe je het gebruikt. Eén ding is in elke modus geblokkeerd: seksuele afbeeldingen of video's met minderjarigen."
           }
         },
         "pt": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Quase nenhuma recusa, conteúdo adulto permitido. Pode errar, ser ofensivo ou explícito. Você é responsável pelo uso que faz dele. Uma coisa é bloqueada em todos os modos: imagens ou vídeos sexuais envolvendo menores."
           }
         }
@@ -25440,37 +25440,37 @@
       "localizations": {
         "de": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Du kannst das jederzeit in den Einstellungen ändern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You can change this anytime in Settings."
+            "value": "Each chat picks its own mode. Switch whenever you want."
           }
         },
         "es": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Puedes cambiarlo cuando quieras en Ajustes."
           }
         },
         "fr": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Vous pouvez modifier ce choix à tout moment dans Réglages."
           }
         },
         "nl": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Je kunt dit altijd wijzigen in Instellingen."
           }
         },
         "pt": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Você pode mudar isso quando quiser em Ajustes."
           }
         }
@@ -25481,37 +25481,37 @@
       "localizations": {
         "de": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Ungefiltert. Keine Belehrungen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unfiltered. No lectures."
+            "value": "An AI that never says no."
           }
         },
         "es": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Sin filtros. Sin sermones."
           }
         },
         "fr": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Sans filtre. Pas de leçons."
           }
         },
         "nl": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Ongefilterd. Geen preken."
           }
         },
         "pt": {
           "stringUnit": {
-            "state": "translated",
+            "state": "needs_review",
             "value": "Sem filtros. Sem sermões."
           }
         }

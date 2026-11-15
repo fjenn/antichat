@@ -3,7 +3,7 @@
 #   1. dmgbuild (pinned, tools/release/requirements.lock; build/release-venv) packs build/release/AntiChat.app with
 #      the Applications link, icon positions (180,200)/(480,200), 660×452 window (660×420 content) and the HiDPI
 #      background.tiff into a read-write image; its background bookmark is made absolute (fix-background-bookmark.py)
-#      and it is converted to build/release/AntiChat-<ver>[-LABEL].dmg (APFS, ULFO). LABEL = build/release/LABEL.
+#      and it is converted to build/release/AntiChat-Installer-<ver>[-LABEL].dmg (APFS, ULFO). LABEL = build/release/LABEL.
 #   2. dev/devid: codesign the DMG (devid with a secure timestamp); adhoc DMGs stay unsigned (meaningless).
 #   3. NFR-D1 size gate: ≤ 314,572,800 bytes, 0 model files inside (attached read-only, -nobrowse).
 #   4. devid + NOTARIZE=1: notarize.sh --dmg (submit, staple, validate); a failed DMG is deleted.
@@ -21,7 +21,7 @@ mode="${SIGNING_MODE:-$built_mode}"
 [[ "$mode" == "$built_mode" ]] || { echo "error: SIGNING_MODE=$mode but the app was built as $built_mode" >&2; exit 1; }
 version="$(plutil -extract CFBundleShortVersionString raw -o - "$app/Contents/Info.plist")"
 label="$(cat "$out/LABEL" 2>/dev/null || true)"
-dmg="$out/AntiChat-$version${label:+-$label}.dmg"
+dmg="$out/AntiChat-Installer-$version${label:+-$label}.dmg"
 venv="build/release-venv"
 if [[ ! -x "$venv/bin/dmgbuild" ]]; then
     uv venv -q --python 3.13 "$venv"
@@ -31,13 +31,13 @@ fi
 echo "== dmg [$mode] $dmg"
 rm -f "$out"/AntiChat-*.dmg
 # dmgbuild writes a read-write image first: its background bookmark is volume-relative, which Finder cannot resolve
-# (the window opened plain white; M10 VQ). fix-background-bookmark.py makes it /Volumes/AntiChat/.background.tiff,
+# (the window opened plain white; M10 VQ). fix-background-bookmark.py makes it /Volumes/AntiChat Installer/.background.tiff,
 # then the image is converted to ULFO (ci-release §5).
 rw="$out/AntiChat-rw.dmg"
 rm -f "$rw"
 "$venv/bin/dmgbuild" -s tools/release/dmg/settings.py -D app="$app" -D background=tools/release/dmg/background.tiff \
     -D icon=tools/release/dmg/VolumeIcon.icns -D format=UDRW \
-    "AntiChat" "$rw"
+    "AntiChat Installer" "$rw"
 rwmnt="$(mktemp -d "${TMPDIR:-/tmp}/antichat-dmgrw.XXXXXX")"
 hdiutil attach -nobrowse -noautoopen -mountpoint "$rwmnt" "$rw" >/dev/null
 "$venv/bin/python" -I tools/release/dmg/fix-background-bookmark.py "$rwmnt/.DS_Store" \

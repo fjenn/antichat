@@ -51,7 +51,7 @@ def engineering(rel: Path) -> list[str]:
     if v.exists() and not json.loads(v.read_text()).get("app", {}).get("pass"):
         out.append("verify-signing failed on the app (build/release/verify/)")
     version = b.get("version")
-    dmgs = sorted(rel.glob(f"AntiChat-{version}*.dmg"))
+    dmgs = sorted(rel.glob(f"AntiChat-Installer-{version}*.dmg"))
     if not dmgs:
         out.append(f"no DMG for {version}: run `make dmg SIGNING_MODE=devid`")
     for d in dmgs:

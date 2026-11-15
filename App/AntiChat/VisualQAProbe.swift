@@ -174,7 +174,7 @@ enum VisualQAProbe {
         let m = c.model
         let w = { c.window as NSWindow? }
         await both(w, "onb-step1", ["tier": m.profile?.tierKey ?? "?"])
-        guard await advance(m, to: .capabilities, { m.next() }) else { return }
+        if await advance(m, to: .capabilities, { m.next() }) {
         await both(w, "onb-step2-default", ["total": m.totalLine.string, "packs": m.chosenPacks.map(\.rawValue).sorted()])
         m.toggle(.voice)  // a choice of the user's own: Voice unticked
         await settle(400)
@@ -187,7 +187,9 @@ enum VisualQAProbe {
         await both(w, "onb-step2-diskshort", ["free": m.freeBytes, "blocked": m.continueBlocked?.string ?? ""])
         m.freeBytes = free
         await settle(300)
-        guard await advance(m, to: .evil, { m.next() }) else { return }  // Continue → the starter download starts
+        }
+        // A run that lands on Evil directly (restored state) still shoots S-03.
+        if m.step != .evil { guard await advance(m, to: .evil, { m.next() }) else { return } }  // Continue → the starter download starts
         await both(w, "onb-step3-off")
         m.evilOn = true
         await settle(500)

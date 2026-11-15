@@ -1,7 +1,8 @@
 // M2.T18 step 1 (S-00…S-04 chrome; screens.md "Onboarding"): the onboarding root. Always dark. Full-bleed dreamworld
-// art (full colour + `onb.scrim.step1` on step 1, `onb.art.desaturate` on steps 2 and 4), the wordmark top-left and
-// `onb.brand.tag` top-right at the 60 pt margin, `onb.nav.back` bottom-left (hidden on step 1; step 4 has it too), `onb.nav.step`
-// bottom-right and the decorative pill handle bottom-centre (hidden from VoiceOver).
+// art (full colour + `onb.scrim.step1` on step 1, `onb.art.desaturate` on steps 2 and 4), the wordmark top-left at the
+// 60 pt margin, `onb.nav.back` bottom-left (hidden on step 1; step 4 has it too) and `onb.nav.step` bottom-right.
+// No "On-device AI" chip and no bottom-centre handle (owner: the handle was a dictation pill caught in a reference
+// screenshot, not part of the design).
 // Keyboard (NFR-A3): Return = the step's primary CTA, Esc / ⌘[ = Back, ←/→ between pack cards, Space toggles.
 import AntiChatDesign
 import AppKit
@@ -137,7 +138,7 @@ struct OnboardingBackground: View {
     }
 }
 
-/// Wordmark, tag, Back, step counter and the pill handle.
+/// Wordmark, Back and the step counter.
 struct OnboardingChrome: View {
     @Bindable var model: OnboardingModel
     var settled = true
@@ -151,10 +152,6 @@ struct OnboardingChrome: View {
                     .foregroundStyle(Color.onbTextHeadline)
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
-                Text(CopyKey("onb.brand.tag"))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.onbTextBody)
-                    .onbGlassChip()  // M9.T03: a small glass chip over the bright sky
             }
             .padding(.top, 36)
             Spacer(minLength: 0)
@@ -186,10 +183,6 @@ struct OnboardingChrome: View {
                         #endif
                         .onbGlassChip()  // M9.T03: a small glass chip over the bright rock
                 }
-                Capsule()
-                    .fill(Color.white.opacity(0.32))
-                    .frame(width: 34, height: 5)
-                    .accessibilityHidden(true)
             }
             .padding(.bottom, 26)
         }

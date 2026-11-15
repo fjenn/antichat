@@ -2,14 +2,14 @@
 """AntiChat app icon source (M10, tokens.md "App icon"; deterministic, no hand edits).
 
 Writes App/AntiChat/AppIcon.icon, an Icon Composer document (macOS 26 layered icon: Default, Dark, Tinted and
-Clear renditions come from the layers), and tools/release/dmg/VolumeIcon.icns:
+Clear renditions come from the layers); then tools/design/make-installer-icon.py badges the Default rendition into
+the DMG volume and installer icons:
   Assets/background.png  1024×1024 crop of the owner's artwork (docs/research/02-target/inputs/onboarding-reference/
                          onboarding-dreamworld-background.png, Git LFS; the shells + winding path), softened;
   Assets/mark.svg        the AntiChat mark, original: a speech bubble whose inside is the art's winding path,
                          white on glass (no third-party marks or type);
   icon.json              background group (no glass) under the mark group (glass, neutral shadow).
-Then renders previews with Icon Composer's ictool (if Xcode has it) into build/icon/ and packs the Default
-rendition into tools/release/dmg/VolumeIcon.icns (the DMG volume icon).
+Then renders previews with Icon Composer's ictool (if Xcode has it) into build/icon/.
 Run with the release venv (Pillow): build/release-venv/bin/python -I tools/design/make-app-icon.py
 """
 from __future__ import annotations
@@ -93,19 +93,6 @@ def render(kind: str, out: Path, size: int = 1024) -> bool:
     return r.returncode == 0
 
 
-def volume_icon(master: Path, icns: Path, work: Path) -> None:
-    """The DMG volume icon (M10.T02): every iconset size from the rendered Default master, packed by iconutil."""
-    iconset = work / "VolumeIcon.iconset"
-    shutil.rmtree(iconset, ignore_errors=True)
-    iconset.mkdir()
-    src = Image.open(master).convert("RGBA")
-    for pt in (16, 32, 128, 256, 512):
-        for scale in (1, 2):
-            name = f"icon_{pt}x{pt}{'@2x' if scale == 2 else ''}.png"
-            src.resize((pt * scale, pt * scale), Image.LANCZOS).save(iconset / name)
-    subprocess.run(["iconutil", "-c", "icns", str(iconset), "-o", str(icns)], check=True)
-
-
 def main() -> int:
     if ICON.exists():
         shutil.rmtree(ICON)
@@ -118,7 +105,7 @@ def main() -> int:
     done = [k for k in ("Default", "Dark", "TintedLight", "TintedDark", "ClearLight", "ClearDark")
             if render(k, out / f"AppIcon-{k}.png")]
     if "Default" in done:
-        volume_icon(out / "AppIcon-Default.png", ROOT / "tools/release/dmg/VolumeIcon.icns", out)
+        subprocess.run([sys.executable, "-I", str(ROOT / "tools/design/make-installer-icon.py")], check=True)
     print(f"make-app-icon: {ICON.relative_to(ROOT)}; rendered {', '.join(done) or 'nothing (no ictool)'} → build/icon/")
     return 0
 

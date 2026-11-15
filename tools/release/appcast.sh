@@ -48,7 +48,7 @@ for dmg in "${dmgs[@]}"; do
     # the feed is regenerated from the archives (items of other versions are recreated from their DMGs).
     if [[ -f "$dir/$base" ]] && ! cmp -s "$dmg" "$dir/$base"; then rm -f "$dir/appcast.xml"; fi
     cp -f "$dmg" "$dir/$base"
-    ver="$(sed -E 's/^AntiChat-([0-9][0-9.]*[0-9a-z.-]*[0-9])(-UNNOTARIZED|-DEVKEYS)?\.dmg$/\1/' <<< "$base")"
+    ver="$(sed -E 's/^AntiChat-(Installer-)?([0-9][0-9.]*[0-9a-z.-]*[0-9])(-UNNOTARIZED|-DEVKEYS)?\.dmg$/\2/' <<< "$base")"
     if [[ -f "notes/$ver.md" ]]; then
         python3 -I - "notes/$ver.md" "$dir/${base%.dmg}.html" <<'PY'
 import html, sys

@@ -1,8 +1,8 @@
 #!/bin/bash
 # tools/release/verify-dmg.sh — AT-225 AC1 (layout) + AC4 (D-014 plist key) + NFR-D1 on a built DMG (M10.T02).
 # Read-only: attaches the image read-only and hidden (-nobrowse; never opens Finder, never launches the app).
-# Checks: volume name AntiChat; AntiChat.app + Applications → /Applications; the background TIFF with
-# 660×420 and 1320×840 representations, referenced by the .DS_Store bookmark (/Volumes/AntiChat/<file>) and alias;
+# Checks: volume name "AntiChat Installer"; AntiChat.app + Applications → /Applications; the background TIFF with
+# 660×420 and 1320×840 representations, referenced by the .DS_Store bookmark (/Volumes/AntiChat Installer/<file>) and alias;
 # .DS_Store icon positions (180,200)/(480,200), window 660×452 (420 content), icon size 128;
 # LSMinimumSystemVersion 26.0; size ≤ 300 MB; signature (dev/devid); devid: stapled ticket + Gatekeeper
 # `spctl -a -t open --context context:primary-signature` accepted as Notarized Developer ID.
@@ -26,7 +26,7 @@ trap cleanup EXIT
 info="$(hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$mnt" "$dmg" -plist)"
 vol="$(hdiutil imageinfo "$dmg" 2>/dev/null | sed -n 's/^ *Format: //p' | head -n 1)"
 name="$(diskutil info "$mnt" | sed -n 's/^ *Volume Name: *//p')"
-[[ "$name" == AntiChat ]] && ok "volume name AntiChat (format ${vol:-?})" || bad "volume name '$name'"
+[[ "$name" == "AntiChat Installer" ]] && ok "volume name AntiChat Installer (format ${vol:-?})" || bad "volume name '$name'"
 [[ -d "$mnt/AntiChat.app" ]] && ok "AntiChat.app present" || bad "AntiChat.app missing"
 [[ -f "$mnt/.VolumeIcon.icns" ]] && ok "volume icon .VolumeIcon.icns present" || bad "volume icon missing"
 [[ "$(readlink "$mnt/Applications" || true)" == /Applications ]] && ok "Applications → /Applications" || bad "Applications link"
@@ -57,7 +57,7 @@ import json, os, sys
 d, mnt = json.loads(sys.argv[1]), sys.argv[2]
 assert d["background"] == 2, "backgroundType is not picture"
 bm, vol = d["background_bookmark"], d["background_bookmark_volume"]
-assert bm and vol == "/Volumes/AntiChat", f"bookmark volume {vol}"
+assert bm and vol == "/Volumes/AntiChat Installer", f"bookmark volume {vol}"
 assert bm.startswith(vol + "/"), f"bookmark path {bm} is not under {vol} (volume-relative?)"
 rel = bm[len(vol) + 1:]
 assert os.path.isfile(os.path.join(mnt, rel)), f"bookmark target {rel} not in the image"

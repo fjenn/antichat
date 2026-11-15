@@ -55,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" --draft --title "AntiChat $APP_VERSION" --notes-file "notes/$APP_VERSION.md" \
-            build/release/AntiChat-"$APP_VERSION".dmg build/release/SHA256SUMS build/release/SHA256SUMS.sig
+            build/release/AntiChat-Installer-"$APP_VERSION".dmg build/release/SHA256SUMS build/release/SHA256SUMS.sig
       - uses: actions/upload-artifact@v4
         with: {name: appcast, path: site/public/appcast.xml}
       - name: Checklist in the summary

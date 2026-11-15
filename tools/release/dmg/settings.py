@@ -6,7 +6,8 @@ import os.path
 
 app = defines["app"]  # noqa: F821 (dmgbuild injects `defines`)
 appname = os.path.basename(app)
-volume_name = "AntiChat"
+# The mounted installer is named and badged (tools/design/make-installer-icon.py) so it never looks like the app.
+volume_name = "AntiChat Installer"
 format = defines.get("format", "ULFO")  # noqa: F821 (ci-release §5: ULFO, fallback UDZO)
 filesystem = "APFS"
 files = [app]
