@@ -5161,10 +5161,11 @@
    "local_path": "Vendor/LetsMove@70c5772/PFMoveApplication.m",
    "license": "Public-Domain",
    "upstream_sha256": "09ec811505d9ca46b960cd22fabfad5d000279533847477edbd775e13792732c",
-   "local_sha256": "2dce757c64c551a5766e41de9053d9ff9c13d223f6b468f919081f46acd3213e",
+   "local_sha256": "6424537ca199c3ef9888df924fb16f4e1de2566d0f31f9fefa766777e13af371",
    "patches": [
     "UP-LM-001",
-    "UP-LM-002"
+    "UP-LM-002",
+    "UP-LM-003"
    ],
    "used_by": [
     "P-platform-13"

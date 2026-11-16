@@ -250,10 +250,12 @@ BOOL PFMoveIsInProgress() {
 #pragma mark Helper Functions
 
 static NSString *PreferredInstallLocation(BOOL *isUserDirectory) {
-	// Return the preferred install location.
-	// Assume that if the user has a ~/Applications folder, they'd prefer their
-	// applications to go there.
-
+	// ANTICHAT-PATCH: UP-LM-003 always /Applications: a ~/Applications folder that merely holds other apps (web-app
+	// shims, URL handlers) sent AntiChat there, where the user never looked ("it doesn't show up in Applications").
+	// Not writable → LetsMove asks for an administrator password (AuthorizedInstall), as before.
+	if (isUserDirectory) *isUserDirectory = NO;
+	return [[NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES) lastObject] stringByResolvingSymlinksInPath];
+#if 0  // upstream: prefer ~/Applications when it holds at least one .app
 	NSFileManager *fm = [NSFileManager defaultManager];
 
 	NSArray *userApplicationsDirs = NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES);
@@ -280,6 +282,7 @@ static NSString *PreferredInstallLocation(BOOL *isUserDirectory) {
 	if (isUserDirectory) *isUserDirectory = NO;
 
 	return [[NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES) lastObject] stringByResolvingSymlinksInPath];
+#endif
 }
 
 static BOOL IsInApplicationsFolder(NSString *path) {

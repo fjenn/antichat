@@ -1,0 +1,4 @@
+{"version": "0.0.5", "critical": false, "prerelease": false,
+ "items": [{"icon": "folder", "title": "Installs where you expect", "body": "Move to Applications now always puts AntiChat in your Applications folder."},
+           {"icon": "flame", "title": "New Evil Mode page", "body": "Setup now says what Evil Mode is, with more room to breathe."},
+           {"icon": "arrow.down.circle", "title": "AntiChat Installer", "body": "The download has its own name and icon, so it never looks like the app."}]}

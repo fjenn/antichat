@@ -33,6 +33,9 @@ rm -f "$out"/AntiChat-*.dmg
 # dmgbuild writes a read-write image first: its background bookmark is volume-relative, which Finder cannot resolve
 # (the window opened plain white; M10 VQ). fix-background-bookmark.py makes it /Volumes/AntiChat Installer/.background.tiff,
 # then the image is converted to ULFO (ci-release §5).
+# A mounted "AntiChat Installer" makes the new volume "AntiChat Installer 1", and the background bookmark would point
+# there (a blank window for users): eject every mounted installer volume first.
+for v in /Volumes/AntiChat\ Installer*; do [[ -d "$v" ]] && { echo "  ejecting $v"; hdiutil detach -quiet "$v" || hdiutil detach -force -quiet "$v"; }; done
 rw="$out/AntiChat-rw.dmg"
 rm -f "$rw"
 "$venv/bin/dmgbuild" -s tools/release/dmg/settings.py -D app="$app" -D background=tools/release/dmg/background.tiff \

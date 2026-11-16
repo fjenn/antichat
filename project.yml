@@ -87,7 +87,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChat
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.4"
+        CFBundleShortVersionString: "0.0.5"
         CFBundleVersion: "1"
         # M2.T01 (R-200 AC4, D-014): arm64 only; the system refuses macOS < 26.
         LSArchitecturePriority: [arm64]
@@ -273,7 +273,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChatEngine
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.4"
+        CFBundleShortVersionString: "0.0.5"
         CFBundleVersion: "1"
         LSMinimumSystemVersion: "26.0"
         XPCService:
@@ -299,7 +299,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChatEngineStandby
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.4"
+        CFBundleShortVersionString: "0.0.5"
         CFBundleVersion: "1"
         LSMinimumSystemVersion: "26.0"
         XPCService:
