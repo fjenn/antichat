@@ -10,6 +10,8 @@
 //               ReadAloudLatencyTests texts). Mode [IN-PIPELINE]. Run 0 per text is discarded (Kokoro's ANE warm-up).
 //   transcribe-file: `TranscribeFile` (Parakeet `stt` + Silero `vad-files`, disk-backed, R-056) of the 60-min fixture
 //               → its `done`; realtime_x = audio seconds ÷ wall seconds; n = 3 for a 60-min file (A-M3-03).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 @preconcurrency import AVFoundation
 import AntiChatEngineProtocol
 import AntiChatHarness
@@ -129,3 +131,4 @@ extension BenchMode {
         }
     }
 }
+#endif

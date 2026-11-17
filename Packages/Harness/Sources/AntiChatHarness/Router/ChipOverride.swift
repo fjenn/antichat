@@ -14,7 +14,7 @@ public enum ChipOverride {
         case "video": "create_video"
         case "web": "web_search"
         case "readUrl": "read_url"  // M7.T03 step 4: the "Read this URL" suggestion chip
-        case "file": "create_file"
+        case "file": "create_document"  // the general file tool; its wrong-format check redirects to the others
         default: id.hasPrefix("tool:") ? String(id.dropFirst(5)) : nil
         }
     }

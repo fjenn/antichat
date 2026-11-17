@@ -1,0 +1,33 @@
+# tools/release/public-export.manifest — what stays out of the public repository (fjenn/antichat).
+# Read by tools/release/export-public.sh; the ONE place for this list.
+#
+#   exclude <pattern>   a path of the main tree that is never exported. `*` matches inside one path component,
+#                       `**` across components (git's `:(glob)` pathspec rules). The export also fails when a path
+#                       matching one of these is present in the destination afterwards.
+#   allow <pattern>     a path the secret scan does not read, with the reason on the line above it.
+#
+# Besides this list the export refuses, anywhere in the destination: *.priv, *.p12, *.p8, *.pem, *.cer,
+# *.mobileprovision, *.keychain-db and .env* files, and file contents that look like credentials
+# (private-key blocks, GitHub / Hugging Face / AWS / Slack / Anthropic / OpenAI / Composio tokens, an Apple
+# app-specific password, long literal values assigned to *_SECRET / *_TOKEN / *_PASSWORD / *_API_KEY).
+
+# The website lives in its own private repository.
+exclude site/**
+# Build outputs and acceptance evidence (logs, screenshots of the owner's desktop).
+exclude build/**
+# Test data: a local submodule (file:// remote); its .gitmodules entry is removed too.
+exclude fixtures
+# Research packet and owner-only documents.
+exclude docs/research/**
+exclude docs/prd/owner/**
+exclude docs/prd/*owner-steps*.md
+exclude docs/prd/OWNER-STEPS.md
+exclude tools/release/keys-ceremony-log.md
+# Dependency updates are made in the main tree and synced.
+exclude .github/dependabot.yml
+# Mock values only, but a .env file: the public repository carries none.
+exclude relay/.env.test
+
+# The committed Sparkle TEST key (line 1 is a private seed by design; fingerprint in catalog/test-keys/FINGERPRINTS,
+# refused by every release build and by the stable feed).
+allow catalog/test-keys/sparkle-test.key

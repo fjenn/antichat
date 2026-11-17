@@ -109,6 +109,9 @@ public final class QuickPanelViewModel {
         }
     }
 
+    /// The × button: the panel hides as it is (the typed text stays; a streaming reply goes on).
+    public func close() { hide?() }
+
     /// ⌘O: the main window takes the chat (nil when there is none yet).
     @discardableResult
     public func openInApp() -> String? {

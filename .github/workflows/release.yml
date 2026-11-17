@@ -1,29 +1,110 @@
-# M10.T08 (R-305 AC1/AC3; ci-release §2–§8): tag v* → the same steps as tools/release/release.sh on the self-hosted
-# runner, environment `release` (required reviewer = the owner). Produces a DRAFT GitHub Release only; publishing,
-# the site deploy and the appcast go live by hand after checklist items 12–13 (tools/release/CHECKLIST.md).
-# Secrets (environment `release`): DEVID_P12_BASE64, DEVID_P12_PASSWORD, KEYCHAIN_PASSWORD, NOTARY_APPLE_ID,
-# NOTARY_TEAM_ID, NOTARY_PASSWORD (app-specific), SPARKLE_PRIVATE_KEY. Catalog key B / Sparkle backup never go here.
+# Release build on GitHub's own macOS runners (R-305 AC1/AC3; ci-release §2–§8). Runs in the PUBLIC repository
+# (the snapshot made by tools/release/export-public.sh); nothing is built, signed or notarized on a developer Mac.
+#
+#   push tag v<ver>            build → sign (Developer ID, hardened runtime) → notarize + staple → installer DMG →
+#                              SHA256SUMS → Sparkle signatures + appcast.xml → DRAFT GitHub Release.
+#   Run workflow (manual)      the same with the version typed in, but no release: the files are kept as workflow
+#                              artefacts for 14 days (a dry run).
+#
+# Publishing the draft and deploying the site with the new appcast.xml stay manual (tools/release/CHECKLIST.md).
+# The pipeline itself is tools/release/release.sh, the same script as a local release. Differences on the runner:
+#   - SKIP_TESTS=1: `make test-unit` needs the fixtures submodule and local models, which are not public; it stays a
+#     local step before tagging (checklist items 1–5);
+#   - `make audit` runs with AUDIT_SCOPE=public: audits whose inputs are not exported are skipped and listed;
+#   - the Developer ID certificate and the notary profile live in a temporary keychain, deleted at the end.
+#
+# Secrets (environment `release`, set once with tools/release/gh-release-secrets.sh): DEVID_P12_BASE64,
+# DEVID_P12_PASSWORD, KEYCHAIN_PASSWORD, NOTARY_APPLE_ID, NOTARY_TEAM_ID, NOTARY_PASSWORD (app-specific),
+# SPARKLE_PRIVATE_KEY. Catalog key B and the Sparkle backup key never go here.
 name: release
 on:
   push:
     tags: ["v*"]
-permissions:
-  contents: write
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Dry run: version to build, e.g. 0.0.8 (needs notes/<version>.md and .json). No release is created."
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
-  release:
-    # Fork PRs never reach the self-hosted runner: tags only, on this repository.
-    if: github.repository_owner == github.actor || github.event_name == 'push'
-    runs-on: [self-hosted, macOS, ARM64]
+  build:
+    name: Build, sign, notarize
+    # Forks have neither the environment nor the secrets.
+    if: github.repository == 'fjenn/antichat'
+    # GitHub-hosted, Apple silicon. `xcode-27` is the image that carries Xcode 27.2 (macOS 27 SDK), the toolchain
+    # pinned in tools/ci/pins.json; the macos-26 image stops at Xcode 26.x and cannot build this project.
+    runs-on: xcode-27
     environment: release
-    timeout-minutes: 240
+    permissions:
+      contents: read
+    timeout-minutes: 300
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     env:
       SIGNING_MODE: devid
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_ANALYTICS: "1"
     steps:
-      - uses: actions/checkout@v5
-        with: {submodules: true, fetch-depth: 0}
-      - name: Version from the tag
-        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-      - name: Temporary keychain with the Developer ID certificate + notary profile
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Version (from the tag, or typed in for a dry run)
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == push ]]; then ver="${GITHUB_REF_NAME#v}"; else ver="${INPUT_VERSION#v}"; fi
+          [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::version '$ver' is not <major>.<minor>.<patch>"; exit 1; }
+          [[ -f SOURCE_REVISION ]] || { echo "::error::SOURCE_REVISION missing: this tree was not made by tools/release/export-public.sh"; exit 1; }
+          echo "APP_VERSION=$ver" >> "$GITHUB_ENV"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          python3 -I tools/release/notes-check.py "$ver"
+
+      - name: Toolchain (Xcode 27.2, Metal toolchain, uv, actionlint)
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.2.app
+          want="$(python3 -I -c 'import json; print(json.load(open("tools/ci/pins.json"))["toolchain"]["xcode"])')"
+          have="$(xcodebuild -version | sed -n 's/^Xcode //p')"
+          xcodebuild -version; xcrun --sdk macosx --show-sdk-version; swift --version 2>&1 | head -n 1
+          [[ "$have" == "$want" ]] || { echo "::error::Xcode $have selected, tools/ci/pins.json pins $want"; exit 1; }
+          # mlx-swift compiles Metal shaders; since Xcode 26 the Metal compiler is a separate component.
+          xcodebuild -showComponent MetalToolchain 2>/dev/null | grep -q 'Status: installed' || xcodebuild -downloadComponent MetalToolchain
+          brew install uv actionlint
+          cmake --version | head -n 1; ninja --version; uv --version; actionlint -version | head -n 1
+          # verify-signing.sh and verify-dmg.sh ask Gatekeeper; make sure it answers.
+          spctl --status || sudo spctl --global-enable || true
+          df -h / | tail -n 1
+
+      - name: Source audits (AUDIT_SCOPE=public)
+        run: |
+          AUDIT_SCOPE=public tools/ci/audit.sh
+          rm -rf build/at build/audit   # evidence files; the pipeline below wants a clean tree
+
+      - name: Helper binaries, cache key
+        id: helpers
+        run: |
+          tc="$({ xcodebuild -version; xcrun clang --version | head -n 1; cmake --version | head -n 1; } | shasum -a 256 | cut -c1-12)"
+          echo "pins=$(git rev-parse HEAD:Binaries/llama.cpp)-$(git rev-parse HEAD:Binaries/sdcpp)-$tc" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/Library/Caches/AntiChat-dev/binaries
+          key: helpers-${{ steps.helpers.outputs.pins }}-${{ hashFiles('tools/binaries/**', 'Vendor/patches/sdcpp/**') }}
+      - name: Helper binaries (llama-server, sd-server, sd-cli from the pinned submodules; sha256 = Binaries/checksums.json)
+        run: |
+          # Full history: tools/binaries/build.sh refuses shallow clones (the version stamps count commits).
+          git submodule update --init --recursive Binaries/llama.cpp Binaries/sdcpp
+          make binaries
+          git diff --exit-code -- Binaries/checksums.json
+
+      - name: Temporary keychain (Developer ID certificate, notary profile)
         env:
           DEVID_P12_BASE64: ${{ secrets.DEVID_P12_BASE64 }}
           DEVID_P12_PASSWORD: ${{ secrets.DEVID_P12_PASSWORD }}
@@ -32,36 +113,178 @@ jobs:
           NOTARY_TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
           NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
         run: |
-          kc="$RUNNER_TEMP/build.keychain-db"
+          for s in DEVID_P12_BASE64 DEVID_P12_PASSWORD KEYCHAIN_PASSWORD NOTARY_APPLE_ID NOTARY_TEAM_ID NOTARY_PASSWORD; do
+            [[ -n "${!s}" ]] || { echo "::error::secret $s is not set in the release environment (tools/release/gh-release-secrets.sh)"; exit 1; }
+          done
+          umask 077
+          kc="$RUNNER_TEMP/release.keychain-db"
+          echo "RELEASE_KEYCHAIN=$kc" >> "$GITHUB_ENV"
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
           security set-keychain-settings -lut 21600 "$kc"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
           printf '%s' "$DEVID_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/devid.p12"
-          security import "$RUNNER_TEMP/devid.p12" -k "$kc" -P "$DEVID_P12_PASSWORD" -T /usr/bin/codesign
+          security import "$RUNNER_TEMP/devid.p12" -k "$kc" -f pkcs12 -P "$DEVID_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security >/dev/null
           rm -f "$RUNNER_TEMP/devid.p12"
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$kc" >/dev/null
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$kc" >/dev/null
           security list-keychains -d user -s "$kc" "$HOME/Library/Keychains/login.keychain-db"
+          if ! security find-identity -v -p codesigning "$kc" | grep -q '"Developer ID Application:'; then
+            # The .p12 carries the certificate and its key only: add Apple's Developer ID intermediate (public).
+            curl -fsSL -o "$RUNNER_TEMP/DeveloperIDG2CA.cer" https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+            security import "$RUNNER_TEMP/DeveloperIDG2CA.cer" -k "$kc" >/dev/null
+          fi
+          n="$(security find-identity -v -p codesigning "$kc" | grep -c '"Developer ID Application:' || true)"
+          [[ "$n" == 1 ]] || { echo "::error::expected exactly 1 valid Developer ID Application identity in DEVID_P12_BASE64, found $n"; exit 1; }
+          # Also proves the Apple ID, team and app-specific password before the long build.
           xcrun notarytool store-credentials AntiChat-notary --apple-id "$NOTARY_APPLE_ID" --team-id "$NOTARY_TEAM_ID" \
-            --password "$NOTARY_PASSWORD" --keychain "$kc"
-          echo "RELEASE_KEYCHAIN=$kc" >> "$GITHUB_ENV"
-      - name: Sparkle key file (runner temp only)
+            --password "$NOTARY_PASSWORD" --keychain "$kc" >/dev/null
+          echo "NOTARY_KEYCHAIN=$kc" >> "$GITHUB_ENV"
+
+      - name: Sparkle key (runner temp only; must be the key the app trusts)
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-        run: umask 077 && printf '%s' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key" && echo "SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
-      - name: Pipeline (tests, audit, build, sign, notarize, DMG, sums, stable appcast)
-        run: tools/release/release.sh
-      - name: Draft GitHub Release (DMG + SHA256SUMS + .sig); publishing stays manual
+        run: |
+          [[ -n "$SPARKLE_PRIVATE_KEY" ]] || { echo "::error::secret SPARKLE_PRIVATE_KEY is not set in the release environment"; exit 1; }
+          umask 077
+          printf '%s\n' "$SPARKLE_PRIVATE_KEY" > "$RUNNER_TEMP/sparkle.key"
+          echo "SPARKLE_KEY_FILE=$RUNNER_TEMP/sparkle.key" >> "$GITHUB_ENV"
+          have="$(swift tools/release/sparkle-pubkey.swift "$RUNNER_TEMP/sparkle.key")"
+          want="$(python3 -I tools/release/gen-keys-swift.py --sparkle-key release)"
+          [[ "$have" == "$want" ]] || { echo "::error::SPARKLE_PRIVATE_KEY is not the private half of Config/Keys.release.plist SparklePublicEDKey; installed apps would reject the update"; exit 1; }
+
+      - name: Earlier releases (for delta updates and the feed's older items)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" --draft --title "AntiChat $APP_VERSION" --notes-file "notes/$APP_VERSION.md" \
-            build/release/AntiChat-Installer-"$APP_VERSION".dmg build/release/SHA256SUMS build/release/SHA256SUMS.sig
-      - uses: actions/upload-artifact@v4
-        with: {name: appcast, path: site/public/appcast.xml}
-      - name: Checklist in the summary
-        run: cat tools/release/CHECKLIST.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Clean up keys and the temporary keychain
+          dir=build/updates/stable
+          mkdir -p "$dir"
+          tags="$(gh release list -R "$GITHUB_REPOSITORY" --exclude-drafts --exclude-pre-releases --limit 30 --json tagName -q '.[].tagName' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -vx "v$APP_VERSION" | head -n 2 || true)"
+          for t in $tags; do
+            gh release download "$t" -R "$GITHUB_REPOSITORY" -p 'AntiChat-*.dmg' -p '*.delta' -D "$dir" --clobber
+          done
+          # The feed so far: the copy attached to the newest release, else the live one. Without it the feed starts
+          # with this version only (still a valid feed).
+          latest="$(head -n 1 <<< "$tags")"
+          if [[ -n "$latest" ]] && gh release download "$latest" -R "$GITHUB_REPOSITORY" -p appcast.xml -D "$dir" --clobber 2>/dev/null; then
+            echo "previous feed: release $latest"
+          elif curl -fsSL -o "$dir/appcast.xml" "$(/usr/libexec/PlistBuddy -c 'Print :AppcastURL' Config/Endpoints.plist)"; then
+            echo "previous feed: the live appcast"
+          else
+            rm -f "$dir/appcast.xml"; echo "::warning::no previous feed found; the appcast will list this version only"
+          fi
+          ls -l "$dir"
+
+      - name: Pipeline (tools/release/release.sh — build, sign, notarize, DMG, sums, stable appcast)
+        env:
+          SKIP_TESTS: "1"
+        run: tools/release/release.sh
+
+      - name: Collect the release files
+        run: |
+          shopt -s nullglob
+          build="$(python3 -I -c 'import json; print(json.load(open("build/release/build.json"))["build"])')"
+          mkdir -p dist/release/assets dist/evidence
+          cp "build/release/AntiChat-Installer-$APP_VERSION.dmg" build/release/SHA256SUMS build/release/SHA256SUMS.sig \
+            site/public/appcast.xml dist/release/assets/
+          for d in build/updates/stable/AntiChat"$build"-*.delta; do cp "$d" dist/release/assets/; done
+          cp "notes/$APP_VERSION.md" dist/release/notes.md
+          # The new version must lead the feed, with this build number and this tag's download URLs.
+          python3 -I - dist/release/assets/appcast.xml "$APP_VERSION" "$build" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          feed, ver, build = sys.argv[1:]
+          S = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
+          items = ET.parse(feed).getroot().findall("channel/item")
+          top = max(items, key=lambda i: int(i.findtext(f"{S}version")))
+          url = top.find("enclosure").get("url")
+          ok = (top.findtext(f"{S}shortVersionString") == ver and top.findtext(f"{S}version") == build
+                and f"/releases/download/v{ver}/" in url)
+          print(f"appcast: {len(items)} item(s); newest {top.findtext(f'{S}shortVersionString')} "
+                f"({top.findtext(f'{S}version')}) → {url}")
+          sys.exit(0 if ok else f"appcast: the newest item is not {ver} ({build}) under v{ver}/")
+          PY
+          (cd dist/release/assets && shasum -a 256 -c SHA256SUMS)
+          ls -l dist/release/assets
+
+      - name: Evidence (signing, notary and verification logs; no secrets)
         if: always()
         run: |
-          rm -f "$RUNNER_TEMP/sparkle.key"
-          [ -n "${RELEASE_KEYCHAIN:-}" ] && security delete-keychain "$RELEASE_KEYCHAIN" || true
+          mkdir -p dist/evidence
+          for f in build/release/build.json build/release/sign-report.tsv build/release/LABEL build/release/verify-pre \
+                   build/release/verify build/release/notary build/release/release-*.log build/at/AT-225 build/at/AT-NFR-D1; do
+            [[ -e "$f" ]] && cp -R "$f" dist/evidence/ || true
+          done
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ steps.version.outputs.version }}
+          path: dist/release
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: evidence-${{ steps.version.outputs.version || 'failed' }}
+          path: dist/evidence
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Summary
+        run: |
+          {
+            echo "## AntiChat $APP_VERSION"
+            echo
+            if [[ "$GITHUB_EVENT_NAME" == push ]]; then
+              echo "Built, signed and notarized. A **draft** release follows; nothing is public yet."
+            else
+              echo "Dry run: built, signed and notarized. No release was created; the files are in the \`release-$APP_VERSION\` artefact."
+            fi
+            echo
+            echo '```'; cat dist/release/assets/SHA256SUMS; echo '```'
+            echo
+            cat tools/release/CHECKLIST.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the keys and the temporary keychain
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/sparkle.key" "$RUNNER_TEMP/devid.p12" "$RUNNER_TEMP/DeveloperIDG2CA.cer"
+          if [[ -n "${RELEASE_KEYCHAIN:-}" ]]; then
+            security list-keychains -d user -s "$HOME/Library/Keychains/login.keychain-db" || true
+            security delete-keychain "$RELEASE_KEYCHAIN" || true
+          fi
+
+  draft-release:
+    name: Draft GitHub Release
+    # Tags only. This job can write to the repository but sees no signing secret; the job above is the reverse.
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-${{ needs.build.outputs.version }}
+          path: dist
+      - name: Draft release with the DMG, sums, update files and appcast.xml (publishing stays a manual click)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          state="$(gh release view "$tag" -R "$GITHUB_REPOSITORY" --json isDraft -q .isDraft 2>/dev/null || echo none)"
+          case "$state" in
+            none)
+              gh release create "$tag" -R "$GITHUB_REPOSITORY" --draft --verify-tag --title "AntiChat $VERSION" \
+                --notes-file dist/notes.md dist/assets/* ;;
+            true)   # a re-run: replace the files of the existing draft
+              gh release upload "$tag" -R "$GITHUB_REPOSITORY" --clobber dist/assets/* ;;
+            *)
+              echo "::error::release $tag is already published; its files are never replaced. Tag a new version."; exit 1 ;;
+          esac
+          {
+            echo "Draft release **$tag** is ready: https://github.com/$GITHUB_REPOSITORY/releases"
+            echo "Next: checklist items 12–13 against the draft, then publish it, then deploy the site with the attached \`appcast.xml\`."
+          } >> "$GITHUB_STEP_SUMMARY"

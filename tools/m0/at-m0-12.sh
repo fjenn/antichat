@@ -81,6 +81,12 @@ cp build/updates/appcast.xml "$OUT/appcast.xml" 2>/dev/null || true
 # 5. Launch from /Applications, one streamed reply through the signed helper and the signed llama-server.
 step "5. launch from $INSTALL_PATH"
 R_launch=skipped
+# Developer test modes are not compiled into a release build (tools/ci/dev-modes-guard.py), so build/release has no
+# `-Bench family` to drive headlessly: without the bench marker the app would open its window and `open -W` would
+# wait for the owner to quit it. The leg is then skipped (launch evidence of a release build: tools/install-test).
+if ! grep -q -a "AntiChatBenchMode-NeverInRelease" "$APP/Contents/MacOS/AntiChat" 2>/dev/null; then
+  echo "launch leg skipped: $APP has no bench mode (release builds carry no developer test modes)"; SKIP_LAUNCH=1
+fi
 if [ "${SKIP_LAUNCH:-0}" != 1 ]; then
   # Dialog guard: a hardened-runtime ad-hoc app whose nested frameworks fail library validation aborts in dyld,
   # and macOS then shows "AntiChat cannot be opened because of a problem" on the user's screen. Refuse to

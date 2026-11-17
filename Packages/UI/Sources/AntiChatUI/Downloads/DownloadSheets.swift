@@ -21,7 +21,7 @@ struct DiskShortSheet: View {
                 Button(action: onClose) { Text(CopyKey("download.diskFull.close")) }
                     .probeID("diskShort.close")
                 Button(action: onOpenStorage) { Text(CopyKey("download.diskFull.openStorage")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .probeID("diskShort.openStorage")
             }
         }
@@ -57,7 +57,7 @@ struct DownloadAskSheet: View {
                 Button(action: onLater) { Text(CopyKey("download.expensiveAsk.later")) }
                     .probeID("expensiveAsk.later")
                 Button(action: onDownload) { Text(CopyKey("download.expensiveAsk.download")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .probeID("expensiveAsk.download")
             }
         }

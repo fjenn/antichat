@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # tools/bench.sh <mode> [bench args…] [--out build/perf/report.json] (M0.T04 step 7).
 # Builds the app ONCE with Release optimisation into build/dd-bench (Debug numbers are never reported) and
+# with ANTICHAT_PERF_HARNESS: `-Bench` is developer-only code that a release build does not contain
+# (tools/ci/dev-modes-guard.py), so the bench app is the same kind of build as `make build-perf` and never ships.
 # runs `AntiChat.app/Contents/MacOS/AntiChat -Bench <mode> …` under the one-GPU-job lock, then aggregates
 # the raw runs into build/perf/report.json with tools/perf/report.py.
 #   tools/bench.sh chat    --model chat-9b-q4 --tier-cap T1 --runs 20 --ctx 1k|4k
@@ -50,7 +52,8 @@ else
     # (variant_shredding.cpp, row_group_collection.cpp) and the Release bench app did not compile (M9.T05 prep).
     xcodebuild -workspace AntiChat.xcworkspace -scheme AntiChat-Release -configuration Release -derivedDataPath build/dd-bench \
       -disableAutomaticPackageResolution -packageAuthorizationProvider netrc CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO \
-      ARCHS=arm64 'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) NDEBUG=1' build -quiet
+      ARCHS=arm64 'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) NDEBUG=1' \
+      'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) ANTICHAT_PERF_HARNESS' build -quiet
   fi
   lockf "$LOCK" "$APP/Contents/MacOS/AntiChat" -Bench "$MODE" ${ARGS[@]+"${ARGS[@]}"} --fixtures "$FIXTURES" --raw "$RAW"
 fi

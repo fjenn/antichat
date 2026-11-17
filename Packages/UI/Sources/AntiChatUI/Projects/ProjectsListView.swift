@@ -86,7 +86,7 @@ struct NewProjectSheet: View {
                 Spacer()
                 Button(action: onCancel) { Text(CopyKey("project.cancel")) }.keyboardShortcut(.cancelAction)
                 Button { onCreate(name, icon) } label: { Text(CopyKey("project.new.create")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .disabled(!Self.valid(name))
                     .probeID("project.new.create")
             }
@@ -136,7 +136,7 @@ struct DeleteProjectDialog: View {
                 Button(action: onCancel) { Text(CopyKey("project.cancel")) }.keyboardShortcut(.cancelAction)
                 Spacer()
                 Button(action: onKeepChats) { Text(CopyKey("project.delete.keep")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .probeID("project.delete.keep")
                 Button(role: .destructive, action: onDeleteChats) { Text(CopyKey("project.delete.chats")) }
                     .probeID("project.delete.chats")

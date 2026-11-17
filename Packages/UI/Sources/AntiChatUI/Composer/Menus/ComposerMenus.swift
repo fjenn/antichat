@@ -34,8 +34,6 @@ public final class ComposerMenus {
     public var isConnectionsMenuOpen = false
     /// M7.T12 (R-082 AC3): the + menu's Skills row opens the per-chat skill switches (SkillsSubmenu).
     public var isSkillsMenuOpen = false
-    /// M7.T14 (R-268 AC2): the + menu's Tools row opens the per-chat tool switches (ToolsSubmenu).
-    public var isToolsMenuOpen = false
     public var isAddMenuOpen = false {
         didSet { if isAddMenuOpen { addSelection = 0; inlineDismissedAt = trigger?.location } }
     }
@@ -58,7 +56,7 @@ public final class ComposerMenus {
     @ObservationIgnored public var addFiles: (@MainActor ([URL]) -> Void)?
     /// M7.T03 step 2: Web search is off → the consent sheet; `done(true)` = turned on (then the chip is added).
     @ObservationIgnored public var requestWebConsent: (@MainActor (_ done: @escaping @MainActor (Bool) -> Void) -> Void)?
-    /// Opens Settings → Capabilities (the view binds SwiftUI's `openSettings`).
+    /// Opens Settings → Capabilities (the view binds `SettingsPresenter.show`).
     @ObservationIgnored public var openSettings: (@MainActor () -> Void)?
     /// The file picker; replaceable in tests and probes. Default: an NSOpenPanel for files (multiple).
     @ObservationIgnored public var chooseFiles: (@MainActor () -> [URL])? = nil
@@ -165,6 +163,11 @@ public final class ComposerMenus {
     private func perform(_ item: ComposerMenuItem) {
         lastPicked = item.id
         if item.state.isSettingsLink {
+            // A pack that is not installed or is off: straight to its row in Settings › Capabilities (one click to install).
+            switch item.state {
+            case .needsPack(let pack), .needsEnable(let pack): SettingsNavigator.shared.request(.capabilities, row: "pack.\(pack)")
+            default: break
+            }
             openSettings?()
             return
         }
@@ -179,11 +182,15 @@ public final class ComposerMenus {
             return
         }
         if case .action(.connections) = item.kind {
-            isConnectionsMenuOpen = true  // M7.T06: per-chat server toggles, no chip
+            if MCPTools.shared.all.isEmpty {
+                // Nothing connected yet: straight to Settings › Connections, no one-row submenu in between.
+                SettingsNavigator.shared.request(.connections)
+                openSettings?()
+            } else {
+                isConnectionsMenuOpen = true  // M7.T06: per-chat server toggles, no chip
+            }
         } else if case .action(.skills) = item.kind {
             isSkillsMenuOpen = true  // M7.T12: per-chat skill switches, no chip
-        } else if case .action(.tools) = item.kind {
-            isToolsMenuOpen = true  // M7.T14: per-chat tool switches, no chip
         } else if item.makesChip {
             chips.add(item)
         } else if case .action(.files) = item.kind {
@@ -285,7 +292,6 @@ public final class ComposerMenus {
         case .web: CopyKey("add.web")
         case .connections: CopyKey("add.connections")
         case .skills: CopyKey("add.skills")
-        case .tools: CopyKey("add.tools")
         case .project: CopyKey("add.project")
         }
     }

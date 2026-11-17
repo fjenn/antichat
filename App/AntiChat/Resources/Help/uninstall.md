@@ -4,7 +4,7 @@ There are two ways. Both remove everything AntiChat keeps on this Mac.
 
 ## 1. Use Uninstall AntiChat (recommended)
 
-Choose **AntiChat › Uninstall AntiChat…** (or Settings › Storage › Uninstall AntiChat…). The sheet lists what will be removed and how much space it frees. Click **Export my data first** if you want to keep your chats, then type UNINSTALL and click **Uninstall**. AntiChat removes its models, chats, pictures, files, caches, logs and settings, turns off Launch at login, clears its keyboard shortcuts, moves itself to the Trash and quits.
+Choose **AntiChat › Uninstall AntiChat…** (or Settings › Privacy & Data › Advanced › Uninstall AntiChat…). The sheet lists what will be removed and how much space it frees. Click **Export my data first** if you want to keep your chats, then type UNINSTALL and click **Uninstall**. AntiChat removes its models, chats, pictures, files, caches, logs and settings, turns off Launch at login, clears its keyboard shortcuts, moves itself to the Trash and quits.
 
 ## 2. Remove it by hand
 
@@ -24,7 +24,7 @@ Choose **AntiChat › Uninstall AntiChat…** (or Settings › Storage › Unins
 - `~/Library/Logs/DiagnosticReports/AntiChat*.ips`
 - `$TMPDIR/AntiChat-incognito-*` (temporary; macOS also clears it on restart)
 
-If you moved the Models folder to another drive (Settings › Storage › Models folder › Move…), delete that folder too. Settings › Storage shows where it is, with Show in Finder.
+If you moved the Models folder to another drive (Settings › Privacy & Data › Advanced › Models folder › Move…), delete that folder too. Settings › Privacy & Data › Advanced shows where it is, with Show in Finder.
 
 Keychain items named app.antichat.* can be deleted in Keychain Access.
 

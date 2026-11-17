@@ -37,19 +37,29 @@ public struct MainWindowSlots {
     public var dropFiles: (@MainActor ([URL]) -> Void)?
     /// M6.T13: the files of a chat (attached + produced) for Outputs and Files in this chat (nil = none).
     public var chatFiles: (@MainActor (String) -> [ChatFile])?
+    /// ux/simplify: the toolbar's mode picker (Normal / Evil) for the shown chat; returns nil while Evil Mode is off
+    /// or hidden (no picker). nil = the host has none.
+    public var modePicker: (@MainActor () -> AnyView?)?
+    /// ux/simplify: the Normal / Evil choice shown in a new chat's empty state, above the composer; returns nil while
+    /// Evil Mode is off or hidden (nothing is shown). nil = the host has none.
+    public var emptyModeControl: (@MainActor () -> AnyView?)?
 
     public init(composer: @escaping @MainActor (ComposerSlotContext) -> AnyView,
                 transcriptRow: @escaping @MainActor (TranscriptItem) -> AnyView,
                 startTurn: (@MainActor (String, String, [String]) -> Void)? = nil,
                 conversation: (@MainActor (String, Date?) -> AnyView)? = nil,
                 dropFiles: (@MainActor ([URL]) -> Void)? = nil,
-                chatFiles: (@MainActor (String) -> [ChatFile])? = nil) {
+                chatFiles: (@MainActor (String) -> [ChatFile])? = nil,
+                modePicker: (@MainActor () -> AnyView?)? = nil,
+                emptyModeControl: (@MainActor () -> AnyView?)? = nil) {
         self.composer = composer
         self.transcriptRow = transcriptRow
         self.startTurn = startTurn
         self.conversation = conversation
         self.dropFiles = dropFiles
         self.chatFiles = chatFiles
+        self.modePicker = modePicker
+        self.emptyModeControl = emptyModeControl
     }
 
     @MainActor public static var standIns: MainWindowSlots {

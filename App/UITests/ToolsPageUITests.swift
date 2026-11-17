@@ -23,10 +23,10 @@ final class ToolsPageUITests: XCTestCase {
 
     @MainActor private func openToolsSettings(_ app: XCUIApplication, toConnections: Bool = true) {
         app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
+        app.descendants(matching: .any).matching(identifier: "settings.nav.capabilities").firstMatch.click()
         // Connections sit below the fold of Tools & Connections; bring them on screen (Q-015 catch-up). The built-in
         // rows (Tool access and its warning) are above it: scrolled away, the form leaves rows off screen out of the tree.
-        if toConnections { app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch.scroll(byDeltaX: 0, deltaY: -700) }
+        if toConnections { app.scrollViews.matching(identifier: "settings.detail.capabilities").firstMatch.scroll(byDeltaX: 0, deltaY: -700) }
     }
 
     private func element(_ app: XCUIApplication, _ id: String) -> XCUIElement {

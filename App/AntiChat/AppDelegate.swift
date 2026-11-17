@@ -38,10 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // visible window; a launch that never gets there (onboarding, a blocked database, a slow Mac) runs them after
         // 1 s, and a background test/probe run (never focused) on the next run-loop turn, as early as before.
         MainActor.assumeIsolated { AfterFirstFrame.armFallback(after: BackgroundRun.isOn ? 0 : 1) }
-        // M10.T07 (R-303 AC3): TipKit datastore inside the AntiChat container (Remove everything deletes it); never
-        // for probe/test launches, so their windows stay deterministic.
         MainActor.assumeIsolated {
-            if !BackgroundRun.isOn { TourTips.configure(container: DataPaths.current().container) }
             MenuItemIdentifiers.install()  // menu items carry their own ids (menu.file.newEvilChat, …)
             #if DEBUG
             // M9.T03: the accessibility audit tests' helper (tools/ci/a11y-axstate) finds exactly this process by the

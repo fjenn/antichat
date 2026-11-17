@@ -155,17 +155,31 @@ import Testing
         var r = WebResults(queries: ["q"], sources: [], evidence: [], evidenceTokens: 0, failed: nil)
         r.region = "fr"
         #expect(WebResultsBlock.render(r).hasPrefix("<web_results untrusted=\"true\" date=\"") && WebResultsBlock.render(r).contains(" region=\"fr\">"))
-        // the source: off by default; on without permission → nil; on + granted → the Mac's region
+        // the source: on by default; on + granted → the Mac's region; without permission → nil; off → nil
         SettingsKeys.resetAll()
-        let (s0, r0) = (SearchRegionSource.status, SearchRegionSource.region)
-        defer { SearchRegionSource.status = s0; SearchRegionSource.region = r0; SettingsKeys.resetAll() }
+        let (s0, r0, o0) = (SearchRegionSource.status, SearchRegionSource.region, SearchRegionSource.offerExplainer)
+        defer { SearchRegionSource.status = s0; SearchRegionSource.region = r0; SearchRegionSource.offerExplainer = o0
+                SettingsKeys.resetAll() }
+        final class Count: @unchecked Sendable { var n = 0 }
+        let offers = Count()
+        SearchRegionSource.offerExplainer = { offers.n += 1 }
         SearchRegionSource.status = { .granted }
         SearchRegionSource.region = { "DE" }
-        #expect(SearchRegionSource.live() == nil, "off by default")
-        Defaults[.searchUsesLocation] = true
-        #expect(SearchRegionSource.live() == "DE")
+        #expect(SearchRegionSource.live() == "DE", "on by default")
         SearchRegionSource.status = { .denied }
         #expect(SearchRegionSource.live() == nil)
+        #expect(offers.n == 0, "granted or denied: nothing to ask")
+        // macOS never asked: this search carries no location, and the just-in-time explainer is offered.
+        SearchRegionSource.status = { .notDetermined }
+        #expect(SearchRegionSource.live() == nil)
+        #expect(offers.n == 1)
+        // Off (the user's choice, or "Not now"): no location and nothing is offered.
+        Defaults[.searchUsesLocation] = false
+        SearchRegionSource.status = { .granted }
+        #expect(SearchRegionSource.live() == nil)
+        SearchRegionSource.status = { .notDetermined }
+        #expect(SearchRegionSource.live() == nil)
+        #expect(offers.n == 1)
     }
 
     @Test func searchActivityLabels() {
@@ -203,6 +217,6 @@ extension CitationPill {
         #expect(Defaults.Keys.safeSearch.name == SafeSearch.defaultsKey)
         #expect(SettingsKeys.defaults[SafeSearch.defaultsKey] == "false")
         let row = SettingsRegistry.row("safeSearch")
-        #expect(row?.section == .tools && row?.label == CopyKey("set.tools.safeSearch") && row?.key == SafeSearch.defaultsKey)
+        #expect(row?.section == .capabilities && row?.advanced == true && row?.label == CopyKey("set.tools.safeSearch") && row?.key == SafeSearch.defaultsKey)
     }
 }

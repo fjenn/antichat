@@ -42,7 +42,7 @@ final class PrivacyUITests: XCTestCase {
         launch()
         openPrivacy()
         XCTAssertEqual(element("privacy.statement").displayText,
-                       "Your chats never leave this Mac unless you use an online feature. AntiChat never trains on your data and has no telemetry.")
+                       "Your chats never leave this Mac unless you use an online feature. AntiChat never trains on your data and collects no usage data.")
         for id in ["offlineOnly", "networkActivity", "privacyLocation", "newChatsIncognito", "incognitoPersonalizationDefault",
                    "importChats", "exportAll", "restoreBackup", "archivedChats", "archiveAll", "deleteAll", "autoArchiveDays",
                    "crashReports", "exportLogs"] {
@@ -72,9 +72,11 @@ final class PrivacyUITests: XCTestCase {
         XCTAssertTrue(element("networkActivity.event").waitForExistence(timeout: 3))
     }
 
-    /// AC3: off by default, never requested at launch; turning it on shows the explainer, then (Continue) asks once.
+    /// AC3: never requested at launch; turning the switch on shows the explainer, then (Continue) asks once.
+    /// The setting is on by default since 2026-11-16 (macOS is asked at the first search that would use it), so this
+    /// starts from a user who turned it off.
     @MainActor func testLocationNotRequestedUntilEnabled() {
-        launch()
+        launch(["-searchUsesLocation", "NO"])
         openPrivacy()
         XCTAssertTrue(element("settings.row.privacyLocation").displayText.contains("Off"))
         element("settings.control.privacyLocation").click()  // → Tools & Connections › the location row

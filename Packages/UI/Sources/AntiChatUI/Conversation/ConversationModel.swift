@@ -956,6 +956,16 @@ public final class ConversationModel {
         regenerate(assistantID, chips: [pack == .photo ? "image" : "video"])
     }
 
+    /// The Connect card of reply `assistantID` connected its app: the request it answered runs again (a new version of
+    /// the reply, now with the app's tools), once no other turn is running. Not when the chat has moved on since.
+    public func rerunAfterConnect(_ assistantID: String) {
+        Task { [weak self] in
+            while self?.isGenerating == true, !Task.isCancelled { try? await Task.sleep(for: .milliseconds(200)) }
+            guard let self, self.messages.last?.id == assistantID else { return }
+            self.regenerate(assistantID)
+        }
+    }
+
     /// Reopened chat: its waiting requests show their card again; an install that finished meanwhile re-runs now.
     private func restorePendingInstalls() {
         guard let packs = environment.packs else { return }
@@ -1215,6 +1225,12 @@ public final class ConversationModel {
             messages[i].citationsChecking = false
             return
         }
+        // Per-turn memory capture: "Memory updated ▸" for a finished reply (the user may have moved on from it).
+        if case .memoryCaptured(let a) = u.kind {
+            guard let i = index(of: u.assistantID), !messages[i].activities.contains(where: { $0.id == a.id }) else { return }
+            messages[i].activities.append(a)
+            return
+        }
         guard u.assistantID == turnID else { return }
         announce(u)
         if let bridge = voiceBridge {
@@ -1301,7 +1317,7 @@ public final class ConversationModel {
             }
             phase = .error
             drainQueues()
-        case .context, .citationsSettled:
+        case .context, .citationsSettled, .memoryCaptured:
             break  // handled above
         }
     }

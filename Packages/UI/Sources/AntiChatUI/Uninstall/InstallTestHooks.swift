@@ -7,6 +7,8 @@
 //                               name's initial combo: a reinstall after Uninstall must show none)
 //   -RunRemoveEverything YES    RemoveEverythingService.run() exactly as the confirmed sheet (typed check bypassed)
 //   -RunUninstall YES           UninstallService.run() + Trash (`-UninstallKeepBundle YES` skips the Trash: dev runs)
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatFoundation
 import AntiChatPlatform
 import AppKit
@@ -85,12 +87,4 @@ public enum InstallTestHooks {
         }
     }
 }
-
-/// `UNUserNotificationCenter.removeAllDeliveredNotifications()` (R-226 AC1: nothing of AntiChat stays in Notification
-/// Center); skipped for a process without a bundle (tests).
-enum NotificationCleanup {
-    static func removeAllDelivered() {
-        guard Bundle.main.bundleIdentifier != nil, Bundle.main.bundleURL.pathExtension == "app" else { return }
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-    }
-}
+#endif

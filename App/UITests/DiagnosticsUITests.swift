@@ -61,7 +61,7 @@ final class DiagnosticsUITests: XCTestCase {
     func testSystemReportCopy() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)
-        el(app, "settings.nav.about").click()
+        el(app, "settings.nav.general").click()
         el(app, "settings.control.systemReport").click()
         XCTAssertTrue(el(app, "systemReport.text").waitForExistence(timeout: 5))
         el(app, "systemReport.copy").click()

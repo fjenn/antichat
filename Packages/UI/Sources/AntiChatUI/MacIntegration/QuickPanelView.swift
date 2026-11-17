@@ -1,5 +1,5 @@
 // M8.T13 step 4 (R-106 AC1; components.md QuickPanel, S-22): the panel's content — the composer in compact form (one
-// line, Return sends, Esc collapses), the ModeSwitch when Evil Mode offers it, and under it the streamed reply
+// line, Return sends, Esc collapses), the ModeToggle when Evil Mode offers it, and under it the streamed reply
 // (Markdown, scrolls) with "Open in AntiChat ⌘O". The field is an AppKit NSTextField so the controller can make it
 // first responder in the same pass that orders the panel in (NFR-U9).
 import AntiChatDesign
@@ -22,7 +22,7 @@ struct QuickPanelView: View {
                                 onReturn: { model.send() }, onEscape: { model.escape() })
                     .accessibilityIdentifier("quickPanel.field")
                 if model.offersEvil {
-                    ModeSwitch(mode: $model.mode)
+                    ModeToggle(mode: $model.mode)
                         .fixedSize()
                         .probeID("quickPanel.mode")
                 }
@@ -112,10 +112,42 @@ struct QuickPanelView: View {
                 .fill(Color.surfaceCanvas.opacity(0.6))
         }
         .clipShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
+        .overlay(alignment: .topLeading) { QuickPanelCloseButton { model.close() } }
         .onChange(of: model.showsReply) { _, _ in QuickPanelController.shared.resize(animated: !reduceMotion) }
         .onChange(of: model.size.height) { _, _ in QuickPanelController.shared.resize(animated: false) }
         .accessibilityElement(children: .contain)
         .probeID("quickPanel.content")
+    }
+}
+
+/// The panel's close button in its top-left corner, drawn like the window close button of macOS: a small red dot
+/// whose × shows under the pointer (owner 2026-11-17; before that a grey × in the top-right corner).
+struct QuickPanelCloseButton: View {
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Circle()
+                .fill(Color(red: 1.0, green: 0.37, blue: 0.34))
+                .overlay(Circle().strokeBorder(Color.black.opacity(0.12), lineWidth: 0.5))
+                .overlay {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 7, weight: .heavy))
+                        .foregroundStyle(Color.black.opacity(0.55))
+                        .opacity(hovering ? 1 : 0)
+                }
+                .frame(width: 12, height: 12)
+                .padding(4)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .padding(5)
+        .help(Text(verbatim: "\(CopyKey("panel.close").string()) esc"))
+        .accessibilityLabel(Text(CopyKey("panel.close")))
+        .accessibilityIdentifier("quickPanel.close")
+        .probeID("quickPanel.close")
     }
 }
 

@@ -19,6 +19,8 @@ struct ToolActions {
     /// M2.T24: the InstallCard's [Install] / [Not now].
     var install: () -> Void = {}
     var installLater: () -> Void = {}
+    /// The Connect card connected its app: run the request it answered again.
+    var connected: () -> Void = {}
     /// M6.T02: `[Read whole file]` (re-send the turn inline) and a page pill click.
     var readWhole: () -> Void = {}
     /// M6.T02 step 7: `files.summariseWhole` for an attachment id.
@@ -114,21 +116,60 @@ public struct AssistantMessageView: View {
     /// re-run adds a version the bar returns for its switcher.
     private var showsActionBar: Bool {
         guard message.status == .done || message.status == .interrupted else { return false }
-        return !(message.installCard != nil && message.text.isEmpty && message.versionCount <= 1)
+        let bareCard = message.installCard != nil || message.activities.contains { $0.kind == .connectCard }  // same for a Connect card
+        return !(bareCard && message.text.isEmpty && message.versionCount <= 1)
     }
 
     /// The finished reply as rendered: page pills (M6.T02), then web citation pills (M7.T03).
     private func displayText(_ text: String) -> String {
-        let paged = PageCitePill.linkify(text, uses: message.fileUses)
-        return message.sources.isEmpty ? paged
-            // VQ-M11 S-10: a line's trailing pills draw as one chip (ChatGPT's citation chip), not a row of tags.
-            : CitationPill.groupedForDisplay(CitationPill.linkify(paged, sources: message.sources, checking: message.citationsChecking).text)
+        // A reply whose turn made a picture or video shows it in its card: a Markdown image the model adds (a made-up
+        // link, never fetched) would draw as a grey alt-text line under the picture.
+        let made = message.activities.contains { ImageJobActivity.isImage($0) || VideoJobActivity.isVideo($0) }
+        let paged = PageCitePill.linkify(made ? Self.withoutRepeatedSentence(Self.withoutMarkdownImages(text)) : text, uses: message.fileUses)
+        // While the reply's citations are still being checked no chip shows (they used to appear with a spinner and
+        // then mostly vanish); the settled ones come in once, and the Sources button below is there from the start.
+        if message.citationsChecking, !message.sources.isEmpty {
+            return CitationPill.linkify(paged, sources: message.sources.map { s in var s = s; s.fetched = false; return s }).text
+        }
+        if message.sources.isEmpty { return paged }
+        let linked = CitationPill.linkify(paged, sources: message.sources, checking: message.citationsChecking)
+        // No citation of the reply was accepted (or the model wrote none): the pages it drew on still show, as small
+        // chips after the answer — a web answer never ends without naming a page.
+        if linked.cited.isEmpty { return CitationPill.withTrailingChips(linked.text, sources: message.sources) }
+        // VQ-M11 S-10: a line's trailing pills draw as one chip (ChatGPT's citation chip), not a row of tags.
+        return CitationPill.groupedForDisplay(linked.text)
+    }
+
+    /// `text` without Markdown images; a sentence that led up to one ("Here is your image:") ends with a full stop.
+    static func withoutMarkdownImages(_ text: String) -> String {
+        let image = #"!\[[^\]]*\]\([^)]*\)"#
+        var t = text.replacingOccurrences(of: #":[ \t]*\n*[ \t]*"# + image, with: ".", options: .regularExpression)
+        t = t.replacingOccurrences(of: #"[ \t]*"# + image, with: "", options: .regularExpression)
+        t = t.replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+        t = t.trimmingCharacters(in: .whitespacesAndNewlines)
+        if t.hasSuffix(":") { t = String(t.dropLast()) + "." }
+        return t
+    }
+
+    /// A reply around a picture or clip is one sentence. A model that speaks both before and after making it says the
+    /// same thing twice ("Here is a short video of a campfire." / "Here is your short video of a campfire."): when the
+    /// reply is two short one-line paragraphs made of nearly the same words, only the last one shows.
+    static func withoutRepeatedSentence(_ text: String) -> String {
+        let parts = text.components(separatedBy: "\n\n").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        guard parts.count == 2, parts.allSatisfy({ $0.count <= 200 && !$0.contains("\n") }) else { return text }
+        func words(_ s: String) -> Set<String> {
+            Set(s.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init))
+        }
+        let a = words(parts[0]), b = words(parts[1])
+        guard !a.isEmpty, !b.isEmpty else { return text }
+        return Double(a.intersection(b).count) / Double(a.union(b).count) >= 0.7 ? parts[1] : text
     }
 
     /// The Sources panel content (nil = the reply used no web step or fetched nothing).
     private var sourcesContent: SourcesContent? {
         guard message.sources.contains(where: \.fetched) else { return nil }
-        let cited = CitationPill.linkify(message.text, sources: message.sources).cited
+        var cited = CitationPill.linkify(message.text, sources: message.sources).cited
+        if cited.isEmpty { cited = CitationPill.used(text: message.text, sources: message.sources).map(\.n) }  // the trailing chips
         return SourcesContent(sources: message.sources, citedOrder: cited)
     }
 
@@ -145,18 +186,21 @@ public struct AssistantMessageView: View {
                 ProjectSearchLine(sources: message.projectSources, open: toolActions.openProjectFile)  // M8.T05
             }
             // M1.T16: ActivityLines first (components.md AssistantMessage part order), the ApprovalCard under them.
-            ForEach(message.activities.filter { !$0.isLoopLimit }) {
+            ForEach(ActivityLineView.collapsingRepeatedFailures(message.activities.filter { !$0.isLoopLimit })) {
                 ActivityLineView(activity: $0, onTryAgain: { actions.regenerate(RegenerateOptions()) },  // M6.T09
                                  database: actions.database(),
                                  onRecreate: { actions.regenerate(RegenerateOptions(steering: OfficeEditIntent.recreateSteering)) },
                                  onTurnOffSkill: toolActions.turnOffSkill, onInstallSkill: toolActions.installSkill,
-                                 messageID: message.id)  // M7.T12/T13; M4.T16 job key
+                                 onConnected: toolActions.connected, messageID: message.id)  // M7.T12/T13; M4.T16 job key
             }
             if let approval = message.approval {
                 ApprovalCardView(request: approval) { toolActions.answer(approval.id, $0) }
             }
             reasoningLine(hasText: hasText)  // M1.T15: Reasoning comes before the Body (components.md §3)
-            if message.status == .pending || (message.status == .streaming && !hasText) {
+            // Not while an ApprovalCard waits: nothing is being put together until the user answers.
+            // Nor while a step is running: its own line ("Searching the web…", "Creating image… 40%") is the one status.
+            if message.approval == nil, !message.activities.contains(where: { $0.state == .running }),
+               message.status == .pending || (message.status == .streaming && !hasText) {
                 StatusVerbView(model: status, sentAt: message.sentAt ?? Date())
             }
             if hasText {
@@ -194,7 +238,10 @@ public struct AssistantMessageView: View {
                 // M7.T03 step 8: every fetched page of the reply in the SidePanel (cited first, then More).
                 SourcesButton(content: content) { sidePanel?.openSources(content) }
             }
-            if !message.networkHosts.isEmpty { NetworkChip(hosts: message.networkHosts) }  // M2.T03 globe chip
+            // M2.T03 globe chip. A web answer already shows its Sources pill (which lists the sites): one pill, not two.
+            if !message.networkHosts.isEmpty, !(message.status == .done && sourcesContent != nil) {
+                NetworkChip(hosts: message.networkHosts)
+            }
             ForEach(message.fileUses.filter { $0.vision == "unavailable" || $0.vision == "helper" }, id: \.attachmentID) { use in
                 ImageAttachmentCard(use: use)  // M6.T05/T06 (R-021 AC1, R-237 AC1)
             }
@@ -221,8 +268,10 @@ public struct AssistantMessageView: View {
                     MediaOfferChipView(chip: offer, enabled: !b) { toolActions.acceptMediaOffer(offer) }
                 }
             }
-            if message.status == .done, message.activities.last?.isLoopLimit == true {
-                TranscriptBusyReader(busy: busy) { b in LoopLimitNotice(enabled: !b, onContinue: toolActions.continueLoop) }
+            if message.status == .done, let limit = message.activities.last, limit.offersContinue {
+                TranscriptBusyReader(busy: busy) { b in
+                    LoopLimitNotice(enabled: !b, lengthLimit: limit.isLengthLimit, onContinue: toolActions.continueLoop)
+                }
             }
             switch message.status {
             case .interrupted where message.errorCode == AntiChatError.Code.engineRestarted.rawValue:

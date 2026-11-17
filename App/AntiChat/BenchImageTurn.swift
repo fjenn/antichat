@@ -8,6 +8,8 @@
 // image.loadStart → image.final for the job). IMAGE_TURN_OVERHEAD = imageTurn − imageGen (bar p50 ≤ 2 s). Run 0 is
 // discarded (Metal pipeline cache, first sd-server start). The chat model is resident before each send (a
 // conversation before "draw …"); every run uses a fresh chat. Debug build (dev models, dev detector files).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatEngineProtocol
 import AntiChatFoundation
 import AntiChatHarness
@@ -94,3 +96,4 @@ extension BenchMode {
         for await _ in client.evict() {}
     }
 }
+#endif

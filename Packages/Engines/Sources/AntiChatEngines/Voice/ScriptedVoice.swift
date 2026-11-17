@@ -8,6 +8,8 @@
 // microphone, until `stop`. Relative `wav` paths resolve against the fixtures root (the folder holding
 // `voice/scripts/`), then the script's own folder. Audio is delivered in 20 ms frames at real-time pace
 // (`speed` > 1 runs faster, for unit tests).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 @preconcurrency import AVFoundation
 import Foundation
 import Synchronization
@@ -110,3 +112,4 @@ public final class ScriptedVoice: AudioCaptureSource, @unchecked Sendable {
     /// Seconds of scripted audio (to the end of the last item).
     public var duration: Double { Double(timeline.count) / VoiceAudioFormat.sampleRate }
 }
+#endif

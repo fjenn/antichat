@@ -28,18 +28,6 @@ import Testing
         #expect(CitationPill.image(nil) == nil && CitationPill.image("not base64") == nil)
     }
 
-    @Test func chatsPageFiltersByEveryWord() {
-        let now = Date()
-        func chat(_ id: String, _ title: String) -> ChatSummary {
-            ChatSummary(id: id, title: title, titlePending: false, updatedAt: now)
-        }
-        let all = [chat("a", "Plan a relaxed weekend"), chat("b", "Seafood dishes"), chat("c", "")]
-        #expect(ChatsPage.filter(all, query: "", untitled: "New chat").map(\.id) == ["a", "b", "c"])
-        #expect(ChatsPage.filter(all, query: "WEEKEND plan", untitled: "New chat").map(\.id) == ["a"])
-        #expect(ChatsPage.filter(all, query: "new", untitled: "New chat").map(\.id) == ["c"])
-        #expect(ChatsPage.filter(all, query: "zebra", untitled: "New chat").isEmpty)
-    }
-
     /// S-08: a reply that opens with a heading drops the heading's top margin (the user → answer gap was ~80 pt).
     @Test func leadingHeadingMargin() {
         #expect(MarkdownBlock.leadingHeadingMargin("## A weekend in Lisbon") == 24)

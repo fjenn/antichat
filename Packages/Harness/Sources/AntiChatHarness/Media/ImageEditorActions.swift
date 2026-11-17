@@ -130,11 +130,15 @@ public struct ImageEditorActions: Sendable {
         let info = GenerationInfo(prompt: nil, model: req.model.key, seed: req.seed, steps: req.steps, parent: target.parent,
                                   operation: operation, width: size?.width, height: size?.height)
         let marked = (try? MediaProvenanceWriter.writePNG(data, info: info, stripPrompt: false)) ?? data
-        let spec = (try? JSONSerialization.data(withJSONObject: ["operation": operation.rawValue, "model": req.model.key],
+        // Named after the picture it was made from ("Cosy reading nook 2.png"), unique in the chat.
+        let sourceName = StoredFileNames.name(forPath: source.path, database: database).map { ($0 as NSString).deletingPathExtension }
+        let taken = (try? database.read { try StoredFileNames.taken(chatID: chatID, $0) }) ?? []
+        let name = StoredFileNames.unique(base: sourceName ?? "Image", ext: "png", taken: taken)
+        let spec = (try? JSONSerialization.data(withJSONObject: ["operation": operation.rawValue, "model": req.model.key, "filename": name],
                                                 options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) }
         // M4 review P1-2: a closed incognito store gets no new media root (nil: nothing is written).
         return try? FileOutTools.Stores.shared.openStore(for: database)?.save(
-            chatID: chatID, kind: "image", filename: "image.png", data: marked, specJSON: spec, messageID: nil,
+            chatID: chatID, kind: "image", filename: name, data: marked, specJSON: spec, messageID: nil,
             revises: target.revises, operation: operation, parentVersion: target.parent)
     }
 }

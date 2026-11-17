@@ -5,6 +5,7 @@
 // the Evil empty state moves the composer into another branch, the re-mounted composer re-ran `showMode(for: nil)`
 // with the (already consumed) request gone and reset the new chat to the "last used" mode — Normal for a user whose
 // last chat was Normal (⇧⌘E never records it), and always Normal under `-FakeEvilEnabled` (no consent row).
+// Since 2026-11-17 a new chat always starts Normal; the empty state carries the Normal / Evil choice (`emptyMode.*`).
 import AntiChatDesign
 import AntiChatEngineProtocol
 import AntiChatFoundation
@@ -111,10 +112,42 @@ extension WindowSuites {
         while model.isGenerating, Date() < end { await pump(20) }
         rig.state.newEvilChat()
         await expectEvil(rig, "⇧⌘E after a turn (\(setup))")
-        // ⌘N afterwards: a new chat in the last used mode — Evil now (it was used), as before.
+        // ⌘N afterwards: a new chat starts Normal (owner 2026-11-17), also right after an Evil one.
         rig.state.newChat()
         await pump(400)
-        #expect(rig.sessions.composer.mode == rig.evil.defaultModeForNewChat)
+        #expect(rig.sessions.composer.mode == .normal && rig.state.shownMode == .normal)
+        #expect(present(rig, "emptyHeadline") && present(rig, "emptyMode.normal") && present(rig, "emptyMode.evil"))
+    }
+
+    /// The empty state's choice: there on a new chat, gone once the chat has a message; a chat started after an Evil
+    /// one is Normal again.
+    @Test(arguments: [Setup.consented, .forced])
+    func emptyStateChoice(_ setup: Setup) async throws {
+        let rig = try await make(setup)
+        defer { rig.window.orderOut(nil) }
+        #expect(present(rig, "emptyMode.normal") && present(rig, "emptyMode.evil"))
+        rig.sessions.composer.mode = .evil  // the choice's binding, as the picker's
+        await expectEvil(rig, "choice (\(setup))")
+        #expect(present(rig, "emptyMode.evil"), "the choice stays on the Evil empty state")
+        rig.state.send("Hello", reduceMotion: true, turn: rig.sessions.slots.startTurn)
+        let id = try #require(rig.state.currentChatID)
+        let model = rig.sessions.model(for: id)
+        let end = Date().addingTimeInterval(10)
+        while model.isGenerating, Date() < end { await pump(20) }
+        await pump(300)
+        #expect(model.mode == .evil)
+        #expect(!present(rig, "emptyMode.evil") && !present(rig, "emptyMode.normal"), "no choice in a chat with a message")
+        rig.state.newChat()
+        await pump(400)
+        #expect(rig.sessions.composer.mode == .normal && rig.state.shownMode == .normal, "a new chat starts Normal")
+        #expect(present(rig, "emptyMode.normal"))
+        // ⌘N on a new chat that was set to Evil: Normal again.
+        rig.sessions.composer.mode = .evil
+        await pump(400)
+        #expect(rig.state.shownMode == .evil)
+        rig.state.newChat()
+        await pump(400)
+        #expect(rig.sessions.composer.mode == .normal && rig.state.shownMode == .normal, "⌘N resets an unsent Evil choice")
     }
 }
 }

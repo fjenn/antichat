@@ -89,7 +89,7 @@ enum AppearanceProbe {
         await SettingsProbe.settle(500)
         // Second window: Settings on Appearance.
         let opened = await SettingsProbe.openSettingsWithCommandComma()
-        SettingsModel.shared.open(.appearance)
+        SettingsModel.shared.open(.general)
         SettingsProbe.settingsWindow?.setFrameOrigin(CGPoint(x: 900, y: 100))
         BackgroundRun.orderFront(main)
         await SettingsProbe.settle(400)
@@ -118,7 +118,7 @@ enum AppearanceProbe {
         await SettingsProbe.settle(300)
 
         // Accent: Default → Green (the selected Settings nav row).
-        let navID = "settings.nav.\(SettingsSection.appearance.rawValue)"
+        let navID = "settings.nav.\(SettingsSection.general.rawValue)"
         let accentBefore = pixel(navID)
         await set { Defaults[.accentColor] = "green" }
         let accentAfter = pixel(navID)

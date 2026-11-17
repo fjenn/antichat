@@ -6,6 +6,13 @@
 // (`LiveQuickPanelBackend`): a hidden panel's reply keeps streaming, and "Open in AntiChat" hands the very same
 // ConversationModel to a main window (no restart).
 //
+// Closing (owner 2026-11-16: "there's no easy way to close the quick panel"): the panel floats over every app and
+// Space, and it used to stay there once the keyboard focus had left it — Esc only reached it while its text field had
+// the focus, a click elsewhere left it up, and ⌥Space on a panel that was no longer key focused it again instead of
+// hiding it. Now Esc is taken by the window whatever has the focus inside it, a click anywhere outside (another app,
+// the desktop, an AntiChat window: the panel stops being key, or a mouse-down lands outside it) hides it, ⌥Space on a
+// visible panel always hides it, and the panel has a small × button. Hiding never clears the typed text.
+//
 // NFR-U9 (`quickPanelOpen`): from the trigger (the hotkey handler's entry, or the poster's timestamp carried by the
 // DEBUG `-QuickPanelHotkeyHook` notification) until the text field is first responder and the panel has been
 // displayed (the CATransaction commit after `display`). Recorded through `Signposts.mark` (perf log + signpost).
@@ -35,6 +42,18 @@ final class QuickPanelWindow: NSPanel {
     override func cancelOperation(_ sender: Any?) {
         MainActor.assumeIsolated { _ = model?.escape() }
     }
+
+    /// Esc closes whatever has the focus inside the panel (the field, a button, the reply, nothing). The field's own
+    /// handler only ran while its editor was first responder. An input method composing text keeps its Esc.
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .keyDown, event.keyCode == 53,
+           event.modifierFlags.intersection(.deviceIndependentFlagsMask).isDisjoint(with: [.command, .control, .option]),
+           (firstResponder as? NSTextView)?.hasMarkedText() != true {
+            MainActor.assumeIsolated { _ = model?.escape() }
+            return
+        }
+        super.sendEvent(event)
+    }
 }
 
 @MainActor
@@ -55,6 +74,9 @@ public final class QuickPanelController {
     private(set) var panel: QuickPanelWindow?
     weak var textField: NSTextField?
     private var backend: LiveQuickPanelBackend?
+    /// While the panel is shown: mouse-downs outside it (other apps; AntiChat's own windows) hide it.
+    private var outsideClickMonitors: [Any] = []
+    private var resignObserver: NSObjectProtocol?
     /// Open durations recorded this run (ms, probe).
     public private(set) var openTimes: [(method: String, ms: Double)] = []
 
@@ -113,13 +135,19 @@ public final class QuickPanelController {
         host.sizingOptions = []
         p.contentView = host
         panel = p
+        // A click anywhere else takes the key status away: the panel hides (never in a background run, where the
+        // panel is never key).
+        resignObserver = NotificationCenter.default.addObserver(forName: NSWindow.didResignKeyNotification, object: p,
+                                                                queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { if !BackgroundRun.isOn { self?.hide() } }
+        }
         // Lay the view out once now (the text field exists before the first open).
         host.layoutSubtreeIfNeeded()
     }
 
-    /// Hotkey / menu / hook: show when hidden, hide when shown.
+    /// Hotkey / hook: show when hidden, hide when shown (whether or not the panel still has the keyboard focus).
     public func toggle(_ trigger: Trigger) {
-        if isVisible, panel?.isKeyWindow == true || BackgroundRun.isOn { hide() } else { show(trigger) }
+        if isVisible { hide() } else { show(trigger) }
     }
 
     public func show(_ trigger: Trigger = .menu) {
@@ -139,6 +167,7 @@ public final class QuickPanelController {
             if NSApp.isHidden { NSApp.unhideWithoutActivation() }
             p.orderFrontRegardless()
             p.makeKey()
+            watchOutsideClicks()
         }
         if let f = textField { p.makeFirstResponder(f) }
         p.displayIfNeeded()
@@ -163,7 +192,27 @@ public final class QuickPanelController {
         CATransaction.commit()
     }
 
+    /// A mouse-down outside the panel hides it: in another app (global monitor; mouse events need no permission) or
+    /// in one of AntiChat's own windows (local monitor; the event still goes where it was aimed).
+    private func watchOutsideClicks() {
+        guard outsideClickMonitors.isEmpty else { return }
+        let mask: NSEvent.EventTypeMask = [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+        if let m = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: { [weak self] _ in
+            MainActor.assumeIsolated { self?.hide() }
+        }) { outsideClickMonitors.append(m) }
+        if let m = NSEvent.addLocalMonitorForEvents(matching: mask, handler: { [weak self] event in
+            let window = event.window
+            MainActor.assumeIsolated {
+                // The panel itself and what it opens (a popover: a child window) are inside.
+                if let self, let p = self.panel, let window, window !== p, window.parent !== p { self.hide() }
+            }
+            return event
+        }) { outsideClickMonitors.append(m) }
+    }
+
     public func hide() {
+        outsideClickMonitors.forEach(NSEvent.removeMonitor)
+        outsideClickMonitors = []
         panel?.orderOut(nil)
         // A reply that finishes while the panel is hidden gets its unread dot (review fix).
         backend?.sessions.currentChatID = nil

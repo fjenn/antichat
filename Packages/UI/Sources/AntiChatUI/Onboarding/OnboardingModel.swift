@@ -222,7 +222,9 @@ public final class OnboardingModel {
             if evilOn, let plan = evilPlan {
                 onEvilAccepted(plan)
                 evilQueued = true
-            } else if evilQueued {
+            } else {
+                // Off at step 3 means off, also when an earlier install left Evil enabled (2026-11-15: a reinstall
+                // showed an "Evil Mode · Waiting" row after Continue with the switch off).
                 onEvilDeclined()
                 evilQueued = false
             }

@@ -27,7 +27,7 @@ extension WindowSuites {
                                                     ("paused", .paused(pack: "voice")), ("error", .error(pack: "chat"))]
         for (name, s) in states { check(StatusPill(fixed: s, model: nil), width: 240, name: "StatusPill.\(name)") }
         #expect(StatusPill.title(.hidden) == nil)
-        #expect(StatusPill.title(.downloading(pack: "photo", percent: 42))?.string == "Photo 42%")
+        #expect(StatusPill.title(.downloading(pack: "photo", percent: 42))?.string == "Images 42%")
         #expect(StatusPill.title(.downloading(pack: "evil", percent: 7))?.string == "Evil 7%")
     }
 

@@ -29,8 +29,10 @@ public enum FallbackIntentCheck {
         guard let tool = expectedTool(decision), calledTools.isDisjoint(with: ["create_image", "edit_image", "create_video"]),
               let top = decision?.top else { return nil }
         // Soak dry run 2: a route the request's words do not back (MediumCue.confirmsMedia) is never forced — the
-        // text answer stands, with the offer chip under it.
-        if enabled, !reasked, decision?.mediaConfirmed ?? true { return .reask(tool: tool) }
+        // text answer stands. No offer chip either: "Create this as an image?" under a plain factual answer is noise;
+        // the chip is only for a request whose words ask for a picture or a video.
+        guard decision?.mediaConfirmed ?? true else { return nil }
+        if enabled, !reasked { return .reask(tool: tool) }
         return .offer(MediaOfferChip(route: top))
     }
 }

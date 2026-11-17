@@ -34,8 +34,7 @@ final class J10SettingsTests: XCTestCase {
     func testStructureAndSearch() {
         let app = launch()
         let w = settingsWindow(app)
-        let ids = ["general", "appearance", "capabilities", "evil", "voice", "personalization", "tools", "skills",
-                   "privacy", "storage", "updates", "shortcuts", "about"].map { "settings.nav.\($0)" }
+        let ids = ["general", "capabilities", "connections", "skills", "personalization", "privacy"].map { "settings.nav.\($0)" }
         let ys = ids.map { element(w, $0).frame.minY }
         XCTAssertEqual(ys, ys.sorted(), "nav order")
         element(w, "settings.search").click()
@@ -111,7 +110,7 @@ final class J10SettingsTests: XCTestCase {
             XCTAssertTrue(element(app, "footer.\(id)").waitForExistence(timeout: 1), id)
         }
         element(app, "footer.updates").click()
-        XCTAssertTrue(element(app, "settings.detail.updates").waitForExistence(timeout: 2))
+        XCTAssertTrue(element(app, "settings.detail.general").waitForExistence(timeout: 2))
     }
 
     /// (4) Capabilities → Advanced is collapsed by default.

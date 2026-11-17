@@ -41,7 +41,7 @@ public enum RunPythonError: Error, Equatable {
 public struct RunPythonTool: Sendable {
     public static let name = "run_python"
     public static let parametersJSON = #"{"type":"object","properties":{"code":{"type":"string","description":"Python 3.13 code. Inputs are in in/; write deliverables to out/."},"inputs":{"type":"array","items":{"type":"string"},"description":"Names (or ids) of files attached in this chat; each is copied to in/<name>."},"purpose":{"type":"string","description":"Short user-facing analysis purpose."}},"required":["code"]}"#
-    public static let description = "Run Python for local file analysis in the File tools sandbox. Globals persist within the chat. Read inputs from in/ and save figures and files to out/. Network is off unless the user enables it."
+    public static let description = "Run Python to analyse data: attached files (CSV, Excel, JSON…) or a computation too large to do by hand. Not for simple arithmetic, and not for reading or summarising results from connected apps, web search or the conversation: answer those directly. Globals persist within the chat. Read inputs from in/ and save figures and files to out/. Network is off unless the user enables it."
 
     public static func installedRuntimePath(debug: Bool = AppDatabase.isDebugBuild) -> String? {
         let root = FileManager.default.homeDirectoryForCurrentUser

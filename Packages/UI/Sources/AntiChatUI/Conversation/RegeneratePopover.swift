@@ -51,6 +51,7 @@ struct RegeneratePopover: View {
         .onAppear { focused = true }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("regeneratePopover")
+        .popoverSurface()
     }
 
     private func submitSteering() {

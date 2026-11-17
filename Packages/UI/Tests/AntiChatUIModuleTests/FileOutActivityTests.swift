@@ -27,7 +27,7 @@ import UniformTypeIdentifiers
         let item = FileOutActivity.item(done)
         #expect(item?.url.path == "/tmp/x/abc.pdf" && item?.displayName == "Trip Plan.pdf" && item?.size == 2048 && item?.version == 1)
         #expect(item?.state == .ready)
-        #expect(FileCardViewModel(item: item!).subtitle.contains("Version 1"))
+        #expect(!FileCardViewModel(item: item!).subtitle.contains("Version"))  // only a later version says so
 
         let failed = ToolActivity(id: "c1", tool: "create_document", state: .failed, argumentsJSON: Self.args,
                                   result: #"{"errors":["$.markdown: empty"],"repair":true}"#)
@@ -75,5 +75,18 @@ import UniformTypeIdentifiers
         let timeout = #"{"stderr":"","fresh_session":true,"notice_key":"sandbox.timeout","stdout":""}"#
         let stopped = ToolActivity(id: "t", tool: RunPythonTool.name, state: .done, result: timeout)
         #expect(RunPythonActivity.label(stopped)?.string == "The code ran longer than 60 seconds and was stopped.")
+    }
+
+    /// A failed analysis step reads plainly, once: the model's retries of the same failed tool add no line.
+    @Test func failedAnalysisReadsPlainlyOnce() {
+        let failed = { (id: String) in ToolActivity(id: id, tool: RunPythonTool.name, state: .failed, result: "Error: x") }
+        #expect(RunPythonActivity.label(failed("a"))?.string == "Couldn't analyse the data")
+        #expect(ActivityLineView.readableName(RunPythonTool.name) == "Analyse data")
+        let skipped = ToolActivity(id: "c", tool: RunPythonTool.name, state: .skipped)
+        let other = ToolActivity(id: "d", tool: "web_search", state: .failed)
+        let shown = ActivityLineView.collapsingRepeatedFailures([failed("a"), failed("b"), skipped, other, failed("e"), failed("f")])
+        #expect(shown.map(\.id) == ["a", "d", "e"])
+        let ok = ToolActivity(id: "g", tool: RunPythonTool.name, state: .done)
+        #expect(ActivityLineView.collapsingRepeatedFailures([skipped, ok, failed("a")]).map(\.id) == ["c", "g", "a"])
     }
 }

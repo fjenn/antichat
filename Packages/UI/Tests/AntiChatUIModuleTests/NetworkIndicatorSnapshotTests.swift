@@ -23,7 +23,7 @@ extension WindowSuites {
     }
 
     @Test func indicatorStates() {
-        for (name, mode) in [("offline", NetworkIndicator.Mode.offline), ("offlineOnly", .offlineOnly), ("online", .online)] {
+        for (name, mode) in [("offline", NetworkIndicator.Mode.offline), ("offlineOnly", .offlineOnly)] {
             check(NetworkIndicator(fixed: mode), width: 240, name: "NetworkIndicator.\(name)")
         }
     }
@@ -39,7 +39,6 @@ extension WindowSuites {
         p.offlineOnly = true
         #expect(NetworkIndicator.current(policy: p, path: PathStatus(fake: "none")) == .offlineOnly)
         p.offlineOnly = false
-        #expect(NetworkIndicator.tooltip(p.enabledCategories) == "Online: Updates, Model list, Model downloads, Web search, Other")
         #expect(NetworkIndicator.title(.offline).rawValue == "net.offline")
     }
 }

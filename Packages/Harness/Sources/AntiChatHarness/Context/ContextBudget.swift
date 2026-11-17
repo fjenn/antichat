@@ -70,6 +70,27 @@ public enum ContextBudget {
     }
 }
 
+/// How many tokens one reply step may write (`Sampling.maxTokens`). The engines' default was a flat 1,024 for every
+/// model, so a long answer stopped mid-sentence. The budget follows the model's context window — a quarter of it,
+/// between `floor` and `ceiling`: 2,048 on the 8K starter models (T0), 4,096 from 16K up (T1–T4) — and never more
+/// than what the prompt leaves of the window after `margin`. It is never below `floor` (the old flat value), so a
+/// nearly full context behaves as before. Thinking tokens count against the same limit on both engines: Think harder's
+/// reasoning budget is added on top (ThinkHarderPolicy) and taken out of the room first.
+public enum OutputBudget {
+    public static let floor = Sampling().maxTokens
+    public static let ceiling = 4096
+    /// Kept free for the chat template's own tokens and the estimator's error.
+    public static let margin = 256
+
+    /// The answer budget of a model with this context window, before the prompt is counted.
+    public static func target(window: Int) -> Int { min(ceiling, max(floor, window / 4)) }
+
+    /// `reasoning` = tokens the step may also spend thinking (0 = thinking off).
+    public static func answerTokens(window: Int, promptTokens: Int, reasoning: Int = 0, floor: Int = OutputBudget.floor) -> Int {
+        max(floor, min(target(window: window), window - promptTokens - margin - reasoning))
+    }
+}
+
 /// When to compact and how much room a reply needs (M1.T18 steps 3–5).
 public struct ContextPolicy: Sendable, Hashable {
     /// Idle compaction starts at this fill (R-233 AC2).

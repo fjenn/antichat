@@ -4,7 +4,7 @@ Há duas maneiras. As duas removem tudo o que o AntiChat guarda neste Mac.
 
 ## 1. Use Desinstalar o AntiChat (recomendado)
 
-Escolha **AntiChat › Desinstalar o AntiChat…** (ou Ajustes › Armazenamento › Desinstalar o AntiChat…). A janela lista o que será removido e quanto espaço isso libera. Clique em **Exportar meus dados antes** se quiser manter suas conversas, depois digite UNINSTALL e clique em **Desinstalar**. O AntiChat remove seus modelos, conversas, imagens, arquivos, caches, registros e ajustes, desativa Abrir ao iniciar sessão, limpa seus atalhos de teclado, se move para a Lixeira e é encerrado.
+Escolha **AntiChat › Desinstalar o AntiChat…** (ou Ajustes › Privacidade e dados › Avançado › Desinstalar o AntiChat…). A janela lista o que será removido e quanto espaço isso libera. Clique em **Exportar meus dados antes** se quiser manter suas conversas, depois digite UNINSTALL e clique em **Desinstalar**. O AntiChat remove seus modelos, conversas, imagens, arquivos, caches, registros e ajustes, desativa Abrir ao iniciar sessão, limpa seus atalhos de teclado, se move para a Lixeira e é encerrado.
 
 ## 2. Remova manualmente
 
@@ -24,7 +24,7 @@ Escolha **AntiChat › Desinstalar o AntiChat…** (ou Ajustes › Armazenamento
 - `~/Library/Logs/DiagnosticReports/AntiChat*.ips`
 - `$TMPDIR/AntiChat-incognito-*` (temporário; o macOS também o limpa ao reiniciar)
 
-Se você moveu a pasta dos modelos para outro disco (Ajustes › Armazenamento › Pasta dos modelos › Mover…), apague essa pasta também. Ajustes › Armazenamento mostra onde ela está, com Mostrar no Finder.
+Se você moveu a pasta dos modelos para outro disco (Ajustes › Privacidade e dados › Avançado › Pasta dos modelos › Mover…), apague essa pasta também. Ajustes › Privacidade e dados › Avançado mostra onde ela está, com Mostrar no Finder.
 
 Os itens das Chaves chamados app.antichat.* podem ser apagados no Acesso às Chaves.
 

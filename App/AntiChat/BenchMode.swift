@@ -16,6 +16,8 @@
 //   image-turn | read-aloud | transcribe-file           (M9.T05: AT-236 AC3, NFR-V8 / NFR-V11 per tier cap)
 //   firstchat --rate 50|10|0 --runs N [--chunk-mb 32] [--test run|disconnect|stall|kill|resume|corrupt]
 //                                                      (M0.T10 NFR-M5/D6: download start → first token; resume tests)
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatFoundation
 import AntiChatHarness
 import AntiChatPlatform
@@ -25,6 +27,10 @@ import Foundation
 import os
 
 enum BenchMode {
+    /// The byte marker of the bench code (`-Bench marker` prints it). tools/ci/dev-modes-guard.py refuses a release
+    /// build whose binary carries it: bench mode ships in no release.
+    static let marker = "AntiChatBenchMode-NeverInRelease"
+
     static func runAndExit() -> Never {
         Task.detached {
             let code: Int32
@@ -126,6 +132,10 @@ enum BenchMode {
         let a = Args(argv)
         if a.cmd == "buildinfo" {  // M9.T05: run.py's build check (no helper needed)
             print(BuildFlavor.json)
+            return
+        }
+        if a.cmd == "marker" {
+            print(marker)
             return
         }
         let client = EngineClient(appBuild: "bench")
@@ -838,3 +848,4 @@ extension BenchMode {
         }
     }
 }
+#endif

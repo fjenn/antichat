@@ -1,13 +1,15 @@
-// AntiChat app entry. M0.T04: `-Bench <cmd>` runs the headless bench (BenchMode.swift);
-// `-SpikeUI YES` shows the S-3 spike chat (SpikeChatView). Otherwise the main window (M1.T07, G-001) with the
+// AntiChat app entry. M0.T04: `-Bench <cmd>` (DEBUG / perf-harness builds) runs the headless bench (BenchMode.swift);
+// `-SpikeUI YES` (same builds) shows the S-3 spike chat (SpikeChatView). Otherwise the main window (M1.T07, G-001) with the
 // W2 wiring (ChatSessions: M1.T08 composer + M1.T06 conversation/turns); `-UIProbe <dir>` (DEBUG) runs the
 // in-process AT-001 layout probe (WindowProbe.swift), `-PaletteProbe <dir>` (DEBUG) the AT-012 ⌘K probe
 // (PaletteProbe.swift), `-RendererProbe <dir>` (DEBUG) the AT-008 renderer probe
 // (RendererProbe.swift), `-ContextProbe <dir>` (DEBUG) the AT-009 context probe (ContextProbe.swift),
 // `-MenusProbe <dir>` (DEBUG) the AT-013 composer menus probe (MenusProbe.swift), `-ComposerHarness <fixture>` (DEBUG)
 // the composer-only host, `-DraftProbe <dir>` (DEBUG) the AT-302 draft probe (DraftProbe.swift), `-SettingsProbe <dir>`
-// (DEBUG) the M1.T22 Settings probe (SettingsProbe.swift). M1.T22: the Settings scene (⌘,), Personalization → prompt
+// (DEBUG) the M1.T22 Settings probe (SettingsProbe.swift). M1.T22: Settings (⌘,, inside the main window), Personalization → prompt
 // sync, daily auto-archive.
+// Developer test modes never ship: every one of them (bench, spike, probes, harness windows, dev model pins, install
+// test hooks) is compiled only under `#if DEBUG || ANTICHAT_PERF_HARNESS`; tools/ci/dev-modes-guard.py keeps it so.
 import AntiChatDesign
 import AntiChatEngineProtocol
 import AntiChatFoundation
@@ -36,23 +38,25 @@ enum Entry {
         // AntiChatApp.init() calls it again for the GUI path.
         AppBootstrap.start()
         _ = AppLanguage.atLaunch  // M9.T04: the UI language this process runs with (a change applies at relaunch)
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         // M8.T11 (tools/install-test): -RunRemoveEverything / -RunUninstall / -SeedLoginItem … act and exit (DEBUG).
         _ = MainActor.assumeIsolated { InstallTestHooks.handle() }
-        #if DEBUG || ANTICHAT_PERF_HARNESS
         if LaunchOptions.current.printHardwareProfile {  // M2.T01: tools/at/at-200-live.sh
             HardwareLaunch.printAndExit()
         }
-        #endif
         if CommandLine.arguments.contains("-Bench") {
             BenchMode.runAndExit()
         }
+        #endif
         AntiChatApp.main()
     }
 }
 
 struct AntiChatApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate  // M1.T24 (absorbs M1.T20's)
+    #if DEBUG || ANTICHAT_PERF_HARNESS
     @State private var spike = SpikeChatModel(slot: DevModels.slot(UserDefaults.standard.string(forKey: "SpikeModel") ?? "chat-0.8b"))
+    #endif
 
     /// One database for every window (architecture §6: the app is the sole writer): the sidebar's
     /// `ChatListService` and the turn path share it. The model slot comes from the dev list until M2's catalog
@@ -67,7 +71,7 @@ struct AntiChatApp: App {
     /// migration, no space for the backup). Blocked launches run on an in-memory database and show no chats.
     private let launchState: AppLaunchState
     private let dailyBackups: DailyBackupScheduler?
-    /// M8.T03: the propose-only memory review (idle + AC power).
+    /// M8.T03: the background memory review (idle + AC power): saves what it is certain of, asks about the rest.
     private var memoryReview: MemoryReviewScheduler?
 
     init() {
@@ -80,27 +84,31 @@ struct AntiChatApp: App {
         // M1.T26a: `ANTICHAT_PERF_QUIT_AFTER` (make perf launch loop) quits through the normal terminate path.
         PerfRecorder.setQuitHandler { MainActor.assumeIsolated { NSApp.terminate(nil) } }
         // M2.T20 (R-203): the Normal chat slot is the catalog's — the `chat_fast` starter until the tier model is
-        // verified, then the tier model at the next turn boundary (StarterHandoff). `-ChatModel <key>` pins a dev model
-        // (benches, probes, `make models-dev` layouts); with neither catalog model installed the dev default is used.
+        // verified, then the tier model at the next turn boundary (StarterHandoff). DEBUG / perf-harness builds only:
+        // `-ChatModel <key>` pins a dev model (benches, probes, `make models-dev` layouts), and with neither catalog
+        // model installed the dev default is used. A release build knows no dev model: only the catalog's.
+        let models = ChatModels.shared
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         let devSlot = DevModels.slot(UserDefaults.standard.string(forKey: "ChatModel") ?? "chat-0.8b")
         let pinned = UserDefaults.standard.string(forKey: "ChatModel") != nil
         // M2.T15/T17: the Evil chat slot — the catalog's Evil model once installed (`-EvilChatModel <key>` pins a dev
         // one; default the T1 Evil model evil-9b of the dev layout).
         let devEvil = DevModels.evilSlot(UserDefaults.standard.string(forKey: "EvilChatModel") ?? "llama:evil-9b")
         let evilPinned = UserDefaults.standard.string(forKey: "EvilChatModel") != nil
-        let models = ChatModels.shared
         models.fallback = { devSlot }
         models.evilFallback = { devEvil }
-        #if DEBUG || ANTICHAT_PERF_HARNESS
         // Q-015 r3: UI tests run in a throwaway container with no Voice pack; `-FakeVoiceInstalled` gives the helper
         // the dev store's voice models (`make models-dev`), as the voice suites assume (also `-FakePackState voice=…`:
         // the models are only registered while that state is `ready`, VoiceAvailability.registeredModels).
         if LaunchOptions.current.fakeVoiceInstalled || LaunchOptions.current.fakePackStates["voice"] != nil {
             models.voiceFallback = { BenchMode.conversationModels() }
         }
-        #endif
         let slot: @Sendable () -> ModelSlot = { pinned ? devSlot : models.handoff.slot() }
         let evil: @Sendable () -> ModelSlot? = { evilPinned ? devEvil : models.evilSlot() }
+        #else
+        let slot: @Sendable () -> ModelSlot = { models.handoff.slot() }
+        let evil: @Sendable () -> ModelSlot? = { models.evilSlot() }
+        #endif
         // M2.T22: the semantic pre-router over the helper's `embed` model (filled once the engine exists) and the
         // probed tier (ToolPruner: ≤ 4 tools on T0–T2).
         let routeEmbedding = DeferredRouteEmbedding()
@@ -127,7 +135,11 @@ struct AntiChatApp: App {
                 // store always has the starter (`ANTICHAT_NO_VISION_HELPER=1`, as ANTICHAT_NO_DETECTORS for Photo).
                 if ProcessInfo.processInfo.environment["ANTICHAT_NO_VISION_HELPER"] == "1" { return nil }
                 #endif
+                #if DEBUG || ANTICHAT_PERF_HARNESS
                 let starter = models.starterSlot() ?? DevModels.slot("chat-0.8b")
+                #else
+                guard let starter = models.starterSlot() else { return nil }
+                #endif
                 guard FileManager.default.fileExists(atPath: starter.path) else { return nil }
                 return VisionRouting.defaultVisionSlot(starter)
             })
@@ -158,9 +170,14 @@ struct AntiChatApp: App {
         // M2.T26: the app store's installed embed/rerank first (read per call, so onboarding's download is picked up
         // without a relaunch), else the `make models-dev` layout. Every retrieval consumer is wired in one place
         // (AppRetrievalWiring; AppRetrievalWiringTests fails when one is left without its embedder).
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         let devEmbed = DevModels.searchSlot("embed"), devRerank = DevModels.searchSlot("rerank")
         let embed: @Sendable () -> ModelSlot? = { models.searchSlot("embed") ?? devEmbed }
         let rerank: @Sendable () -> ModelSlot? = { models.searchSlot("rerank") ?? devRerank }
+        #else
+        let embed: @Sendable () -> ModelSlot? = { models.searchSlot("embed") }
+        let rerank: @Sendable () -> ModelSlot? = { models.searchSlot("rerank") }
+        #endif
         let helper = AppRetrievalWiring.helperFactory(for: environment.engine)
         // M8.T02: memory saves compare by embedding; the ambiguous band asks the chat model (JSON, temperature 0).
         let decisionModel = EngineMemoryDecisionModel(engine: environment.engine, slot: slot)
@@ -216,6 +233,7 @@ struct AntiChatApp: App {
         AppBootstrap.attach(database: environment.database)  // M2.T01/T02: hardware probe (off-main), network_activity
         if launchState == .ready {  // M8.T12: notifications (answers, media jobs, downloads, updates) + click routing
             AppNotifications.openWindow = { AppDelegate.openWindowIfNone() }
+            SettingsPresenter.shared.openWindow = { AppDelegate.openWindowIfNone() }  // ⌘, with no window on screen
             AppNotifications.start(database: environment.database)
             // M8.T13: the menu bar item (follows Settings › General) and the global quick panel (⌥Space). M9.T05
             // (NFR-U1): after the first usable frame (a status item and a global hot key are not part of the window;
@@ -263,11 +281,6 @@ struct AntiChatApp: App {
         .windowToolbarStyle(.unified(showsTitle: false))
         .commands { AppCommands() }  // M1.T24: File / Edit / View / Help
 
-        Settings {
-            SettingsRootView(context: SettingsContext(chats: chats))
-                .appearanceFromSettings()  // M1.T23
-        }
-
         CallIndicatorExtra()  // M3.T11 (R-052 AC6): only while a voice conversation runs
     }
 
@@ -276,14 +289,20 @@ struct AntiChatApp: App {
             if launchState != .ready {
                 LaunchBlockedView(state: launchState, databaseURL: AppDatabase.defaultURL())  // M8.T01, S-25
                     .frame(minWidth: 560, minHeight: 360)
-            } else if UserDefaults.standard.bool(forKey: "SpikeUI") {
-                SpikeChatView(model: spike)
-                    .frame(minWidth: 640, minHeight: 420)
-                    .task {
-                        if let out = UserDefaults.standard.string(forKey: "SpikeProbe") { await SpikeProbe.run(spike, out: out) }
-                    }
             } else {
+                #if DEBUG || ANTICHAT_PERF_HARNESS
+                if UserDefaults.standard.bool(forKey: "SpikeUI") {
+                    SpikeChatView(model: spike)
+                        .frame(minWidth: 640, minHeight: 420)
+                        .task {
+                            if let out = UserDefaults.standard.string(forKey: "SpikeProbe") { await SpikeProbe.run(spike, out: out) }
+                        }
+                } else {
+                    MainWindowHost(environment: environment, chats: chats, value: value)
+                }
+                #else
                 MainWindowHost(environment: environment, chats: chats, value: value)
+                #endif
             }
         }
         .appearanceFromSettings()  // M1.T23: Settings → Appearance, live in every window

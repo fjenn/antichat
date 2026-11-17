@@ -133,6 +133,7 @@ public actor HardwareProbe {
         .T0: "t0-m1-8", .T1: "t1-m2-16", .T2: "t2-m4-24", .T3: "t3-m4pro-48", .T4: "t4-m3max-96",
     ]
 
+    #if DEBUG || ANTICHAT_PERF_HARNESS
     /// `fixtures/hardware`: `$ANTICHAT_FIXTURES/hardware` when it has the file, else the source checkout's.
     public static func fixtureURL(_ name: String) -> URL? {
         var roots: [URL] = []
@@ -145,6 +146,7 @@ public actor HardwareProbe {
         return roots.map { $0.appendingPathComponent("hardware/\(name).json") }
             .first { FileManager.default.fileExists(atPath: $0.path) }
     }
+    #endif
 
     public static func fixtureProfile(options: LaunchOptions) -> HardwareProfile? {
         #if DEBUG || ANTICHAT_PERF_HARNESS

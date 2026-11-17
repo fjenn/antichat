@@ -68,14 +68,13 @@ import Testing
 
     /// M1.T03 step 6: the M1 key batch (A-M1-T03a) is present.
     @Test func m1KeysPresent() {
-        let keys = (1...5).map { "empty.headline.\($0)" } + (1...4).map { "sugg.chat.\($0)" }
+        let keys = ["empty.headline"] + (1...4).map { "sugg.chat.\($0)" }
             + (1...4).map { "status.verb.\($0)" }
             + ["composer.disclaimer", "composer.queuedPct", "composer.pasteCard", "msg.dislike.title", "msg.liked",
-               "palette.filter.liked", "palette.tab.all", "palette.tab.actions", "palette.tab.chats",
-               "palette.tab.settings", "chat.branchTitle", "ctx.summarised", "ctx.tooLarge", "ctx.usage",
-               "incognito.personalized", "incognito.unpersonalized", "incognito.close.confirm", "chats.page.title",
+               "palette.placeholder", "chat.branchTitle", "ctx.summarised", "ctx.tooLarge", "ctx.usage",
+               "incognito.personalized", "incognito.unpersonalized", "incognito.close.confirm",
                "archived.title", "set.privacy.archiveAll", "set.privacy.autoArchive", "deleteAll.type",
-               "side.footer.help", "side.footer.report", "side.footer.updates", "think.tip.preset",
+               "side.footer.help", "think.tip.preset",
                "scroll.bottom.a11y", "add.disabled.enable", "engine.versionMismatch", "menu.file.newProject",
                "menu.file.newWindow", "menu.file.close", "menu.help.legal"]
         for k in keys {

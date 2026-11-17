@@ -111,7 +111,6 @@ public struct ImageViewer: View {
     @State private var notice: CopyKey?
     /// M4 review P2-5 (R-285 AC6): Erase / Remove background found the ChildSafetyCheck files missing or damaged.
     @State private var safetyMissing: Int64?
-    @Environment(\.openSettings) private var openSettings
 
     /// The column under the picture: Description, the editor tools and Describe the change share its width.
     static let columnWidth: CGFloat = 640
@@ -194,7 +193,7 @@ public struct ImageViewer: View {
         if let source = target.sourceID, onEdit != nil || onLocalEdit != nil {
             VStack(spacing: Spacing.space2) {
                 if let safetyMissing {
-                    SafetyMissingCard(sizeBytes: safetyMissing) { SettingsNavigator.shared.request(.capabilities); openSettings() }
+                    SafetyMissingCard(sizeBytes: safetyMissing) { PackManagementModel.shared.repairSafety(); SettingsPresenter.shared.show() }
                 } else if let notice {
                     Text(notice).typeStyle(.footnote).foregroundStyle(Color.textSecondary)
                         .accessibilityIdentifier("editor.notice")

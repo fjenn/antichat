@@ -210,7 +210,7 @@ enum MacIntegrationProbe {
             SettingsProbe.key(",", code: 43, flags: .command, in: w)
         }
         if await PaletteProbe.waitUntil(timeout: 3, { MenusProbe.present("settings.root") }) == nil {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsPresenter.shared.show()
         }
         legs["settingsOpen"] = await PaletteProbe.waitUntil(timeout: 10) { MenusProbe.present("settings.root") } != nil
         legs["rowShown"] = await PaletteProbe.waitUntil(timeout: 10) { MenusProbe.present("settings.row.notifyWhen") } != nil
@@ -454,14 +454,14 @@ enum MacIntegrationProbe {
         }
         legs["micRequests"] = PermissionCenter.shared.requestCount
         // Location: Settings › Tools & Connections › "Use my approximate location for search".
-        SettingsNavigator.shared.request(.tools, row: "searchUsesLocation")
+        SettingsNavigator.shared.request(.capabilities, row: "searchUsesLocation")
         if let w = state.window {
             BackgroundRun.makeKeyAndOrderFront(w)
             await PaletteProbe.settle(200)
             SettingsProbe.key(",", code: 43, flags: .command, in: w)
         }
         if await PaletteProbe.waitUntil(timeout: 3, { MenusProbe.present("settings.root") }) == nil {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsPresenter.shared.show()
         }
         let row = await PaletteProbe.waitUntil(timeout: 10) { MenusProbe.present("settings.control.searchUsesLocation") } != nil
         legs["locationRow"] = row

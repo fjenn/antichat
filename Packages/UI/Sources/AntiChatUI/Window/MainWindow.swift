@@ -1,6 +1,6 @@
 // MainWindow (M1.T07 step 1; screens.md S-05/S-08, components.md §1; ChatGPT `001`/`003`): a NavigationSplitView
 // with the sidebar (260 pt, collapsible, auto-collapsed under 900 pt) and the chat column, under a unified
-// toolbar: traffic lights, sidebar toggle, back/forward (⌘[ / ⌘]), centred ToolbarTitle, ⋯ chat menu.
+// toolbar: traffic lights, sidebar toggle, centred ToolbarTitle, ⋯ chat menu (Back ⌘[ / Forward ⌘] are View menu items).
 // No icon rail and no product switcher (R-001 AC1). Owns the composer docking (step 2) and the disclaimer (step 3);
 // the composer and the message list come in through `MainWindowSlots` (live: `ChatSessions.slots`).
 import AntiChatDesign
@@ -17,13 +17,13 @@ public struct MainWindow: View {
     /// M6.T13: the window's side panel (artifacts, file previews) beside the chat column; one per window.
     @State private var panel = SidePanelModel(windowID: "main")
     @State private var showsOutputs = false
-    /// The new-chat column's height (the tour card shows only when it clears the suggestion rows).
-    @State private var emptyColumnHeight: CGFloat = 0
-    static let tourMinHeight: CGFloat = 680
     /// The window's scrim under a conversation sheet (VQ round 65, S-09).
     @State private var scrim = ModalScrim()
     /// M5.T13: the window's Library page state (built on first use from the window's database).
     @State private var library: LibraryModel?
+    /// Settings is shown inside this window, over the chat (`SettingsPresenter`).
+    private let settings = SettingsPresenter.shared
+    private var showsSettings: Bool { settings.isShown(in: state) }
     private let slots: MainWindowSlots
     private let onSearch: () -> Void
     private let onReady: (WindowState) -> Void
@@ -47,14 +47,32 @@ public struct MainWindow: View {
         let _ = ViewWork.evaluated.append("mainWindow")
         #endif
         NavigationSplitView(columnVisibility: $state.columnVisibility) {
-            SidebarView(state: state, onSearch: { onSearch(); palette.present() })
+            SidebarView(state: state, onSearch: { onSearch(); palette.toggle() })
+                .modifier(OpaqueFill())  // as the detail column below: the column's minimum size is never its content's
                 .toolbar(removing: .sidebarToggle)
                 .navigationSplitViewColumnWidth(min: Layout.sidebarWidthMin, ideal: Layout.sidebarWidth,
                                                 max: Layout.sidebarWidthMax)
         } detail: {
             detail
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // The split view sizes each column to at least its content's minimum size (a zero proposal), even
+                // when that is taller than the window: one row that pins its wrapped text's height
+                // (`fixedSize(vertical:)`: F6's offline notice, then the notifications explainer) made the whole
+                // split view ~1,500 pt tall in a 1,000 pt window, its top and bottom off screen and both lists
+                // unscrollable to their start. A column fills what it is given and never answers with its content's
+                // size; the window's minimum is `Layout.windowMin` (ExplainerBannerWindowHeightTests).
+                .modifier(OpaqueFill())
                 .background(Color.surfaceCanvas)
+                // The toolbar strip is opaque canvas: scrolled messages do not show through behind the title and the
+                // toolbar buttons (a zero-height row whose background reaches up into the top safe area).
+                .overlay(alignment: .top) {
+                    Color.clear.frame(maxWidth: .infinity).frame(height: 0)
+                        .background(Color.surfaceCanvas, ignoresSafeAreaEdges: .top)
+                        .allowsHitTesting(false).accessibilityHidden(true)
+                }
+                // …and the system's own edge effect is the hard one on every route (chat, side panel, Library,
+                // Projects): the soft one draws the scrolled content, blurred, over the bar and over the cover above.
+                .scrollEdgeEffectStyle(.hard, for: .top)
                 .splitColumnAccessibilityLabel(CopyKey("a11y.mainContent").string())  // M9.T03: the column's group
                 // M9.T03: a Help sheet is modal; while one is up the content under it is out of the accessibility tree
                 // (VoiceOver stays in the sheet; the audit measured the covered text, S-22). Not under the ⌘K palette:
@@ -65,7 +83,14 @@ public struct MainWindow: View {
         .overlay { ModalScrimOverlay(scrim: scrim) }  // VQ round 65 (S-09): under the Versions / report sheets
         .environment(\.modalScrim, scrim)
         .toolbar(removing: .sidebarToggle)
-        .toolbar { toolbarContent }
+        .toolbar { if !showsSettings { toolbarContent } }
+        // Settings covers the whole window; the chat under it keeps its state (draft, scroll position, a streaming
+        // answer) but takes no clicks, keys or VoiceOver focus meanwhile.
+        .disabled(showsSettings)
+        .accessibilityHidden(showsSettings)
+        .overlay { settingsOverlay }
+        .onChange(of: state.route) { if showsSettings { settings.dismiss() } }  // a chat was opened (⌘N, a notification)
+        .onDisappear { settings.windowDisappeared(state) }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { state.windowWidthChanged($0) }
         .frame(minWidth: Layout.windowMin.width, minHeight: Layout.windowMin.height)
         .palettePanel(palette)
@@ -115,8 +140,8 @@ public struct MainWindow: View {
         }
         .onChange(of: state.currentChatID) { panel.close() }  // the panel belongs to the shown chat
         .onChange(of: state.currentChatID, initial: true) { state.syncToolbarChat() }  // NFR-U2: the toolbar's chat
-        // VQ-M10 round 65 (S-15): the panel makes room for itself by collapsing the sidebar (and gives it back).
-        .onChange(of: panel.isOpen) { _, open in state.sidePanelChanged(open: open, panelWidth: panel.width) }
+        // The panel collapses the sidebar on a narrow window only (and gives it back when it closes).
+        .onChange(of: panel.isOpen) { _, open in state.sidePanelChanged(open: open) }
         .onReceive(NotificationCenter.default.publisher(for: .antichatShowInLibrary)) { note in  // M5.T13 (D-026)
             guard let url = note.object as? URL, !state.isIncognito else { return }
             state.open(.library)
@@ -129,23 +154,26 @@ public struct MainWindow: View {
             state.activate()
             palette.attach(state)
             onReady(state)
+            settings.windowAppeared(state)  // ⌘, with no window on screen opened this one
             // M8.T09 step 3: crash handlers + the next-launch prompt (once per process, never during onboarding).
             DiagnosticsCenter.shared.database = DiagnosticsCenter.shared.database ?? state.service.database
             if DiagnosticsCenter.shared.checkAtLaunch(), state.presentedSheet == nil { state.presentedSheet = .crashPrompt }
         }
     }
 
-    // MARK: Toolbar
+    // MARK: Settings
 
-    /// M9.T08: the toolbar names the page on the Library, Projects and Chats routes (not "New chat").
-    static func pageTitle(_ route: WindowRoute) -> CopyKey? {
-        switch route {
-        case .library: CopyKey("library.title")
-        case .projects: CopyKey("side.projects")
-        case .chats: CopyKey("chats.page.title")
-        default: nil
+    /// Settings, full-window over the chat (owner 2026-11-16: in the app itself, not a window of its own).
+    @ViewBuilder private var settingsOverlay: some View {
+        if showsSettings {
+            SettingsRootView(context: SettingsContext(chats: state.service)) { settings.dismiss() }
         }
     }
+
+    // MARK: Toolbar
+
+    /// A chat or a new chat is shown (a page — Library, Projects, a project — has its own heading).
+    private var showsChatTitle: Bool { state.route == .newChat || state.toolbarChatID != nil }
 
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
@@ -153,16 +181,18 @@ public struct MainWindow: View {
                 .help(Text(CopyKey("menu.view.sidebar")))
                 .accessibilityLabel(Text(CopyKey("menu.view.sidebar")))
                 .probeID("sidebarToggle")
-            Button { state.goBack() } label: { Image(systemName: "chevron.left") }
-                .disabled(!state.canGoBack)
-                .help(Text(verbatim: "\(CopyKey("nav.back").string()) ⌘["))
-                .accessibilityLabel(Text(CopyKey("nav.back")))
-                .probeID("navBack")
-            Button { state.goForward() } label: { Image(systemName: "chevron.right") }
-                .disabled(!state.canGoForward)
-                .help(Text(verbatim: "\(CopyKey("nav.forward").string()) ⌘]"))
-                .accessibilityLabel(Text(CopyKey("nav.forward")))
-                .probeID("navForward")
+            if state.columnVisibility == .detailOnly {  // the sidebar's New chat is out of reach while it is collapsed
+                Button { state.newChat() } label: { Image(systemName: "square.and.pencil") }
+                    .help(Text(verbatim: "\(CopyKey("side.newChat").string()) ⌘N"))
+                    .accessibilityLabel(Text(CopyKey("side.newChat")))
+                    .probeID("toolbarNewChat")
+            }
+        }
+        // ux/simplify: the chat's mode, a quiet text button beside the sidebar toggle (no glass capsule). Only where a
+        // composer is shown (a chat or a new chat), and only while Evil Mode is on and not hidden.
+        if showsChatTitle || state.isIncognito, let picker = slots.modePicker?() {
+            ToolbarItem(placement: .navigation) { picker }
+                .sharedBackgroundVisibility(.hidden)
         }
         ToolbarItem(placement: .principal) {
             Group {
@@ -170,13 +200,16 @@ public struct MainWindow: View {
                     IncognitoBadge()  // M1.T20: "Incognito" instead of the title
                 } else {
                     HStack(spacing: Spacing.space2) {
-                    if state.shownMode == .evil { EvilBadge() }  // M2.T17: text badge by the title (R-210 AC3)
+                    // Without the picker (Evil Mode off or hidden) an Evil chat still says so by its title (R-210 AC3).
+                    if state.shownMode == .evil, slots.modePicker?() == nil { EvilBadge() }
+                    // A page (Library, Projects, a project) shows its own heading: no toolbar title there.
+                    if showsChatTitle {
                     ToolbarTitle(chat: state.toolbarChat,  // NFR-U2: `toolbarChatID`, the shown chat (one frame late)
-                                 pageTitle: Self.pageTitle(state.route),
                                  renaming: state.toolbarChatID != nil && state.renamingChatID == state.toolbarChatID,
                                  onBeginRename: { state.renamingChatID = state.currentChatID },
                                  onRename: { if let id = state.currentChatID { state.rename(id, to: $0) } },
                                  onCancel: { state.renamingChatID = nil })
+                    }
                     }
                 }
             }
@@ -198,6 +231,7 @@ public struct MainWindow: View {
                         showsOutputs = false
                         panel.open(f)
                     }
+                    .popoverSurface()
                 }
         }
         if FeatureFlag.exportAll.isEnabled() {  // M8.T07 step 5 (R-019): Share ▾
@@ -212,7 +246,7 @@ public struct MainWindow: View {
         ToolbarItem(placement: .primaryAction) {
             Menu {
                 if let chat = state.toolbarChat {
-                    ChatMenuItems(chat: chat, state: state, deleteAnchor: .toolbar, bindsShortcuts: true)
+                    ChatMenuItems(chat: chat, state: state, deleteAnchor: .toolbar, showsExport: false)
                 }
             } label: {
                 Image(systemName: "ellipsis")
@@ -228,6 +262,7 @@ public struct MainWindow: View {
                                           set: { if !$0 { state.pendingDelete = nil } })) {
                 DeleteConfirmation(title: state.pendingDelete?.title ?? "", onConfirm: { state.confirmDelete() },
                                    onCancel: { state.pendingDelete = nil })
+                    .popoverSurface()
             }
         }
     }
@@ -260,8 +295,6 @@ public struct MainWindow: View {
                                 onOpenChat: { state.open(.chat($0)) }, onDeleted: { state.open(.projects) })
                     .id(id)
             }
-        case .chats:
-            ChatsPage(state: state)
         }
     }
 
@@ -294,11 +327,13 @@ public struct MainWindow: View {
                         }
                     }
                     VStack(spacing: Spacing.space2) {
+                        NotificationExplainerBanner()  // a calm row above the composer; never over a reply
                         composer
                             .frame(maxWidth: readingWidth)
                         Text(CopyKey("composer.disclaimer"))
                             .typeStyle(.footnote)
-                            .foregroundStyle(Color.textSecondary)
+                            .foregroundStyle(Color.textTertiary)  // quiet, centred under the field
+                            .multilineTextAlignment(.center)
                             .probeID("composerDisclaimer")
                     }
                     .padding(.horizontal, Spacing.space6)
@@ -307,22 +342,11 @@ public struct MainWindow: View {
             } else if state.isIncognito {
                 IncognitoEmptyState(personalization: $state.incognitoPersonalization) { composer }
             } else if state.shownMode == .evil {
-                EvilEmptyState { composer }  // M2.T17 S-06
+                EvilEmptyState(modeControl: slots.emptyModeControl?()) { composer }  // M2.T17 S-06
             } else {
                 EmptyStateView(headline: state.headline, suggestions: state.suggestions,
-                               onSuggestion: { state.useSuggestion($0) }) { composer }
-                    // M10.T07 (R-303 AC3): first-use tour, Normal chats only. VQ round 65: at the foot of the column,
-                    // clear of the headline and the suggestions (over the headline it read as extra chrome), and only
-                    // while the column is tall enough that it cannot cover a suggestion row.
-                    .overlay(alignment: .bottom) {
-                        if emptyColumnHeight >= Self.tourMinHeight {
-                            TourTipView(packs: state.enabledPacks).frame(maxWidth: 520).padding(.bottom, Spacing.space5)
-                                // M9.T03: under the modal ⌘K palette the tip is dimmed and out of reach; out of the
-                                // accessibility tree too (S-18 measured its dimmed text). It never holds the focus.
-                                .accessibilityHidden(palette.isPresented)
-                        }
-                    }
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { emptyColumnHeight = $0 }
+                               onSuggestion: { state.useSuggestion($0) },
+                               modeControl: slots.emptyModeControl?()) { composer }
             }
         }
         .accessibilityElement(children: .contain)

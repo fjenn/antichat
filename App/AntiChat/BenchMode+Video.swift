@@ -15,6 +15,8 @@
 //         bundled signed catalog's selection → the plan card's default text-to-video job (VideoPlan, tier presets) →
 //         InstalledVideoModels.request over `<Models dir>/installs` (catalog install views, e.g. `antichat-cli models
 //         install|import`). Fails when the app would show the job as unavailable.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatHarness
 import AntiChatPlatform
 import AntiChatUI
@@ -301,3 +303,4 @@ extension BenchMode {
         return o
     }
 }
+#endif

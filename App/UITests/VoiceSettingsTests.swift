@@ -21,7 +21,7 @@ final class VoiceSettingsTests: XCTestCase {
         axLog = AXRead.enable(app, ids: ["settings.control.voiceRate"])
         app.launch()
         app.typeKey(",", modifierFlags: .command)
-        element(app, "settings.nav.voice").click()
+        element(app, "settings.nav.capabilities").click()
         return app
     }
 

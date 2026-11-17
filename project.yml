@@ -39,7 +39,6 @@ targetTemplates:
     settings:
       base:
         PRODUCT_NAME: ${productName}
-        PRODUCT_BUNDLE_IDENTIFIER: ${bundleID}
         INFOPLIST_FILE: App/FileToolsHelper/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         # A test build makes Xcode inject testing entitlements (absolute-path read-only "/", testmanagerd
@@ -47,9 +46,14 @@ targetTemplates:
         # service is never debugged through them: sign exactly the files below (FileToolsJailTests checks it).
         CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
       configs:
+        # One bundle id, one signing identity (tools/ci/signing-identity-ids.py): macOS ties a sandbox container to
+        # the identity that created it, so an ad-hoc Debug service under the shipped id makes the Developer ID build
+        # on the same Mac hang at launch behind "… differs from previously opened versions". Debug has its own ids.
         Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: ${devBundleID}
           CODE_SIGN_ENTITLEMENTS: App/FileToolsHelper/${entitlements}-Debug.entitlements
         Release:
+          PRODUCT_BUNDLE_IDENTIFIER: ${bundleID}
           CODE_SIGN_ENTITLEMENTS: App/FileToolsHelper/${entitlements}.entitlements
     dependencies:
       - package: AntiChatKit
@@ -87,7 +91,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChat
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.5"
+        CFBundleShortVersionString: "0.0.7"
         CFBundleVersion: "1"
         # M2.T01 (R-200 AC4, D-014): arm64 only; the system refuses macOS < 26.
         LSArchitecturePriority: [arm64]
@@ -273,7 +277,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChatEngine
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.5"
+        CFBundleShortVersionString: "0.0.7"
         CFBundleVersion: "1"
         LSMinimumSystemVersion: "26.0"
         XPCService:
@@ -299,7 +303,7 @@ targets:
       properties:
         CFBundleDisplayName: AntiChatEngineStandby
         CFBundleDevelopmentRegion: en
-        CFBundleShortVersionString: "0.0.5"
+        CFBundleShortVersionString: "0.0.7"
         CFBundleVersion: "1"
         LSMinimumSystemVersion: "26.0"
         XPCService:
@@ -315,36 +319,42 @@ targets:
     templateAttributes:
       productName: AntiChatFileToolsSlot1
       bundleID: app.antichat.AntiChat.FileTools.slot1
+      devBundleID: app.antichat.AntiChat.dev.FileTools.slot1
       entitlements: FileTools
   AntiChatFileToolsSlot2:
     templates: [FileToolsSlot]
     templateAttributes:
       productName: AntiChatFileToolsSlot2
       bundleID: app.antichat.AntiChat.FileTools.slot2
+      devBundleID: app.antichat.AntiChat.dev.FileTools.slot2
       entitlements: FileTools
   AntiChatFileToolsSlot3:
     templates: [FileToolsSlot]
     templateAttributes:
       productName: AntiChatFileToolsSlot3
       bundleID: app.antichat.AntiChat.FileTools.slot3
+      devBundleID: app.antichat.AntiChat.dev.FileTools.slot3
       entitlements: FileTools
   AntiChatFileToolsNetSlot1:
     templates: [FileToolsSlot]
     templateAttributes:
       productName: AntiChatFileToolsNetSlot1
       bundleID: app.antichat.AntiChat.FileTools.Net.slot1
+      devBundleID: app.antichat.AntiChat.dev.FileTools.Net.slot1
       entitlements: FileToolsNet
   AntiChatFileToolsNetSlot2:
     templates: [FileToolsSlot]
     templateAttributes:
       productName: AntiChatFileToolsNetSlot2
       bundleID: app.antichat.AntiChat.FileTools.Net.slot2
+      devBundleID: app.antichat.AntiChat.dev.FileTools.Net.slot2
       entitlements: FileToolsNet
   AntiChatFileToolsNetSlot3:
     templates: [FileToolsSlot]
     templateAttributes:
       productName: AntiChatFileToolsNetSlot3
       bundleID: app.antichat.AntiChat.FileTools.Net.slot3
+      devBundleID: app.antichat.AntiChat.dev.FileTools.Net.slot3
       entitlements: FileToolsNet
   # M1.T12 step 4: tiny watchdog (ported from Sidekick, P-shell-10); no package dependencies.
   llama-watchdog:

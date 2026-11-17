@@ -134,16 +134,18 @@ public extension Defaults.Keys {
     /// "Safe search results" (M7.T01/T15, R-241 AC3): a URL parameter for the engines (SafeSearch), the same in both modes.
     // settings-map: §7 "→ Safe search results" = "Off (no restriction, either mode)" ↔ false
     static let safeSearch = Key<Bool>("safeSearch", default: false, suite: .antichat)
-    /// "Use my approximate location for search" (M8.T08, R-091 AC3): Off until the user turns it on; turning it on
-    /// shows `perm.location.why` and only then asks macOS (LocationPermission). Never asked at launch or onboarding.
-    // settings-map: §7 "→ Use my approximate location" = "Off" ↔ false
-    static let searchUsesLocation = Key<Bool>("searchUsesLocation", default: false, suite: .antichat)
+    /// "Use my approximate location for search" (M8.T08, R-091 AC3): On until the user chooses otherwise (owner
+    /// 2026-11-16). macOS is asked just in time: the first web search that would use it shows `perm.location.why`
+    /// and only then the system dialog (SearchLocationPrompt); "Not now" turns this off. Never asked at launch or
+    /// onboarding. Until macOS says yes, searches carry no location.
+    // settings-map: §7 "→ Use my approximate location" = "On" ↔ true
+    static let searchUsesLocation = Key<Bool>("searchUsesLocation", default: true, suite: .antichat)
     // settings-map: §7 "Create image / Create video / Create files / Memory" = "On when the pack or feature is installed" ↔ true
     static let createFilesEnabled = Key<Bool>(ToolDefaults.createFilesEnabled, default: true, suite: .antichat)
     // settings-map: §7 "Run code for analysis (File tools sandbox)" = "Off until installed (85 MB)" ↔ false
     static let runCodeEnabled = Key<Bool>(ToolDefaults.runCodeEnabled, default: false, suite: .antichat)
     // settings-map: §7 "→ Network for code" = "Off" ↔ false
-    static let allowNetworkForCode = Key<Bool>(ToolDefaults.allowNetworkForCode, default: false, suite: .antichat)
+    static let allowNetworkForCode = Key<Bool>(ToolDefaults.allowNetworkForCode, default: true, suite: .antichat)
     /// M7.T14 (R-268 AC1): Tools page switches for Create image, Create video and Memory (Create files / Run code are
     /// M6.T19's keys above). The harness reads the same keys (ToolSwitches); a chat's own on/off is a
     /// `tool.on/off:<group>` marker in `chat.tools_json` and never touches these (R-268 AC2).
@@ -260,14 +262,14 @@ public extension Defaults.Keys {
     // settings-map: §6 "Memory" = "On" ↔ "on"
     static let memoryMode = Key<String>("memoryMode", default: "on", suite: .antichat)
     /// "Include sensitive topics in memory" (R-060 AC3): a storage choice, not a filter.
-    // settings-map: §6 "Include sensitive topics in memory" = "Off" ↔ false
-    static let memoryIncludeSensitive = Key<Bool>("memoryIncludeSensitive", default: false, suite: .antichat)
-    /// "Suggest things to remember" (R-246): the launch registers false on T0–T1 (MemoryReviewScheduler).
+    // settings-map: §6 "Include sensitive topics in memory" = "On" ↔ true
+    static let memoryIncludeSensitive = Key<Bool>("memoryIncludeSensitive", default: true, suite: .antichat)
+    /// "Keep memory up to date automatically" (R-246; was "Suggest things to remember"): the launch registers false on T0–T1 (MemoryReviewScheduler).
     // settings-map: §6 "Suggest things to remember" = "On (T2–T4), Off (T0–T1)" ↔ true
     static let memoryReviewEnabled = Key<Bool>("memoryReviewEnabled", default: true, suite: .antichat)
     /// Settings → Evil Mode "Use memory in Evil chats".
-    // settings-map: §4 "Use memory in Evil chats" = "Off" ↔ false
-    static let useMemoryInEvil = Key<Bool>("useMemoryInEvil", default: false, suite: .antichat)
+    // settings-map: §4 "Use memory in Evil chats" = "On" ↔ true
+    static let useMemoryInEvil = Key<Bool>("useMemoryInEvil", default: true, suite: .antichat)
     /// M5.T13 (R-022 AC4): Settings → Evil Mode "Show Evil items in Library". nil = not set by the user: the Library
     /// then shows Evil items exactly when Evil Mode is enabled (LibraryIndex.showsEvil); a choice sticks either way.
     // settings-map: §4 "Show Evil items in Library" = "On when Evil is enabled, else Off" ↔ nil

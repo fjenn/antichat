@@ -153,84 +153,85 @@ public enum StorageProbeStatus {
 }
 #endif
 
-struct StorageSection: View {
+/// Privacy & Data → Storage. On the page: the bar (what uses the disk) and Clean up. Advanced: the installed models,
+/// the models folder, where the data lives, Remove everything, Uninstall.
+struct StorageRows: View {
+    let part: SettingsPart
     let database: AppDatabase?
     @State private var model = StorageModel.shared
+    /// The installed models (often dozens of rows) stay closed until asked for.
+    @State private var modelsOpen = false
 
     var body: some View {
         if FeatureFlag.storageDashboard.isEnabled() {
-            dashboard
-        } else {
-            PlaceholderSection(rowID: "storage.later")
+            if part == .main { main } else { advanced }
         }
     }
 
-    @ViewBuilder private var dashboard: some View {
-        Section {
-            StorageBarView(report: model.report, measuring: model.measuring) { model.refresh() }
-                .padding(.horizontal, Spacing.space1)  // M9.T08: the SettingsItem rows' inset (text edges line up)
+    @ViewBuilder private var main: some View {
+        StorageBarView(report: model.report, measuring: model.measuring) { model.refresh() }
+            .padding(.horizontal, Spacing.space1)  // M9.T08: the SettingsItem rows' inset (text edges line up)
+            .onAppear {
+                model.database = database
+                model.refreshIfStale(maxAge: 5)  // the page itself: fresh numbers (the cached or prewarmed ones show meanwhile)
+            }
+            .sheet(isPresented: $model.showingCleanup) {
+                CleanUpSheet(items: model.cleanupItems, onClean: { model.cleanUp($0) }, onCancel: { model.showingCleanup = false })
+            }
+            .sheet(isPresented: $model.showingUninstall) {
+                UninstallSheet(database: database) { model.showingUninstall = false }
+            }
+            .sheet(isPresented: $model.showingRemoveEverything) {
+                RemoveEverythingSheet(database: database) { model.showingRemoveEverything = false }
+            }
+        SettingsItem("storage.cleanUp", description: CopyKey("storage.cleanUp.note")) {
+            HStack {
+                Button { model.prepareCleanup() } label: { Text(CopyKey("storage.cleanUp.cta")) }.probeID("settings.control.cleanUp")  // M9.T08: the verb, not the row label again
+                if let f = model.freedNote {
+                    Text(CopyText(CopyKey("storage.freed"), ["size": StorageBarView.size(f)])).typeStyle(.caption)
+                        .foregroundStyle(Color.textSecondary)
+                }
+            }
         }
-        .onAppear {
-            model.database = database
-            model.refreshIfStale(maxAge: 5)  // the page itself: fresh numbers (the cached or prewarmed ones show meanwhile)
-        }
-        if let rows = model.report?.models, !rows.isEmpty {
-            Section {
-                ForEach(rows) { r in
+    }
+
+    @ViewBuilder private var advanced: some View {
+        if let models = model.report?.models, !models.isEmpty {
+            SubDisclosure(title: "\(CopyKey("storage.loc.models").string()) (\(models.count))",
+                          id: "storage.models", open: $modelsOpen) {
+                ForEach(models) { r in
                     ModelRowView(row: r, onReveal: { NSWorkspace.shared.activateFileViewerSelecting([r.installView]) },
                                  onRemove: { model.remove(r) }, onRepair: { model.repair(r) })
                 }
             }
         }
-        Section {
-            ModelsFolderRow(path: model.paths.models, size: model.report?.locations[.models], progress: model.moveProgress,
-                            failed: model.moveFailed) { url in model.move(to: url) }
-            // VQ (S-21 Storage): friendly names and sizes; the paths themselves stay behind Show in Finder.
-            VStack(alignment: .leading, spacing: Spacing.space2) {
-                Text(CopyKey("storage.paths")).typeStyle(.body)
-                ForEach(model.paths.locations, id: \.self) { loc in
-                    StorageLocationRow(location: loc, size: model.report.map { $0.locations[loc] ?? 0 }) {
-                        NSWorkspace.shared.activateFileViewerSelecting([model.paths.revealTarget(loc)])
-                    }
+        ModelsFolderRow(path: model.paths.models, size: model.report?.locations[.models], progress: model.moveProgress,
+                        failed: model.moveFailed) { url in model.move(to: url) }
+        // VQ (S-21 Storage): friendly names and sizes; the paths themselves stay behind Show in Finder.
+        VStack(alignment: .leading, spacing: Spacing.space2) {
+            Text(CopyKey("storage.paths")).typeStyle(.callout)
+            ForEach(model.paths.locations, id: \.self) { loc in
+                StorageLocationRow(location: loc, size: model.report.map { $0.locations[loc] ?? 0 }) {
+                    NSWorkspace.shared.activateFileViewerSelecting([model.paths.revealTarget(loc)])
                 }
             }
-            .padding(.vertical, Spacing.space2)
-            .padding(.horizontal, Spacing.space1)  // M9.T08: the SettingsItem rows' inset (text edges line up)
-            .id("storage.paths")
-            .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
-            .probeID("settings.row.storage.paths")
         }
-        Section {
-            SettingsItem("storage.cleanUp", description: CopyKey("storage.cleanUp.note")) {
-                HStack {
-                    Button { model.prepareCleanup() } label: { Text(CopyKey("storage.cleanUp.cta")) }.probeID("settings.control.cleanUp")  // M9.T08: the verb, not the row label again
-                    if let f = model.freedNote {
-                        Text(CopyText(CopyKey("storage.freed"), ["size": StorageBarView.size(f)])).typeStyle(.caption)
-                            .foregroundStyle(Color.textSecondary)
-                    }
-                }
+        .padding(.vertical, Spacing.space2)
+        .padding(.horizontal, Spacing.space1)  // M9.T08: the SettingsItem rows' inset (text edges line up)
+        .id("storage.paths")
+        .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
+        .probeID("settings.row.storage.paths")
+        SettingsItem("storage.removeEverything", description: CopyKey("storage.removeEverything.note")) {
+            Button(role: .destructive) { model.showingRemoveEverything = true } label: {
+                Text(CopyKey("set.storage.removeEverything")).foregroundStyle(Color.danger)  // VQ: reads destructive
             }
-            SettingsItem("storage.removeEverything", description: CopyKey("storage.removeEverything.note")) {
-                Button(role: .destructive) { model.showingRemoveEverything = true } label: {
-                    Text(CopyKey("set.storage.removeEverything")).foregroundStyle(Color.danger)  // VQ: reads destructive
-                }
-                .probeID("settings.control.removeEverything")
+            .probeID("settings.control.removeEverything")
+        }
+        SettingsItem("storage.uninstall", description: CopyKey("storage.uninstall.note")) {  // M8.T11 (R-226 AC1)
+            Button(role: .destructive) { model.showingUninstall = true } label: {
+                Text(CopyKey("set.storage.uninstall")).foregroundStyle(Color.danger)
             }
-            SettingsItem("storage.uninstall", description: CopyKey("storage.uninstall.note")) {  // M8.T11 (R-226 AC1)
-                Button(role: .destructive) { model.showingUninstall = true } label: {
-                    Text(CopyKey("set.storage.uninstall")).foregroundStyle(Color.danger)
-                }
-                .probeID("settings.control.uninstall")
-            }
-        }
-        .sheet(isPresented: $model.showingCleanup) {
-            CleanUpSheet(items: model.cleanupItems, onClean: { model.cleanUp($0) }, onCancel: { model.showingCleanup = false })
-        }
-        .sheet(isPresented: $model.showingUninstall) {
-            UninstallSheet(database: database) { model.showingUninstall = false }
-        }
-        .sheet(isPresented: $model.showingRemoveEverything) {
-            RemoveEverythingSheet(database: database) { model.showingRemoveEverything = false }
+            .probeID("settings.control.uninstall")
         }
     }
 }

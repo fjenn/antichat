@@ -12,17 +12,23 @@ public enum Route: String, Codable, Sendable, CaseIterable, Comparable {
     /// The seven scored intents (R-235 AC2).
     public static let intents: [Route] = allCases.filter { $0 != .chat }
 
-    /// The tools a route exposes (antichat-tools-200 names; a name absent from the registry is skipped).
+    /// The registry tools a route exposes (a tool not registered or not eligible this turn is skipped).
+    /// `RoutedToolNamesTests` holds every name here to a registered tool: `file_output` used to name `create_file`
+    /// and `memory_write` a tool of that name, neither of which exists.
     public var tools: [String] {
         switch self {
         case .imageCreate, .imageEdit: ["create_image"]
         case .videoCreate, .videoFromImage: ["create_video"]
         case .webNeeded: ["web_search"]
-        case .fileOutput: ["create_file"]
-        case .memoryWrite: ["memory_write"]
+        case .fileOutput: Route.fileTools
+        case .memoryWrite: ["memory"]
         case .chat: []
         }
     }
+
+    /// The file-making tools, the most general first (`FileToolsTools.createNames`). ToolSelector puts the one the
+    /// message's own words fit best in front, so a small tier's few slots hold the right one.
+    public static let fileTools = ["create_document", "create_spreadsheet", "create_presentation", "create_chart", "export_table"]
 
     public var isImage: Bool { self == .imageCreate || self == .imageEdit }
     public var isVideo: Bool { self == .videoCreate || self == .videoFromImage }

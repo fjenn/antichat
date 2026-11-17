@@ -161,10 +161,20 @@ public final class FileCardViewModel {
 
     public var kind: FileKind { FileKind(item.contentType) }
 
-    /// "PDF", "XLSX", … (the extension, upper-cased; the card subtitle).
+    /// What the file is, in words: "Word document", "Excel spreadsheet", "PowerPoint presentation"; "PDF", "CSV", …
+    /// (the extension, upper-cased) for the rest. The card subtitle.
     public var typeLabel: String {
         let ext = (item.displayName as NSString).pathExtension
-        return (ext.isEmpty ? (item.contentType.preferredFilenameExtension ?? "") : ext).uppercased()
+        return Self.kindLabel(ext: ext.isEmpty ? (item.contentType.preferredFilenameExtension ?? "") : ext)
+    }
+
+    nonisolated public static func kindLabel(ext: String) -> String {
+        switch ext.lowercased() {
+        case "docx", "doc": CopyKey("file.kind.word").string()
+        case "xlsx", "xls": CopyKey("file.kind.excel").string()
+        case "pptx", "ppt": CopyKey("file.kind.powerpoint").string()
+        default: ext.uppercased()
+        }
     }
 
     public var sizeLabel: String? {
@@ -172,7 +182,8 @@ public final class FileCardViewModel {
     }
 
     public var versionLabel: CopyText? {
-        item.version.map { CopyText(CopyKey("file.version"), ["n": String($0)]) }
+        // Only a later version says so: "Version 1" on a file that has no other version is noise.
+        item.version.flatMap { $0 > 1 ? CopyText(CopyKey("file.version"), ["n": String($0)]) : nil }
     }
 
     /// "report.pdf · PDF · 13 KB · Version 2" without the name: the subtitle line.

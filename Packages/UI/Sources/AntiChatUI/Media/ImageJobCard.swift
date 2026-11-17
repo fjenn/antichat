@@ -95,7 +95,6 @@ public struct ImageJobCard: View {
     /// % pill) is put on screen.
     var onProgressShown: (() -> Void)?
     @EffectiveReduceMotion private var reduceMotion
-    @Environment(\.openSettings) private var openSettings
 
     public static let maxWidth: CGFloat = 512
 
@@ -119,7 +118,7 @@ public struct ImageJobCard: View {
             if state.phase == .blocked {
                 BlockedMediaTile(kind: .image, aspect: state.aspect)
             } else if case .safetyMissing(let n) = state.phase {
-                SafetyMissingCard(sizeBytes: n) { SettingsNavigator.shared.request(.capabilities); openSettings() }
+                SafetyMissingCard(sizeBytes: n) { PackManagementModel.shared.repairSafety(); SettingsPresenter.shared.show() }
             } else if case .done(let path) = state.phase {
                 // M4.T12: the finished picture with its actions (the stored copy once the call has ended).
                 ImageResultCard(paths: [savePath ?? path], aspect: state.aspect, promptUsed: promptUsed, artifactID: artifactID,
@@ -199,19 +198,15 @@ public struct ImageJobCard: View {
                 VStack {
                     Spacer()
                     HStack {
-                        ProgressPill(percent: state.progress.percent, startedAt: state.startedAt)
                         Spacer()
                         if let onCancel {
                             Button(action: onCancel) {
-                                Image(systemName: "stop.fill").font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(Color.textPrimary)
-                                    .frame(width: 24, height: 24)
-                                    .background(Circle().fill(Color.surfaceRaised.opacity(0.9)))
-                                    .contentShape(Circle())
+                                Text(CopyKey("img.cancel")).typeStyle(.footnote).foregroundStyle(Color.textPrimary)
+                                    .padding(.horizontal, Spacing.space3).frame(height: 24)
+                                    .background(Capsule().fill(Color.surfaceRaised.opacity(0.92)))
+                                    .contentShape(Capsule())
                             }
                                 .buttonStyle(.plain)
-                                .help(CopyKey("img.cancel").string())
-                                .accessibilityLabel(Text(CopyKey("img.cancel")))
                                 .accessibilityIdentifier("imageJobCard.cancel")
                         }
                     }
@@ -230,8 +225,9 @@ public struct ImageJobCard: View {
 
     @ViewBuilder private var footer: some View {
         HStack(spacing: Spacing.space2) {
-            Text(statusText).typeStyle(.subhead).foregroundStyle(Color.textSecondary)
+            Text(statusText).typeStyle(.subhead).monospacedDigit().foregroundStyle(Color.textSecondary)
                 .accessibilityIdentifier("imageJobCard.status")
+                .accessibilityAddTraits(state.isActive ? .updatesFrequently : [])
             if state.lighterSetting {
                 Text(CopyKey("model.lighterSetting")).typeStyle(.footnote).foregroundStyle(Color.textTertiary)
             }
@@ -243,7 +239,7 @@ public struct ImageJobCard: View {
                     .accessibilityIdentifier("imageJobRestart")
             } else if isUnavailable {
                 // The Photo pack is not ready on this Mac: the fix is in Settings › Capabilities, not a retry.
-                Button { SettingsNavigator.shared.request(.capabilities); openSettings() } label: {
+                Button { SettingsNavigator.shared.request(.capabilities); SettingsPresenter.shared.show() } label: {
                     Text(CopyKey("img.needsLargerModel.cta"))
                 }
                     .buttonStyle(.borderedProminent).controlSize(.small)
@@ -272,7 +268,10 @@ public struct ImageJobCard: View {
 
     var statusText: String {
         switch state.phase {
-        case .placeholder, .generating: CopyKey("img.creating").string()
+        // One calm line while the picture is made: "Getting ready…", then "Creating image… 40%".
+        case .placeholder: CopyKey("img.loading").string()
+        case .generating: state.progress.percent > 0
+            ? CopyText(CopyKey("img.creating.pct"), ["percent": "\(state.progress.percent)"]).string : CopyKey("img.creating").string()
         case .waiting(let position): position > 1
             ? CopyText(CopyKey("job.waitingPosition"), ["position": "\(position)"]).string : CopyKey("img.waiting").string()
         case .loading: CopyKey("img.loading").string()

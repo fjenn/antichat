@@ -34,6 +34,24 @@ func privatePolicy() -> NetworkPolicyStore {
         print("AT-297 \(category.rawValue): blocked=yes hits-while-blocked=0 enabled=200")
     }
 
+    /// A request the user's own action asked for (the list of apps when Settings › Connections opens) passes a
+    /// category that is off by default; Offline only still refuses it; an unmarked request stays refused.
+    @Test func aUserOpenedRequestPassesACategoryThatIsOffButNotOfflineOnly() async throws {
+        let server = try TestHTTPServer()
+        let policy = privatePolicy()
+        let gated = NetworkGate.gated(.relay, policy: policy)
+        let request = URLRequest(url: server.baseURL.appendingPathComponent("toolkits"))
+        #expect(!policy.isEnabled(.relay))  // off until an app is connected
+        await #expect(throws: AntiChatError.self) { _ = try await gated.data(for: request) }
+        #expect(server.hits.isEmpty)
+        let (_, response) = try await gated.data(for: NetworkGate.userOpened(request))
+        #expect((response as? HTTPURLResponse)?.statusCode == 200 && server.hits.count == 1)
+        #expect(!policy.storedValue(.relay))  // the category itself stays off
+        policy.offlineOnly = true
+        await #expect(throws: AntiChatError.self) { _ = try await gated.data(for: NetworkGate.userOpened(request)) }
+        #expect(server.hits.count == 1)
+    }
+
     @Test func offlineOnlyRefusesEveryCategoryAndRestores() async throws {
         let server = try TestHTTPServer()
         let policy = privatePolicy()

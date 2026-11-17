@@ -13,7 +13,6 @@ struct StatusPill: View {
         case error(pack: String)
     }
 
-    @Environment(\.openSettings) private var openSettings
     private let fixed: State?
     private let model: MenuBarProgressModel?
 
@@ -74,7 +73,7 @@ struct StatusPill: View {
         if let title = Self.title(s) {
             Button {
                 SettingsNavigator.shared.request(.capabilities)
-                openSettings()
+                SettingsPresenter.shared.show()
             } label: {
                 Label { Text(title).typeStyle(.caption) } icon: { Image(systemName: Self.symbol(s)) }
                     .foregroundStyle(Self.isError(s) ? Color.danger : Color.textSecondary)

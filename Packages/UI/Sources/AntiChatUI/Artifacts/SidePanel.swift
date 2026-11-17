@@ -5,6 +5,7 @@
 // resizes it and the width is remembered per window. A custom split instead of `.inspector` because the inspector
 // does not report its width (needed to remember it) — same behaviour, minor.
 import AntiChatDesign
+import AntiChatTools
 import PDFKit
 import SwiftUI
 
@@ -93,7 +94,7 @@ public struct SidePanel: View {
                         .controlSize(.regular)
                         .padding(Spacing.space3)
                         .accessibilityIdentifier("panelEditSelection")
-                        .popover(isPresented: $model.editingSelection, arrowEdge: .top) { EditSelectionPopover(model: model) }
+                        .popover(isPresented: $model.editingSelection, arrowEdge: .top) { EditSelectionPopover(model: model).popoverSurface() }
                 }
             }
         }
@@ -107,7 +108,6 @@ public struct SidePanel: View {
         HStack(spacing: Spacing.space2) {
             Text(verbatim: model.title).typeStyle(.headline).foregroundStyle(Color.textPrimary)
                 .lineLimit(1).truncationMode(.middle)
-                .layoutPriority(1)
                 .accessibilityIdentifier("panelTitle")
             VersionPicker(model: model)
             Spacer(minLength: Spacing.space2)
@@ -168,7 +168,8 @@ public struct SidePanel: View {
                     FileCardViewModel(item: FileCardItem(url: current.url, displayName: model.title)).open()
                 } label: {
                     // VQ-M10 round 65 (S-15): the panel's main action carries its word, not only a glyph.
-                    Label { Text(CopyKey("file.open")) } icon: { Image(systemName: "arrow.up.forward.app") }
+                    // "Open in app": the file's own app (Word, Preview…). The card's button is "Preview" (this panel).
+                    Label { Text(CopyKey("file.openInApp")).lineLimit(1) } icon: { Image(systemName: "arrow.up.forward.app") }
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(Color.textPrimary)
                         .padding(.horizontal, Spacing.space2)
@@ -177,8 +178,8 @@ public struct SidePanel: View {
                         .contentShape(Capsule())
                 }
                     .buttonStyle(.plain)
-                    .help(CopyKey("file.open").string())
-                    .accessibilityLabel(Text(CopyKey("file.open")))
+                    .fixedSize()
+                    .accessibilityLabel(Text(CopyKey("file.openInApp")))
                     .accessibilityIdentifier("panelOpen")
             }
             Button { model.close() } label: { PanelGlyph(symbol: "xmark") }
@@ -214,10 +215,97 @@ public struct SidePanel: View {
                                     onController: { web = $0 })
                     .id("\(current.url.path)|\(model.previewMode?.rawValue ?? "")")
             case .quickLook:
-                InlineQuickLook(url: current.url).id(current.url)
+                // A spreadsheet reads as the app's own table (Quick Look draws it in a serif face with black rules).
+                if current.url.pathExtension.lowercased() == "xlsx" {
+                    SheetBody(url: current.url).id(current.url)
+                } else if current.url.pathExtension.lowercased() == "docx" {
+                    // A Word document as a page that wraps to the panel's width (Quick Look drew it at a fixed page
+                    // width, cut off on the right, with a "Page of" footer whose numbers it cannot fill in).
+                    DocBody(url: current.url).id(current.url)
+                } else {
+                    InlineQuickLook(url: current.url).id(current.url)
+                }
             }
         }
     }
+}
+
+/// An .xlsx file as tables in the chat's table style; Quick Look when it cannot be read.
+struct SheetBody: View {
+    let url: URL
+    @State private var markdown: String??
+
+    var body: some View {
+        Group {
+            switch markdown {
+            case .some(.some(let md)):
+                ScrollView([.vertical]) {
+                    MessageMarkdownView(text: md, streaming: false, interrupted: false, live: nil)
+                        .padding(Spacing.space4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .accessibilityIdentifier("panelSheet")
+            case .some(.none): InlineQuickLook(url: url)
+            case .none: Color.clear
+            }
+        }
+        .task { markdown = .some(await SheetLoader.previewMarkdown(xlsx: url)) }
+    }
+}
+
+/// A .docx file's text and formatting on a white page as wide as the panel; Quick Look when it cannot be read.
+struct DocBody: View {
+    let url: URL
+    @State private var text: NSAttributedString??
+
+    var body: some View {
+        Group {
+            switch text {
+            case .some(.some(let t)): DocTextView(text: t).accessibilityIdentifier("panelDoc")
+            case .some(.none): InlineQuickLook(url: url)
+            case .none: Color.clear
+            }
+        }
+        .task {
+            let url = url, folder = DragOut.stagingRoot(for: url)
+            let loaded = await Task.detached(priority: .userInitiated) { () -> Loaded in
+                // Read through a copy the system reader understands (DocxPreview: "not bold" must not read as bold).
+                let copy = DocxPreview.readableCopy(of: url, in: folder)
+                defer { if let copy { try? FileManager.default.removeItem(at: copy) } }
+                return Loaded(text: try? NSAttributedString(url: copy ?? url,
+                                                            options: [.documentType: NSAttributedString.DocumentType.officeOpenXML],
+                                                            documentAttributes: nil))
+            }.value
+            text = .some(loaded.text.flatMap { $0.length > 0 ? $0 : nil })
+        }
+    }
+
+    private struct Loaded: @unchecked Sendable { let text: NSAttributedString? }
+}
+
+/// Read-only rich text on a page: always dark text on white (the document's own colours), whatever the app's theme.
+private struct DocTextView: NSViewRepresentable {
+    let text: NSAttributedString
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scroll = NSTextView.scrollableTextView()
+        scroll.hasHorizontalScroller = false
+        scroll.drawsBackground = true
+        scroll.backgroundColor = .white
+        scroll.appearance = NSAppearance(named: .aqua)
+        let view = scroll.documentView as! NSTextView
+        view.isEditable = false
+        view.isSelectable = true
+        view.drawsBackground = true
+        view.backgroundColor = .white
+        view.textContainerInset = NSSize(width: 28, height: 28)
+        view.isHorizontallyResizable = false
+        view.textContainer?.widthTracksTextView = true  // the page is as wide as the panel: nothing is cut off
+        view.textStorage?.setAttributedString(text)
+        return scroll
+    }
+
+    func updateNSView(_ view: NSScrollView, context: Context) {}
 }
 
 /// "Version {current} of {total}" menu (M4.T11 step 3); hidden for a single version.

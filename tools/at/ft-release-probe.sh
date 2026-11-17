@@ -73,12 +73,20 @@ check_ents() {  # check_ents <app> <label>
 check_ents "$APP" "${APP#$ROOT/}"
 
 # 2. Probe host: own bundle ids, signed by sign.sh in this mode.
+# FileToolsClient's two app-wide lookups (the defaults store, Offline only), as one-line stand-ins: the probe passes
+# `network:` itself and has no Offline only switch.
+stub() { printf '%s\n' "$2" > "$1.swift" && xcrun swiftc -parse-as-library -wmo -emit-module -emit-object -module-name "$1" -o "$1.o" "$1.swift"; }
 EP="$ROOT/Packages/EngineProtocol/Sources/AntiChatEngineProtocol/FileTools"
 TF="$ROOT/Packages/Tools/Sources/AntiChatTools/FileTools"
 ( cd "$WORK" && xcrun swiftc -parse-as-library -wmo -emit-module -emit-object -module-name AntiChatEngineProtocol \
     -o AntiChatEngineProtocol.o "$EP/FileToolsMessages.swift" "$EP/FileToolsWire.swift" \
+  && stub AntiChatFoundation 'import Foundation
+public enum AppDefaults { public static var standard: UserDefaults { .standard } }' \
+  && stub AntiChatNetwork 'public final class NetworkPolicyStore: Sendable {
+  public static let shared = NetworkPolicyStore(); public var offlineOnly: Bool { false } }' \
   && xcrun swiftc -O -I . -o probe "$ROOT/tools/at/ft-release-probe/main.swift" \
-    "$TF/FileToolsClient.swift" "$TF/FileToolsSlots.swift" "$TF/SessionIdleReaper.swift" "$TF/SandboxNotice.swift" AntiChatEngineProtocol.o ) \
+    "$TF/FileToolsClient.swift" "$TF/FileToolsSlots.swift" "$TF/SessionIdleReaper.swift" "$TF/SandboxNotice.swift" \
+    AntiChatEngineProtocol.o AntiChatFoundation.o AntiChatNetwork.o ) \
   || fail "probe build failed"
 HOST="$WORK/host/AntiChat.app"
 rm -rf "$WORK/host"; mkdir -p "$WORK/host"
@@ -117,10 +125,14 @@ export FT_SERVICE_PREFIX="$PROBE_ID"
 ver=$(awk '/version:/ {gsub(/"/,"",$2); print $2; exit}' "$ROOT/catalog/runtimes.yaml")
 sha=$(awk '/sha256:/ {print $2; exit}' "$ROOT/catalog/runtimes.yaml")
 ZIP="$ROOT/build/runtimes/signed/filetools-runtime-$ver.zip"
-[ -f "$ZIP" ] || fail "missing $ZIP (make runtime-filetools SIGN=1)"
-[ "$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" = "$sha" ] || fail "$ZIP sha256 ≠ catalog"
 RROOT="$HOME/Library/Application Support/AntiChat/Runtimes"
 RT="$RROOT/filetools-runtime@$ver"
+# A runtime the app already installed (it verified the catalog sha256 itself) is used as it is; the zip is only
+# needed to put one there.
+if [ ! -f "$RT/RUNTIME.json" ]; then
+  [ -f "$ZIP" ] || fail "missing $ZIP (make runtime-filetools SIGN=1)"
+  [ "$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" = "$sha" ] || fail "$ZIP sha256 ≠ catalog"
+fi
 created=0
 [ -d "$RROOT" ] || { mkdir -p "$RROOT"; created=1; }
 cleanup() { if [ $created = 1 ]; then rm -rf "$RROOT"; fi; rm -rf "$WORK/host"; }

@@ -49,7 +49,10 @@ public struct InstalledVideoModels: VideoModelProviding {
     public func isAvailable() async -> Bool {
         guard let f = await facts() else { return Self.scripted != nil }
         guard VideoEligibility.evaluate(profile: f.profile, selection: f.selection, catalog: f.catalog).isEligible else { return false }
-        return f.installed || Self.scripted != nil
+        guard f.installed else { return Self.scripted != nil }
+        // The runtime may still be missing (an older build never fetched it): start it now, `request` waits for it.
+        await MainActor.run { VideoRuntimeInstall.shared.install() }
+        return true
     }
 
     public func speedClass() async -> String { await facts()?.profile.speedClass.rawValue ?? "" }
@@ -68,8 +71,14 @@ public struct InstalledVideoModels: VideoModelProviding {
             return r
         }
         guard let f else { return nil }
+        // Text-to-video runs in the video runtime: fetch it on demand when it is not there yet (the call waits).
+        var runtime: URL?
+        if job.mode != .i2v {
+            _ = await VideoRuntimeInstall.shared.ensure()
+            runtime = await MainActor.run { VideoRuntimeInstall.shared.currentDir } ?? Self.runtimeDir()
+        }
         var r = Self.request(job, sourceImagePath: sourceImagePath, seed: seed, isEvil: isEvil, catalog: f.catalog,
-                             installs: f.installs, runtime: Self.runtimeDir(), budget: budget)
+                             installs: f.installs, runtime: runtime, budget: budget)
         r?.yieldToOtherApps = Defaults[.yieldGPU]  // M5.T11 (NFR-B5): the Advanced setting at submit time
         return r
     }

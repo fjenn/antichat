@@ -74,3 +74,40 @@
   match: "addEventListener\\('securitypolicyviolation'"
   justification: 'M10.T05 AT-304 website CSP test — the DOM event name for Content-Security-Policy reports (a browser security header on our static site); it inspects no user content and filters nothing in the app.'
   reviewer: lead
+# ---- ux/simplify release audit (2026-11-17; reviewer: lead, sign-off pending) ----
+- path: Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryCapture.swift
+  match: 'MemoryCaptureGate\.evaluate\(userText\)'
+  justification: 'Rule 2 name collision, not the media gate: MemoryCaptureGate is the per-turn cue table ("I am", "remember that") that decides whether one memory-extraction call is worth spending; it blocks, drops or changes no content and never touches ChildSafetyCheck / MediaOutputGate.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: Packages/UI/Sources/AntiChatUI/Settings/Capabilities/PackManagement.swift
+  match: '^\s*/// "Safety check missing" \(SafetyMissingCard\)'
+  justification: 'Doc comment naming the safety.missing repair card of the ChildSafetyCheck model download (D-006, the copy already allow-listed in CopyDeck.swift); repairSafety() fetches missing model files, it checks no content.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: Packages/Tools/Sources/AntiChatTools/Resources/composio-catalog.json
+  match: '^\{"slug":"(moderationapi|tisane)",'
+  justification: 'Connections directory data: the name and one-line summary of two third-party apps a user can choose to connect (Moderation API, Tisane Labs). A listing, called only if the user connects the app; AntiChat runs nothing of theirs on chats.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: tools/composio/summaries.json
+  match: '^\s*"(moderationapi|tisane)": "'
+  justification: 'Source of the two directory summaries above (tools/composio builds composio-catalog.json); text data about third-party apps, no check.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: tools/composio/logo-sources.json
+  match: '^\s*"moderationapi": "[0-9a-f]{64}",$'
+  justification: 'Logo hash of the Moderation API directory entry, keyed by its slug; a file hash, no check.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: tools/skills/build-index.py
+  match: 'unsafe-text pattern|^\s*r"jailbreak",$'
+  justification: 'Skills catalogue generator (build time, the public index repository): screens third-party SKILL.md files for prompt-injection text (hidden instructions, exfiltration, "jailbreak") before we list them. Supply-chain hygiene for what we distribute; it never runs in the app, sees no chat, and a user can still import any skill by hand.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: tools/skills/refresh.py
+  match: 'matches an unsafe-text pattern'
+  justification: 'Docstring of the weekly index refresh describing the generator screen above; build-time catalogue tooling, no runtime check.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: catalog/README.md
+  match: 'breaks an automatic rule or matches an unsafe-text$'
+  justification: 'Catalogue documentation of the same generator screen (which third-party skills get listed); documentation, not prompt text and not a filter on chats.'
+  reviewer: lead (pending sign-off, ux/simplify)
+- path: Packages/Harness/Tests/AntiChatHarnessTests/__Snapshots__/prompt-full-normal.txt
+  match: '^You are AntiChat, a private AI assistant that runs locally on this Mac\. You help with anything: questions, writing, analysis, coding, planning and conversation\. The app also gives you tools when they are turned on: searching the web, reading files and pictures the user attaches, creating files \(PDF, Word, Excel, slides\), creating images and videos, running code to analyse data, remembering things about the user, and working in apps the user has connected, such as Gmail or Calendar\. Use a tool when it helps, without announcing it or naming it\. Answer directly and clearly, in Markdown; write tables as plain Markdown tables, never inside a code block\.$'
+  justification: 'Base paragraph (prompts/base.txt, 91e292f1c): factual self-description and the list of tools, when to use a tool, and output format. The whole line is pinned, so any edit is reviewed again. Its only behaviour word is "never inside a code block" (Markdown table formatting); it restricts or moralises about no topic or answer and is identical in Normal and Evil.'
+  reviewer: lead (pending sign-off, ux/simplify)

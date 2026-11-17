@@ -1,6 +1,8 @@
 // Debug host for the artifact components (M4.T10/T11; `-ArtifactsHarness <dir>`, Debug builds only through
 // AntiChatApp): one FileCard per regular file in `<dir>` (sorted by name). FileCardTests drives it until M6.T13
 // puts cards into assistant turns. Never shown in Release.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatDesign
 import AntiChatFoundation
 import SwiftUI
@@ -63,3 +65,4 @@ public struct ArtifactsHarnessView: View {
         }
     }
 }
+#endif

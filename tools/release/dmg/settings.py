@@ -10,12 +10,15 @@ appname = os.path.basename(app)
 volume_name = "AntiChat Installer"
 format = defines.get("format", "ULFO")  # noqa: F821 (ci-release §5: ULFO, fallback UDZO)
 filesystem = "APFS"
-files = [app]
-symlinks = {"Applications": "/Applications"}
+# The "Applications" icon is a drop-to-install helper (tools/release/dmg/dropinstall/main.swift), not a symlink: the
+# owner wants AntiChat to open by itself after the drag (2026-11-15), and nothing runs when a file lands on a symlink.
+# package-dmg.sh gives it Apple's Applications folder icon as a Finder custom icon on the read-write image.
+installer = defines["installer"]  # noqa: F821
+files = [app, installer]
 # No `hide_extensions`: dmgbuild sets the hide-extension flag as a com.apple.FinderInfo xattr on the bundle root, which
 # `codesign --verify --strict` rejects on the copied app ("detritus not allowed"; M10.T09 AT-FA-01). Finder already
 # hides the .app extension by default.
-icon_locations = {appname: (180, 200), "Applications": (480, 200)}
+icon_locations = {appname: (180, 200), os.path.basename(installer): (480, 200)}
 background = defines["background"]  # noqa: F821
 icon = defines.get("icon")  # noqa: F821 (tools/release/dmg/VolumeIcon.icns from tools/design/make-app-icon.py)
 # 660×452 frame = a 32 pt title bar + a 660×420 content area, the background's size (tools/release/dmg/background.tiff).

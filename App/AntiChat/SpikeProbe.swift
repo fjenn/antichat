@@ -5,6 +5,8 @@
 // while "typing" into the composer model. It records whether the transcript shows the `engine.restarted`
 // notice and whether Retry streams again. It measures the main run loop, not synthesised keystrokes
 // [INFERENCE: a typed key is delivered by the same main run loop, so a stall would show in these pings].
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatUI
 import Darwin
 import Foundation
@@ -75,3 +77,4 @@ enum SpikeProbe {
         exit(0)
     }
 }
+#endif

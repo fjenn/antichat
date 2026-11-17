@@ -1,10 +1,15 @@
-// Relay policy (architecture §8.1/§8.3, M7.T10 step 5): configuration from env, toolkit allow-list,
-// minimum client version, kill switch. Production refuses to start when it is misconfigured.
+// Relay policy (architecture §8.1/§8.3, M7.T10 step 5): configuration from env, toolkit policy (every Composio
+// toolkit unless RELAY_ALLOWED_TOOLKITS narrows it), minimum client version, kill switch. Production refuses to
+// start when it is misconfigured.
 import { logConfigError } from "./log.js";
 
 export const RELAY_VERSION = "1.0.0";
 /** Stub value of COMPOSIO_API_KEY in dev: every Composio route answers 503 relay.notConfigured. */
 export const STUB_KEY = "dev-not-a-key";
+/**
+ * The eight apps of the first releases. No longer a limit: `toolkits` of GET /v1/connections still carries them when
+ * every toolkit is allowed, because app versions up to 0.0.7 show exactly that list.
+ */
 export const DEFAULT_TOOLKITS = [
   "gmail", "googlecalendar", "googledrive", "slack", "notion", "github", "linear", "outlook",
 ];
@@ -14,6 +19,7 @@ export type Limits = {
   executionsPerDay: number;
   sessionsPerHour: number;
   linksPerHour: number;
+  catalogPerHour: number;
   newIdsPerIpPerHour: number;
   globalDailyCap: number;
 };
@@ -25,7 +31,7 @@ export type RelayConfig = {
   composioBaseUrl: string | undefined;
   hmacSecret: string;
   upstash: { url: string; token: string } | undefined;
-  /** "*" = every toolkit Composio offers (dev). */
+  /** "*" = every toolkit Composio offers (the default); a list = only those (RELAY_ALLOWED_TOOLKITS). */
   allowedToolkits: string[] | "*";
   minClientVersion: string;
   disabled: boolean;
@@ -71,7 +77,7 @@ export function loadConfig(env: Env = process.env): RelayConfig {
 
   const tk = env.RELAY_ALLOWED_TOOLKITS?.trim();
   const allowedToolkits: string[] | "*" =
-    tk === "*" ? "*" : tk ? tk.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean) : DEFAULT_TOOLKITS;
+    !tk || tk === "*" ? "*" : tk.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 
   let mcpPerMin = 60;
   if (env.RELAY_TEST_MCP_PER_MIN !== undefined && env.RELAY_TEST_MCP_PER_MIN !== "") {
@@ -96,14 +102,20 @@ export function loadConfig(env: Env = process.env): RelayConfig {
       executionsPerDay: 500,
       sessionsPerHour: 10,
       linksPerHour: 10,
+      catalogPerHour: 30,
       newIdsPerIpPerHour: 20,
       globalDailyCap: intVar(env, "RELAY_GLOBAL_DAILY_CAP", 10000),
     },
   };
 }
 
+/** A Composio toolkit slug as the relay passes it on: lowercase letters, digits, `_`, `-`. */
+export function toolkitSlugOk(toolkit: string): boolean {
+  return /^[a-z0-9_-]{1,64}$/.test(toolkit);
+}
+
 export function toolkitAllowed(cfg: RelayConfig, toolkit: string): boolean {
-  if (!/^[a-z0-9_]{1,64}$/.test(toolkit)) return false;
+  if (!toolkitSlugOk(toolkit)) return false;
   return cfg.allowedToolkits === "*" || cfg.allowedToolkits.includes(toolkit);
 }
 

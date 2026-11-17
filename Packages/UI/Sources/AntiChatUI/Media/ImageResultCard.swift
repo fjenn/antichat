@@ -10,6 +10,7 @@
 import AntiChatDesign
 import AntiChatFoundation
 import AntiChatHarness
+import AntiChatStorage
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
@@ -19,8 +20,9 @@ import UniformTypeIdentifiers
 enum ImageActions {
     /// Save / Save As…: where to (with the "without prompt details" box), then the copy. DEBUG `-SaveImageFile` stands
     /// in for the panel (SaveImageTests, ImageViewerTests).
-    static func save(_ path: String, suggestedName: String = "image.png") async {
-        guard let choice = await SavePanelAccessory.choose(suggestedName: suggestedName, contentType: .png) else { return }
+    static func save(_ path: String, suggestedName: String? = nil) async {
+        let name = suggestedName ?? StoredFileNames.name(forPath: path) ?? "Image.png"
+        guard let choice = await SavePanelAccessory.choose(suggestedName: name, contentType: .png) else { return }
         do { try SavePanelAccessory.write(URL(fileURLWithPath: path), to: choice) } catch {
             AppLog.log(.ui, .error, "image save failed: \(error)")  // nothing was written (P1-4)
             AppToasts.shared.show(Toast(.warning, CopyText(CopyKey("img.saveFailed"))))
@@ -32,14 +34,15 @@ enum ImageActions {
         let pb = NSPasteboard.general
         pb.clearContents()
         let url = URL(fileURLWithPath: path)
-        var items: [NSPasteboardWriting] = [url as NSURL]
+        var items: [NSPasteboardWriting] = [DragOut.named(storedPath: path) as NSURL]  // pasted into Finder under its name
         if let image = NSImage(contentsOf: url) { items.insert(image, at: 0) }
         pb.writeObjects(items)
     }
 
     static func reveal(_ path: String) { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)]) }
 
-    static func open(_ path: String) { NSWorkspace.shared.open(URL(fileURLWithPath: path)) }
+    /// Another app gets a copy under the picture's name, never the content-addressed stored file.
+    static func open(_ path: String) { NSWorkspace.shared.open(DragOut.named(storedPath: path)) }
 }
 
 public struct ImageResultCard: View {
@@ -156,7 +159,7 @@ public struct ImageResultCard: View {
                 .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
                 .accessibilityIdentifier("imageJobCard.more")
                 .focused($focused)
-                .popover(isPresented: $showPrompt) { if let promptUsed { PromptUsedPopover(prompt: promptUsed) } }
+                .popover(isPresented: $showPrompt) { if let promptUsed { PromptUsedPopover(prompt: promptUsed).popoverSurface() } }
             }
         }
         .padding(Spacing.space2)

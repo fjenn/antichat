@@ -13,14 +13,14 @@ struct ToolChangeReviewView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(CopyText(CopyKey("mcp.toolsChanged"), ["server": serverName])).font(.headline)
+        VStack(alignment: .leading, spacing: Spacing.space3) {
+            Text(CopyText(CopyKey("mcp.toolsChanged"), ["server": serverName])).typeStyle(.headline)
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: Spacing.space4) {
                     ForEach(diff.changed, id: \.name) { c in
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(verbatim: c.name).font(.body.monospaced().weight(.semibold))
-                            HStack(alignment: .top, spacing: 10) {
+                            Text(verbatim: c.name).typeStyle(.code).fontWeight(.semibold)
+                            HStack(alignment: .top, spacing: Spacing.space3) {
                                 side(CopyKey("conn.review.before"), c.oldDescription, c.oldSchemaJSON)
                                 side(CopyKey("conn.review.after"), c.newDescription, c.newSchemaJSON)
                             }
@@ -40,7 +40,7 @@ struct ToolChangeReviewView: View {
                     .probeID("toolReview.accept")
             }
         }
-        .padding(20)
+        .padding(Spacing.space5)
         .frame(width: 640)
         .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
         .probeID("toolReview")
@@ -49,19 +49,19 @@ struct ToolChangeReviewView: View {
     private func side(_ title: CopyKey, _ description: String, _ schema: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).typeStyle(.caption).foregroundStyle(Color.textSecondary)
-            Text(verbatim: description).font(.callout).textSelection(.enabled)
-            Text(verbatim: ToolHash.canonicalJSON(schema)).font(.caption.monospaced()).foregroundStyle(Color.textSecondary)
+            Text(verbatim: description).typeStyle(.callout).textSelection(.enabled)
+            Text(verbatim: ToolHash.canonicalJSON(schema)).typeStyle(.code).foregroundStyle(Color.textSecondary)
                 .textSelection(.enabled).lineLimit(8)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 6).fill(Color.secondary.opacity(0.08)))
+        .padding(Spacing.space2)
+        .background(RoundedRectangle(cornerRadius: Radius.sm, style: .continuous).fill(Color.surfaceSunken))
     }
 
     private func list(_ title: CopyKey, _ names: [String]) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title).typeStyle(.caption).foregroundStyle(Color.textSecondary)
-            ForEach(names, id: \.self) { Text(verbatim: $0).font(.body.monospaced()) }
+            ForEach(names, id: \.self) { Text(verbatim: $0).typeStyle(.code) }
         }
     }
 }

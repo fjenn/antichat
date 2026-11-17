@@ -60,6 +60,6 @@ import Testing
         let files = [ChatFile(id: "1", origin: .attached, name: "in.pdf", kind: "com.adobe.pdf", size: 1, date: now, path: "/x", version: nil),
                      ChatFile(id: "2", origin: .produced, name: "out.xlsx", kind: "xlsx", size: 2, date: now, path: "/y", version: 1)]
         #expect(OutputsListView(files: files, onSelect: { _ in }).files.map(\.name) == ["out.xlsx"])
-        #expect(ChatFileRow.kindLabel(files[0]) == "PDF" && ChatFileRow.subtitle(files[1]).hasPrefix("XLSX · "))
+        #expect(ChatFileRow.kindLabel(files[0]) == "PDF" && ChatFileRow.subtitle(files[1]).hasPrefix("Excel spreadsheet · "))
     }
 }

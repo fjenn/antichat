@@ -59,17 +59,18 @@ import Testing
     @Test func panelCollapsesTheSidebarWhenTheChatWouldBeSqueezed() throws {
         let s = try state()
         s.windowWidthChanged(1440)
-        s.sidePanelChanged(open: true, panelWidth: 480)  // 1440 − 260 − 480 = 700: room enough
+        s.sidePanelChanged(open: true)  // a wide window: the sidebar stays as it was
         #expect(s.columnVisibility != .detailOnly)
-        s.sidePanelChanged(open: false, panelWidth: 480)
-        s.sidePanelChanged(open: true, panelWidth: 766)  // 414 pt left: the sidebar makes room
+        s.sidePanelChanged(open: false)
+        s.windowWidthChanged(1000)
+        s.sidePanelChanged(open: true)  // under 1100 pt the sidebar makes room
         #expect(s.columnVisibility == .detailOnly)
-        s.sidePanelChanged(open: false, panelWidth: 766)
+        s.sidePanelChanged(open: false)
         #expect(s.columnVisibility != .detailOnly, "closing the panel gives the sidebar back")
         // A sidebar the user hid stays hidden when the panel closes.
         s.toggleSidebar()
-        s.sidePanelChanged(open: true, panelWidth: 766)
-        s.sidePanelChanged(open: false, panelWidth: 766)
+        s.sidePanelChanged(open: true)
+        s.sidePanelChanged(open: false)
         #expect(s.columnVisibility == .detailOnly)
     }
 

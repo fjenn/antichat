@@ -270,21 +270,24 @@ public struct VideoTools: Sendable {
     }
 
     /// The spec stored with a generated clip (`artifact_version.spec_json`).
-    static func specJSON(_ req: VideoRequest, job: VideoPlanJob) -> String {
+    static func specJSON(_ req: VideoRequest, job: VideoPlanJob, filename: String? = nil) -> String {
         var o: [String: Any] = ["prompt": job.prompt, "model": job.spec.model, "mode": job.mode.rawValue, "seed": req.seed,
                                 "width": req.width, "height": req.height, "frames": req.frames, "fps": req.fps,
                                 "steps": req.steps, "length": job.spec.length.rawValue, "shape": job.spec.shape.rawValue,
                                 "sound": job.spec.sound, "operation": job.mode == .i2v ? "animate" : "generate"]
         if let s = job.sourceImageID { o["source_image_id"] = s }
+        if let filename { o["filename"] = filename }
         return ImageTurnPolicy.Outcome.json(o)
     }
 
     /// Saves the gated clip as a `video` artifact of the chat (+ its poster beside it). Incognito chats' store writes
     /// into the session's temp dir and its in-memory database (no Library row, no history).
     static func saveArtifact(path: String, req: VideoRequest, job: VideoPlanJob, chatID: String, store: ArtifactStore?) -> SavedArtifact? {
-        guard let store, let data = FileManager.default.contents(atPath: path),
-              let saved = try? store.save(chatID: chatID, kind: "video", filename: "video.mp4", data: data,
-                                          specJSON: specJSON(req, job: job), messageID: nil) else { return nil }
+        guard let store, let data = FileManager.default.contents(atPath: path) else { return nil }
+        // Named after its prompt, unique in the chat ("Campfire at night.mp4"), as pictures are.
+        let name = StoredFileNames.make(prompt: job.prompt, fallback: "Video", ext: "mp4", chatID: chatID, database: store.database)
+        guard let saved = try? store.save(chatID: chatID, kind: "video", filename: name, data: data,
+                                          specJSON: specJSON(req, job: job, filename: name), messageID: nil) else { return nil }
         let poster = VideoTurnPolicy.posterPath(forClip: path), dest = VideoTurnPolicy.posterPath(forClip: saved.path)
         if FileManager.default.fileExists(atPath: poster), !FileManager.default.fileExists(atPath: dest) {
             try? FileManager.default.copyItem(atPath: poster, toPath: dest)

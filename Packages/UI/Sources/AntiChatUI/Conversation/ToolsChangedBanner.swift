@@ -9,14 +9,13 @@ import AntiChatTools
 import SwiftUI
 
 struct ToolsChangedBanner: View {
-    @Environment(\.openSettings) private var openSettings
     @State private var changed: [String] = []
 
     var body: some View {
         Group {
             if let name = changed.first {
                 Banner(.warning, CopyText(CopyKey("mcp.toolsChanged"), ["server": name]),
-                       action: .init(CopyText(CopyKey("conn.review")), perform: { openSettings() }), onDismiss: nil)
+                       action: .init(CopyText(CopyKey("conn.review")), perform: { SettingsPresenter.shared.show() }), onDismiss: nil)
                     .accessibilityIdentifier("mcp.toolsChanged")
                     .padding(.horizontal, Spacing.space4)
                     .padding(.top, Spacing.space2)

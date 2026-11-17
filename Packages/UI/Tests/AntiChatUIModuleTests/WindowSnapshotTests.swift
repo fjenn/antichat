@@ -256,7 +256,7 @@ extension WindowSuites {
     }
 
     @Test func emptyStateNormal() {
-        let view = EmptyStateView(headline: CopyKey("empty.headline.4"),
+        let view = EmptyStateView(headline: CopyKey("empty.headline"),
                                   suggestions: SuggestionProvider.suggestions(enabled: [.chat], seed: 1),
                                   onSuggestion: { _ in }) {
             StandInComposer(context: ComposerSlotContext(text: .constant(""), send: { _, _, _ in }, isEmptyState: true))

@@ -9,6 +9,16 @@ import AntiChatPlatform
 import AntiChatStorage
 import AppKit
 import SwiftUI
+import UserNotifications
+
+/// `UNUserNotificationCenter.removeAllDeliveredNotifications()` (R-226 AC1: nothing of AntiChat stays in Notification
+/// Center); skipped for a process without a bundle (tests).
+enum NotificationCleanup {
+    static func removeAllDelivered() {
+        guard Bundle.main.bundleIdentifier != nil, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+    }
+}
 
 /// The configured service (scratch-safe in a DEBUG `ANTICHAT_ROOT` run, like Remove everything).
 @MainActor func uninstallService() -> UninstallService {
@@ -25,10 +35,19 @@ import SwiftUI
 enum UninstallRunner {
     enum Outcome: Equatable { case dryRun, failed, started }
 
+    /// `-UninstallDryRun YES` (UninstallUITests; DEBUG / perf-harness builds): always false in a release.
+    @MainActor static var launchDryRun: Bool {
+        #if DEBUG || ANTICHAT_PERF_HARNESS
+        return AppDefaults.standard.bool(forKey: "UninstallDryRun")
+        #else
+        return false
+        #endif
+    }
+
     /// Removals → waiter → Trash → quit. Nothing destructive in a dry run. Review fix (M8.T16): when the removal
     /// waiter cannot be written or started, the app stays where it is and says so (it is the one thing that can still
     /// remove the data) instead of moving itself to the Trash.
-    @MainActor static func run(dryRun: Bool = AppDefaults.standard.bool(forKey: "UninstallDryRun")) async -> Outcome {
+    @MainActor static func run(dryRun: Bool = UninstallRunner.launchDryRun) async -> Outcome {
         guard !dryRun else { return .dryRun }
         do {
             _ = try await uninstallService().run()

@@ -82,6 +82,11 @@ public final class ChatSessions {
         self.evil = evil
         composer = ComposerModel(evilEnabled: evil?.showsSwitch ?? evilEnabled)
         composer.mode = evil?.defaultModeForNewChat ?? .normal
+        // Think harder shows from the first frame as it will stay: what the engine last said about this model, else the
+        // model family's own answer (the button used to show on every launch and vanish once the engine answered).
+        let slot = environment.slot()
+        composer.thinkHarderPreset = !(Self.knownReasoning(slot.key)
+                                       ?? ThinkHarderPolicy.supportsReasoning(slot, capabilities: nil))
         composer.hints = WarmupHints(engine: environment.engine, normalSlot: environment.slot, evilSlot: environment.evilSlot)
         // M2.T23b (R-235 AC2): the pre-router embeds the draft while the user types, so a send only scores on the CPU.
         // M7.T03 step 4: a pasted http(s) URL offers "Read this URL" while web search is available.
@@ -95,7 +100,8 @@ public final class ChatSessions {
         drafts = DraftBinding(store: DraftStore(router: environment.stores), composer: composer)  // M1.T21
         bindSetup()  // M2.T20
         bindDictation()  // M3.T03
-        Task { await PackManagementModel.shared.refresh() }  // M2.T21: pack state for the composer menus
+        // M2.T21: pack state for the composer menus; and (Evil Mode is known by now) the install reconcile.
+        Task { await PackManagementModel.shared.reconcileInstalls() }
         composer.intake.provider = { [weak self] incognito in self?.attachmentIntake(incognito: incognito) }  // M6.T01
         composer.queuesWhileGenerating = true  // M1.T19 (R-014): Return during a reply queues, ⌘Return sends now
         completion.register { [weak self] c in self?.completed(c) }
@@ -395,7 +401,8 @@ public final class ChatSessions {
         if m.mode == .evil {
             if evil?.isReadOnly(.evil) == true, evil?.forceOn != true { return }
             if environment.evilSlot() == nil {
-                composer.notice = Self.evilNotAvailable(pack: "onb.pack.chat.name")
+                // What is really going on (downloading n % / finishing / didn't finish), else: no Evil model here.
+                composer.notice = composer.evilUnavailableLine ?? Self.evilNotAvailable(pack: "onb.pack.chat.name")
                 return
             }
         }
@@ -543,6 +550,7 @@ public final class ChatSessions {
     /// `starter.upgraded` stays until the next send (the one that runs on the tier model).
     @ObservationIgnored private var upgradeShownAtSends: Int?
     @ObservationIgnored private var evilWasDownloading = false
+    @ObservationIgnored private var evilSetupTicks = 0
     /// The chat `showMode` showed last (`.some(nil)`: a new, unsaved chat; `.none`: nothing shown yet).
     @ObservationIgnored private var shownChat: String?? = .none
 
@@ -581,7 +589,22 @@ public final class ChatSessions {
         if composer.starterLabel != label { composer.starterLabel = label }
         // ModeSwitch: Evil not selectable until its model is verified (evil.downloading), then `evil.ready` once.
         var line: CopyText?
-        if st.evilEnabled {
+        var canRetry = false
+        // Evil Mode on (Settings or onboarding): the live state of its chat model — what Settings › Capabilities shows.
+        let evilChat = evil?.isOn == true ? PackManagementModel.shared.evilChatState : nil
+        if let evilChat {
+            if let status = EvilSetupStatus(evilChat) {
+                line = status.line
+                canRetry = status.canRetry
+                evilWasDownloading = true
+                // The percentage follows the bytes (pack facts refresh on queue state changes only): every ~2 s.
+                evilSetupTicks += 1
+                if status.isMoving, evilSetupTicks % 5 == 0 { Task { await PackManagementModel.shared.refresh() } }
+            } else if case .ready = evilChat, evilWasDownloading {
+                evilWasDownloading = false
+                composer.notice = CopyText(CopyKey("evil.ready"))
+            }
+        } else if st.evilEnabled {
             switch st.evilReadiness {
             case .downloading(let m):
                 line = m.map { CopyText(CopyKey("evil.downloading"), ["minutes": String($0)]) } ?? CopyText(CopyKey("evil.downloading.queued"))
@@ -598,6 +621,8 @@ public final class ChatSessions {
             }
         }
         if composer.evilUnavailableLine != line { composer.evilUnavailableLine = line }
+        if composer.evilSetupCanRetry != canRetry { composer.evilSetupCanRetry = canRetry }
+        if composer.evilSetupRetry == nil { composer.evilSetupRetry = { PackManagementModel.shared.evilEnabled() } }
         // M2.T21 (R-202 AC3): + / @ / slash rows follow Settings › Capabilities (live pack state; fixtures keep theirs).
         let opts = LaunchOptions.current
         // M5.T08 (R-046 AC1): Create video stays listed but disabled with the reason on a Mac that cannot run it.
@@ -702,7 +727,7 @@ public final class ChatSessions {
     }
 
     /// M2.T17 (R-210): the shown chat's mode, lock and read-only state; a new chat gets `requested` (⇧⌘E) or the
-    /// default (last used). An Evil chat behind Touch ID shows only after LocalAuthentication succeeds (R-211 AC4).
+    /// default (Normal). An Evil chat behind Touch ID shows only after LocalAuthentication succeeds (R-211 AC4).
     public func showMode(for chatID: String?, requested: ComposerChatMode? = nil) {
         composer.evilEnabled = evil?.showsSwitch ?? composer.evilEnabled
         // M9.T05 PR1 J07: the same new chat shown again keeps the mode it has. Switching a new chat to Evil swaps the
@@ -765,12 +790,22 @@ public final class ChatSessions {
         composer.memoryOffLocked = chatID.map { !model(for: $0).isEmpty } ?? false
     }
 
-    /// Whether the active model has a thinking mode (the toggle's tooltip). Asks the engine only once it is up.
+    static func reasoningKey(_ slotKey: String) -> String { "thinkHarder.reasoning.\(slotKey)" }
+
+    /// What the engine last reported for the model `slotKey` (nil = never asked).
+    static func knownReasoning(_ slotKey: String, defaults: UserDefaults = AppDefaults.standard) -> Bool? {
+        defaults.object(forKey: reasoningKey(slotKey)) as? Bool
+    }
+
+    /// Whether the active model has a thinking mode (the Think harder button shows only then). Asks the engine only
+    /// once it is up.
     public func refreshThinkHarderCapability() {
         let env = environment
         Task { [weak self] in
             let caps = await env.engine.capabilities()
-            let preset = !ThinkHarderPolicy.supportsReasoning(env.slot(), capabilities: caps)
+            let slot = env.slot()
+            let preset = !ThinkHarderPolicy.supportsReasoning(slot, capabilities: caps)
+            if caps != nil, slot.engine != .scripted { AppDefaults.standard.set(!preset, forKey: Self.reasoningKey(slot.key)) }
             if self?.composer.thinkHarderPreset != preset { self?.composer.thinkHarderPreset = preset }
         }
     }
@@ -807,7 +842,33 @@ public final class ChatSessions {
                         ? AnimateImageAction { [weak self] ref in self?.animate(chatID: id, imageRef: ref) } : nil))  // M5.T10
             },
             dropFiles: { [composer] in composer.addFiles($0) },
-            chatFiles: { [self] id in (try? ChatFilesQuery(environment(for: id).stores.database(for: id)).files(chatID: id)) ?? [] })
+            chatFiles: { [self] id in (try? ChatFilesQuery(environment(for: id).stores.database(for: id)).files(chatID: id)) ?? [] },
+            modePicker: { [self] in composer.evilEnabled ? AnyView(LiveModePicker(sessions: self, model: composer)) : nil },
+            emptyModeControl: { [self] in composer.evilEnabled ? AnyView(LiveEmptyModeControl(model: composer)) : nil })
+    }
+}
+
+/// The empty state's Normal / Evil choice bound to the window's composer model, like `LiveModePicker`.
+struct LiveEmptyModeControl: View {
+    @Bindable var model: ComposerModel
+
+    var body: some View {
+        EmptyModeControl(mode: $model.mode, evilUnavailable: model.evilUnavailableLine)
+            .onHover { if $0 { model.hints?.modeSwitchHover(current: model.mode) } }  // M2.T15 WarmupHints
+    }
+}
+
+/// The toolbar's ModePicker bound to the window's composer model (the mode is the composer's: `LiveComposer` stores a
+/// change on the chat, `ChatSessions.modeChanged`).
+struct LiveModePicker: View {
+    let sessions: ChatSessions
+    @Bindable var model: ComposerModel
+
+    var body: some View {
+        ModePicker(mode: $model.mode, isLocked: model.modeLocked,
+                   onContinue: { [sessions] in sessions.continueInNewChat($0) },  // M2.T17 (R-210 AC2)
+                   evilUnavailable: model.evilUnavailableLine)  // M2.T20: evil.downloading
+            .onHover { if $0 { model.hints?.modeSwitchHover(current: model.mode) } }  // M2.T15 WarmupHints
     }
 }
 

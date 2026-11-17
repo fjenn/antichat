@@ -40,12 +40,19 @@ public enum BackgroundRun {
     /// The background run's activation policy: `.prohibited` unless `ANTICHAT_BACKGROUND_POLICY=accessory`.
     public nonisolated static func policy(environment: [String: String] = ProcessInfo.processInfo.environment)
         -> NSApplication.ActivationPolicy {
-        environment[policyKey]?.lowercased() == "accessory" ? .accessory : .prohibited
+        #if DEBUG || ANTICHAT_PERF_HARNESS
+        return environment[policyKey]?.lowercased() == "accessory" ? .accessory : .prohibited
+        #else
+        return .prohibited
+        #endif
     }
 
     /// Whether this process should run in the background (see the file header for the rule).
     public nonisolated static func wanted(environment: [String: String] = ProcessInfo.processInfo.environment,
                                           options: LaunchOptions = .current) -> Bool {
+        // Developer-only: a release build never runs in the background, whatever its environment says (a stray
+        // `ANTICHAT_BACKGROUND=1` would otherwise hide every window of a user's app).
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         switch environment[environmentKey] {
         case "1", "YES", "true": return true
         case "0", "NO", "false": return false
@@ -54,6 +61,9 @@ public enum BackgroundRun {
         if options.visualQAProbe != nil { return false }
         if options.isAutomationRun { return true }
         return environment["XCTestConfigurationFilePath"] != nil || environment["XCTestBundlePath"] != nil
+        #else
+        return false
+        #endif
     }
 
     public private(set) static var isOn = false

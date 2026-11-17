@@ -6,7 +6,6 @@ import SwiftUI
 
 struct HelpCommands: Commands {
     @FocusedValue(\.windowState) private var focused
-    @Environment(\.openSettings) private var openSettings
     private var state: WindowState? { MenuTarget.state(focused) }
 
     var body: some Commands {
@@ -20,7 +19,7 @@ struct HelpCommands: Commands {
                 .accessibilityIdentifier("menu.help.report")
             Button {
                 SettingsNavigator.shared.request(.privacy)
-                openSettings()
+                SettingsPresenter.shared.show()
             } label: { Text(CopyKey("menu.help.privacy")) }
                 .accessibilityIdentifier("menu.help.privacy")
             Button { state?.presentedSheet = .exportLogs } label: { Text(CopyKey("menu.help.exportLogs")) }

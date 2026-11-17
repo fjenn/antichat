@@ -15,8 +15,15 @@ public final class SettingsModel {
     public var highlightedRow: String?
     /// Bumped on every reveal so the detail scrolls even when the same row is revealed twice.
     public private(set) var revealGeneration = 0
-    /// Capabilities → Advanced (collapsed by default, R-100 AC4).
-    public var advancedExpanded = false
+    /// The pages whose "Advanced" group is open (each collapsed by default, R-100 AC4).
+    public var advancedOpen: Set<SettingsSection> = []
+    /// Capabilities → Advanced.
+    public var advancedExpanded: Bool {
+        get { advancedOpen.contains(.capabilities) }
+        set { setAdvanced(.capabilities, newValue) }
+    }
+    /// General → About → Keyboard shortcuts (the rebinding sheet).
+    public var showingShortcuts = false
     public var showingArchived = false
     public var showingDeleteAll = false
     /// M8.T01: Privacy & Data → Restore from backup.
@@ -37,11 +44,25 @@ public final class SettingsModel {
     public init() {}
 
     /// Opens `section`, revealing `row` when given (search result, ⌘K settings row, footer menu target).
+    /// A registered row opens on its own page, whatever `section` says (links written before pages were merged).
     public func open(_ section: SettingsSection, row: String? = nil) {
+        let section = row.flatMap { SettingsRegistry.row($0)?.section } ?? section
         selection = section
         query = ""
         highlightedRow = row
-        if row != nil { revealGeneration += 1 }
+        if let row {
+            // The row is in the page's Advanced group, or is the group itself ("capabilities.advanced").
+            if SettingsRegistry.row(row)?.advanced == true || row == "\(section.rawValue).advanced" { advancedOpen.insert(section) }
+            revealGeneration += 1
+        }
+    }
+
+    public func setAdvanced(_ section: SettingsSection, _ open: Bool) {
+        if open { advancedOpen.insert(section) } else { advancedOpen.remove(section) }
+    }
+
+    func advancedBinding(_ section: SettingsSection) -> Binding<Bool> {
+        Binding(get: { self.advancedOpen.contains(section) }, set: { self.setAdvanced(section, $0) })
     }
 
     /// Takes the palette's / footer's pending request, if any.

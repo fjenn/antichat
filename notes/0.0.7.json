@@ -1,0 +1,32 @@
+{
+ "version": "0.0.7",
+ "critical": false,
+ "prerelease": false,
+ "items": [
+  {
+   "icon": "link",
+   "title": "Connect over 1,500 apps",
+   "body": "A new Connections page you can search, with one click to connect, plus a Connect card right in the chat. Anything that sends or changes something asks first."
+  },
+  {
+   "icon": "sparkles",
+   "title": "A skills library",
+   "body": "About 180 ready-made skills to install, kept up to date, with one-click updates."
+  },
+  {
+   "icon": "gearshape",
+   "title": "Simpler Settings",
+   "body": "Six pages instead of thirteen, now inside the main window."
+  },
+  {
+   "icon": "brain",
+   "title": "Memory works by itself",
+   "body": "AntiChat remembers lasting things you tell it and shows what it saved, with Undo."
+  },
+  {
+   "icon": "text.bubble",
+   "title": "Better answers",
+   "body": "Long replies are no longer cut short, follow-ups remember what was just found, and Evil Mode has a calmer look and sets itself up reliably."
+  }
+ ]
+}

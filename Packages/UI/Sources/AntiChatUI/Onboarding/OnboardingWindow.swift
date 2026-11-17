@@ -23,8 +23,10 @@ public enum OnboardingGate {
                                  options.composerHarness, options.finalAcceptanceProbe]
         if probes.contains(where: { $0 != nil }) { return false }
         // Scripted-engine / dev-container / perf launches are test runs (they pass -ResetOnboarding YES to see it).
-        if options.scriptedEngineScript != nil || options.devContainer != nil
-            || ProcessInfo.processInfo.environment["ANTICHAT_PERF_QUIT_AFTER"] != nil { return false }
+        if options.scriptedEngineScript != nil || options.devContainer != nil { return false }
+        #if DEBUG || ANTICHAT_PERF_HARNESS
+        if ProcessInfo.processInfo.environment["ANTICHAT_PERF_QUIT_AFTER"] != nil { return false }
+        #endif
         return !defaults.bool(forKey: completedKey)
     }
 
@@ -104,13 +106,21 @@ public final class OnboardingWindowController: NSObject, NSWindowDelegate {
         window.delegate = self
         for b in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] { window.standardWindowButton(b)?.isHidden = true }
         // M9.T03: the window and its hosting group are named (the title is hidden, so both were unnamed, S-01 audit).
-        window.contentView = NSHostingView(rootView: OnboardingFlow(model: model, evilStep: evilStep?(model))
+        let hosting = NSHostingView(rootView: OnboardingFlow(model: model, evilStep: evilStep?(model))
             .windowAccessibilityTitle(CopyKey("a11y.onboarding").string()))
+        // The SwiftUI content must not resize the window after it is centred (2026-11-15: it grew from its origin and
+        // opened half off-screen at the bottom right); the window keeps its 1280 × 800 (capped to the screen), centred.
+        hosting.sizingOptions = []
+        window.contentView = hosting
+        if let vis = (NSScreen.main ?? NSScreen.screens.first)?.visibleFrame {
+            window.setContentSize(NSSize(width: min(1280, vis.width - 40), height: min(800, vis.height - 40)))
+        }
         window.center()
         model.onFinish = { [weak self] in
             SetupLaunch.finish()
             OnboardingGate.markCompleted()
             StarterSuggestions.onboardingFinished(packs: model.chosenPacks)
+            FileToolsAutoInstall.kick()
             self?.window.orderOut(nil)
             OnboardingWindowController.current = nil
             onDone()
@@ -125,6 +135,21 @@ public final class OnboardingWindowController: NSObject, NSWindowDelegate {
             }
         })
         BackgroundRun.makeKeyAndOrderFront(window)
+        // 2026-11-16: it still opened off-screen at times (moved after `center()`, before or while it ordered in).
+        // Once it is on screen, and again a moment later, it is put back in the middle unless it fits the screen.
+        for delay in [0.0, 0.4] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in self?.keepOnScreen() }
+        }
+    }
+
+    private func keepOnScreen() {
+        guard let vis = (window.screen ?? NSScreen.main)?.visibleFrame else { return }
+        if !vis.contains(window.frame) {
+            var f = window.frame
+            f.size = NSSize(width: min(f.width, vis.width - 40), height: min(f.height, vis.height - 40))
+            f.origin = NSPoint(x: vis.midX - f.width / 2, y: vis.midY - f.height / 2)
+            window.setFrame(f, display: true)
+        }
     }
 
     public func windowWillClose(_ notification: Notification) {

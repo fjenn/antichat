@@ -355,7 +355,10 @@ let package = Package(
             // M6.T09: RenderHost page + vendored JS bundles (`make vendor-js`) + Noto fonts (`make vendor-fonts`).
             resources: [.copy("Resources/js"), .copy("Resources/fonts"), .copy("Resources/pptx-themes"),  // + M6.T11 themes
                         .copy("Resources/search"),  // M7.T01: WikipediaEngine.json (declarative engine definition)
-                        .copy("Resources/StarterSkills")],  // M7.T12: the five starter SKILL.md folders (R-082 AC5)
+                        .copy("Resources/StarterSkills"),  // M7.T12: the five starter SKILL.md folders (R-082 AC5)
+                        .copy("Resources/composio-catalog.json"),  // ComposioCatalog (tools/composio)
+                        .copy("Resources/skills-index.json"),  // SkillsCatalog (tools/skills)
+                        .copy("Resources/skills-NOTICE.md")],  // a copy of tools/skills/NOTICE.md (SkillsCatalogTests keeps it equal)
             swiftSettings: ours
         ),
         // M1.T14: prompt resources live in Packages/Harness/Resources/prompts (CODEOWNERS: lead), so the target
@@ -403,7 +406,9 @@ let package = Package(
                 .copy("Resources/mermaid"),  // M1.T09: mermaid.min.js (Vendor/js, `make vendor-js`)
                 .copy("Resources/Onboarding"),  // M2.T18: the owner's dreamworld art (SOURCES.md)
                 .process("Resources/PackIcons.xcassets"),  // the owner's 3D pack icons (Onboarding/SOURCES.md)
+                .process("Resources/AppLogos.xcassets"),  // connectable apps' marks (AppLogo; Onboarding/SOURCES.md)
                 .copy("Resources/ContentRules"),  // M4.T11: block-all WKContentRuleList for SandboxedWebPreview
+                .copy("Resources/AppLogos"),  // colour logos, <slug>.png (AppLogo; tools/composio). Copied as a folder.
             ],
             swiftSettings: ours
         ),

@@ -133,10 +133,11 @@ public struct ImageTools: Sendable {
 
 extension ImageTools {
     /// The spec stored with a generated picture (`artifact_version.spec_json`).
-    static func specJSON(_ req: ImageRequest, call: ImageRequestBuilder.Call) -> String {
+    static func specJSON(_ req: ImageRequest, call: ImageRequestBuilder.Call, filename: String? = nil) -> String {
         var o: [String: Any] = ["prompt": call.prompt, "aspect": call.aspect, "seed": req.seed, "width": req.width,
                                 "height": req.height, "model": req.model.key, "steps": req.steps, "operation": call.mode]
         if let style = call.style { o["style"] = style }
+        if let filename { o["filename"] = filename }
         if req.lowPower == true { o["low_power"] = true }
         return (try? JSONSerialization.data(withJSONObject: o, options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) } ?? "{}"
     }
@@ -155,8 +156,19 @@ extension ImageTools {
         let info = GenerationInfo(prompt: req.prompt, model: req.model.key, seed: req.seed, steps: req.steps, parent: parentVersion,
                                   operation: operation, width: req.width, height: req.height)
         let marked = (try? MediaProvenanceWriter.writePNG(data, info: info, stripPrompt: false)) ?? data
-        return try? store.save(chatID: chatID, kind: "image", filename: "image.png", data: marked, specJSON: specJSON(req, call: call),
+        // Every picture is named after what was asked for, unique in its chat ("Cosy reading nook.png", "… 2.png"); an
+        // edit is named after its own prompt. The name is the artifact's title and rides in the version's spec.
+        let name = StoredFileNames.make(prompt: call.prompt, fallback: "Image", ext: "png", chatID: chatID, database: db)
+        return try? store.save(chatID: chatID, kind: "image", filename: name, data: marked,
+                               specJSON: specJSON(req, call: call, filename: name),
                                messageID: nil, revises: revises, operation: operation, parentVersion: parentVersion)
+    }
+
+    /// "A red fox in a snowy forest, golden hour" → "A red fox in a snowy forest.png" ("Image.png" when the prompt
+    /// gives no usable words). `StoredFileNames.make` adds the " 2" that keeps it unique in a chat.
+    static func fileName(prompt: String) -> String {
+        let base = StoredFileNames.base(prompt: prompt)
+        return (base.isEmpty ? "Image" : base) + ".png"
     }
 
     /// The lineage operation of a call (`mode` of create_image / edit_image; R-287 AC4).

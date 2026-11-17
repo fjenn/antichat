@@ -76,6 +76,7 @@ struct ProjectPageView: View {
                 IconPicker(selection: Binding(get: { model.project?.icon ?? "folder" },
                                               set: { model.setIcon($0); pickingIcon = false }))
                     .padding(Spacing.space3)
+                    .popoverSurface()
             }
             if renaming {
                 TextField(text: $draftName) { Text(CopyKey("project.new.name")) }
@@ -162,7 +163,10 @@ struct ProjectPageView: View {
 
     private var memorySection: some View {
         Toggle(isOn: Binding(get: { model.projectOnlyMemory }, set: { model.projectOnlyMemory = $0 })) {
-            Text(CopyKey("project.memory.own")).typeStyle(.body)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(CopyKey("project.memory.own")).typeStyle(.body)
+                Text(CopyKey("project.memory.own.note")).typeStyle(.footnote).foregroundStyle(Color.textSecondary)
+            }
         }
         .toggleStyle(.accessibleSwitch)
         .probeID("project.memoryOwn")

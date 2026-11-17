@@ -7,6 +7,8 @@
     "act.searched.region": {"arg": "count", "en": {"one": "Searched the web · {count} source · region hint {region}"}},
     "backup.restore.chats": {"arg": "count", "en": {"one": "{count} chat"}},
     "composer.pasteCard": {"arg": "count", "en": {"one": "Pasted text · {count} character"}},
+    "conn.browseAll": {"arg": "count", "en": {"one": "Browse {count} app"}},
+    "conn.search": {"arg": "count", "en": {"one": "Search {count} app"}},
     "conn.state.connected": {"arg": "count", "en": {"one": "Connected · {count} tool"}},
     "import.summary.kept": {"arg": "count", "en": {"one": "{count} {type} part was kept as plain text."}},
     "import.summary.missingMedia": {"arg": "count", "en": {"one": "{count} picture or file wasn't in the export."}},
@@ -18,6 +20,8 @@
     "project.file.pages": {"arg": "count", "en": {"one": "{count} page"}},
     "set.privacy.autoArchive.days": {"arg": "days", "en": {"one": "After {days} day"}},
     "share.truncated": {"arg": "count", "en": {"one": "Only the last turn fits in the image."}},
+    "skills.browseAll": {"arg": "count", "en": {"one": "Browse {count} skill"}},
+    "skills.search": {"arg": "count", "en": {"one": "Search {count} skill"}},
     "storage.cleanup.oldLogs": {"arg": "count", "en": {"one": "Old logs ({count} file)"}},
     "tile.pages": {"arg": "count", "en": {"one": "{count} page"}},
     "tile.slides": {"arg": "count", "en": {"one": "{count} slide"}}

@@ -256,6 +256,7 @@ static NSString *PreferredInstallLocation(BOOL *isUserDirectory) {
 	if (isUserDirectory) *isUserDirectory = NO;
 	return [[NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES) lastObject] stringByResolvingSymlinksInPath];
 #if 0  // upstream: prefer ~/Applications when it holds at least one .app
+	// ANTICHAT-PATCH-END
 	NSFileManager *fm = [NSFileManager defaultManager];
 
 	NSArray *userApplicationsDirs = NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES);
@@ -282,7 +283,9 @@ static NSString *PreferredInstallLocation(BOOL *isUserDirectory) {
 	if (isUserDirectory) *isUserDirectory = NO;
 
 	return [[NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES) lastObject] stringByResolvingSymlinksInPath];
+	// ANTICHAT-PATCH: UP-LM-003 closes the disabled upstream body above
 #endif
+	// ANTICHAT-PATCH-END
 }
 
 static BOOL IsInApplicationsFolder(NSString *path) {

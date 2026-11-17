@@ -12,7 +12,7 @@ export interface Limiter {
   limit(identifier: string, rate?: number): Promise<LimitResult>;
 }
 
-export type LimiterName = "mcp" | "exec" | "session" | "link" | "newid" | "global";
+export type LimiterName = "mcp" | "exec" | "session" | "link" | "catalog" | "newid" | "global";
 export type Limiters = Record<LimiterName, Limiter>;
 
 type Spec = { tokens: number; windowMs: number; window: `${number} ${"m" | "h"}` };
@@ -27,6 +27,7 @@ export function specs(cfg: RelayConfig): Record<LimiterName, Spec> {
     exec: { tokens: l.executionsPerDay, windowMs: 24 * HOUR, window: "24 h" },
     session: { tokens: l.sessionsPerHour, windowMs: HOUR, window: "1 h" },
     link: { tokens: l.linksPerHour, windowMs: HOUR, window: "1 h" },
+    catalog: { tokens: l.catalogPerHour, windowMs: HOUR, window: "1 h" },
     newid: { tokens: l.newIdsPerIpPerHour, windowMs: HOUR, window: "1 h" },
     global: { tokens: l.globalDailyCap, windowMs: 24 * HOUR, window: "24 h" },
   };

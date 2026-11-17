@@ -34,6 +34,7 @@ launch() {  # <mode> <fake states>
   box=$(mktemp -d /tmp/antichat-at109-XXXXXX)
   "$BIN" -ApplePersistenceIgnoreState YES -SkipOnboarding YES -OfflineOnly YES -ANTICHAT_DEV_CONTAINER "$box" \
     -UseScriptedEngine "$SCRIPT" -UseScriptedVoice "$VOICE" -FakeVoiceInstalled YES -FakePackState voice=ready \
+    -searchUsesLocation NO \
     -DefaultsSuite "app.antichat.at109.$mode.$$" -NotificationSpy "$dir/requests.json" -FakePermission "$fakes" \
     -MacIntegrationProbe "$dir" >"$dir/app.log" 2>&1 &
   local pid=$! t=0

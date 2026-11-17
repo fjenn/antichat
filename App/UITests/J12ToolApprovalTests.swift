@@ -38,9 +38,9 @@ final class J12ToolApprovalTests: XCTestCase {
         t.app.buttons["loopLimitContinue"].clickReliably()
         XCTAssertTrue(element(t.app, "loopLimitMessage").waitForExistence(timeout: 20))
         XCTAssertEqual(t.app.descendants(matching: .any).matching(identifier: "activityLine").count, 12)
-        // Expand one line: arguments and result show.
+        // A plain tool line has nothing a person can read behind it: a click shows no raw arguments or result.
         t.app.descendants(matching: .any).matching(identifier: "activityLine").firstMatch.click()
-        XCTAssertTrue(element(t.app, "activityDetail").waitForExistence(timeout: 2))
+        XCTAssertFalse(element(t.app, "activityDetail").waitForExistence(timeout: 1))
     }
 
     @MainActor private func approval(_ answer: String) -> TurnApp {

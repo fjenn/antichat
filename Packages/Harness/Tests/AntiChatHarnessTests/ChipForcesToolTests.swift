@@ -10,7 +10,7 @@ import Testing
 @Suite struct ChipForcesToolTests {
     static let textOnly = #"{"t":"textDelta","v":"Sure, here is a description instead.","delayMs":0}"#
 
-    @Test(arguments: [("image", "create_image"), ("video", "create_video"), ("web", "web_search"), ("file", "create_file"),
+    @Test(arguments: [("image", "create_image"), ("video", "create_video"), ("web", "web_search"), ("file", "create_document"),
                       ("tool:memory_write", "memory_write")])
     func chipForcesToolEveryTurn(chip: String, tool: String) async throws {
         let router = try await RouterStubs.router()

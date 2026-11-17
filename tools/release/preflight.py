@@ -72,6 +72,10 @@ def engineering(rel: Path) -> list[str]:
         rc, txt = sh(sys.executable, "-I", "tools/ci/perfharness-guard.py", "--app", str(app))
         if rc != 0:
             out += [l.removeprefix("perfharness-guard: ") for l in txt.splitlines() if "FAIL" not in l and l.strip()]
+        # No developer test mode (bench, spike, probes, dev launch options) in what is published.
+        rc, txt = sh(sys.executable, "-I", "tools/ci/dev-modes-guard.py", "--app", str(app), "--app-only")
+        if rc != 0:
+            out += [l.removeprefix("dev-modes-guard: ") for l in txt.splitlines() if "FAIL" not in l and l.strip()]
     return out
 
 

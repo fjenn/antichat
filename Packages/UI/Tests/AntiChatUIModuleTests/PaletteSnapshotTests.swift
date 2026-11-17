@@ -24,7 +24,7 @@ extension WindowSuites {
 @Suite(.serialized, .isolatedSettings) struct PaletteSnapshotTests {
     let size = CGSize(width: 760, height: 640)
 
-    private func palette(tab: PaletteTab) async throws -> PaletteController {
+    private func palette() async throws -> PaletteController {
         let env = ChatEnvironment(database: try AppDatabase.inMemory(),
                                   engine: InProcessScriptedEngine(script: try EngineScript(text: #"{"t":"textDelta","v":"ok"}"#)),
                                   slot: { .scripted("inline") })
@@ -42,9 +42,9 @@ extension WindowSuites {
         let p = PaletteController()
         p.attach(service: service, handlers: PaletteHandlers())
         let g = p.resultGeneration
-        p.present(tab: tab)
+        p.present()
         let deadline = Date().addingTimeInterval(60)  // generous: under `make test-unit --parallel` other suites hold the main actor (snapshot run loops)
-        while p.resultGeneration == g || p.items.isEmpty || (tab == .all && p.items.first?.group != .chats),
+        while p.resultGeneration == g || p.items.count < 2,
               Date() < deadline {
             try? await Task.sleep(for: .milliseconds(10))
         }
@@ -61,20 +61,10 @@ extension WindowSuites {
             }
     }
 
-    @Test func recentsAndActions() async throws {
-        let p = try await palette(tab: .all)
-        #expect(p.items.first?.title == "Fix the bike's rear brake")
+    @Test func newChatAndRecents() async throws {
+        let p = try await palette()
+        #expect(p.items.first?.kind == .newChat && p.items.dropFirst().first?.title == "Fix the bike's rear brake")
         assertLooks("Palette.recents", size: size, converge: true, still(p))
-    }
-
-    @Test func actionsTab() async throws {
-        let p = try await palette(tab: .actions)
-        assertLooks("Palette.actions", size: size, converge: true, still(p))
-    }
-
-    @Test func settingsTab() async throws {
-        let p = try await palette(tab: .settings)
-        assertLooks("Palette.settings", size: size, converge: true, still(p))
     }
 }
 }  // extension WindowSuites

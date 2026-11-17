@@ -1867,7 +1867,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.slot1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.slot1;
 				PRODUCT_NAME = AntiChatFileToolsSlot1;
 				SDKROOT = macosx;
 			};
@@ -1901,7 +1901,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.slot3;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.slot3;
 				PRODUCT_NAME = AntiChatFileToolsSlot3;
 				SDKROOT = macosx;
 			};
@@ -1950,7 +1950,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.Net.slot1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.Net.slot1;
 				PRODUCT_NAME = AntiChatFileToolsNetSlot1;
 				SDKROOT = macosx;
 			};
@@ -2085,7 +2085,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.Net.slot2;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.Net.slot2;
 				PRODUCT_NAME = AntiChatFileToolsNetSlot2;
 				SDKROOT = macosx;
 			};
@@ -2139,7 +2139,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.Net.slot3;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.Net.slot3;
 				PRODUCT_NAME = AntiChatFileToolsNetSlot3;
 				SDKROOT = macosx;
 			};
@@ -2343,7 +2343,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.FileTools.slot2;
+				PRODUCT_BUNDLE_IDENTIFIER = app.antichat.AntiChat.dev.FileTools.slot2;
 				PRODUCT_NAME = AntiChatFileToolsSlot2;
 				SDKROOT = macosx;
 			};

@@ -97,6 +97,9 @@ def check_slots() -> list[str]:
         attrs = dict(re.findall(r"      (\w+): (\S+)", m.group(1)))
         if attrs.get("bundleID") != bid or attrs.get("entitlements") != ents or attrs.get("productName") != name:
             bad.append(f"project.yml: {name} must be {bid} with {ents}.entitlements, got {attrs}")
+        dev = bid.replace("app.antichat.AntiChat.", "app.antichat.AntiChat.dev.", 1)
+        if attrs.get("devBundleID") != dev:
+            bad.append(f"project.yml: {name} must be {dev} in Debug (ad-hoc builds never use the shipped id), got {attrs}")
         if not re.search(rf"- target: {name}\n        embed: true", proj):
             bad.append(f"project.yml: {name} is not embedded in the app")
         if f"XPCServices/{name}.xpc" not in proj:

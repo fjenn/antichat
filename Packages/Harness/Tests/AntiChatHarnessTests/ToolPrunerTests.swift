@@ -30,7 +30,7 @@ import Testing
         let th = Dictionary(uniqueKeysWithValues: Route.intents.map { ($0, RouteThreshold(low: 0.5, high: 0.7)) })
         let scores: [Route: Float] = [.webNeeded: 0.8, .fileOutput: 0.6, .imageCreate: 0.3, .chat: 0.2]
         let p = ToolPruner.prune(tools, scores: scores, thresholds: th, forced: "create_video", tier: .t1)
-        #expect(p.map(\.name) == ["create_video", "web_search", "get_time", "create_file"])  // file's margin 0.4 < 0.5
+        #expect(p.map(\.name) == ["create_video", "web_search", "get_time", "create_document"])  // file's margin 0.4 < 0.5
         let noScores = ToolPruner.prune(tools, scores: [:], thresholds: th, forced: nil, tier: .t0)
         #expect(noScores.count == 4 && noScores.first?.name == "get_time")
         #expect(ToolPruner.prune(tools, scores: scores, thresholds: th, forced: nil, tier: .t3).count == 8)

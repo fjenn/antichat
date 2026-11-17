@@ -101,7 +101,7 @@ extension WindowSuites {
         m.open(vid)
         #expect(m.videoViewer?.path == vid.path && m.videoViewer?.name == "waves.mp4")
         m.open(img)
-        #expect(m.quickLookURL?.path == img.path)
+        #expect(m.quickLookURL?.lastPathComponent == img.name, "Quick Look is titled with the picture's name, not its content hash")
         // Open chat → the source message.
         m.openChat(img)
         #expect(opened?.0 == "n1" && opened?.1 == "m-n1")

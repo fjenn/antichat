@@ -306,7 +306,7 @@ public final class MenuBarController: NSObject, NSMenuDelegate {
         case .openCapabilities:
             SettingsNavigator.shared.request(.capabilities)
             BackgroundRun.activate()
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsPresenter.shared.show()
         case .newChat:
             BackgroundRun.activate()
             AppNotifications.withWindow { s in

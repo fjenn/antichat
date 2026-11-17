@@ -9,8 +9,8 @@ final class FileToolsSettingsTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let settings = app.windows.containing(.any, identifier: "settings.root").firstMatch
         XCTAssertTrue(settings.waitForExistence(timeout: 3))
-        settings.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
-        let detail = settings.scrollViews.matching(identifier: "settings.detail.tools").firstMatch
+        settings.descendants(matching: .any).matching(identifier: "settings.nav.capabilities").firstMatch.click()
+        let detail = settings.scrollViews.matching(identifier: "settings.detail.capabilities").firstMatch
         for id in ["createFiles", "runCode", "codeNet"] {
             // The row's control (these rows carry no settings.row id of their own; Q-015 r2).
             let row = settings.descendants(matching: .any).matching(identifier: "settings.control.\(id)").firstMatch

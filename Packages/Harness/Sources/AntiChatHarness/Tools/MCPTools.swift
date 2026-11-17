@@ -14,6 +14,32 @@ import AntiChatTools
 import Foundation
 import Synchronization
 
+/// How a connected app's call reads in the transcript: the app and what is happening ("Checking Gmail…"), never
+/// "Composio" or a slug. Looking up an action is one neutral line; a refused remote-code call has no line at all.
+public enum ConnectedAppActivity {
+    public enum Kind: Sendable, Equatable {
+        /// Finding an action, reading its schema, checking a connection.
+        case lookup
+        /// Running actions in `app` ("Gmail", "Gmail, Slack"); `reads` = none of them changes anything.
+        case app(String, reads: Bool)
+    }
+
+    public static func kind(_ a: ToolActivity, in set: MCPTools.ToolSet = MCPTools.shared) -> Kind? {
+        guard a.kind == .tool, let d = set.descriptor(named: a.tool), d.composio else { return nil }
+        guard d.toolName == SlugPermission.multiExecute, let slugs = SlugPermission.slugs(argumentsJSON: a.argumentsJSON),
+              !slugs.isEmpty else { return .lookup }
+        var apps: [String] = []
+        for s in slugs.map({ SlugPermission.display($0).app }) where !apps.contains(s) { apps.append(s) }
+        let reads = slugs.allSatisfy { !SlugPermission.isWrite($0, hints: SlugPermission.TagCache.shared.hints($0)) }
+        return .app(apps.joined(separator: ", "), reads: reads)
+    }
+
+    /// A remote workbench / bash / Python call the app refused (the model answers from the data it has): no line.
+    public static func isHidden(_ a: ToolActivity) -> Bool {
+        a.kind == .tool && a.state == .skipped && a.result == SlugPermission.unavailableResult
+    }
+}
+
 public enum MCPTools {
     /// The marker a chat stores in `chat.tools_json` when the user switched server `id` off for that chat.
     public static func offMarker(_ serverID: String) -> String { "conn.off:\(serverID)" }
@@ -31,6 +57,19 @@ public enum MCPTools {
 
     /// The app's (on-disk store's) tool set.
     nonisolated(unsafe) public private(set) static var shared = ToolSet()
+
+    /// The function names of Composio's search and execute meta tools (nil = no Composio connection).
+    public static func composioTools(_ set: ToolSet = shared) -> (search: String, execute: String)? {
+        let all = set.all.filter(\.composio)
+        guard let s = all.first(where: { $0.toolName == SlugPermission.searchTools }),
+              let e = all.first(where: { $0.toolName == SlugPermission.multiExecute }) else { return nil }
+        return (s.functionName, e.functionName)
+    }
+
+    /// A Composio meta tool that only looks things up (it never asks; a stored Ask from a tool-change review is ignored).
+    public static func isComposioLookup(_ name: String, in set: ToolSet = shared) -> Bool {
+        set.descriptor(named: name).map { $0.composio && SlugPermission.lookupMetaTools.contains($0.toolName) } ?? false
+    }
 
     /// The app name an MCP tool belongs to (`act.connection` "Used {app}"), nil for other tools.
     public static func appName(forTool name: String) -> String? { shared.descriptor(named: name)?.serverName }
@@ -60,20 +99,66 @@ public enum MCPTools {
                                                                         ReadSkillFileTool.name, CreateSkillTool.name,
                                                                         RunSkillScriptTool.name])
 
+    /// The longest one connected-app / MCP call may take (generous: a search over a large mailbox, a slow server).
+    static let callTimeout: Duration = .seconds(120)
+
+    /// `body`, or after `limit` a ToolRunError naming `server` (the call's task is cancelled; a body that ignores
+    /// cancellation is left behind rather than waited for).
+    static func bounded<T: Sendable>(_ limit: Duration, server: String, _ body: @escaping @Sendable () async throws -> T) async throws -> T {
+        let pending = Mutex<CheckedContinuation<T, Error>?>(nil)
+        let work = Mutex<Task<Void, Never>?>(nil)
+        @Sendable func finish(_ result: Result<T, Error>) {
+            pending.withLock { c -> CheckedContinuation<T, Error>? in defer { c = nil }; return c }?.resume(with: result)
+        }
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { c in
+                pending.withLock { $0 = c }
+                let task = Task {
+                    do { finish(.success(try await body())) } catch { finish(.failure(error)) }
+                }
+                work.withLock { $0 = task }
+                Task {
+                    try? await Task.sleep(for: limit)
+                    task.cancel()
+                    let seconds = Int(limit.components.seconds)
+                    finish(.failure(ToolRunError("\(server) did not answer within \(seconds) seconds, so the call was stopped. "
+                        + "Tell the user it timed out and that they can try again.")))
+                }
+            }
+        } onCancel: {
+            work.withLock { $0 }?.cancel()
+            finish(.failure(CancellationError()))
+        }
+    }
+
     static func tool(_ d: MCPToolDescriptor, host: MCPHost, tier: @escaping @Sendable () -> String) -> RegisteredTool {
         var t = RegisteredTool(key: d.key, name: d.functionName, description: d.description, parametersJSON: d.parametersJSON,
                                sideEffect: d.writeType ? .write : .read, availability: .available, outputIsUntrusted: true) { args in
             let incognito = ToolCallStore.database?.isInMemory == true
-            let r = try await MCPCallContext.$incognito.withValue(incognito) {
-                try await host.call(server: d.serverID, tool: d.toolName, argumentsJSON: args)
+            // A connected app or MCP server that never answers used to hold the turn for good: nothing bounds a call
+            // (a stdio server has no timeout at all, an HTTP one only an idle timeout) and the stall watchdog does not
+            // watch tool runs. After `callTimeout` the call fails with a plain line; the model says so and the user
+            // can try again.
+            let r = try await bounded(callTimeout, server: d.serverName) {
+                try await MCPCallContext.$incognito.withValue(incognito) {
+                    try await host.call(server: d.serverID, tool: d.toolName, argumentsJSON: args)
+                }
             }
             // M7.T11: Composio's tool search returns each slug's tag hints (the per-slug permission defaults).
-            if d.composio, d.toolName == SlugPermission.searchTools, !r.isError { SlugPermission.TagCache.shared.learn(fromResult: r.text) }
+            if d.composio, SlugPermission.lookupMetaTools.contains(d.toolName), !r.isError { SlugPermission.TagCache.shared.learn(fromResult: r.text) }
             let cap = TierBudgets.cell(TierBudgets.shared.tools?.resultCap, tier()) ?? 2000
-            return MCPToolProxy.resultText(r, server: d.serverName, capTokens: cap)
+            var out = r
+            if d.composio { out.text = MCPToolProxy.compactJSON(r.text, capChars: max(200, cap * 4)) }  // every item, shortened
+            return MCPToolProxy.resultText(out, server: d.serverName, capTokens: cap)
         }
         t.defaultPolicy = d.defaultPolicy
-        if d.composio, d.toolName == SlugPermission.multiExecute { t.innerSlugs = { SlugPermission.slugs(argumentsJSON: $0) } }
+        // Composio's own catalogue answers (which action fits, its schema, a connection's state) are not outside content:
+        // a write right after a lookup shows its card without the "came while reading web or tool content" warning.
+        if d.composio, SlugPermission.lookupMetaTools.contains(d.toolName) { t.outputIsUntrusted = false }
+        if d.composio, d.toolName == SlugPermission.multiExecute {
+            t.innerSlugs = { SlugPermission.slugs(argumentsJSON: $0) }
+            t.normalize = { SlugPermission.executeArguments($0) }  // results come back inline, never to a remote workbench
+        }
         return t
     }
 
@@ -103,7 +188,8 @@ public enum MCPTools {
         let token = NotificationCenter.default.addObserver(forName: MCPHost.didChange, object: nil, queue: nil) { _ in
             refresh(set, registry: registry, repository: repo, host: h, tier: tier, curated: curated)
         }
-        if resume, !database.isInMemory { Task.detached { await h.resume() } }
+        // Launch: reconnect, then learn which Composio apps are connected (ComposioApps: the chat's prompt names them).
+        if resume, !database.isInMemory { Task.detached { await h.resume(); await ComposioConnection.refreshApps(host: h) } }
         return (h, set, token)
     }
 

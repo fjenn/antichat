@@ -64,7 +64,7 @@ final class WebSearchUITests: XCTestCase {
     @MainActor func testSettingsToggleAndOfflineOnly() {
         launch(script: "web-plain.jsonl")
         app.typeKey(",", modifierFlags: .command)
-        element("settings.nav.tools").click()
+        element("settings.nav.capabilities").click()
         let web = element("settings.control.webSearch")
         XCTAssertTrue(web.waitForExistence(timeout: 5))
         XCTAssertEqual(web.stringValue, "1")
@@ -76,7 +76,7 @@ final class WebSearchUITests: XCTestCase {
         XCTAssertEqual(web.stringValue, "1")
         element("settings.nav.privacy").click()
         element("settings.control.offlineOnly").click()
-        element("settings.nav.tools").click()
+        element("settings.nav.capabilities").click()
         XCTAssertEqual(element("settings.control.webSearch").stringValue, "0")
         XCTAssertFalse(element("settings.control.webSearch").isEnabled)
     }
@@ -84,7 +84,7 @@ final class WebSearchUITests: XCTestCase {
     @MainActor func testConsentSheetWhenEnabledLater() {
         launch(script: "web-plain.jsonl")
         app.typeKey(",", modifierFlags: .command)
-        element("settings.nav.tools").click()
+        element("settings.nav.capabilities").click()
         element("settings.control.webSearch").click()  // off
         app.typeKey("w", modifierFlags: .command)
         pickWebSearch()

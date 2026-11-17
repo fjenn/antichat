@@ -1,12 +1,13 @@
 // AddMenu (components.md; M1.T17 step 1; R-013 AC1; ChatGPT F-027 "+", tooltip `tip.add`): the + button's popover.
-// Rows: Add photos & files · Create image · Create video · Web search · Connections · Use project
-// (`SlashCommandRegistry.addItems`). A pack that is not installed shows its row disabled with `add.disabled.pack`
-// ("Install {pack} to use this"); installed but off, `add.disabled.enable` ("Enable in Settings"), and a click opens
-// Settings → Capabilities. Neither state hides the row. Web search and Connections are listed only when they are on
+// Rows: Add photos & files · Create image · Create video · Web search · Connections · Skills
+// (`SlashCommandRegistry.addItems`). A pack that is not installed reads plainly with its download size
+// (`add.pack.download`, "61 GB download"); installed but off, `add.disabled.enable` ("Enable in Settings"); a click
+// opens the pack's row in Settings → Capabilities. Neither state hides the row. Web search and Connections are listed only when they are on
 // (M7) and the active model takes tools (D-023). Opens on click (IS-6: submenus on click, not hover); ↑/↓ wrap,
 // Return picks, Esc closes (the popover's own Esc). The tray tile of a picked file is AttachmentTileView (M6.T01).
 import AntiChatDesign
 import AntiChatHarness
+import AntiChatPlatform
 import SwiftUI
 
 struct AddMenu: View {
@@ -36,10 +37,10 @@ struct AddMenu: View {
 
     private func row(_ item: ComposerMenuItem, index: Int) -> some View {
         let title = ComposerMenus.title(item)
-        let reason = ComposerMenus.reason(item.state)
+        let reason = Self.packDetail(item.state) ?? ComposerMenus.reason(item.state)
         return Button { menus.pickAdd(item) } label: {
             PickerCardItemRow(symbol: item.symbol, title: title, detail: reason?.string,
-                              enabled: item.state.isEnabled || item.state == .needsConsent, highlighted: index == menus.addSelection || index == hovered)
+                              enabled: item.state.isEnabled || item.state == .needsConsent || item.state.isSettingsLink, highlighted: index == menus.addSelection || index == hovered)
         }
         .buttonStyle(.plain)
         // A row that does nothing (not on this Mac, …) is disabled for accessibility too (M5.T08: "dimmed").
@@ -49,5 +50,17 @@ struct AddMenu: View {
         .accessibilityLabel(Text(verbatim: title))
         .accessibilityValue(Text(verbatim: reason?.string ?? ""))
         .probeID("addRow.\(item.id)")
+    }
+
+    /// A pack that is not installed: its download size, or how far its download is (nil = the state's own reason).
+    static func packDetail(_ state: ComposerMenuItem.State, packs: PackManagementModel = .shared) -> CopyText? {
+        guard case .needsPack(let id) = state, let pack = ModelPack(rawValue: id) else { return nil }
+        switch packs.state(pack) {
+        case .off(let bytes) where bytes > 0, .notDownloaded(let bytes, _) where bytes > 0:
+            return CopyText(CopyKey("add.pack.download"), ["size": OnboardingModel.size(bytes)])
+        case .downloading(let percent, _, _, _):
+            return CopyText(CopyKey("add.pack.downloading"), ["percent": "\(percent)"])
+        default: return nil
+        }
     }
 }

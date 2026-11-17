@@ -11,7 +11,8 @@ public struct ToolActivity: Codable, Sendable, Hashable, Identifiable {
     /// `skill` (M7.T12, R-082 AC2): "Using skill {name} ▸", `tool` = the skill name, `result` = its unmet needs
     /// (`SkillNeed.token` lines, e.g. `web|off`), shown as "needs Web search (off)".
     /// `skillCard` (M7.T13, R-264): a `create_skill` call's SkillInstallCard; `argumentsJSON` = the draft, `tool` = its name.
-    public enum Kind: String, Codable, Sendable, Hashable { case tool, loopLimit, notice, skill, skillCard }
+    /// `connectCard`: the in-chat Connect card (ConnectAppTool): `tool` = the toolkit slug, `argumentsJSON` = the app name.
+    public enum Kind: String, Codable, Sendable, Hashable { case tool, loopLimit, notice, skill, skillCard, connectCard }
     public enum State: String, Codable, Sendable, Hashable {
         case running, awaitingApproval, done, failed, denied, skipped
     }
@@ -41,7 +42,16 @@ public struct ToolActivity: Codable, Sendable, Hashable, Identifiable {
         ToolActivity(kind: .loopLimit, id: "loop-limit-\(key)", tool: "", state: .done, steps: step)
     }
 
+    /// The answer stopped at the output limit (`FinishReason.length`): the same notice kind with no steps, so the same
+    /// [Continue] shows under it; Continue then carries the text on where it stopped instead of resuming tools.
+    public static func lengthLimit(key: Int = 0) -> ToolActivity {
+        ToolActivity(kind: .loopLimit, id: "length-limit-\(key)", tool: "", state: .done, steps: 0)
+    }
+
     public var isLoopLimit: Bool { kind == .loopLimit }
+    public var isLengthLimit: Bool { kind == .loopLimit && (steps ?? 0) == 0 }
+    /// A limit notice whose [Continue] was not pressed yet (pressed → `skipped`, so it never offers it twice).
+    public var offersContinue: Bool { kind == .loopLimit && state == .done }
 
     static let encoder: JSONEncoder = {
         let e = JSONEncoder()
@@ -115,6 +125,9 @@ public struct ToolRuntime: Sendable {
     public var skillSelector: SkillSelector?
     /// M7.T13 (R-265): whether skill scripts may run (File tools installed ∧ Run code on).
     public var skillScripts: SkillScriptPolicy = .app()
+
+    /// The in-chat Connect card and `connect_app` (ConnectAppTool); on in the app when this build has a relay.
+    public var connectApps = false
 
     /// M7.T14 (R-268): the Tools page's global switches, the per-chat `tool.on/off:<group>` markers and Tool access.
     public var switches: ToolSwitches = .shared

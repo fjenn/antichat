@@ -8,6 +8,7 @@
 //   POST   /api/v3.1/tool_router/session/{sid}/link      session.authorize(toolkit)
 //   DELETE /api/v3.1/tool_router/session/{sid}           composio.sessions.delete(sid)
 //   DELETE /api/v3.1/connected_accounts/{id}             composio.connectedAccounts.delete(id)
+//   GET    /api/v3.1/toolkits                            composio.getClient().toolkits.list({...}) (paged, 3 a page)
 // plus session.mcp.url = <base>/tool_router/{sid}/mcp, a Streamable-HTTP MCP endpoint that replays
 // fixtures/web/mcp/composio-*.jsonl, and <base>/link/{id}, a local "hosted auth" page that activates the
 // connection and redirects to the callback URL. Loopback only; no network.
@@ -25,7 +26,38 @@ type FixtureLine = { request: { method: string; params?: { name?: string; argume
 type Account = { id: string; userId: string; toolkit: string; status: "INITIATED" | "ACTIVE"; callback?: string };
 type Sess = { sid: string; userId: string; toolkits: string[] | undefined; mcpSession?: string };
 
-export type MockLogEntry = { method: string; path: string; auth: boolean; rpc?: string };
+export type MockLogEntry = { method: string; path: string; auth: boolean; rpc?: string; query?: Record<string, string> };
+
+/** One row of GET /api/v3.1/toolkits, in the API's own field names (@composio/client GetApiV31ToolkitsResponses). */
+export type MockToolkit = {
+  slug: string;
+  name: string;
+  auth_schemes?: string[];
+  composio_managed_auth_schemes?: string[];
+  no_auth?: boolean;
+  description?: string;
+  categories?: string[];
+  tools_count?: number;
+  logo?: string;
+};
+
+/** Covers every rule of src/toolkits.ts: managed OAuth, API key, basic, no sign-in, developer-only OAuth, no tools,
+ * deprecated, both kinds of `x` / `x_mcp` pairs, and a slug the relay would not link. */
+export const DEFAULT_CATALOG: MockToolkit[] = [
+  { slug: "gmail", name: "Gmail", auth_schemes: ["OAUTH2", "BEARER_TOKEN"], composio_managed_auth_schemes: ["OAUTH2"], description: "Gmail is Google's email service.  It has\nspam protection.", categories: ["Email", "Communication"] },
+  { slug: "acme_crm", name: "Acme CRM", auth_schemes: ["API_KEY"], description: "Acme CRM is a powerful platform that helps teams track deals. " + "More words. ".repeat(40), categories: ["CRM"] },
+  { slug: "basicapp", name: "BasicApp", auth_schemes: ["BASIC"], description: "Basic sign-in app.", categories: [] },
+  { slug: "hackernews", name: "Hacker News", auth_schemes: ["NO_AUTH"], no_auth: true, description: "Tech news.", categories: ["News & Lifestyle"] },
+  { slug: "devonly", name: "DevOnly", auth_schemes: ["OAUTH2"], composio_managed_auth_schemes: [], description: "Needs your own OAuth app." },
+  { slug: "empty", name: "Empty", auth_schemes: ["API_KEY"], tools_count: 0, description: "No tools yet." },
+  { slug: "oldthing", name: "Old Thing", auth_schemes: ["API_KEY"], description: "This toolkit is deprecated; use New Thing." },
+  { slug: "notion", name: "Notion", auth_schemes: ["OAUTH2"], composio_managed_auth_schemes: ["OAUTH2"], description: "Notes and docs.", categories: ["Notes"] },
+  { slug: "notion_mcp", name: "Notion MCP", auth_schemes: ["DCR_OAUTH"], description: "Notion's own MCP server.", categories: ["Notes"] },
+  { slug: "stripe", name: "Stripe", auth_schemes: ["API_KEY"], description: "Payments.", categories: ["Payment Processing"] },
+  { slug: "stripe_mcp", name: "Stripe MCP", auth_schemes: ["DCR_OAUTH"], description: "Stripe's own MCP server.", categories: ["Payment Processing"] },
+  { slug: "Bad Slug!", name: "Bad", auth_schemes: ["API_KEY"], description: "Not linkable." },
+  { slug: "slack", name: "Slack", auth_schemes: ["OAUTH2"], composio_managed_auth_schemes: ["OAUTH2"], description: "Team chat.", categories: ["Team Chat"], logo: "http://insecure.example/slack.png" },
+];
 
 export type MockComposio = {
   url: string;
@@ -33,6 +65,10 @@ export type MockComposio = {
   log: MockLogEntry[];
   sessions: Map<string, Sess>;
   accounts: Map<string, Account>;
+  /** What GET /api/v3.1/toolkits lists (replace or edit it in a test). */
+  catalog: MockToolkit[];
+  /** true = GET /api/v3.1/toolkits answers 500. */
+  failCatalog: boolean;
   /** Mark a linked account ACTIVE (what the hosted auth page does). */
   activate(id: string): void;
   /** All string values found in the fixture responses (for "no content stored" assertions). */
@@ -98,6 +134,30 @@ export async function startMockComposio(opts: { port?: number; apiKey?: string; 
   const accounts = new Map<string, Account>();
   const log: MockLogEntry[] = [];
   let base = "";
+  const state = { catalog: [...DEFAULT_CATALOG], failCatalog: false };
+  const PAGE = 3;
+
+  const catalogItem = (t: MockToolkit) => ({
+    slug: t.slug,
+    name: t.name,
+    type: "native",
+    auth_schemes: t.auth_schemes,
+    composio_managed_auth_schemes: t.composio_managed_auth_schemes ?? [],
+    is_local_toolkit: false,
+    no_auth: t.no_auth ?? false,
+    deprecated: { toolkitId: `tk_${t.slug}` },
+    meta: {
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+      description: t.description ?? "",
+      logo: t.logo ?? `https://logos.composio.dev/api/${t.slug}`,
+      app_url: null,
+      categories: (t.categories ?? []).map((name) => ({ id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"), name })),
+      triggers_count: 0,
+      tools_count: t.tools_count ?? 5,
+      version: "20260101_00",
+    },
+  });
 
   const sessionBody = (s: Sess) => ({
     session_id: s.sid,
@@ -120,9 +180,17 @@ export async function startMockComposio(opts: { port?: number; apiKey?: string; 
     },
   });
 
-  async function rest(req: IncomingMessage, res: ServerResponse, path: string) {
+  async function rest(req: IncomingMessage, res: ServerResponse, path: string, query: URLSearchParams) {
     const m = req.method ?? "GET";
     let mm: RegExpExecArray | null;
+    if (m === "GET" && path === "/api/v3.1/toolkits") {
+      if (state.failCatalog) return send(res, 500, { error: { message: "mock: toolkits down" } });
+      const start = query.get("cursor") ? Number(Buffer.from(query.get("cursor")!, "base64").toString("utf8")) : 0;
+      const size = Math.min(PAGE, Number(query.get("limit") ?? PAGE) || PAGE);
+      const items = state.catalog.slice(start, start + size).map(catalogItem);
+      const next = start + size < state.catalog.length ? Buffer.from(String(start + size)).toString("base64") : null;
+      return send(res, 200, { items, next_cursor: next, total_pages: Math.ceil(state.catalog.length / size), current_page: start / size + 1, total_items: state.catalog.length });
+    }
     if (m === "POST" && path === "/api/v3.1/tool_router/session") {
       const body = JSON.parse((await readBody(req)) || "{}") as { user_id?: string; toolkits?: { enable?: string[] } | string[] };
       if (!body.user_id) return send(res, 400, { error: { message: "user_id required" } });
@@ -216,7 +284,7 @@ export async function startMockComposio(opts: { port?: number; apiKey?: string; 
     const url = new URL(req.url ?? "/", "http://127.0.0.1");
     const path = url.pathname;
     const auth = req.headers["x-api-key"] === apiKey;
-    log.push({ method: req.method ?? "GET", path, auth });
+    log.push({ method: req.method ?? "GET", path, auth, ...(url.search ? { query: Object.fromEntries(url.searchParams) } : {}) });
     const done = (p: unknown) =>
       Promise.resolve(p).catch(() => {
         if (!res.headersSent) send(res, 500, { error: "mock failure" });
@@ -225,7 +293,7 @@ export async function startMockComposio(opts: { port?: number; apiKey?: string; 
     if ((mm = /^\/link\/([^/]+)$/.exec(path))) return void done(linkPage(res, mm[1] ?? ""));
     if (!auth) return send(res, 401, { error: { message: "invalid api key" } });
     if ((mm = /^\/tool_router\/([^/]+)\/mcp$/.exec(path))) return void done(mcp(req, res, mm[1] ?? ""));
-    return void done(rest(req, res, path));
+    return void done(rest(req, res, path, url.searchParams));
   });
 
   await new Promise<void>((ok) => server.listen(opts.port ?? 0, "127.0.0.1", ok));
@@ -239,6 +307,18 @@ export async function startMockComposio(opts: { port?: number; apiKey?: string; 
     log,
     sessions,
     accounts,
+    get catalog() {
+      return state.catalog;
+    },
+    set catalog(v) {
+      state.catalog = v;
+    },
+    get failCatalog() {
+      return state.failCatalog;
+    },
+    set failCatalog(v) {
+      state.failCatalog = v;
+    },
     activate(id) {
       const a = accounts.get(id);
       if (a) a.status = "ACTIVE";

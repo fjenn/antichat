@@ -19,12 +19,14 @@ final class ShortcutsTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let settings = app.windows.containing(.any, identifier: "settings.root").firstMatch
         XCTAssertTrue(settings.waitForExistence(timeout: 3))
-        settings.descendants(matching: .any).matching(identifier: "settings.nav.shortcuts").firstMatch.click()
-        let palette = settings.descendants(matching: .any).matching(identifier: "settings.shortcut.palette").firstMatch
+        settings.descendants(matching: .any).matching(identifier: "settings.nav.general").firstMatch.click()
+        // General → About & Help → Keyboard shortcuts opens the rebinding sheet.
+        settings.descendants(matching: .any).matching(identifier: "settings.control.shortcuts").firstMatch.click()
+        let palette = app.descendants(matching: .any).matching(identifier: "settings.shortcut.palette").firstMatch
         palette.click()
         app.typeKey("k", modifierFlags: [.command, .option])
         XCTAssertTrue(app.menuBars.menuItems["Search"].exists)
-        settings.descendants(matching: .any).matching(identifier: "settings.control.shortcutsRestore").firstMatch.click()
+        app.descendants(matching: .any).matching(identifier: "settings.control.shortcutsRestore").firstMatch.click()
         app.terminate()
     }
 }

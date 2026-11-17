@@ -348,11 +348,11 @@ enum VisualQAProbe {
             await settle(1200)
             await both(sw, "settings-capabilities-advanced")
             model.advancedExpanded = false
-            for s in [SettingsSection.evil, .storage] {
+            for s in [SettingsSection.privacy] {
                 model.open(s)
                 await settle(1000)
                 // VQ (S-21 Storage): the page's numbers, not the first second of a scan.
-                if s == .storage { notes.append("storage settled=\(await waitUntil(timeout: 30) { StorageProbeStatus.settled })") }
+                if s == .privacy { notes.append("storage settled=\(await waitUntil(timeout: 30) { StorageProbeStatus.settled })") }
                 await both(sw, "settings-\(s.rawValue)")
             }
             // VQ (S-21 Capabilities): a pack downloading (Voice, from the loopback mirror) and the disk-short refusal
@@ -541,7 +541,7 @@ enum VisualQAProbe {
         } else {
             notes.append("no palette")
         }
-        for (route, name) in [(WindowRoute.library, "s19-library"), (.projects, "s20-projects"), (.chats, "chats-list")] {
+        for (route, name) in [(WindowRoute.library, "s19-library"), (.projects, "s20-projects")] {
             state.open(route)
             await settle(1200)
             await both(mw, name)
@@ -579,7 +579,7 @@ enum VisualQAProbe {
             SettingsModel.shared.open(s)
             await settle(1100)
             // VQ (S-21 Storage): the page's numbers, not the first second of a scan.
-            if s == .storage { notes.append("storage settled=\(await waitUntil(timeout: 30) { StorageProbeStatus.settled })") }
+            if s == .privacy { notes.append("storage settled=\(await waitUntil(timeout: 30) { StorageProbeStatus.settled })") }
             await both(sw, "s21-\(s.rawValue)")
         }
         // VQ (S-21 Privacy): Offline only on, with one network-activity category opened (its event rows).
@@ -737,13 +737,8 @@ enum VisualQAProbe {
         }
         let closed = await waitUntil(timeout: 10) { sheet() == nil }
         await settle(1200)
-        notes.append("sheet closed=\(closed) tourTip=\(axHas("tourTip", in: main))")
-        await both(mw, "m10-tour")
-        // VQ round 65: the dismissed state (× = Got it, gone for good).
-        let dismissed = SettingsProbe.click("tour.dismiss", tracking: false, in: main) || axPress("tour.dismiss", in: main)
-        let gone = await waitUntil(timeout: 5) { UIProbeRegistry.frame("tour.dismiss", in: main) == nil }
-        await settle(800)
-        await both(mw, "m10-tour-dismissed", ["pressed": dismissed, "gone": gone])
+        notes.append("sheet closed=\(closed)")
+        await both(mw, "m10-home")
         finish()
     }
 
@@ -942,7 +937,7 @@ enum VisualQAProbe {
         notes.append("settings opened via \(await SettingsProbe.openSettingsWithCommandComma())")
         let sw = { SettingsProbe.settingsWindow }
         sw()?.setFrameOrigin(CGPoint(x: 200, y: 120))
-        SettingsModel.shared.open(.voice)
+        SettingsModel.shared.open(.capabilities, row: "voiceInputDevice")
         await settle(1500)
         await both(sw, "settings-voice")
         finish()

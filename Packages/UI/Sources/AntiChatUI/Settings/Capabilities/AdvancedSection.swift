@@ -1,5 +1,5 @@
-// M2.T07 (R-222 AC2–AC4; S-21 Capabilities › Advanced, collapsed): per pack × mode a ModelOverrideRow, "Reset to
-// recommended" per pack, keep-loaded (5 / 15 / 30 min / Never, default 15; NFR-M2) and "Allow loads above the memory
+// M2.T07 (R-222 AC2–AC4; S-21 Capabilities › Advanced, collapsed): "Models", a group of its own that stays closed
+// until asked for (per pack × mode a ModelOverrideRow, "Reset to recommended" per pack), then keep-loaded (5 / 15 / 30 min / Never, default 15; NFR-M2) and "Allow loads above the memory
 // budget" (off; NFR-R5). The scheduler reads the last two through `SetPolicy` (T12). Overrides are `model_override`
 // rows (ModelOverrideStore) that the selector re-resolves against every catalog; a revoked one falls back with
 // `model.revoked`. M5.T09: Advanced → Video (VideoAdvancedView) below the memory rows.
@@ -65,76 +65,98 @@ final class AdvancedModel {
 
 struct AdvancedSection: View {
     let database: AppDatabase?
+    var packs: PackManagementModel = .shared
     @State private var model: AdvancedModel
+    /// The model pickers stay closed (model names appear only in here); a search for them opens the group.
+    @State private var modelsOpen = false
+    @Environment(\.settingsHighlight) private var highlight
     @Default(.keepLoadedMinutes) private var keepLoaded
     @Default(.allowOverBudget) private var allowOver
     @Default(.yieldGPU) private var yieldGPU
 
-    init(database: AppDatabase?) {
+    init(database: AppDatabase?, packs: PackManagementModel = .shared) {
         self.database = database
+        self.packs = packs
         _model = State(initialValue: AdvancedModel(database: database))
     }
 
     var body: some View {
         Group {
-            ForEach(ModelPack.allCases, id: \.self) { pack in
-                // VQ (S-21 Capabilities): inside the disclosure the Form draws no separators; one per pack group.
-                if pack != ModelPack.allCases.first { Divider() }
-                VStack(alignment: .leading, spacing: Spacing.space2) {
-                    ForEach(ModelMode.allCases, id: \.self) { mode in
-                        ModelOverrideRow(pack: pack, mode: mode, current: slot(pack, mode), options: model.options(pack, mode),
-                                         overridden: model.overrides.first { $0.pack == pack && $0.mode == mode }?.modelID,
-                                         onPick: { model.pick(pack, mode, $0) }, catalog: model.catalog)
-                    }
-                    if model.overrides.contains(where: { $0.pack == pack }) {
-                        Button { model.reset(pack) } label: { Text(CopyKey("set.cap.reset")) }
-                            .accessibilityIdentifier("override.reset.\(pack.rawValue)")
-                    }
-                }
-                .padding(.horizontal, Spacing.space1)  // the SettingsItem inset of the rows below (M2.T26 VQ alignment)
-                .id(pack == .chat ? "modelOverrides" : "modelOverrides.\(pack.rawValue)")
-            }
-            ForEach(model.fellBack, id: \.modelID) { o in
-                Text(CopyText(CopyKey("model.revoked"), ["model": ModelNames.name(o.modelID, catalog: model.catalog),
-                                                        "replacement": slot(o.pack, o.mode)?.modelID.map { ModelNames.name($0, catalog: model.catalog) }
-                                                            ?? CopyKey("set.cap.recommended").string()]))
-                    .typeStyle(.footnote)
-                    .foregroundStyle(Color.textSecondary)
-                    .accessibilityIdentifier("override.revoked")
-            }
+            SubDisclosure(title: CopyKey("set.cap.models").string(), id: "capabilities.models", open: $modelsOpen) { models }
             Divider()
-            SettingsItem("keepLoadedMinutes") {
-                Picker(selection: $keepLoaded) {
-                    Text(CopyKey("set.cap.keepLoaded.m5")).tag(5)
-                    Text(CopyKey("set.cap.keepLoaded.m15")).tag(15)
-                    Text(CopyKey("set.cap.keepLoaded.m30")).tag(30)
-                    Text(CopyKey("set.cap.keepLoaded.never")).tag(0)
-                } label: { Text(CopyKey("set.cap.keepLoaded.label")) }  // own label (M9.T03: SettingsRow no longer labels the control)
-                .labelsHidden()
-                .fixedSize()
-                .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
-                .probeID("settings.control.keepLoadedMinutes")
-            }
-            Divider()
-            SettingsItem("allowOverBudget") {
-                Toggle(isOn: $allowOver) { Text(CopyKey("set.cap.allowOver")) }
-                    .toggleStyle(.accessibleSwitch)
-                    .probeID("settings.control.allowOverBudget")
-            }
-            // M5.T09 (R-044 AC2): Advanced → Video — steps, resolution, exact length (never on the plan card).
-            Divider()
-            VideoAdvancedView(tier: model.profile?.tier.rawValue, speedClass: model.profile?.speedClass.rawValue)
-            // M5.T11 (NFR-B5): pause the running video job while another app holds the GPU (default on).
-            Divider()
-            SettingsItem("yieldGPU") {
-                Toggle(isOn: $yieldGPU) { Text(CopyKey("set.capabilities.yieldGPU")) }
-                    .toggleStyle(.accessibleSwitch)
-                    .probeID("settings.control.yieldGPU")
-            }
+            options
         }
         .task { await model.load(database: database) }
         .onChange(of: allowOver) { model.recompute() }
         .onReceive(NotificationCenter.default.publisher(for: CatalogStore.didChange)) { _ in model.recompute() }
+        .onChange(of: highlight, initial: true) { _, row in if row?.hasPrefix("modelOverrides") == true { modelsOpen = true } }
+    }
+
+    /// Which modes each installed pack covers, then the model of each pack × mode.
+    @ViewBuilder private var models: some View {
+        ForEach(ModelPack.allCases, id: \.self) { pack in
+            if let modes = packs.modesLine(pack) {
+                Text(verbatim: "\(CopyKey("onb.pack.\(pack.rawValue).name").string()): \(modes.string)")
+                    .typeStyle(.footnote).foregroundStyle(Color.textSecondary)
+                    .padding(.horizontal, Spacing.space1)
+            }
+        }
+        ForEach(ModelPack.allCases, id: \.self) { pack in
+            // VQ (S-21 Capabilities): inside the disclosure the Form draws no separators; one per pack group.
+            Divider()
+            VStack(alignment: .leading, spacing: Spacing.space2) {
+                ForEach(ModelMode.allCases, id: \.self) { mode in
+                    ModelOverrideRow(pack: pack, mode: mode, current: slot(pack, mode), options: model.options(pack, mode),
+                                     overridden: model.overrides.first { $0.pack == pack && $0.mode == mode }?.modelID,
+                                     onPick: { model.pick(pack, mode, $0) }, catalog: model.catalog)
+                }
+                if model.overrides.contains(where: { $0.pack == pack }) {
+                    Button { model.reset(pack) } label: { Text(CopyKey("set.cap.reset")) }
+                        .accessibilityIdentifier("override.reset.\(pack.rawValue)")
+                }
+            }
+            .padding(.horizontal, Spacing.space1)  // the SettingsItem inset of the rows below (M2.T26 VQ alignment)
+            .id(pack == .chat ? "modelOverrides" : "modelOverrides.\(pack.rawValue)")
+        }
+        ForEach(model.fellBack, id: \.modelID) { o in
+            Text(CopyText(CopyKey("model.revoked"), ["model": ModelNames.name(o.modelID, catalog: model.catalog),
+                                                    "replacement": slot(o.pack, o.mode)?.modelID.map { ModelNames.name($0, catalog: model.catalog) }
+                                                        ?? CopyKey("set.cap.recommended").string()]))
+                .typeStyle(.footnote)
+                .foregroundStyle(Color.textSecondary)
+                .accessibilityIdentifier("override.revoked")
+        }
+    }
+
+    @ViewBuilder private var options: some View {
+        SettingsItem("keepLoadedMinutes", description: CopyKey("set.cap.keepLoaded.note")) {
+            Picker(selection: $keepLoaded) {
+                Text(CopyKey("set.cap.keepLoaded.m5")).tag(5)
+                Text(CopyKey("set.cap.keepLoaded.m15")).tag(15)
+                Text(CopyKey("set.cap.keepLoaded.m30")).tag(30)
+                Text(CopyKey("set.cap.keepLoaded.never")).tag(0)
+            } label: { Text(CopyKey("set.cap.keepLoaded.label")) }  // own label (M9.T03: SettingsRow no longer labels the control)
+            .labelsHidden()
+            .fixedSize()
+            .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
+            .probeID("settings.control.keepLoadedMinutes")
+        }
+        Divider()
+        SettingsItem("allowOverBudget", description: CopyKey("set.cap.allowOver.note")) {
+            Toggle(isOn: $allowOver) { Text(CopyKey("set.cap.allowOver")) }
+                .toggleStyle(.accessibleSwitch)
+                .probeID("settings.control.allowOverBudget")
+        }
+        // M5.T09 (R-044 AC2): Advanced → Video — steps, resolution, exact length (never on the plan card).
+        Divider()
+        VideoAdvancedView(tier: model.profile?.tier.rawValue, speedClass: model.profile?.speedClass.rawValue)
+        // M5.T11 (NFR-B5): pause the running video job while another app holds the GPU (default on).
+        Divider()
+        SettingsItem("yieldGPU", description: CopyKey("set.capabilities.yieldGPU.note")) {
+            Toggle(isOn: $yieldGPU) { Text(CopyKey("set.capabilities.yieldGPU")) }
+                .toggleStyle(.accessibleSwitch)
+                .probeID("settings.control.yieldGPU")
+        }
     }
 
     private func slot(_ pack: ModelPack, _ mode: ModelMode) -> SelectionSlot? {

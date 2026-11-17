@@ -18,6 +18,18 @@ public struct AppCommands: Commands {
         ChatCommands()
         HelpCommands()
         UninstallCommands()  // M8.T11: AntiChat › Uninstall AntiChat…
+        SettingsCommands()
+    }
+}
+
+/// AntiChat › Settings… ⌘,: Settings opens inside the key main window (`SettingsPresenter`), not as a scene of its own.
+struct SettingsCommands: Commands {
+    var body: some Commands {
+        CommandGroup(replacing: .appSettings) {
+            Button { SettingsPresenter.shared.show() } label: { Text(CopyKey("menu.app.settings")) }
+                .accessibilityIdentifier("menu.app.settings")
+                .keyboardShortcut(",", modifiers: .command)
+        }
     }
 }
 

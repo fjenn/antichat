@@ -4,7 +4,7 @@ Er zijn twee manieren. Beide verwijderen alles wat AntiChat op deze Mac bewaart.
 
 ## 1. Gebruik Verwijder AntiChat (aanbevolen)
 
-Kies **AntiChat › Verwijder AntiChat…** (of Instellingen › Opslag › Verwijder AntiChat…). Het venster toont wat er wordt verwijderd en hoeveel ruimte dat vrijmaakt. Klik op **Exporteer eerst mijn gegevens** als je je chats wilt bewaren, typ dan UNINSTALL en klik op **Verwijder**. AntiChat verwijdert zijn modellen, chats, afbeeldingen, bestanden, caches, logbestanden en instellingen, zet Open bij inloggen uit, wist zijn toetscombinaties, verplaatst zichzelf naar de prullenmand en stopt.
+Kies **AntiChat › Verwijder AntiChat…** (of Instellingen › Privacy en gegevens › Geavanceerd › Verwijder AntiChat…). Het venster toont wat er wordt verwijderd en hoeveel ruimte dat vrijmaakt. Klik op **Exporteer eerst mijn gegevens** als je je chats wilt bewaren, typ dan UNINSTALL en klik op **Verwijder**. AntiChat verwijdert zijn modellen, chats, afbeeldingen, bestanden, caches, logbestanden en instellingen, zet Open bij inloggen uit, wist zijn toetscombinaties, verplaatst zichzelf naar de prullenmand en stopt.
 
 ## 2. Verwijder het met de hand
 
@@ -24,7 +24,7 @@ Kies **AntiChat › Verwijder AntiChat…** (of Instellingen › Opslag › Verw
 - `~/Library/Logs/DiagnosticReports/AntiChat*.ips`
 - `$TMPDIR/AntiChat-incognito-*` (tijdelijk; macOS wist het ook bij herstarten)
 
-Als je de modellenmap naar een andere schijf hebt verplaatst (Instellingen › Opslag › Modellenmap › Verplaats…), verwijder die map dan ook. Instellingen › Opslag toont waar hij staat, met Toon in Finder.
+Als je de modellenmap naar een andere schijf hebt verplaatst (Instellingen › Privacy en gegevens › Geavanceerd › Modellenmap › Verplaats…), verwijder die map dan ook. Instellingen › Privacy en gegevens › Geavanceerd toont waar hij staat, met Toon in Finder.
 
 Sleutelhangeronderdelen met de naam app.antichat.* kun je verwijderen in Sleutelhangertoegang.
 

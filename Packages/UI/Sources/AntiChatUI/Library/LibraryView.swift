@@ -113,6 +113,7 @@ public struct LibraryView: View {
             }
             .width(min: 60, ideal: 80, max: 120)
         }
+        .alternatingRowBackgrounds(.disabled)  // the empty stripes under the last item read as rows still loading
         .contextMenu(forSelectionType: LibraryEntry.ID.self) { ids in
             if let id = ids.first, let item = model.items.first(where: { $0.id == id }) { menu(item) }
         } primaryAction: { ids in

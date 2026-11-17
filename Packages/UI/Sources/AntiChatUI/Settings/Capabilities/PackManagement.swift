@@ -33,7 +33,8 @@ public enum PackRowState: Equatable, Sendable {
     /// - Parameters: `items` = the pack's Normal (+ Evil when on) items with every file (present or not).
     /// `preparing`: the pack's install-time step (ChildSafetyCheck compile for Photo/Video) still runs ⇒ `checking`.
     static func compute(eligible: Bool, reason: CopyText?, enabled: Bool, items: [InstallPlan.Item], jobs: [DownloadJob],
-                        present: (String) -> Bool, installed: Set<String>, hasUpdate: Bool, preparing: Bool = false) -> PackRowState {
+                        present: (String) -> Bool, installed: Set<String>, hasUpdate: Bool, preparing: Bool = false,
+                        failures: [String: String] = [:]) -> PackRowState {
         guard eligible else { return .notAvailable(reason: reason ?? CopyText(CopyKey("set.cap.unavailable"))) }
         let total = items.flatMap(\.requests).reduce(Int64(0)) { $0 + $1.size }
         let missing = items.flatMap(\.requests).filter { !present($0.sha256) }.reduce(Int64(0)) { $0 + $1.size }
@@ -44,11 +45,23 @@ public enum PackRowState: Equatable, Sendable {
         let filesHere = missing == 0
         if allInstalled, filesHere, preparing { return .checking }
         if allInstalled, filesHere { return hasUpdate ? .updateAvailable(bytesOnDisk: total) : .ready(bytesOnDisk: total) }
+        // The install of one of its models did not finish (SetupInstaller.failures): Didn't finish + Retry, never an
+        // endless "Checking…" over files that are all here.
+        if items.contains(where: { !installed.contains($0.modelID) && failures[$0.modelID] != nil }) { return .failed }
         // Queued jobs for its missing files (the coordinator will start them) vs. nothing asked for at all.
         let missingShas = Set(items.flatMap(\.requests).filter { !present($0.sha256) }.map(\.sha256))
         let queued = jobs.contains { missingShas.contains($0.sha256) && $0.state != .cancelled && $0.state != .failed }
         let p = SetupProgress.compute(normal: items, evil: [], jobs: jobs, present: present, installed: installed)
         let row = p.rows.first
+        // Owner bug 2026-11-15: SetupProgress shows user-paused files as downloading (its `paused` means "no internet"),
+        // so after Pause the row kept "Pause" and nothing could resume it. The pack's open files all on hold and at
+        // least one paused by the user ⇒ paused here (the button becomes Resume).
+        let open = jobs.filter { missingShas.contains($0.sha256) && !$0.state.isTerminal }
+        if !open.isEmpty, open.contains(where: { $0.state == .paused && $0.pauseReason == .user }),
+           !open.contains(where: { $0.state == .running || $0.state == .queued || $0.state == .verifying }) {
+            let done = row?.bytesDone ?? 0, all = row?.bytesTotal ?? 0
+            return .downloading(percent: min(99, all > 0 ? Int(Double(done) / Double(all) * 100) : 0), paused: true, done: done, total: all)
+        }
         switch row?.state ?? .waiting {
         case .waiting:
             return .notDownloaded(downloadBytes: missing, queued: queued)
@@ -74,6 +87,8 @@ public final class PackManagementModel {
     public private(set) var selection: Selection?
     public private(set) var jobs: [DownloadJob] = []
     public private(set) var installed: Set<String> = []
+    /// Model id → why its install did not finish (SetupInstaller.failures; shown as Didn't finish + Retry).
+    public private(set) var installFailures: [String: String] = [:]
     public var enabled: Set<ModelPack>
     /// The disk rule refused an Enable (`onb.diskShort`), per pack.
     public var diskShort: [ModelPack: Int] = [:]
@@ -85,6 +100,8 @@ public final class PackManagementModel {
     @ObservationIgnored var installer: () -> SetupInstaller? = { SetupLaunch.make() }
     @ObservationIgnored var freeBytes: () -> Int64 = { DiskPreflight.freeBytes(volume: DownloadsLaunch.models.root) }
     @ObservationIgnored private let defaults: UserDefaults
+    /// The Create image / Create video tool switches, which follow their pack (`syncTools`).
+    @ObservationIgnored var toolSwitches: ToolSwitches = .shared
     @ObservationIgnored private var models: ModelsDirectory { DownloadsLaunch.models }
     @ObservationIgnored private var observing = false
     /// sha256 in the store (live: BlobStore; tests inject).
@@ -96,14 +113,28 @@ public final class PackManagementModel {
     public init(defaults: UserDefaults = AppDefaults.standard, shipped: Set<ModelPack> = ModelPack.shipped) {
         self.defaults = defaults
         self.shipped = shipped
-        let saved = (defaults.array(forKey: Self.enabledKey) as? [String]).map { Set($0.compactMap(ModelPack.init(rawValue:))) }
-        // A pack enabled by an earlier build that this build does not ship stays off (lead decision B).
-        enabled = (saved ?? []).intersection(shipped).union([.chat])
+        enabled = Self.savedEnabled(defaults, shipped: shipped)
+        // 2026-11-15: `shared` is built at launch, before onboarding saves its choice, so it kept [chat] and Settings
+        // showed Voice "Off" right after onboarding chose it (a later save would have overwritten the choice too).
+        NotificationCenter.default.addObserver(forName: StarterSuggestions.didFinish, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.enabled = Self.savedEnabled(self.defaults, shipped: self.shipped)
+                Task { await self.refresh() }
+            }
+        }
+    }
+
+    /// A pack enabled by an earlier build that this build does not ship stays off (lead decision B).
+    static func savedEnabled(_ defaults: UserDefaults, shipped: Set<ModelPack>) -> Set<ModelPack> {
+        let saved = (defaults.array(forKey: enabledKey) as? [String]).map { Set($0.compactMap(ModelPack.init(rawValue:))) }
+        return (saved ?? []).intersection(shipped).union([.chat])
     }
 
     /// Test / render seam: fixed facts instead of the live store.
     func load(profile: HardwareProfile, catalog: ModelCatalog, installed: Set<String>, jobs: [DownloadJob] = [],
-              present: @escaping (String) -> Bool = { _ in false }) {
+              present: @escaping (String) -> Bool = { _ in false }, failures: [String: String]? = nil) {
+        if let failures { installFailures = failures }
         self.present = present
         self.profile = profile
         self.catalog = catalog
@@ -122,7 +153,10 @@ public final class PackManagementModel {
         let ids = Set((try? FileManager.default.contentsOfDirectory(atPath: models.installs.path)) ?? [])
         let js = await DownloadsLaunch.coordinator?.allJobs ?? []
         let blobs = BlobStore(models: models)
+        let failures = await SetupLaunch.installer?.failures ?? [:]
         load(profile: p, catalog: c, installed: ids, jobs: js, present: { blobs.contains($0) })
+        if installFailures != failures { installFailures = failures }
+        syncTools()
         if let s = selection {  // M4: compile the detectors once their files are installed (first image skips it)
             let d = SafetyPreparation.detectors(selection: s, catalog: c, installs: models.installs)
             SafetyPreparation.shared.ensure(d.manifest, detectorIDs: d.ids, installed: ids)
@@ -130,15 +164,22 @@ public final class PackManagementModel {
         if !observing, let dl = DownloadsLaunch.coordinator {
             observing = true
             dl.observe { [weak self] e in
-                guard case .state = e else { return }
-                Task { @MainActor in await self?.refresh() }
+                guard case .state(let j) = e else { return }
+                // A verified file may complete a model nobody in this process asked for (a download restored from
+                // the last run): the reconcile writes its view.
+                let done = j.state == .done
+                Task { @MainActor in
+                    if done { await self?.reconcileInstalls() } else { await self?.refresh() }
+                }
             }
         }
     }
 
     // MARK: Derived
 
-    var evilOn: Bool { EvilModeModel.shared?.isOn ?? false }
+    var evilOn: Bool { evilIsOn() }
+    /// Evil Mode is on (live: the app's EvilModeModel; tests inject).
+    @ObservationIgnored var evilIsOn: @MainActor () -> Bool = { EvilModeModel.shared?.isOn ?? false }
 
     func items(_ pack: ModelPack, modes: Set<ModelMode>) -> [InstallPlan.Item] {
         guard let selection, let catalog else { return [] }
@@ -160,13 +201,17 @@ public final class PackManagementModel {
         let s = PackRowState.compute(eligible: eligible, reason: reason, enabled: enabled.contains(pack),
                                      items: items(pack, modes: [.normal]), jobs: jobs, present: present,
                                      installed: installed, hasUpdate: hasUpdate,
-                                     preparing: SafetyPreparation.shared.preparingGroups.contains(pack.rawValue))
+                                     preparing: SafetyPreparation.shared.preparingGroups.contains(pack.rawValue),
+                                     failures: installFailures)
         // "{size} on disk" is what is on disk (each file once, the starter with Chat): Storage's number for the pack.
+        let sized: PackRowState
         switch s {
-        case .ready: return .ready(bytesOnDisk: bytesOnDisk(pack))
-        case .updateAvailable: return .updateAvailable(bytesOnDisk: bytesOnDisk(pack))
-        default: return s
+        case .ready: sized = .ready(bytesOnDisk: bytesOnDisk(pack))
+        case .updateAvailable: sized = .updateAvailable(bytesOnDisk: bytesOnDisk(pack))
+        default: sized = s
         }
+        // Video is Ready only with its runtime on disk too (VideoRuntimeInstall).
+        return pack == .video ? sized.withRuntime(VideoRuntimeInstall.shared.facts) : sized
     }
 
     /// The switch shows what is true: on while the pack is here or on its way, off when nothing of it is on this
@@ -312,6 +357,8 @@ public final class PackManagementModel {
         guard let installer = installer() else { return }
         enabled.insert(pack)
         save()
+        syncTools()
+        if pack == .video { VideoRuntimeInstall.shared.install() }  // the runtime comes with the pack
         var normal = plan
         normal.stages = plan.stages.filter { $0.kind != .evil }
         let evil = plan.stages.filter { $0.kind == .evil }.flatMap(\.items)
@@ -326,6 +373,16 @@ public final class PackManagementModel {
             }
             if !evil.isEmpty { await installer.addEvil(evil) }
             await self.refresh()
+        }
+    }
+
+    /// "Safety check missing" (SafetyMissingCard): fetch what Photo / Video still lack right away, then Settings opens on
+    /// the Photo row to show the download. No hunting for a button.
+    public func repairSafety() {
+        Task {
+            await refresh()
+            for pack in [ModelPack.photo, .video] where isOn(pack) { enable(pack) }
+            SettingsNavigator.shared.request(.capabilities, row: "pack.photo")
         }
     }
 
@@ -405,14 +462,96 @@ public final class PackManagementModel {
                                        present: { blobs.contains($0) }).extraBytes
     }
 
-    /// Evil Mode was turned on in Settings: its variants join the queue after every Normal set.
+    /// The Evil row of the Capabilities list (owner 2026-11-16): Off (with what turning it on downloads) / the
+    /// download of its variants / Ready. Evil adds models only for the packs that are on; a Mac whose Evil models are
+    /// the Normal ones has nothing to fetch and is Ready at once.
+    public var evilState: PackRowState {
+        guard evilOn else { return .off(downloadBytes: evilCost) }
+        guard let selection, let catalog else { return .ready(bytesOnDisk: 0) }
+        let items = evilItems()
+        guard !items.isEmpty else { return .ready(bytesOnDisk: 0) }
+        let s = PackRowState.compute(eligible: true, reason: nil, enabled: true, items: items, jobs: jobs, present: present,
+                                     installed: installed, hasUpdate: false, failures: installFailures)
+        if case .ready = s { return .ready(bytesOnDisk: 0) }  // its bytes are counted with each pack's
+        return s
+    }
+
+    /// The Evil chat model alone (what an Evil chat needs to answer): downloading n % / Checking / Didn't finish /
+    /// Ready. nil = Evil Mode is off, nothing is known yet, or this Mac has no Evil chat model.
+    public var evilChatState: PackRowState? {
+        guard evilOn, selection != nil else { return nil }
+        let items = evilItems().filter { $0.pack == .chat && $0.role == "chat" }
+        guard !items.isEmpty else { return nil }
+        return PackRowState.compute(eligible: true, reason: nil, enabled: true, items: items, jobs: jobs, present: present,
+                                    installed: installed, hasUpdate: false, failures: installFailures)
+    }
+
+    /// The Evil variants of the enabled packs, each with every file (present or not).
+    func evilItems() -> [InstallPlan.Item] {
+        guard let selection, let catalog else { return [] }
+        return EvilVariantPlanner.plan(selection: selection, catalog: catalog, packs: enabled.intersection(shipped)).items
+    }
+
+    /// Evil Mode was turned on in Settings (or its row's Retry / Download): its variants join the queue after every
+    /// Normal set; what is already in the store is installed at once and what failed is tried again.
     public func evilEnabled() {
-        guard let selection, let catalog, let installer = SetupLaunch.make() else { return }
+        guard let selection, let catalog, let installer = installer() else { return }
         let blobs = BlobStore(models: models)
         let plan = EvilVariantPlanner.plan(selection: selection, catalog: catalog, packs: enabled.intersection(shipped),
                                            present: { blobs.contains($0) })
         guard !plan.items.isEmpty else { return }
-        Task.detached(priority: .userInitiated) { await installer.addEvil(plan.items) }
+        Task.detached(priority: .userInitiated) {
+            await installer.addEvil(plan.items)
+            await self.reconcileInstalls(retry: true)
+        }
+    }
+
+    // MARK: Reconcile (owner bug 2026-11-16)
+
+    /// The models this Mac should have, from what is persisted: the Normal models of every enabled pack and, with
+    /// Evil Mode on, their Evil variants. On-demand models and the starter are not in it (their own paths install
+    /// them), nor a model the update service is bringing in (its flip writes the view).
+    func wantedItems(excluding held: Set<String> = []) -> [InstallPlan.Item] {
+        var out: [InstallPlan.Item] = []
+        for pack in ModelPack.allCases where enabled.contains(pack) && shipped.contains(pack) { out += items(pack, modes: [.normal]) }
+        if evilOn { out += evilItems() }
+        return out.filter { !held.contains($0.modelID) }
+    }
+
+    @ObservationIgnored private var reconciling = false
+    @ObservationIgnored private var reconcileAgain: Bool?
+
+    /// Finishes every wanted model from what is on disk (`SetupInstaller.reconcile`): at launch once the download
+    /// rows are restored, when the catalog arrives, when a file is verified, and on Retry. Files already in the
+    /// store are never fetched again; a model whose files are all here gets its view without any network.
+    public func reconcileInstalls(retry: Bool = false) async {
+        if reconciling {  // one pass at a time; a request during a pass runs once more after it
+            reconcileAgain = (reconcileAgain ?? false) || retry
+            return
+        }
+        reconciling = true
+        defer { reconciling = false }
+        var retry = retry
+        while true {
+            await DownloadsLaunch.restored?.value  // never before the `download` rows are back (no second job per file)
+            await refresh()
+            if selection != nil, let installer = installer() {
+                let held = await ModelUpdatesLaunch.service?.heldModelIDs ?? []
+                let wanted = wantedItems(excluding: held)
+                if !wanted.isEmpty {
+                    if retry { await installer.clearFailures(Set(wanted.map(\.modelID))) }
+                    let report = await installer.reconcile(wanted, mayInstallNew: mayInstallNew(), free: freeBytes(), retry: retry)
+                    if !report.installed.isEmpty {
+                        AppLog.log(.store, .notice, "installs: finished from the store, nothing downloaded: \(report.installed.sorted())")
+                    }
+                    await SetupLaunch.refresh()
+                    await refresh()
+                }
+            }
+            guard let again = reconcileAgain else { return }
+            reconcileAgain = nil
+            retry = again
+        }
     }
 
     /// Evict → delete → GC through the one shared helper (ModelRemoval, M2 review #1): the real database (rollback
@@ -434,5 +573,15 @@ public final class PackManagementModel {
 
     private func save() {
         defaults.set(enabled.map(\.rawValue).sorted(), forKey: Self.enabledKey)
+    }
+
+    /// One switch per feature: the Images and Video packs are the switches for creating images and video. Settings
+    /// no longer lists "Create image" / "Create video", so a pack that is on turns its tool on (one switched off in
+    /// an earlier build would otherwise stay off with nothing left to turn it back on).
+    func syncTools() {
+        for (pack, group) in [(ModelPack.photo, ToolGroup.image), (.video, .video)]
+        where enabled.contains(pack) && !toolSwitches.isOn(group) {
+            toolSwitches.setOn(group, true)
+        }
     }
 }

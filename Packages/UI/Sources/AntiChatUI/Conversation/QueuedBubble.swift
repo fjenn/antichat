@@ -99,13 +99,17 @@ struct QueuedBubble: View {
 
     private var captionRow: some View {
         HStack(spacing: Spacing.space1) {
-            Image(systemName: "clock")
-                .font(.system(size: 11, weight: .regular))
-                .accessibilityHidden(true)
-            Text(captionText)
-                .typeStyle(.footnote)
-                .monospacedDigit()
-                .probeID("\(id).caption")
+            // A message held until the app is ready has one status, under it: the reply's "Getting ready…". Its
+            // bubble keeps only the × (and the percent while something is still being downloaded).
+            if caption != .ready(nil) {
+                Image(systemName: "clock")
+                    .font(.system(size: 11, weight: .regular))
+                    .accessibilityHidden(true)
+                Text(captionText)
+                    .typeStyle(.footnote)
+                    .monospacedDigit()
+                    .probeID("\(id).caption")
+            }
             if onEdit != nil, !editing {
                 MessageIconButton(symbol: "pencil", tip: CopyText(CopyKey("msg.edit")), id: "\(id).edit") {
                     editing = true

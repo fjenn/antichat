@@ -3,6 +3,8 @@
 // the ambiguous band. Each pair runs on a fresh in-memory store: insert `existing` (with its vector), decide `new`.
 // A paraphrase counts when the decider keeps one fact (UPDATE, or NONE on that fact); a distinct fact must be ADD.
 // Writes build/at/AT-242/<date>.json. Run under `lockf /tmp/antichat-gpu.lock` (tools/at/at-242-real.sh).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatEngineProtocol
 import AntiChatHarness
 import AntiChatKnowledge
@@ -72,3 +74,4 @@ extension ProcessInfo {
         return getloadavg(&l, 3) > 0 ? l[0] : -1
     }
 }
+#endif

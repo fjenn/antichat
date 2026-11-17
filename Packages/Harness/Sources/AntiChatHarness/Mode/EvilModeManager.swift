@@ -75,11 +75,8 @@ public final class EvilModeManager: @unchecked Sendable {
 
     // MARK: Per-chat mode (R-210 AC1, AC2)
 
-    /// A new chat's mode: the last used one while the switch is shown, else Normal.
-    public var defaultModeForNewChat: ChatMode {
-        guard showsSwitch else { return .normal }
-        return lastMode
-    }
+    /// A new chat's mode: Normal (owner 2026-11-17; it was the last used mode). Evil is chosen per chat.
+    public var defaultModeForNewChat: ChatMode { .normal }
 
     /// The last mode the switch was used in (Normal when never), whatever Evil's state now.
     public var lastMode: ChatMode { defaults.string(forKey: Key.lastMode).flatMap(ChatMode.init(rawValue:)) ?? .normal }

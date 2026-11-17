@@ -89,7 +89,7 @@ final class LegalUITests: XCTestCase {
     @MainActor func testAboutLegalListsEightVersionedPagesOffline() {
         launch()
         app.typeKey(",", modifierFlags: .command)
-        element("settings.nav.about").click()
+        element("settings.nav.general").click()
         element("settings.control.legal").click()
         checkLegalSheet()
         app.buttons["Done"].firstMatch.click()

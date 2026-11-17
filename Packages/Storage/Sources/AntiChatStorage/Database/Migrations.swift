@@ -48,7 +48,7 @@
 //                       doc) need no table rebuild.
 // v18_memory (M8.T02): `memory_topic`, `memory_item`, `memory_event` (undo log), `chat.memory_snapshot_json/hash`
 //                       (body in Migrations+Memory.swift; numbered high on purpose, renumbered at merge).
-// v19_memory_suggestion (M8.T03): `memory_suggestion` (propose-only background review, R-246).
+// v19_memory_suggestion (M8.T03): `memory_suggestion` (background review: what it saved itself and what it asks about, R-246).
 // v20_projects (M8.T04): `project`, `project_instruction`, `project_file`, chat project index + frozen instructions, memory_topic FK.
 // v21_voice_recording (M3.T03; v15 on the m3/voice branch, renumbered at merge after M8's v18–v20, step 7; R-050 AC4, settings-map §5): `recording` (recent dictations: chat_id, created_at,
 //                       duration_ms, transcript, file_blob_id, language, engine; the newest 20 are kept, never incognito)

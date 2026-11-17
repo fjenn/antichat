@@ -70,14 +70,19 @@ public enum MCPToolProxy {
                 let fn = functionName(server: s.name, tool: t.name, taken: taken)
                 taken.insert(fn)
                 let a = ToolAnnotations(json: t.annotationsJSON)
+                let composio = s.kind == .composio
+                // Composio: looking things up never asks; running an action is decided per slug (SlugPermission).
+                let lookup = composio && SlugPermission.lookupMetaTools.contains(t.name)
                 let title = a.title.map { "\($0). " } ?? ""
                 out.append(MCPToolDescriptor(
                     functionName: fn, key: t.permissionKey, serverID: s.id, serverName: s.name, toolName: t.name,
                     description: "\(title)\(s.kind == .composio ? composioDescription(t.description, tool: t.name) : t.description) (from \(s.name))"
                         .trimmingCharacters(in: .whitespaces),
-                    parametersJSON: parameters(t.inputSchemaJSON), writeType: a.isWriteType(toolName: t.name),
-                    defaultPolicy: a.defaultPolicy(toolName: t.name, curatedVerified: verified(s)),
-                    enabled: s.enabled && t.enabled, composio: s.kind == .composio))
+                    parametersJSON: composio && t.name == SlugPermission.multiExecute ? SlugPermission.executeParametersJSON
+                        : parameters(t.inputSchemaJSON),
+                    writeType: !lookup && a.isWriteType(toolName: t.name),
+                    defaultPolicy: lookup ? .always : a.defaultPolicy(toolName: t.name, curatedVerified: verified(s)),
+                    enabled: s.enabled && t.enabled, composio: composio))
             }
         }
         return out
@@ -93,6 +98,33 @@ public enum MCPToolProxy {
         o.removeValue(forKey: "$schema")
         guard let d = try? JSONSerialization.data(withJSONObject: o, options: [.sortedKeys]) else { return schema }
         return String(decoding: d, as: UTF8.self)
+    }
+
+    /// A large JSON result made to fit `capChars` before the plain cut would drop everything after the first items (a
+    /// mail list is 20 messages with full bodies and raw payloads): the bulky transport fields go, then every string is
+    /// shortened step by step, so each item keeps its sender, subject, date and the start of its text. Text that fits,
+    /// or is not JSON, is returned as it is.
+    public static func compactJSON(_ text: String, capChars: Int) -> String {
+        guard text.count > capChars, let o = try? JSONSerialization.jsonObject(with: Data(text.utf8)) else { return text }
+        let bulky: Set<String> = ["payload", "raw", "headers", "attachmentList", "labelIds", "display_url"]
+        func cut(_ v: Any, _ limit: Int) -> Any? {
+            switch v {
+            case let s as String: return s.isEmpty ? nil : s.count > limit ? String(s.prefix(limit)) + "…" : s
+            case let a as [Any]: return a.compactMap { cut($0, limit) }
+            case let m as [String: Any]:
+                return m.filter { !bulky.contains($0.key) }.compactMapValues { cut($0, limit) }
+            case is NSNull: return nil
+            default: return v
+            }
+        }
+        var out = text
+        for limit in [2000, 800, 300, 150] {
+            guard let c = cut(o, limit), JSONSerialization.isValidJSONObject(c),
+                  let d = try? JSONSerialization.data(withJSONObject: c, options: [.sortedKeys, .withoutEscapingSlashes]) else { return text }
+            out = String(decoding: d, as: UTF8.self)
+            if out.count <= capChars { break }
+        }
+        return out
     }
 
     /// The model-visible result: untrusted-wrapped, at most `capTokens` (≈ 4 characters per token).

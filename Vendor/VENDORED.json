@@ -2534,9 +2534,11 @@
    "local_path": "Vendor/CommandPaletteKit@cf93b66/Sources/CommandPaletteKit/CommandPaletteQueryEnvironment.swift",
    "license": "MIT",
    "upstream_sha256": "bdbf1e211b703cdab3bcbbc0d2156b1051c9ccd084638d18b86c368f16d6a6bb",
-   "local_sha256": "a358359aeaf6d8b43642d5c2891d05e2a80be8293ac69e658e7020a9292407a2",
+   "local_sha256": "e81674b03d005a9ea168648d3a0506c3b48785d84ef5b07090cd731f629d62b3",
    "patches": [
-    "UP-CP-001"
+    "UP-CP-001",
+    "UP-CP-005",
+    "UP-CP-006"
    ],
    "used_by": [
     "P-shell-05"
@@ -2581,9 +2583,11 @@
    "local_path": "Vendor/CommandPaletteKit@cf93b66/Sources/CommandPaletteKit/CommandPaletteView.swift",
    "license": "MIT",
    "upstream_sha256": "04c0752bf32eedb0ace0dcee9c8a25067c16bb7ad68b1ad803ebe10d8114de77",
-   "local_sha256": "5921cf295ff85ff68d901ab2172c25bcc26bd0f58166c0419432b388d1db005d",
+   "local_sha256": "a41d3368dab41f89fda449600f2f697f9269838e3488231abd3838cb1e599001",
    "patches": [
-    "UP-CP-001"
+    "UP-CP-001",
+    "UP-CP-005",
+    "UP-CP-006"
    ],
    "used_by": [
     "P-shell-05"
@@ -2613,11 +2617,13 @@
    "local_path": "Vendor/CommandPaletteKit@cf93b66/Sources/CommandPaletteKit/CommandPaletteView+Content.swift",
    "license": "MIT",
    "upstream_sha256": "1360a0f06789e76b34261225c767d16318d705015f41256c014ec4d7704e63a1",
-   "local_sha256": "5b38cb8da0543da336614e3e51e09da62b33b08421d8ac0582c6fb0650732d90",
+   "local_sha256": "a636f08fc30010713da3ce880190a4f6d797a64a0fa43f5b55b5cf1c747be376",
    "patches": [
     "UP-CP-002",
     "UP-CP-003",
-    "UP-CP-004"
+    "UP-CP-004",
+    "UP-CP-005",
+    "UP-CP-006"
    ],
    "used_by": [
     "P-shell-05"
@@ -2647,9 +2653,10 @@
    "local_path": "Vendor/CommandPaletteKit@cf93b66/Sources/CommandPaletteKit/CommandPaletteView+KeyMonitor.swift",
    "license": "MIT",
    "upstream_sha256": "2eaa3f5aed0b574b047acef685ee00b02e388c94f4c02fc6af174f464b862a07",
-   "local_sha256": "fc770baf64e0d0e3e12df621140faa9c87a0cbad628486b666643053ccb2a284",
+   "local_sha256": "a6ce7ed9b615c9bb5bc5d4ad854f452c238f6b7a83f95ddf53f4352c13347218",
    "patches": [
-    "UP-CP-002"
+    "UP-CP-002",
+    "UP-CP-003"
    ],
    "used_by": [
     "P-shell-05"
@@ -5161,7 +5168,7 @@
    "local_path": "Vendor/LetsMove@70c5772/PFMoveApplication.m",
    "license": "Public-Domain",
    "upstream_sha256": "09ec811505d9ca46b960cd22fabfad5d000279533847477edbd775e13792732c",
-   "local_sha256": "6424537ca199c3ef9888df924fb16f4e1de2566d0f31f9fefa766777e13af371",
+   "local_sha256": "e7f42ebf355431e38436909c4ec1ed6427c98ceb4e62fed2812f1a252c297e55",
    "patches": [
     "UP-LM-001",
     "UP-LM-002",

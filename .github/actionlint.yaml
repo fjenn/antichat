@@ -1,3 +1,4 @@
-# actionlint: labels of the self-hosted runners (ci-release §1).
+# actionlint: labels of the self-hosted runners (ci-release §1), and `xcode-27`: GitHub's hosted macOS image with
+# Xcode 27 (release.yml), which actionlint's built-in label list may not know yet.
 self-hosted-runner:
-  labels: [gpu, m5max]
+  labels: [gpu, m5max, xcode-27]

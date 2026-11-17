@@ -135,6 +135,23 @@ func memoryDB() throws -> (AppDatabase, MemoryStore) {
         #expect(await d.decide(new: "Speaks Portuguese", scope: .global, projectID: nil).decision == .add)
     }
 
+    @Test func normalisedDuplicateCheck() throws {
+        #expect(MemoryStore.normalized("  I\u{2019}m  Végetarian. ") == "im vegetarian")
+        #expect(MemoryStore.normalized("I'm vegetarian") == MemoryStore.normalized("IM VEGETARIAN!"))
+        #expect(MemoryStore.normalized("Lives in Berlin") != MemoryStore.normalized("Lives in Bern"))
+        let (db, store) = try memoryDB()
+        try db.write { try $0.execute(sql: "INSERT INTO project (id, name, created_at, updated_at) VALUES ('p1', 'P', 0, 0)") }
+        let (g, _) = try store.insert(topic: "Home", key: "city", text: "Lives in Berlin.", origin: .tool)
+        let (p, _) = try store.insert(topic: "Work", scope: .project, projectID: "p1", key: "stack", text: "Uses Swift", origin: .tool)
+        #expect(try store.duplicate(of: "lives in berlin")?.id == g.id)
+        #expect(try store.duplicate(of: "lives in berlin", projectID: "p1")?.id == g.id, "a global fact also counts inside a project")
+        #expect(try store.duplicate(of: "uses swift", projectID: "p1")?.id == p.id)
+        #expect(try store.duplicate(of: "uses swift") == nil, "another project's fact is not a global duplicate")
+        #expect(try store.duplicate(of: "Lives in Hamburg") == nil && store.duplicate(of: " ?! ") == nil)
+        try store.delete(id: g.id)
+        #expect(try store.duplicate(of: "lives in berlin") == nil, "a deleted memory can be saved again")
+    }
+
     @Test func parseRejectsUnknownIdsAndJunk() {
         let known: Set = ["a1"]
         #expect(MemoryUpdateDecider.parse(#"sure: {"event":"UPDATE","id":"a1","text":"x"}"#, known: known, new: "n") == .update(id: "a1", text: "x"))
@@ -154,11 +171,15 @@ func memoryDB() throws -> (AppDatabase, MemoryStore) {
 
     @Test func saveViewDeleteUndoEachLogOneEvent() async throws {
         let (_, store) = try memoryDB()
-        let x = executor(store)
+        let x = executor(store, embedder: TableEmbedder(table: ["vegetarian": [1, 0], "vegetarian since 2019": [1, 0]]))
         let saved = obj(try await x.run(#"{"action":"save","topic":"Food","key":"diet","value":"vegetarian"}"#, chatID: "c1"))
         let ids = try #require(saved["memoryEventIDs"] as? [String])
         #expect(ids.count == 1 && saved["result"] as? String == "added")
-        #expect(MemoryToolExecutor.eventIDs(inResult: try await x.run(#"{"action":"save","topic":"Food","key":"diet","value":"vegetarian"}"#, chatID: "c1")).count == 1)  // same text → update by cosine 1
+        // The same fact again (case, accents, punctuation aside): nothing written, no "Memory updated" line.
+        let again = obj(try await x.run(#"{"action":"save","topic":"Diet","key":"food","value":" Végetarian. "}"#, chatID: "c1"))
+        #expect(again["result"] as? String == "already_known" && again["stored"] as? Bool == true)
+        #expect((again["memoryEventIDs"] as? [String])?.isEmpty == true)
+        #expect(MemoryToolExecutor.eventIDs(inResult: try await x.run(#"{"action":"save","topic":"Food","key":"diet","value":"vegetarian since 2019"}"#, chatID: "c1")).count == 1)  // cosine 1 → update
         let view = obj(try await x.run(#"{"action":"view"}"#, chatID: "c1"))
         #expect((view["memory"] as? String)?.contains("[Food] diet: vegetarian") == true)
         let del = obj(try await x.run(#"{"action":"delete","key":"diet"}"#, chatID: "c1"))
@@ -195,8 +216,11 @@ func memoryDB() throws -> (AppDatabase, MemoryStore) {
         #expect(p.access(chatMemoryEnabled: true, isEvil: false, isIncognito: true).read == false)
         #expect(MemoryPolicy(mode: .paused).access(chatMemoryEnabled: true, isEvil: false, isIncognito: false) == .init(read: true, write: false))
         #expect(MemoryPolicy(mode: .off).access(chatMemoryEnabled: true, isEvil: false, isIncognito: false).read == false)
-        // Defaults: on, sensitive off, Evil off.
+        // Defaults (owner 2026-11-16): on, sensitive topics on, Evil on; a stored choice is kept.
         let d = UserDefaults.inMemory()
+        #expect(MemoryPolicy.from(d) == MemoryPolicy(mode: .on, includeSensitive: true, useInEvil: true))
+        d.set(false, forKey: "memoryIncludeSensitive")
+        d.set(false, forKey: "useMemoryInEvil")
         #expect(MemoryPolicy.from(d) == MemoryPolicy(mode: .on, includeSensitive: false, useInEvil: false))
     }
 }

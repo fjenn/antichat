@@ -14,16 +14,20 @@ struct ShareMenuItems: View {
     let database: AppDatabase
 
     var body: some View {
+        // What most people want first (copy, a PDF), the other formats one level down.
         Button { ShareActions.copyMarkdown(chatID, database) } label: { Text(CopyKey("share.copyMarkdown")) }
             .accessibilityIdentifier("share.copyMarkdown")
-        Button { ShareActions.save(chatID, database, as: .markdown) } label: { Text(CopyKey("share.exportMarkdown")) }
-            .accessibilityIdentifier("share.exportMarkdown")
         Button { ShareActions.save(chatID, database, as: .pdf) } label: { Text(CopyKey("share.exportPDF")) }
             .accessibilityIdentifier("share.exportPDF")
-        Button { ShareActions.save(chatID, database, as: .html) } label: { Text(CopyKey("share.exportHTML")) }
-            .accessibilityIdentifier("share.exportHTML")
-        Button { ShareActions.copyImage(chatID, database) } label: { Text(CopyKey("share.copyImage")) }
-            .accessibilityIdentifier("share.copyImage")
+        Menu {
+            Button { ShareActions.save(chatID, database, as: .markdown) } label: { Text(CopyKey("share.exportMarkdown")) }
+                .accessibilityIdentifier("share.exportMarkdown")
+            Button { ShareActions.save(chatID, database, as: .html) } label: { Text(CopyKey("share.exportHTML")) }
+                .accessibilityIdentifier("share.exportHTML")
+            Button { ShareActions.copyImage(chatID, database) } label: { Text(CopyKey("share.copyImage")) }
+                .accessibilityIdentifier("share.copyImage")
+        } label: { Text(CopyKey("share.export")) }
+            .accessibilityIdentifier("share.export")
         Button { ShareActions.share(chatID, database) } label: { Text(CopyKey("share.sheet")) }
             .accessibilityIdentifier("share.sheet")
     }

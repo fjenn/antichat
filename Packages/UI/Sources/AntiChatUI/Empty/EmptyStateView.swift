@@ -1,6 +1,7 @@
 // EmptyState, Normal (M1.T07 step 2; screens.md S-05, components.md §5; ChatGPT `003`/`004`): the headline
-// (`type.title2`) above a composer centred at 720 pt, and up to four SuggestionCards below it. The composer sits
-// at the column's vertical centre; headline and cards hang off it so their heights never move it.
+// (`type.title2`) above a composer centred at 720 pt, and up to four suggestion chips centred below it. The composer sits
+// at the column's vertical centre; headline and cards hang off it so their heights never move it. While Evil Mode is
+// offered, the mode choice (`EmptyModeControl`) sits between the headline and the composer.
 import AntiChatDesign
 import SwiftUI
 
@@ -9,6 +10,8 @@ struct EmptyStateView<Composer: View>: View {
     let headline: CopyKey
     let suggestions: [Suggestion]
     var onSuggestion: (Suggestion) -> Void
+    /// The Normal / Evil choice of a new chat (nil while Evil Mode is off or hidden: nothing is shown).
+    var modeControl: AnyView? = nil
     @ViewBuilder var composer: Composer
 
     var body: some View {
@@ -16,22 +19,30 @@ struct EmptyStateView<Composer: View>: View {
             .frame(maxWidth: readingWidth)
             // Behind the composer (same layout), so the composer's inline / and @ menu (M1.T17) covers it.
             .background(alignment: .top) {
-                Text(headline)
-                    .typeStyle(.title2)
-                    .foregroundStyle(Color.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize()
-                    .alignmentGuide(.top) { d in d[.bottom] + Spacing.space6 }
-                    .accessibilityAddTraits(.isHeader)
-                    .probeID("emptyHeadline")
+                VStack(spacing: EmptyModeLayout.aboveControl) {
+                    Text(headline)
+                        .typeStyle(.title2)
+                        .foregroundStyle(Color.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize()
+                        .accessibilityAddTraits(.isHeader)
+                        .probeID("emptyHeadline")
+                    modeControl
+                }
+                .alignmentGuide(.top) { d in d[.bottom] + (modeControl == nil ? Spacing.space6 : EmptyModeLayout.belowControl) }
             }
             .overlay(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: Spacing.space1) {
-                    ForEach(suggestions) { s in
-                        SuggestionCard(suggestion: s) { onSuggestion(s) }
+                // A centred row of chips; a narrow window wraps it to two rows, then to one chip per row.
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: Spacing.space2) { chips(suggestions) }
+                    VStack(spacing: Spacing.space2) {
+                        let half = (suggestions.count + 1) / 2
+                        HStack(spacing: Spacing.space2) { chips(Array(suggestions.prefix(half))) }
+                        HStack(spacing: Spacing.space2) { chips(Array(suggestions.dropFirst(half))) }
                     }
+                    VStack(spacing: Spacing.space2) { chips(suggestions) }
                 }
-                .frame(maxWidth: readingWidth, alignment: .leading)
+                .frame(maxWidth: readingWidth)
                 .alignmentGuide(.bottom) { d in d[.top] - Spacing.space5 }
                 .accessibilityElement(children: .contain)
                 .probeID("suggestions")
@@ -39,9 +50,20 @@ struct EmptyStateView<Composer: View>: View {
             .padding(.horizontal, Spacing.space6)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+
+    private func chips(_ list: [Suggestion]) -> some View {
+        ForEach(list) { s in SuggestionCard(suggestion: s) { onSuggestion(s) } }
+    }
 }
 
-/// SuggestionCard (components.md §5): icon + one line; hover = grey pill (ChatGPT F-030). Click fills the composer.
+/// Where the mode choice sits in an empty state: the same distance above the composer in a Normal and an Evil new
+/// chat, so it stays under the pointer when the choice swaps one empty state for the other.
+enum EmptyModeLayout {
+    static let aboveControl = Spacing.space5
+    static let belowControl = Spacing.space4
+}
+
+/// SuggestionCard (components.md §5): a chip, icon + one line; hover fills it. Click fills the composer.
 struct SuggestionCard: View {
     let suggestion: Suggestion
     var action: () -> Void
@@ -49,23 +71,20 @@ struct SuggestionCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Spacing.space3) {
+            HStack(spacing: Spacing.space2) {
                 Image(systemName: suggestion.symbol)
                     .foregroundStyle(Color.textSecondary)
-                    .frame(width: 18)
                 Text(suggestion.key)
                     .typeStyle(.callout)
                     .foregroundStyle(Color.textSecondary)
                     .lineLimit(1)
-                Spacer(minLength: 0)
+                    .fixedSize()
             }
             .padding(.horizontal, Spacing.space3)
-            .frame(height: 36)
-            .contentShape(Rectangle())
-            .background(
-                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                    .fill(hovering ? Color.surfaceHover : .clear)
-            )
+            .frame(height: 34)
+            .contentShape(Capsule())
+            .background(Capsule().fill(hovering ? Color.surfaceHover : .clear))
+            .overlay(Capsule().strokeBorder(Color.borderSubtle, lineWidth: Stroke.control))
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }

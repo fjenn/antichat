@@ -6,6 +6,9 @@ devfeed-guard.py (RC review P2-8).
 Source checks (always):
   1. ANTICHAT_PERF_HARNESS is added to SWIFT_ACTIVE_COMPILATION_CONDITIONS by exactly one line, in
      tools/perf/build-perf.sh, and set by no other build input (project.yml, Makefile, xcconfigs, release scripts).
+  1b. The bench builders (tools/bench.sh and the M0 gate scripts: `-Bench` exists only in Debug and perf-harness
+     builds, tools/ci/dev-modes-guard.py) add the same condition, only to a build into build/dd-bench: such a script
+     never archives and never writes build/release or build/tryout.
   2. In shipping Swift (App/, Packages/ minus tests) the flag appears only as `#if DEBUG || ANTICHAT_PERF_HARNESS`,
      except in BuildFlavor.swift, which owns the marker and the flavor flags.
   2b. D-006: the ChildSafetyCheck gate (MediaOutputGate, MediaJobRunner, the ChildSafetyCheck package) carries no
@@ -35,7 +38,10 @@ FLAG_LINE = f"'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) {FLAG}' build | 
 # D-006: compiled identically in every build (ANTICHAT_UI_TESTING, defined by no configuration, is r241-audit's).
 GATE_SOURCES = ("Packages/Engines/Sources/AntiChatEngines/Media/MediaOutputGate.swift",
                 "Packages/Engines/Sources/AntiChatEngines/Jobs/MediaJobRunner.swift", "Packages/ChildSafetyCheck/Sources")
-ALLOWED = {BUILD_PERF, FLAVOR, "tools/ci/perfharness-guard.py", "tools/ci/tests/test_perfharness_guard.py",
+# 1b: scripts that build the never-shipped bench app (Release optimisation + the flag) into build/dd-bench.
+BENCH_BUILDERS = ("tools/bench.sh", "tools/m0/at-m0-06.sh", "tools/m0/at-m0-07.sh", "tools/m0/at-m0-10.sh")
+BENCH_CONDITION = f"'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) {FLAG}'"
+ALLOWED = {BUILD_PERF, FLAVOR, *BENCH_BUILDERS, "tools/ci/perfharness-guard.py", "tools/ci/tests/test_perfharness_guard.py",
            "tools/ci/r241-audit.py", "tools/perf/run.py", "tools/perf/t05.py", "tools/ci/tests/test_perf.py", "Makefile"}
 
 
@@ -53,6 +59,18 @@ def source_checks(root: Path) -> list[str]:
     for i, l in enumerate(mk.splitlines(), 1):
         if FLAG in comment_free_sh(l):
             errors.append(f"Makefile:{i}: sets {FLAG} (only {BUILD_PERF} may)")
+    for rel in BENCH_BUILDERS:
+        f = root / rel
+        if not f.exists():
+            continue
+        code = [comment_free_sh(l) for l in f.read_text(encoding="utf-8").splitlines()]
+        for i, l in enumerate(code, 1):
+            if FLAG in l and BENCH_CONDITION not in l:
+                errors.append(f"{rel}:{i}: {FLAG} only as {BENCH_CONDITION} (found `{l.strip()}`)")
+            if re.search(r"\barchive\b|build/release|build/tryout", l) and any(FLAG in x for x in code):
+                errors.append(f"{rel}:{i}: a bench builder never archives or writes a release (`{l.strip()[:80]}`)")
+        if any(FLAG in l for l in code) and not any("dd-bench" in l for l in code):
+            errors.append(f"{rel}: builds with {FLAG} but not into build/dd-bench")
     for g in GATE_SOURCES:
         base = root / g
         for f in ([base] if base.is_file() else base.rglob("*.swift") if base.is_dir() else []):
@@ -87,7 +105,8 @@ def scan_files(root: Path):
                 continue
             yield f
     for pat in ("project.yml", "Package.swift", "Config/**/*", "App/**/*.xcconfig", "tools/release/*", "tools/perf/*.sh",
-                "tools/ci/*.sh", "AntiChat.xcodeproj/project.pbxproj"):
+                "tools/ci/*.sh", "tools/*.sh", "tools/m0/*.sh", "tools/at/*.sh", "tools/install-test/**/*.sh",
+                "AntiChat.xcodeproj/project.pbxproj"):
         for f in root.glob(pat):
             if f.is_file():
                 yield f

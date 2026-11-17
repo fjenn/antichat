@@ -8,7 +8,6 @@ import SwiftUI
 
 struct ImageAttachmentCard: View {
     let use: MessageProvenance.FileUse
-    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         switch use.vision {
@@ -19,7 +18,7 @@ struct ImageAttachmentCard: View {
                 Text(CopyKey("img.needsLargerModel")).typeStyle(.footnote).foregroundStyle(Color.textPrimary)
                 Button {
                     SettingsNavigator.shared.request(.capabilities)
-                    openSettings()
+                    SettingsPresenter.shared.show()
                 } label: { Text(CopyKey("img.needsLargerModel.cta")) }
                     .buttonStyle(.link)
                     .controlSize(.small)

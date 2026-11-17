@@ -70,7 +70,7 @@ extension WindowSuites {
         send("zephyrquartz hello", state, sessions)
         let chatID = try #require(state.currentChatID)
         #expect(state.isIncognito && state.isDocked)
-        #expect(!state.canToggleIncognito)  // disabled inside a non-empty chat
+        #expect(state.canToggleIncognito)  // always available: leaving a chat with messages asks first
         let m = sessions.model(for: chatID)
         #expect(await until { !m.isGenerating && m.messages.last?.text == "incognito reply" })
         #expect(env.stores.isEphemeral(chatID))

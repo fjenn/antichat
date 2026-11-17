@@ -28,7 +28,7 @@ public struct FileOutResult: Codable, Sendable, Equatable {
         let v = s.version > 1 ? " (version \(s.version))" : ""
         // A file name from the jail may hold a line break: never let it start a line of its own.
         let name = String(s.filename.map { $0.isNewline ? " " : $0 })
-        return json + "\nCreated \(name)\(v). The user sees it as a file card with Open and Save As; do not repeat its contents. To change it later, call the tool again with revises: \"\(s.artifactID)\"."
+        return json + "\nCreated \(name)\(v). It is already shown to the user. Reply with one short sentence; do not describe how it is shown, mention buttons or a card, or repeat its contents. To change it later, call the tool again with revises: \"\(s.artifactID)\"."
     }
 
     public static func parse(_ text: String) -> FileOutResult? { parseAll(text).first }

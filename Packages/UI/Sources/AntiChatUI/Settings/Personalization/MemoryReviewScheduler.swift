@@ -1,7 +1,8 @@
-// M8.T03 step 6 (R-246 AC2): app wiring of the propose-only memory review. The launch registers the tier default of
-// "Suggest things to remember" (off on T0–T1), then every 15 minutes the gates are checked with this Mac's power
-// (IOKit: AC adapter, Low Power Mode), idle time (CGEventSource), thermal state and running turns; a run writes
-// pending suggestions only. The last-run stamp is app state (not a setting).
+// M8.T03 step 6 (R-246 AC2): app wiring of the background memory review. The launch registers the tier default of
+// "Keep memory up to date automatically" (off on T0–T1), then every 15 minutes the gates are checked with this Mac's
+// power (IOKit: AC adapter, Low Power Mode), idle time (CGEventSource), thermal state and running turns; a run saves
+// the facts it is certain of and leaves the rest as pending suggestions (owner 2026-11-16). The last-run stamp is app
+// state (not a setting).
 import AntiChatFoundation
 import AntiChatHarness
 import AntiChatKnowledge
@@ -70,8 +71,9 @@ public final class MemoryReviewScheduler {
         guard service.skipReason(gates, lastRun: last) == nil else { return }
         running = true
         Task.detached(priority: .utility) { [weak self] in
-            let n = (try? await service.run(gates, lastRun: last).count) ?? 0
-            AppLog.log(.store, .info, "memory review: \(n) suggestion(s)")
+            let rows = (try? await service.run(gates, lastRun: last)) ?? []
+            let saved = rows.filter { $0.state == .saved }.count
+            AppLog.log(.store, .info, "memory review: \(saved) saved, \(rows.count - saved) to review")
             await MainActor.run {
                 UserDefaults.antichat.set(Date(), forKey: Self.lastRunKey)
                 self?.running = false

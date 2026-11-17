@@ -45,7 +45,7 @@ final class WindowLayoutTests: XCTestCase {
         for id in [XCUIIdentifierCloseWindow, XCUIIdentifierMinimizeWindow, XCUIIdentifierFullScreenWindow] {
             XCTAssertTrue(window.buttons[id].exists, id)
         }
-        for id in ["sidebarToggle", "navBack", "navForward", "toolbarTitle", "chatMoreMenu"] {
+        for id in ["sidebarToggle", "toolbarTitle", "chatMoreMenu"] {
             XCTAssertTrue(window.descendants(matching: .any)[id].exists, id)
         }
         let title = window.descendants(matching: .any)["toolbarTitle"]

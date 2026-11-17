@@ -223,17 +223,17 @@ extension WindowSuites {
         let words = Self.phrases
         var result: [String: Any] = ["phrases": words.count, "form": "in-process window (Q-015/Q-025 fallback)"]
 
-        // Setup (before the snapshot): a normal chat with a message → the IncognitoButton is disabled there.
+        // Setup (before the snapshot): a normal chat with a message → the IncognitoButton works there too.
         let normal = try rig.state.service.create(title: "Normal chat")
         try rig.state.service.appendUserMessage(normal.id, text: "hello")
         rig.state.open(.chat(normal.id))
         await pump(400)
-        let disabledInChat = !rig.state.canToggleIncognito
+        let enabledInChat = rig.state.canToggleIncognito
         rig.state.newChat()
         await pump(300)
         let enabledOnNew = rig.state.canToggleIncognito
-        result["AT-090-1-disabled"] = ["inNonEmptyChat": disabledInChat, "onNewChat": enabledOnNew,
-                                       "pass": disabledInChat && enabledOnNew]
+        result["AT-090-1-enabled"] = ["inNonEmptyChat": enabledInChat, "onNewChat": enabledOnNew,
+                                      "pass": enabledInChat && enabledOnNew]
         rig.sessions.warmup()
         _ = await until(10) { rig.sessions.readiness.acceptsRequests }
         let aboutYou = words[5]
@@ -268,14 +268,11 @@ extension WindowSuites {
         entry["buttonClicked"] = clickedOff && clickedOn
         rig.state.newChat()
         await pump(300)
-        rig.palette.present()
-        await pump(200)
-        rig.palette.activate("action.newIncognitoChat")
-        rig.palette.dismiss()
+        rig.state.newIncognitoChat()  // File › New Incognito Chat's action (the search panel lists chats only)
         _ = await until(3) { rig.state.isIncognito }
         await pump(400)
-        entry["paletteAction"] = ui(rig)
-        let allUI = ["shiftCmdN", "toolbarButton", "paletteAction"].allSatisfy {
+        entry["menuAction"] = ui(rig)
+        let allUI = ["shiftCmdN", "toolbarButton", "menuAction"].allSatisfy {
             (entry[$0] as? [String: Bool])?.values.allSatisfy { $0 } ?? false
         }
         entry["pass"] = allUI && (entry["buttonOffLeaves"] as? Bool ?? false)

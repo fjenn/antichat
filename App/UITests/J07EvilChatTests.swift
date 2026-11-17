@@ -41,8 +41,8 @@ final class J07EvilChatTests: XCTestCase {
         XCTAssertTrue(evilRow.exists, "the sidebar row marks the Evil chat")
         element(window, "modeSwitch.locked").click()
         XCTAssertTrue(element(window, "evil.lockedText").waitForExistence(timeout: 2))
-        XCTAssertTrue(element(window, "evil.continueEvil").exists)
-        element(window, "evil.continueNormal").click()
+        XCTAssertTrue(element(window, "modeSwitch.evil").exists)  // the current mode's row, checked
+        element(window, "evil.continueNormal").click()  // "New Normal chat"
         XCTAssertFalse(element(window, "evil.frame").waitForExistence(timeout: 2))
     }
 

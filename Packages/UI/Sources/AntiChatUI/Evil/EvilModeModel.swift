@@ -89,12 +89,9 @@ public final class EvilModeModel {
         return n
     }
 
-    public var defaultModeForNewChat: ComposerChatMode {
-        guard showsSwitch else { return .normal }
-        // The switch shows (consented, or the Debug `-FakeEvilEnabled` force): the last used mode. (Asking the manager's
-        // `defaultModeForNewChat` gave Normal under the force — no consent row — so a new Evil chat fell back to Normal.)
-        return manager.lastMode == .evil ? .evil : .normal
-    }
+    /// A new chat starts Normal (owner 2026-11-17: it used to take the last used mode, so a new chat after an Evil one
+    /// was Evil without anyone choosing it). Evil is chosen per chat: the empty state's choice, the toolbar picker, ⇧⌘E.
+    public var defaultModeForNewChat: ComposerChatMode { .normal }
 
     public func recordLastMode(_ m: ComposerChatMode) { manager.recordLastMode(m == .evil ? .evil : .normal) }
     public func isReadOnly(_ m: ComposerChatMode) -> Bool { m == .evil && !isOn }

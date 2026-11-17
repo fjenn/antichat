@@ -1,4 +1,4 @@
-// EvilSnapshotTests (M2.T17 Definition of done): every ModeSwitch (Normal, Evil, locked), EvilBadge and
+// EvilSnapshotTests (M2.T17 Definition of done): every ModePicker / ModeMenu state (Normal, Evil, locked, downloading), EvilBadge and
 // EvilSettingsPanel state (disabled, enabled, hidden, Touch ID on) plus the lock popover and the enable sheet, in Light
 // and Dark. Same rig as ComposerSnapshotTests. Re-record: SNAPSHOT_TESTING_RECORD=all make test-unit FILTER=EvilSnapshotTests.
 import AntiChatFoundation
@@ -63,13 +63,51 @@ extension WindowSuites {
     }
 
     @Test func modeSwitchAndBadge() {
-        check("ModeSwitch.normal") { ModeSwitch(mode: .constant(.normal)) }
-        check("ModeSwitch.evil") { ModeSwitch(mode: .constant(.evil)) }
-        check("ModeSwitch.locked-evil") { ModeSwitch(mode: .constant(.evil), isLocked: true) }
-        check("ModeSwitch.locked-normal") { ModeSwitch(mode: .constant(.normal), isLocked: true) }
+        // ux/simplify: the toolbar's picker (its face and its menu) replaces the composer's segmented switch.
+        check("ModePicker.normal") { ModePicker(mode: .constant(.normal)) }
+        check("ModePicker.evil") { ModePicker(mode: .constant(.evil)) }
+        check("ModePicker.hover-evil") { ModePickerLabel(mode: .evil, highlighted: true) }
+        check("ModeToggle.evil") { ModeToggle(mode: .constant(.evil)) }
+        let menu = { (current: ComposerChatMode, locked: Bool, line: CopyText?) in
+            ModeMenu(current: current, isLocked: locked, evilUnavailable: line, onPick: { _ in }, onContinue: { _ in })
+                .background(Color.surfaceRaised)
+        }
+        check("ModeMenu.normal") { menu(.normal, false, nil) }
+        check("ModeMenu.evil") { menu(.evil, false, nil) }
+        check("ModeMenu.locked-evil") { menu(.evil, true, nil) }
+        check("ModeMenu.locked-normal") { menu(.normal, true, nil) }
+        check("ModeMenu.downloading") { menu(.normal, false, CopyText(CopyKey("evil.downloading"), ["minutes": "6"])) }
         check("EvilBadge") { EvilBadge() }
-        check("ModeLockPopover") { ModeLockPopover(current: .evil) { _ in } }
+        check("EvilEmptyState", {
+            let m = ComposerModel(evilEnabled: true)
+            m.mode = .evil
+            return EvilEmptyState { ComposerView(model: m) }.frame(height: 420).environment(\.readingWidth, 640)
+        }, width: 820)
         check("EvilEnableSheet") { EvilEnableSheet(onContinue: {}, onCancel: {}) }
+    }
+
+    /// Owner 2026-11-17: a new, empty chat shows the Normal / Evil choice above the composer (only while Evil Mode is
+    /// offered): Normal chosen, Evil chosen, Evil not ready (disabled, with its line), and absent with Evil Mode off.
+    @Test func emptyStateModeChoice() {
+        let line = CopyText(CopyKey("evil.setup.downloading"), ["percent": "42"])
+        let empty = { (mode: ComposerChatMode, offered: Bool, unavailable: CopyText?) -> AnyView in
+            let m = ComposerModel(evilEnabled: offered)
+            m.mode = mode
+            let control = offered ? AnyView(EmptyModeControl(mode: .constant(mode), evilUnavailable: unavailable)) : nil
+            let view = mode == .evil
+                ? AnyView(EvilEmptyState(modeControl: control) { ComposerView(model: m) })
+                : AnyView(EmptyStateView(headline: CopyKey("empty.headline"),
+                                         suggestions: SuggestionProvider.suggestions(enabled: [.chat], seed: 1),
+                                         onSuggestion: { _ in }, modeControl: control) { ComposerView(model: m) })
+            return AnyView(view.frame(height: 460).environment(\.readingWidth, 640))
+        }
+        check("EmptyMode.normal", { empty(.normal, true, nil) }, width: 820)
+        check("EmptyMode.evil", { empty(.evil, true, nil) }, width: 820)
+        check("EmptyMode.notReady", { empty(.normal, true, line) }, width: 820)
+        check("EmptyMode.off", { empty(.normal, false, nil) }, width: 820)
+        check("EmptyModeControl.normal") { EmptyModeControl(mode: .constant(.normal)) }
+        check("EmptyModeControl.evil") { EmptyModeControl(mode: .constant(.evil)) }
+        check("EmptyModeControl.notReady") { EmptyModeControl(mode: .constant(.normal), evilUnavailable: line) }
     }
 
     /// F7 (round 66, vq-m9 s21-evil): with no Evil chats "Delete all…" is disabled and reads disabled (the label in
@@ -82,8 +120,9 @@ extension WindowSuites {
     }
 
     @Test func settingsPanelStates() throws {
+        // Off, with no Evil chats and no Evil models, the group is not there at all (the switch is the Evil row of the
+        // pack list: `evilRowOfThePackList`).
         let states: [(String, (EvilModeManager) throws -> Void)] = [
-            ("disabled", { _ in }),
             ("enabled", { try $0.enable(adultSelfDeclared: true) }),
             ("hidden", { try $0.enable(adultSelfDeclared: true); $0.setHidden(true) }),
             ("touchid", { try $0.enable(adultSelfDeclared: true); $0.setTouchID(true) }),
@@ -92,6 +131,15 @@ extension WindowSuites {
             let model = try Self.panelModel(setup)
             check("EvilSettingsPanel.\(name)", { Form { EvilSettingsPanel(model: model) }.formStyle(.grouped) }, width: 520)
         }
+    }
+
+    /// Owner 2026-11-16: Evil is the fifth row of the Capabilities list — name, state (Off / Ready), the one switch.
+    @Test func evilRowOfThePackList() throws {
+        let off = try Self.panelModel { _ in }
+        let on = try Self.panelModel { try $0.enable(adultSelfDeclared: true) }
+        #expect(!off.isOn && on.isOn)
+        check("EvilPackRow.off", { Form { Section { EvilPackRow(model: off) } }.formStyle(.grouped) }, width: 520)
+        check("EvilPackRow.on", { Form { Section { EvilPackRow(model: on) } }.formStyle(.grouped) }, width: 520)
     }
 }
 }  // extension WindowSuites

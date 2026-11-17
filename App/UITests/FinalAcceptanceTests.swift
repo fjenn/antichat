@@ -39,7 +39,7 @@ final class FinalAcceptanceTests: XCTestCase {
         let app = XCUIApplication.antichat(["-SkipOnboarding", "YES", "-UseScriptedEngine", "basic", "-OfflineOnly", "YES"])
         app.launch()
         app.typeKey(",", modifierFlags: .command)
-        el(app, "settings.nav.evil").click()
+        el(app, "settings.nav.capabilities").click()
         el(app, "settings.evil.enabled").click()
         XCTAssertTrue(el(app, "evil.enableSheet").waitForExistence(timeout: 5))
         XCTAssertFalse(el(app, "evil.enable.continue").isEnabled, "Continue needs the 18+ box")

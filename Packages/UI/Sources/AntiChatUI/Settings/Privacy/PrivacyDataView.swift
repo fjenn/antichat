@@ -1,8 +1,8 @@
-// Settings › Privacy & Data (M8.T08; R-091, NFR-PR4; settings-map §9; S-21): assembles every row in settings-map
-// order — the statement (R-091 AC1, verbatim, selectable) → Offline only → Network activity (per category, R-091 AC2)
-// → Location (read-only, R-091 AC3) → New chats are incognito → Incognito personalization → Import → Export all →
-// Restore from backup → Archived chats → Archive all / Delete all (typed DELETE) → Auto-archive → Crash reports →
-// Export logs. Behaviour of the rows lives with their tasks (M1.T22, M2.T03, M8.T01/T06/T07/T09); this page places them.
+// Settings › Privacy & Data (M8.T08; R-091, NFR-PR4; settings-map §9 + §10; S-21). On the page: the statement (R-091
+// AC1, verbatim, selectable: the page header's subtitle, PageHeader) → Offline only → New chats are incognito → Your chats (Import, Export all, Archived chats,
+// Delete all with typed DELETE) → Storage (the bar, Clean up). Advanced: Network activity (per category, R-091 AC2),
+// Location (read-only, R-091 AC3), Incognito personalization, Restore from backup, Archive all, Auto-archive, the
+// storage details, Crash reports, Export logs. Behaviour of the rows lives with their tasks; this page places them.
 import AntiChatDesign
 import AntiChatFoundation
 import AntiChatHarness
@@ -104,47 +104,53 @@ struct PrivacyDataView: View {
     }
 
     var body: some View {
-        Section {  // R-091 AC1: verbatim, selectable, the page's first paragraph
-            // VQ (S-21 Privacy, M10): the rows' callout size, not body — the intro was the largest text on the page.
-            Text(PrivacyDataViewModel.statementKey)
-                .typeStyle(.callout)
-                .foregroundStyle(Color.textPrimary)
-                .textSelection(.enabled)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, Spacing.space1)  // M9.T08: the SettingsItem rows' inset (text edges line up)
-                .probeID("privacy.statement")
-        }
-        Section {  // M2.T03 + M8.T08 step 3
+        Section {  // M2.T03 + M8.T08 step 5 (R-091 AC4)
             OfflineOnlyRow()
-            NetworkActivityList(model: privacy)
-            SettingsItem("privacyLocation", description: CopyKey(searchUsesLocation ? "privacy.location.on" : "privacy.location")) {
-                Button { model.open(.tools, row: "searchUsesLocation") } label: { Text(CopyKey("privacy.location.change")) }
-                    .probeID("settings.control.privacyLocation")
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NetworkPolicyStore.didChange)) { _ in privacy.reload() }
-        Section {  // step 5 (R-091 AC4, R-090)
             SettingsItem("newChatsIncognito") {
                 Toggle(isOn: $newChatsIncognito) { Text(CopyKey("set.privacy.incognitoDefault")) }
                     .toggleStyle(.accessibleSwitch)
                     .labelsHidden()
                     .probeID("settings.control.newChatsIncognito")
             }
-            SettingsItem("incognitoPersonalizationDefault", description: CopyKey("set.privacy.incognitoPersonalization.note")) {
-                Picker(selection: $incognitoPersonalization) {
-                    Text(CopyKey("incognito.personalized")).tag(IncognitoPersonalization.personalized.rawValue)
-                    Text(CopyKey("incognito.unpersonalized")).tag(IncognitoPersonalization.unpersonalized.rawValue)
-                } label: { Text(CopyKey("set.privacy.incognitoPersonalization")) }
-                    .pickerStyle(.menu)
-                    .fixedSize()
-                    .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
-                    .probeID("settings.control.incognitoPersonalizationDefault")
-            }
         }
-        Section { dataRows }
-        Section { chatRows }
-        Section {  // M8.T09 (R-218 AC2/AC3, NFR-PR2); step 7 places them
-            SettingsItem("crashReports") {
+        Section {
+            dataRows
+            SettingsItem("archivedChats") {
+                Button { model.showingArchived = true } label: { Text(CopyKey("set.privacy.archived.manage")) }
+                    .probeID("settings.control.archivedChats")
+            }
+            SettingsItem("deleteAll") {
+                Button(role: .destructive) { model.showingDeleteAll = true } label: {
+                    Text(CopyKey("set.privacy.deleteAll.button"))
+                }
+                .probeID("settings.control.deleteAll")
+            }
+        } header: { GroupHeader("set.privacy.chats") }
+        .sheet(isPresented: $model.showingArchived) {
+            ArchivedChatsPage(chats: chats) { model.showingArchived = false }
+        }
+        .sheet(isPresented: $model.showingDeleteAll) {
+            DeleteAllSheet(onDelete: {
+                _ = try? chats?.deleteAll()
+                model.showingDeleteAll = false
+            }, onCancel: { model.showingDeleteAll = false })
+        }
+        if FeatureFlag.storageDashboard.isEnabled() {
+            Section { StorageRows(part: .main, database: chats?.database) } header: { GroupHeader("set.storage") }
+        }
+        AdvancedGroup(model: model, section: .privacy) {
+            NetworkActivityList(model: privacy)
+                .onReceive(NotificationCenter.default.publisher(for: NetworkPolicyStore.didChange)) { _ in privacy.reload() }
+            SettingsItem("privacyLocation", description: CopyKey(searchUsesLocation ? "privacy.location.on" : "privacy.location")) {
+                Button { model.open(.capabilities, row: "searchUsesLocation") } label: { Text(CopyKey("privacy.location.change")) }
+                    .probeID("settings.control.privacyLocation")
+            }
+            AdvancedHeading("set.privacy.chats")
+            advancedChatRows
+            AdvancedHeading("set.storage")
+            StorageRows(part: .advanced, database: chats?.database)
+            AdvancedHeading("set.privacy.diagnostics")
+            SettingsItem("crashReports") {  // M8.T09 (R-218 AC2/AC3, NFR-PR2)
                 Picker(selection: $crashMode) {
                     Text(CopyKey("crash.mode.ask")).tag(CrashReportMode.ask.rawValue)
                     Text(CopyKey("crash.mode.always")).tag(CrashReportMode.always.rawValue)
@@ -160,18 +166,9 @@ struct PrivacyDataView: View {
                     .probeID("settings.control.exportLogs")
             }
         }
-        .sheet(isPresented: $model.showingArchived) {
-            ArchivedChatsPage(chats: chats) { model.showingArchived = false }
-        }
-        .sheet(isPresented: $model.showingDeleteAll) {
-            DeleteAllSheet(onDelete: {
-                _ = try? chats?.deleteAll()
-                model.showingDeleteAll = false
-            }, onCancel: { model.showingDeleteAll = false })
-        }
     }
 
-    /// Import → Export all → Restore from backup.
+    /// Import → Export all.
     @ViewBuilder private var dataRows: some View {
         if FeatureFlag.importChats.isEnabled() {  // M8.T06 (R-092)
             SettingsItem("importChats") {
@@ -193,6 +190,20 @@ struct PrivacyDataView: View {
             }
             .onAppear { if ExportRequest.shared.take() { model.showingExport = true } }
         }
+    }
+
+    /// Advanced: Incognito personalization (R-090) → Restore from backup → Archive all → Auto-archive (R-011).
+    @ViewBuilder private var advancedChatRows: some View {
+        SettingsItem("incognitoPersonalizationDefault", description: CopyKey("set.privacy.incognitoPersonalization.note")) {
+            Picker(selection: $incognitoPersonalization) {
+                Text(CopyKey("incognito.personalized")).tag(IncognitoPersonalization.personalized.rawValue)
+                Text(CopyKey("incognito.unpersonalized")).tag(IncognitoPersonalization.unpersonalized.rawValue)
+            } label: { Text(CopyKey("set.privacy.incognitoPersonalization")) }
+                .pickerStyle(.menu)
+                .fixedSize()
+                .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
+                .probeID("settings.control.incognitoPersonalizationDefault")
+        }
         if let url = chats?.database.fileURL {  // M8.T01 (R-301 AC2); not for an in-memory database
             SettingsItem("restoreBackup") {
                 Button { model.showingRestore = true } label: { Text(CopyKey("set.privacy.restore.button")) }
@@ -204,14 +215,6 @@ struct PrivacyDataView: View {
                     }
             }
         }
-    }
-
-    /// Archived chats → Archive all → Delete all (typed DELETE, step 6) → Auto-archive (M1.T22 step 5, R-011).
-    @ViewBuilder private var chatRows: some View {
-        SettingsItem("archivedChats") {
-            Button { model.showingArchived = true } label: { Text(CopyKey("set.privacy.archived.manage")) }
-                .probeID("settings.control.archivedChats")
-        }
         SettingsItem("archiveAll") {
             Button { model.confirmingArchiveAll = true } label: { Text(CopyKey("set.privacy.archiveAll.button")) }
                 .probeID("settings.control.archiveAll")
@@ -221,12 +224,6 @@ struct PrivacyDataView: View {
                         model.confirmingArchiveAll = false
                     }, onCancel: { model.confirmingArchiveAll = false })
                 }
-        }
-        SettingsItem("deleteAll") {
-            Button(role: .destructive) { model.showingDeleteAll = true } label: {
-                Text(CopyKey("set.privacy.deleteAll.button"))
-            }
-            .probeID("settings.control.deleteAll")
         }
         SettingsItem("autoArchiveDays", description: CopyKey("set.privacy.autoArchive.note")) {
             Picker(selection: $autoArchiveDays) {

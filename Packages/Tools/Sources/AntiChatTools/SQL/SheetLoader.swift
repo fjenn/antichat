@@ -93,6 +93,38 @@ public enum SheetLoader {
                          parseText: true, into: store)]
     }
 
+    // MARK: preview
+
+    /// A workbook as Markdown tables for the side panel's preview (one per sheet, the sheet's name above when there
+    /// are several): the first `maxRows` rows and `maxColumns` columns of each. nil = not readable.
+    public static func previewMarkdown(xlsx url: URL, maxRows: Int = 200, maxColumns: Int = 30) async -> String? {
+        guard let parsed = try? await XLSXAdapter().parse(url: url, sizeLimit: sizeLimit),
+              var wb = parsed.representation.underlying as? Workbook else { return nil }
+        if let dates = try? XLSXDateStyles.dateCells(xlsx: Data(contentsOf: url)) { wb = XLSXDateStyles.apply(dates, to: wb) }
+        func cell(_ s: String) -> String {
+            let t = s.replacingOccurrences(of: "|", with: "\\|").replacingOccurrences(of: "\n", with: " ")
+            return t.isEmpty ? " " : t
+        }
+        func line(_ cells: [String]) -> String { "| " + cells.prefix(maxColumns).map(cell).joined(separator: " | ") + " |" }
+        let grids = wb.sheets.compactMap(grid)
+        guard !grids.isEmpty else { return nil }
+        return grids.map { g in
+            let numeric = g.header.indices.prefix(maxColumns).map { i in
+                !g.rows.isEmpty && g.rows.allSatisfy { r in
+                    if case .number = r[i] { return true }
+                    if case .empty = r[i] { return true }
+                    return false
+                }
+            }
+            var out = grids.count > 1 ? ["### " + g.name, ""] : []
+            out.append(line(g.header))
+            out.append("| " + numeric.map { $0 ? "---:" : "---" }.joined(separator: " | ") + " |")
+            out += g.rows.prefix(maxRows).map { line($0.map(\.fallbackText)) }
+            if g.rows.count > maxRows { out += ["", "… \(g.rows.count - maxRows) more rows"] }
+            return out.joined(separator: "\n")
+        }.joined(separator: "\n\n")
+    }
+
     // MARK: grid
 
     static func grid(_ sheet: Workbook.Sheet) -> Grid? {

@@ -10,11 +10,15 @@
 #          Rejected/Invalid → `notarytool log` saved, exit 1 (the caller deletes the artefact).
 # Credentials: only the keychain profile ($NOTARY_PROFILE, default AntiChat-notary, created once with
 # `xcrun notarytool store-credentials`). No Apple ID, password or API key is ever read from the repo or env.
+# $NOTARY_KEYCHAIN (optional): the keychain file that holds the profile (release.yml: the runner's temporary
+# keychain); unset = the login keychain.
 # Evidence: $OUT/<kind>-<submission id>.json (status), <kind>-<id>.log (Apple's log), staple.txt.
 set -euo pipefail
 mode="${SIGNING_MODE:-adhoc}"
 out="build/release/notary"
 profile="${NOTARY_PROFILE:-AntiChat-notary}"
+creds=(--keychain-profile "$profile")
+[[ -z "${NOTARY_KEYCHAIN:-}" ]] || creds+=(--keychain "$NOTARY_KEYCHAIN")
 kind="" target=""
 while (($# > 0)); do
     case "$1" in
@@ -50,7 +54,7 @@ fi
 started=$(date +%s)
 echo "notarize: submitting $(basename "$payload") ($(stat -f %z "$payload") bytes) with keychain profile $profile"
 set +e
-result="$(xcrun notarytool submit "$payload" --keychain-profile "$profile" --wait --timeout 2h --output-format json 2>"$work/submit.err")"
+result="$(xcrun notarytool submit "$payload" "${creds[@]}" --wait --timeout 2h --output-format json 2>"$work/submit.err")"
 rc=$?
 set -e
 id="$(python3 -I -c 'import json,sys; print(json.loads(sys.argv[1]).get("id",""))' "$result" 2>/dev/null || true)"
@@ -59,7 +63,7 @@ stem="$out/$kind-${id:-noid}"
 printf '%s\n' "$result" > "$stem.json"
 echo "notarize: id=${id:-?} status=${status:-?} ($(( $(date +%s) - started )) s)"
 if [[ -n "$id" ]]; then
-    xcrun notarytool log "$id" --keychain-profile "$profile" "$stem.log" >/dev/null 2>&1 || true
+    xcrun notarytool log "$id" "${creds[@]}" "$stem.log" >/dev/null 2>&1 || true
 fi
 if ((rc != 0)) || [[ "$status" != Accepted ]]; then
     cat "$work/submit.err" >&2 || true

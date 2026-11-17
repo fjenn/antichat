@@ -18,11 +18,16 @@ import Testing
         return (m, m.store)
     }
 
-    @Test func defaultsAreOnSensitiveOffEvilOff() {
+    /// Owner 2026-11-16: sensitive topics and memory in Evil chats are on until the user turns them off.
+    @Test func defaultsAreOnSensitiveOnEvilOn() {
         let suite = UserDefaults.inMemory()
         #expect(Defaults.Keys.memoryMode.defaultValue == "on")
-        #expect(Defaults.Keys.memoryIncludeSensitive.defaultValue == false)
-        #expect(Defaults.Keys.useMemoryInEvil.defaultValue == false)
+        #expect(Defaults.Keys.memoryIncludeSensitive.defaultValue == true)
+        #expect(Defaults.Keys.useMemoryInEvil.defaultValue == true)
+        #expect(MemoryPolicy.from(suite) == MemoryPolicy(mode: .on, includeSensitive: true, useInEvil: true))
+        // A value the user chose is kept.
+        suite.set(false, forKey: "memoryIncludeSensitive")
+        suite.set(false, forKey: "useMemoryInEvil")
         #expect(MemoryPolicy.from(suite) == MemoryPolicy(mode: .on, includeSensitive: false, useInEvil: false))
     }
 

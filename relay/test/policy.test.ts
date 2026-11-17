@@ -26,7 +26,7 @@ describe("production config", () => {
   it("accepts a complete production env and uses Upstash (no network at construction)", () => {
     const cfg = loadConfig(PROD);
     expect(cfg.production).toBe(true);
-    expect(cfg.allowedToolkits).toEqual(DEFAULT_TOOLKITS);
+    expect(cfg.allowedToolkits).toBe("*");
     expect(buildContext(PROD).kv).toBeInstanceOf(UpstashKV);
   });
 
@@ -88,6 +88,41 @@ describe("allow-list and versions", () => {
     expect(toolkitAllowed(cfg, "github")).toBe(false);
     expect(toolkitAllowed(cfg, "../x")).toBe(false);
     expect(toolkitAllowed(loadConfig(testEnv({ RELAY_ALLOWED_TOOLKITS: "*" })), "anything")).toBe(true);
+  });
+
+  it("without RELAY_ALLOWED_TOOLKITS every valid slug is allowed", () => {
+    const cfg = loadConfig(testEnv());
+    expect(cfg.allowedToolkits).toBe("*");
+    for (const ok of ["gmail", "hubspot", "_1password", "active_campaign", "share-point", "0codekit", "a".repeat(64)]) {
+      expect(toolkitAllowed(cfg, ok)).toBe(true);
+    }
+    for (const bad of ["", "Gmail", "../x", "a b", "gmail/", "gmail?x=1", "a".repeat(65), "gmäil", "*"]) {
+      expect(toolkitAllowed(cfg, bad)).toBe(false);
+    }
+  });
+
+  it("links a toolkit beyond the first eight by default; the session has no toolkit filter; bad slugs → 400", async () => {
+    h = await startHarness();
+    const post = (b: unknown) => h!.call("/v1/connections/link", { method: "POST", body: JSON.stringify(b), headers: { "content-type": "application/json" } });
+    const ok = await post({ toolkit: "HubSpot" });
+    expect(ok.status).toBe(200);
+    const { id } = (await ok.json()) as { id: string };
+    expect(h.mock.accounts.get(id)?.toolkit).toBe("hubspot");
+    expect([...h.mock.sessions.values()].map((s) => s.toolkits)).toEqual([undefined]);
+    expect((await post({ toolkit: "../x" })).status).toBe(400);
+    expect((await post({ toolkit: "" })).status).toBe(400);
+    expect((await post({})).status).toBe(400);
+    const list = (await (await h.call("/v1/connections")).json()) as { toolkits: string[]; all: boolean; connections: { toolkit: string }[] };
+    expect(list.all).toBe(true);
+    expect(list.toolkits).toEqual(DEFAULT_TOOLKITS);
+    expect(list.connections.map((c) => c.toolkit)).toEqual(["hubspot"]);
+  });
+
+  it("RELAY_ALLOWED_TOOLKITS still narrows: the list is what /v1/connections answers, all=false, the session is filtered", async () => {
+    h = await startHarness({ RELAY_ALLOWED_TOOLKITS: "gmail, Slack" });
+    const list = (await (await h.call("/v1/connections")).json()) as { toolkits: string[]; all: boolean };
+    expect(list).toMatchObject({ toolkits: ["gmail", "slack"], all: false });
+    expect([...h.mock.sessions.values()].map((s) => s.toolkits)).toEqual([["gmail", "slack"]]);
   });
 
   it("link to a toolkit outside the allow-list → 400 relay.badRequest; non-loopback callback refused", async () => {

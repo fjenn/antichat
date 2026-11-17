@@ -16,9 +16,9 @@ struct SkillsSubmenu: View {
             ForEach(skills) { s in
                 Toggle(isOn: Binding(get: { SkillTools.isOn(s, in: chips.ids) }, set: { set(s, on: $0) })) {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(verbatim: s.name)
-                        if !s.description.isEmpty {
-                            Text(verbatim: s.description).font(.caption).foregroundStyle(Color.textSecondary).lineLimit(1)
+                        Text(verbatim: SkillDisplay.name(s))  // the name Settings › Skills shows, never the folder slug
+                        if !SkillDisplay.summary(s).isEmpty {
+                            Text(verbatim: SkillDisplay.summary(s)).font(.caption).foregroundStyle(Color.textSecondary).lineLimit(1)
                         }
                     }
                 }

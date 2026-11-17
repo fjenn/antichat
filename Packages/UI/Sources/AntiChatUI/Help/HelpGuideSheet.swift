@@ -8,8 +8,9 @@ import Network
 import SwiftUI
 
 enum HelpCentre {
-    /// The site's help centre (from the hosting switch: DownloadURL's site root; SiteLinks).
-    static var url: URL? { SiteLinks.url("/help/faq/") }
+    /// The site's help centre: its front page, which lists every help page (from the hosting switch: DownloadURL's
+    /// site root; SiteLinks).
+    static var url: URL? { SiteLinks.url("/help/") }
 
     /// Pure decision (unit-tested): open the browser only with a usable path and Offline only off.
     static func opensBrowser(pathSatisfied: Bool, offlineOnly: Bool) -> Bool { pathSatisfied && !offlineOnly }
@@ -50,7 +51,7 @@ struct HelpGuideSheet: View {
                     .accessibilityIdentifier("help.openCentre")
                 Spacer()
                 Button(action: onClose) { Text(CopyKey("help.placeholder.close")) }
-                    .keyboardShortcut(.defaultAction).probeID("help.close")
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary).probeID("help.close")
             }
         }
         .padding(Spacing.space5)

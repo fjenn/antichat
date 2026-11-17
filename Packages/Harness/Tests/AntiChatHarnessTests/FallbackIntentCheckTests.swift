@@ -101,15 +101,14 @@ final class TextOnlyEngine: EngineService {
         #expect(FallbackIntentCheck.action(decision: d(.imageCreate, confident: true), calledTools: ["create_video"], reasked: false,
                                            enabled: true) == nil)  // the reply has media already (the other tool)
         #expect(MediaOfferChip(kind: .video).chipID == "video" && ChipOverride.toolName(forChip: "video") == "create_video")
-        // Soak dry run 2: a confident route the words do not back is never forced; the text answer keeps the chip.
+        // Soak dry run 2: a confident route the words do not back is never forced, and gets no offer chip either.
         var unconfirmed = d(.imageCreate, confident: true)
         unconfirmed.mediaConfirmed = false
-        #expect(FallbackIntentCheck.action(decision: unconfirmed, calledTools: [], reasked: false, enabled: true)
-                == .offer(MediaOfferChip(kind: .image)))
+        #expect(FallbackIntentCheck.action(decision: unconfirmed, calledTools: [], reasked: false, enabled: true) == nil)
     }
 
     /// Soak dry run 2: a verbatim image_create prototype that names no picture word scores image_create confidently, but
-    /// the words do not back it: the model's text answer stands (one request, no forced re-ask), with the offer chip.
+    /// the words do not back it: the model's text answer stands (one request, no forced re-ask) and no offer chip is shown under it.
     @Test func unconfirmedMediaRouteIsNotReasked() async throws {
         let engine = TextOnlyEngine()
         let router = try await Self.confidentRouter()
@@ -121,7 +120,7 @@ final class TextOnlyEngine: EngineService {
         #expect(engine.requests.withLock { $0.count } == 1)
         #expect(engine.requests.withLock { $0[0].tools.contains { $0.name == "create_image" } })  // still offered
         #expect(await c.lastFallbackReasks == 0)
-        #expect(await c.lastMediaOffer == MediaOfferChip(kind: .image))
+        #expect(await c.lastMediaOffer == nil)
     }
 
     /// A bundled English image_create prototype with no medium / style word that the confident router puts on

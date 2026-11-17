@@ -21,10 +21,19 @@ public struct ImageInputPreparer: Sendable {
     }
 
     /// `~/Library/Caches/AntiChat/xfer` (`AntiChat-Dev` in the dev container).
-    public static func defaultDirectory(dev: Bool = ProcessInfo.processInfo.environment["ANTICHAT_DEV_CONTAINER"] != nil
-                                           || UserDefaults.standard.string(forKey: "ANTICHAT_DEV_CONTAINER") != nil) -> URL {
+    public static func defaultDirectory(dev: Bool = ImageInputPreparer.isDevContainerRun) -> URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(dev ? "AntiChat-Dev/xfer" : "AntiChat/xfer", isDirectory: true)
+    }
+
+    /// A `-ANTICHAT_DEV_CONTAINER` run (DEBUG / perf-harness builds; always false in a release).
+    public static var isDevContainerRun: Bool {
+        #if DEBUG || ANTICHAT_PERF_HARNESS
+        return ProcessInfo.processInfo.environment["ANTICHAT_DEV_CONTAINER"] != nil
+            || UserDefaults.standard.string(forKey: "ANTICHAT_DEV_CONTAINER") != nil
+        #else
+        return false
+        #endif
     }
 
     public enum PrepareError: Error, Equatable { case unreadable, encodeFailed }

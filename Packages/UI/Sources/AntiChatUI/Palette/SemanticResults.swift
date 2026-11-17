@@ -1,6 +1,5 @@
-// M2.T16 step 6 (R-244, R-295): the ⌘K semantic section. FTS rows render first exactly as in M1 (NFR-U10 path
-// unchanged); hybrid hits for chats the FTS list does not already show merge in under the same list when they arrive
-// within the 300 ms budget. No embed model → no extra rows and no error (R-244 AC3).
+// M2.T16 (R-244, R-295): the app's semantic index service. Chat search (sidebar Search, ⌘K) lists word matches only
+// (titles, then message text): the hybrid "similar meaning" rows returned unrelated chats for any query and are not shown.
 // `SemanticSearch` is the app's one index service: the composition root installs it with the helper embedder, the
 // chat sessions enqueue an index pass after every finished turn through BackgroundJobQueue (incognito dropped, R-247).
 import AntiChatDesign
@@ -35,29 +34,6 @@ public final class SemanticSearch: Sendable {
             queue.enqueue(.embedding, for: chat) {
                 _ = try? await indexer.embedPending(with: embedder)
             }
-        }
-    }
-}
-
-enum SemanticResults {
-    /// Hybrid rows for chats not in `shown`, at most `limit`; nil when cancelled.
-    static func items(_ query: String, excluding shown: Set<String>, search: SemanticSearch, limit: Int = 5)
-        async -> [PaletteItem]?
-    {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { return [] }
-        let hits = await search.retriever.search(q, limit: limit + shown.count)
-        if Task.isCancelled { return nil }
-        let titles = (try? search.retriever.database.read { db in
-            try [String: String](uniqueKeysWithValues: hits.map { h in
-                (h.chatID, try String.fetchOne(db, sql: "SELECT title FROM chat WHERE id = ?", arguments: [h.chatID]) ?? "")
-            })
-        }) ?? [:]
-        return hits.filter { $0.semantic && !shown.contains($0.chatID) }.prefix(limit).map { h in
-            let title = titles[h.chatID].flatMap { $0.isEmpty ? nil : $0 } ?? CopyKey("side.untitled").string()
-            let excerpt = String(h.text.prefix(140)).replacingOccurrences(of: "\n", with: " ")
-            return PaletteItem(id: "chat.\(h.chatID)", kind: .chat(h.chatID, messageID: nil), group: .chats, title: title,
-                               subtitle: excerpt, symbol: "sparkle.magnifyingglass")
         }
     }
 }

@@ -16,7 +16,7 @@ final class SystemSettingsTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let settings = app.windows.containing(.any, identifier: "settings.root").firstMatch
         XCTAssertTrue(settings.waitForExistence(timeout: 5))
-        A11y.element(settings, "settings.nav.appearance").click()
+        A11y.element(settings, "settings.nav.general").click()
         XCTAssertTrue(A11y.element(settings, "settings.control.increaseContrast").exists)
     }
 }

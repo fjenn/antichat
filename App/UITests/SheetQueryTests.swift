@@ -45,7 +45,7 @@ final class SheetQueryTests: XCTestCase {
         // The activity line is one button whose label is the sentence (Q-015 r4: not a separate static text).
         XCTAssertTrue(line.wait(30) { $0.label == "Queried budget-20k.xlsx · 4 rows" }, line.label)
         line.click()
-        XCTAssertTrue(app.descendants(matching: .any)["querySQL"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.descendants(matching: .any)["queryRows"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["queryRows"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.descendants(matching: .any)["querySQL"].exists)  // the rows, never the SQL
     }
 }

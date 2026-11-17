@@ -189,7 +189,7 @@ extension WindowSuites {
         let controller = model.controller
         #expect(await controller.lastThinkHarderMode == .preset)
         #expect(await controller.lastRequest?.reasoning.on == false)
-        #expect(present(rig, "thinkHarder"))
+        #expect(!present(rig, "thinkHarder"), "a model without a thinking mode has no Think harder button")
         #expect(!present(rig, "reasoningLine"), "no reasoning, no line")
         Self.evidence(["case": "preset", "preset": rig.sessions.composer.thinkHarderPreset])
     }

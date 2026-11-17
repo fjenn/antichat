@@ -1,7 +1,8 @@
 #!/bin/bash
-# tools/release/release.sh — the local equivalent of .github/workflows/release.yml (M10.T08; ci-release §2, §8).
-# Same step list; artefacts stay in build/release/ (no GitHub Release, no deploy, no upload — those are owner steps,
-# docs/prd/M10-owner-steps.md). Usage: SIGNING_MODE=devid APP_VERSION=1.0.0 tools/release/release.sh
+# tools/release/release.sh — the release pipeline (M10.T08; ci-release §2, §8). Releases run it on a GitHub macOS
+# runner (.github/workflows/release.yml, with SKIP_TESTS=1 in the public snapshot); the same script works locally
+# for adhoc/dev rehearsals. Artefacts stay in build/release/ (the workflow makes the draft GitHub Release; deploys are
+# owner steps, docs/prd/M10-owner-steps.md). Usage: SIGNING_MODE=devid APP_VERSION=1.0.0 tools/release/release.sh
 # Env: SIGNING_MODE (default dev), APP_VERSION (default project.yml), SKIP_TESTS=1 (pipeline only),
 #      ANTICHAT_ALLOW_DEV_KEYS=1 (devid dry run with the test keys → DEVKEYS), SPARKLE_KEY_FILE (stable feed).
 set -euo pipefail

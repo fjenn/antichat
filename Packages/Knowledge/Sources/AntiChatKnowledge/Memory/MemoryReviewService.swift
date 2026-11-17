@@ -1,10 +1,16 @@
-// M8.T03 step 6–7 (R-246 AC1/AC2): the background memory review — propose-only. It runs only when every gate holds
-// (review enabled, memory On, AC power, not Low Power Mode, idle ≥ 300 s, no turn or media job running, thermal ≤
-// fair, ≥ 6 h since the last run), reads the user turns of non-incognito, memory-enabled, non-Evil (unless allowed)
-// chats updated since the last run, asks the chat model for ≤ 5 facts and writes `memory_suggestion` rows with
-// state 'pending' only. It never calls MemoryStore.insert: an item becomes active only through `save` after the
-// user's tap. Power, idle, thermal and tier come in through protocols (Knowledge never imports Platform).
-// Osaurus memory v2 auto-distillation is not used (it would write without a tap, against R-246).
+// M8.T03 step 6–7 (R-246 AC1/AC2), owner 2026-11-16: the background memory review keeps memory up to date by itself
+// and asks only when it is unsure. It runs only when every gate holds (review enabled, memory On, AC power, not Low
+// Power Mode, idle ≥ 300 s, no turn or media job running, thermal ≤ fair, ≥ 6 h since the last run), reads the user
+// turns of non-incognito, memory-enabled, non-Evil (unless allowed) chats updated since the last run and asks the
+// chat model for ≤ 5 facts, each with a confidence.
+//   certain (stated outright, lasting) and not touching an existing memory → saved at once through MemoryStore.insert
+//     (origin review, one memory_event; listed and removable in Settings) plus a `memory_suggestion` row 'saved';
+//   anything else → a `memory_suggestion` row 'pending' for the user's Save / Dismiss (pill, Personalization):
+//     confidence unsure or missing, or the fact updates / contradicts an existing memory, or that comparison failed.
+// Output that does not parse yields no facts, so nothing is saved. A fact that is already stored, or that the review
+// handled before (any `memory_suggestion` row with the same normalised text: pending, saved or dismissed), is skipped,
+// so a dismissed or deleted fact is not brought back. Power, idle, thermal and tier come in through protocols
+// (Knowledge never imports Platform). Osaurus memory v2 auto-distillation is not used (ours keeps the unsure path).
 import AntiChatStorage
 import Foundation
 import GRDB
@@ -39,7 +45,7 @@ public struct MemoryReviewService: Sendable {
     public static let minInterval: TimeInterval = 6 * 3600
     public static let maxFacts = 5
     public static let minChars = 8
-    /// Default of "Suggest things to remember": on for T2–T4, off for T0–T1 (registered at launch by the app).
+    /// Default of "Keep memory up to date automatically": on for T2–T4, off for T0–T1 (registered at launch by the app).
     public static func defaultEnabled(tier: String) -> Bool { !["T0", "T1"].contains(tier.uppercased()) }
 
     public struct Gates: Sendable {
@@ -81,7 +87,8 @@ public struct MemoryReviewService: Sendable {
         return nil
     }
 
-    /// One review: returns the pending suggestions it wrote (empty when gated or nothing new).
+    /// One review: returns the rows it wrote, `saved` (stored by itself) and `pending` (for the user to choose);
+    /// empty when gated or nothing new.
     @discardableResult
     public func run(_ g: Gates, lastRun: Date?) async throws -> [MemorySuggestion] {
         guard skipReason(g, lastRun: lastRun) == nil, let model else { return [] }
@@ -89,15 +96,27 @@ public struct MemoryReviewService: Sendable {
         guard !texts.isEmpty else { return [] }
         let raw = await model.complete(system: Self.systemPrompt, user: "User messages:\n" + texts.suffix(40).map { "- \($0)" }.joined(separator: "\n") + "\n\nJSON:")
         let facts = Self.parse(raw ?? "")
-        let active = try store.active().map(\.item)
+        let decider = MemoryUpdateDecider(store: store, embedder: embedder, model: model, config: config)
+        var handled = Set(try store.database.read { try String.fetchAll($0, sql: "SELECT text FROM memory_suggestion") }.map(MemoryStore.normalized))
         var written: [MemorySuggestion] = []
         let chatsJSON = String(data: try JSONEncoder().encode(chats), encoding: .utf8) ?? "[]"
         for f in facts.prefix(Self.maxFacts) {
             if f.sensitive != nil, !g.policy.includeSensitive { continue }
-            if try await isKnown(f.text, active: active) { continue }
-            let s = MemorySuggestion(id: StorageID.make(now: store.now()), text: f.text, topic: f.topic, scope: .global,
+            guard handled.insert(MemoryStore.normalized(f.text)).inserted else { continue }
+            if try await isKnown(f.text, active: try store.active().map(\.item)) { continue }
+            var s = MemorySuggestion(id: StorageID.make(now: store.now()), text: f.text, topic: f.topic, scope: .global,
                                      sensitiveCategory: f.sensitive, sourceChatIDsJSON: chatsJSON, state: .pending, createdAt: store.now())
-            try store.database.write { try s.insert($0) }
+            if f.certain {
+                let outcome = await decider.decide(new: f.text, scope: .global, projectID: nil)
+                if case .none = outcome.decision { continue }  // an existing memory already covers it
+                if outcome.decision == .add, !outcome.modelFailed {
+                    try store.insert(topic: f.topic, key: MemoryToolExecutor.key(from: f.text), text: f.text, sensitive: f.sensitive,
+                                     origin: .review, vector: outcome.vector)
+                    s.state = .saved
+                    s.decidedAt = store.now()
+                }  // else it would change or replace an existing memory, or the comparison failed: the user chooses
+            }
+            try store.database.write { [s] in try s.insert($0) }
             written.append(s)
         }
         return written
@@ -107,7 +126,7 @@ public struct MemoryReviewService: Sendable {
         try store.database.read { try MemorySuggestion.filter(Column("state") == "pending").order(Column("created_at")).fetchAll($0) }
     }
 
-    /// The user's Save tap: the one path from a suggestion to an active item.
+    /// The user's Save tap on a pending suggestion.
     @discardableResult
     public func save(_ id: String) throws -> MemoryItem? {
         guard var s = try store.database.read({ try MemorySuggestion.fetchOne($0, key: id) }), s.state == .pending else { return nil }
@@ -144,19 +163,24 @@ public struct MemoryReviewService: Sendable {
     }
 
     func isKnown(_ text: String, active: [MemoryItem]) async throws -> Bool {
-        if active.contains(where: { $0.text.caseInsensitiveCompare(text) == .orderedSame }) { return true }
+        let wanted = MemoryStore.normalized(text)
+        if active.contains(where: { MemoryStore.normalized($0.text) == wanted }) { return true }
         guard let embedder, let v = try? await embedder.embed([text], kind: .document).first else { return false }
         let vectors = try store.vectors(active.map(\.id))
         return vectors.values.contains { MemoryUpdateDecider.cosine(v, $0) >= config.updateCosine }
     }
 
-    struct Fact: Equatable { var topic: String; var text: String; var sensitive: SensitiveCategory? }
+    /// `certain` only when the model said so; a missing or unknown confidence is unsure.
+    struct Fact: Equatable { var topic: String; var text: String; var sensitive: SensitiveCategory?; var certain = false }
 
     static let systemPrompt = """
         Read the user's messages and list up to 5 lasting facts about the user that would help in future chats \
-        (preferences, background, ongoing projects). Skip one-off requests and anything about other people only. \
+        (name, job, family, lasting preferences, ongoing projects, how they like answers). Skip one-off requests and \
+        anything about other people only. \
+        Set confidence to "certain" only when the user stated the fact outright and it will stay true; use "unsure" \
+        when you inferred it, when it may be temporary, or when the messages disagree. \
         Tag facts about health, sexuality, religion, politics or money with that category.
-        Answer with JSON only: [{"topic":"<short topic>","text":"<fact>","sensitive_category":"none|health|sexuality|religion|politics|finances"}]
+        Answer with JSON only: [{"topic":"<short topic>","text":"<fact>","confidence":"certain|unsure","sensitive_category":"none|health|sexuality|religion|politics|finances"}]
         """
 
     static func parse(_ raw: String) -> [Fact] {
@@ -166,8 +190,10 @@ public struct MemoryReviewService: Sendable {
             guard let text = (o["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), text.count >= minChars,
                   text.count <= MemoryStore.maxText else { return nil }
             let topic = ((o["topic"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 } ?? "General"
+            let confidence = (o["confidence"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             return Fact(topic: String(topic.prefix(MemoryStore.maxTopic)), text: text,
-                        sensitive: (o["sensitive_category"] as? String).flatMap(SensitiveCategory.init(rawValue:)))
+                        sensitive: (o["sensitive_category"] as? String).flatMap(SensitiveCategory.init(rawValue:)),
+                        certain: confidence == "certain")
         }
     }
 }

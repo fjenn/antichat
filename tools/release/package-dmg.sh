@@ -3,11 +3,14 @@
 #   1. dmgbuild (pinned, tools/release/requirements.lock; build/release-venv) packs build/release/AntiChat.app with
 #      the Applications link, icon positions (180,200)/(480,200), 660×452 window (660×420 content) and the HiDPI
 #      background.tiff into a read-write image; its background bookmark is made absolute (fix-background-bookmark.py)
-#      and it is converted to build/release/AntiChat-Installer-<ver>[-LABEL].dmg (APFS, ULFO). LABEL = build/release/LABEL.
-#   2. dev/devid: codesign the DMG (devid with a secure timestamp); adhoc DMGs stay unsigned (meaningless).
+#      and it becomes build/release/AntiChat-Installer-<ver>[-LABEL].dmg (APFS, read-write UDRW, AntiChat.app
+#      decmpfs-compressed, shrunk to fit: the drop-to-install target needs a writable volume). LABEL = build/release/LABEL.
+#   2. the DMG itself is not signed (raw image: a signature would be xattrs, stripped by any download).
 #   3. NFR-D1 size gate: ≤ 314,572,800 bytes, 0 model files inside (attached read-only, -nobrowse).
-#   4. devid + NOTARIZE=1: notarize.sh --dmg (submit, staple, validate); a failed DMG is deleted.
-#   5. tools/release/verify-dmg.sh (layout, symlink, background, signature/staple) → build/at/AT-225/.
+#   4. devid + NOTARIZE=1: the drop target is notarized + stapled (the app already is, by build-release).
+#   5. tools/release/verify-dmg.sh (layout, drop target, background, signature/staple) → build/at/AT-225/.
+# The Applications icon is tools/release/dmg/dropinstall (built + signed here, Apple's folder icon set on the rw image):
+# dropping AntiChat on it copies it to /Applications, opens it and ejects the installer.
 # Env: SIGNING_MODE (default: build/release/build.json's mode), NOTARIZE (default 1), OUT (build/release).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
@@ -36,25 +39,41 @@ rm -f "$out"/AntiChat-*.dmg
 # A mounted "AntiChat Installer" makes the new volume "AntiChat Installer 1", and the background bookmark would point
 # there (a blank window for users): eject every mounted installer volume first.
 for v in /Volumes/AntiChat\ Installer*; do [[ -d "$v" ]] && { echo "  ejecting $v"; hdiutil detach -quiet "$v" || hdiutil detach -force -quiet "$v"; }; done
+if [[ "$mode" != adhoc ]]; then identity_resolve "$mode"; fi
+installer="$(tools/release/dmg/dropinstall/build.sh ${IDENTITY:+"$IDENTITY"} | tail -1)"
+# The DMG is a raw read-write image: its own signature would live in xattrs that a download strips, so it is neither
+# signed nor notarized. Everything that runs inside it carries its own stapled ticket instead: the app (build-release)
+# and this drop target (notarized + stapled here, before its custom icon is set on the image).
+if [[ "$mode" == devid && "${NOTARIZE:-1}" == 1 ]]; then
+    tools/release/notarize.sh --mode devid --out "$out/notary" --app "$installer"
+fi
 rw="$out/AntiChat-rw.dmg"
 rm -f "$rw"
-"$venv/bin/dmgbuild" -s tools/release/dmg/settings.py -D app="$app" -D background=tools/release/dmg/background.tiff \
+"$venv/bin/dmgbuild" -s tools/release/dmg/settings.py -D app="$app" -D installer="$installer" \
+    -D background=tools/release/dmg/background.tiff \
     -D icon=tools/release/dmg/VolumeIcon.icns -D format=UDRW \
     "AntiChat Installer" "$rw"
+# Room to re-copy AntiChat.app compressed beside the original (below); the image is shrunk to fit afterwards.
+hdiutil resize -quiet -size "$(( $(du -sm "$app" | cut -f1) * 2 + 200 ))m" "$rw"
 rwmnt="$(mktemp -d "${TMPDIR:-/tmp}/antichat-dmgrw.XXXXXX")"
 hdiutil attach -nobrowse -noautoopen -mountpoint "$rwmnt" "$rw" >/dev/null
 "$venv/bin/python" -I tools/release/dmg/fix-background-bookmark.py "$rwmnt/.DS_Store" \
     || { hdiutil detach -force -quiet "$rwmnt"; rm -f "$rw"; exit 1; }
+"$out/dropinstall/set-icon" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/ApplicationsFolderIcon.icns \
+    "$rwmnt/Applications.app" || { hdiutil detach -force -quiet "$rwmnt"; rm -f "$rw"; exit 1; }
+codesign --verify "$rwmnt/Applications.app"
+# The image stays read-write (Finder refuses a drop onto an app on a read-only volume, so a ULFO/UDZO installer's
+# Applications target would not take AntiChat). To keep the download small, AntiChat.app is stored with APFS
+# transparent compression (decmpfs; ditto --hfsCompression) and the image is shrunk to its contents.
+ditto --hfsCompression "$app" "$rwmnt/.AntiChat-compressed.app"
+rm -rf "$rwmnt/AntiChat.app"
+mv "$rwmnt/.AntiChat-compressed.app" "$rwmnt/AntiChat.app"
+codesign --verify --deep --strict "$rwmnt/AntiChat.app"
 hdiutil detach -quiet "$rwmnt" || hdiutil detach -force -quiet "$rwmnt"
 rmdir "$rwmnt" 2>/dev/null || true
-hdiutil convert -quiet "$rw" -format ULFO -o "$dmg"
-rm -f "$rw"
+hdiutil resize -quiet -sectors min "$rw"
+mv "$rw" "$dmg"
 
-if [[ "$mode" != adhoc ]]; then
-    identity_resolve "$mode"
-    codesign --force --sign "$IDENTITY" "$TS_ARG" "$dmg"
-    codesign --verify --strict --verbose=2 "$dmg"
-fi
 
 size="$(stat -f %z "$dmg")"
 mnt="$(mktemp -d "${TMPDIR:-/tmp}/antichat-dmg.XXXXXX")"
@@ -70,7 +89,4 @@ if ((size > 314572800)) || [[ "$models" != 0 ]]; then
 fi
 echo "  NFR-D1: $size bytes ($(( size / 1048576 )) MB) ≤ 300 MB, 0 model files"
 
-if [[ "$mode" == devid && "${NOTARIZE:-1}" == 1 ]]; then
-    tools/release/notarize.sh --mode devid --out "$out/notary" --dmg "$dmg" || { rm -f "$dmg"; exit 1; }
-fi
 tools/release/verify-dmg.sh --mode "$mode" "$dmg"

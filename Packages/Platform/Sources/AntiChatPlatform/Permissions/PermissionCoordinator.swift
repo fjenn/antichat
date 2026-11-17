@@ -114,8 +114,12 @@ public final class PermissionCoordinator {
     @ObservationIgnored private var inFlight: [PermissionRequestKind: Task<Bool, Never>] = [:]
     @ObservationIgnored private var activationObserver: NSObjectProtocol?
 
-    public init(system: System, observeActivation: Bool = true) {
+    /// Where a final Not now is kept (the app's store; tests pass their own so one test's answer is not the next one's).
+    private let defaults: UserDefaults
+
+    public init(system: System, observeActivation: Bool = true, defaults: UserDefaults = AppDefaults.standard) {
         self.system = system
+        self.defaults = defaults
         if observeActivation {
             activationObserver = NotificationCenter.default.addObserver(
                 forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
@@ -128,6 +132,9 @@ public final class PermissionCoordinator {
         if statuses[kind] != s { statuses[kind] = s }
         return s
     }
+
+    /// Tests: forget what this Mac answered for `kind` (a snapshot of a page must not show this Mac's denied banner).
+    public func debugForgetStatus(_ kind: PermissionRequestKind) { statuses[kind] = nil }
 
     public func refreshAll() {
         // Location is left to LocationPermission (review fix: its CoreLocation manager is created only once the user
@@ -186,11 +193,14 @@ public final class PermissionCoordinator {
             case .granted: return true
             case .denied, .restricted: return false
             case .notDetermined:
-                guard !self.declinedThisLaunch.contains(kind), let explainer = self.explainer else { return false }
+                guard !self.declinedThisLaunch.contains(kind), !self.declinedForGood(kind), let explainer = self.explainer else { return false }
                 self.steps.append(.explained(kind))
                 guard await explainer(kind) else {
                     self.steps.append(.declined(kind))
                     self.declinedThisLaunch.insert(kind)
+                    // Not now on the notifications banner is an answer, not a snooze: the banner never comes back
+                    // by itself (it used to return after every launch). Settings › Notifications asks again (`askNow`).
+                    if kind == .notifications { self.defaults.set(true, forKey: Self.declinedKey(kind)) }
                     return false
                 }
                 return await self.requestAfterExplainer(kind)
@@ -204,6 +214,21 @@ public final class PermissionCoordinator {
 
     /// M8.T12 step 4.
     public func ensureNotifications() async -> Bool { await ensure(.notifications) }
+
+    static func declinedKey(_ kind: PermissionRequestKind) -> String { "permission.declined.\(kind.rawValue)" }
+    func declinedForGood(_ kind: PermissionRequestKind) -> Bool { defaults.bool(forKey: Self.declinedKey(kind)) }
+
+    /// The user asked for it themselves (a Settings switch): forgets an earlier Not now and goes straight to the
+    /// system's request, without the explainer banner.
+    public func askNow(_ kind: PermissionRequestKind) async -> Bool {
+        defaults.removeObject(forKey: Self.declinedKey(kind))
+        declinedThisLaunch.remove(kind)
+        switch await status(kind) {
+        case .granted: return true
+        case .denied, .restricted: return false
+        case .notDetermined: return await requestAfterExplainer(kind)
+        }
+    }
 
     // MARK: System
 
@@ -256,6 +281,7 @@ public final class PermissionCoordinator {
         manager.requestWhenInUseAuthorization()
     }
 
+    #if DEBUG || ANTICHAT_PERF_HARNESS
     /// `-FakePermission <kind>=<state>` (DEBUG): fixed states; a request from `.notDetermined` grants unless
     /// `<kind>Answer=denied` is given (`-FakePermission notifications=notDetermined,notificationsAnswer=denied`).
     public nonisolated static func fake(_ states: [PermissionRequestKind: PermissionStatus], answers: [PermissionRequestKind: PermissionStatus] = [:],
@@ -277,6 +303,7 @@ public final class PermissionCoordinator {
         func get(_ k: PermissionRequestKind) -> PermissionStatus { lock.withLock { values[k] ?? .notDetermined } }
         func set(_ k: PermissionRequestKind, _ s: PermissionStatus) { lock.withLock { values[k] = s } }
     }
+    #endif
 
     nonisolated static func systemFromLaunchOptions() -> System {
         #if DEBUG || ANTICHAT_PERF_HARNESS

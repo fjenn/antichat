@@ -17,7 +17,7 @@ public struct FileCard: View {
     @State private var hovering = false
     @FocusState private var focused: Bool
 
-    public static let width: CGFloat = 340
+    public static let width: CGFloat = 420
     static let tile: CGFloat = 44
 
     public init(model: FileCardViewModel, showsThumbnail: Bool = true, incognito: Bool = false,
@@ -123,10 +123,11 @@ public struct FileCard: View {
 
     private var actions: some View {
         HStack(spacing: Spacing.space1) {
-            Button { model.open() } label: { Text(CopyKey("file.open")) }
+            // The card shows the file here ("Preview": the side panel); the panel's own button hands it to its app.
+            Button { open() } label: { Text(CopyKey("file.preview")) }
                 .controlSize(.small)
                 .accessibilityIdentifier("fileCardOpen")
-                .accessibilityLabel(Text(CopyText(CopyKey("file.open.a11y"), ["filename": model.item.displayName])))
+                .accessibilityLabel(Text(CopyText(CopyKey("file.preview.a11y"), ["filename": model.item.displayName])))
             Menu {
                 Button { Task { await model.saveAs() } } label: { Text(CopyKey("file.saveAs")) }
                     .accessibilityIdentifier("fileCardSaveAs")

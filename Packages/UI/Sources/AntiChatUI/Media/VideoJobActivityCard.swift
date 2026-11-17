@@ -29,7 +29,9 @@ enum VideoJobActivity {
             s.phase = .done(resultPath: path)
         case .notShown?: s.phase = .blocked
         case .failed(let code)?: s.phase = code == "cancelled" ? .cancelled : code == "interrupted" ? .lost : .failed(code: code)
-        case .notStarted?, .unavailable?, .done?, nil: return nil
+        // The call could not start (a needed download is missing): a card that says so, never an empty reply.
+        case .unavailable?: s.phase = .failed(code: VideoJobCardState.unavailableCode)
+        case .notStarted?, .done?, nil: return nil
         }
         return s
     }
@@ -42,6 +44,15 @@ enum VideoJobActivity {
                               profile: profile, selection: selection, catalog: catalog, length: r.length, shape: r.shape,
                               sound: r.sound, history: r.history)
     }
+}
+
+/// The plan's time estimate of each clip started in this session, by call (a card that comes back — another chat and
+/// back — still shows the time left).
+@MainActor final class VideoJobEstimates {
+    static let shared = VideoJobEstimates()
+    private var byCall: [String: Double] = [:]
+    func set(_ seconds: Double?, for call: String) { byCall[call] = seconds }
+    func estimate(for call: String) -> Double? { byCall[call] }
 }
 
 struct VideoJobActivityCard: View {
@@ -101,6 +112,14 @@ struct VideoJobActivityCard: View {
                                            onStart: { job in Task { await broker.answer(callID: id, .start(job)) } },
                                            onCancel: { Task { await broker.answer(callID: id, .cancel) } })
                 if let spec = model.plan.spec, spec.height > 0 { aspect = CGFloat(spec.width) / CGFloat(spec.height) }
+                // No confirmation step: a clip that can be made starts at once, and its card shows the time it will
+                // take and Cancel. Only a clip this Mac cannot make keeps the plan card (which says so).
+                if model.plan.job != nil {
+                    VideoJobEstimates.shared.set(model.plan.estimate?.seconds ?? model.plan.job?.estimatedS, for: id)
+                    state = VideoJobCardState(aspect: aspect, startedAt: activity.startedAt)
+                    state?.estimateS = VideoJobEstimates.shared.estimate(for: id)
+                    model.start()
+                }
                 plan = model
                 break
             }
@@ -119,6 +138,7 @@ struct VideoJobActivityCard: View {
         guard let (queue, job) = found else { state = VideoJobActivity.settled(activity, aspect: aspect) ?? state; return }
         self.queue = queue
         if state == nil { state = VideoJobCardState(job: job, aspect: aspect, startedAt: activity.startedAt) }
+        state?.estimateS = VideoJobEstimates.shared.estimate(for: callKey)
         // The chosen clip (resolution, length, aspect) from the job's own spec.
         if let row = try? await queue.row(job), let spec = try? JSONDecoder().decode(VideoRequest.self, from: Data(row.specJSON.utf8)) {
             state?.adopt(spec)

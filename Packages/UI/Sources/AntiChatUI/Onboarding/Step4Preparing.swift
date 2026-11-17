@@ -1,7 +1,7 @@
 // M2.T20 steps 1–3 (S-04; R-201 AC5, R-203 AC1): Preparing your AI. Desaturated art; title + subtitle (`.waiting` until
 // the starter is verified, then `.ready`, `.allReady` once nothing else is still on its way; `.failed`); the light left panel (600 pt, `onb.glass.panel`) with a ProgressRow per chosen
-// pack (+ the Evil row), the footer "{ready} of {total} ready" and the dark PillButton Open chat — always allowed (before
-// the starter is ready the composer queues the text, R-299), styled as the primary action once it is; the right panel
+// pack (+ the Evil row), the footer "{ready} of {total} ready" and the dark PillButton Open chat — disabled until a text
+// model answers (the starter or the Chat row; owner rule 2026-11-15: wait here, never an empty chat); the right panel
 // with MacFactsCard and WebSearchSwitch. No permission prompt here; leaving (Open chat or Back) keeps every download running.
 import AntiChatDesign
 import AntiChatPlatform
@@ -113,10 +113,15 @@ struct Step4Preparing: View {
                 .keyboardShortcut(.defaultAction)
                 .fixedSize()
                 .accessibilityIdentifier("onb.4.retryAll")
-        case .openChat(let emphasized):
+        case .openChat:
             PillButton(CopyText(CopyKey("onb.4.cta")), style: .dark) { model.next() }
                 .keyboardShortcut(.defaultAction)
-                .opacity(emphasized ? 1 : 0.88)
+                .fixedSize()
+                .accessibilityIdentifier("onb.4.cta")
+        case .wait:
+            PillButton(CopyText(CopyKey("onb.4.cta")), style: .dark) {}
+                .disabled(true)
+                .opacity(0.35)
                 .fixedSize()
                 .accessibilityIdentifier("onb.4.cta")
         }

@@ -1,4 +1,4 @@
-// Settings → Voice → Recent recordings (M3.T03 step 7; R-050 AC4, settings-map §5): the newest 20 dictations
+// Settings → Capabilities → Advanced → Recent recordings (M3.T03 step 7; R-050 AC4, settings-map §5): the newest 20 dictations
 // (RecordingStore), each with its transcript, date and length; ▶ plays it (AVAudioPlayer), Delete removes the row and
 // its file. Incognito dictations are never here (nothing was stored). M3.T08 builds the rest of the Voice section.
 @preconcurrency import AVFoundation
@@ -38,31 +38,29 @@ final class RecentRecordingsModel {
     }
 }
 
+/// Rows for Capabilities → Advanced: the heading, then the recordings (or the empty line).
 struct RecentRecordingsView: View {
     @State var model: RecentRecordingsModel
 
     var body: some View {
-        Section {
-            if model.recordings.isEmpty {
-                Text(CopyKey("set.voice.recordings.empty"))
-                    .typeStyle(.callout)
-                    .foregroundStyle(Color.textSecondary)
-                    .accessibilityIdentifier("recordings.empty")
-            } else {
-                ForEach(model.recordings) { r in
-                    RecordingRow(recording: r, playing: model.playingID == r.id,
-                                 onPlay: { model.toggle(r) }, onDelete: { model.delete(r) })
-                }
+        AdvancedHeading("set.voice.recordings")
+            .probeID("settings.row.voice.recordings")
+            .accessibilityIdentifier("recordings")
+            .id("voice.recordings")
+            .onAppear { model.reload() }
+        if model.recordings.isEmpty {
+            Text(CopyKey("set.voice.recordings.empty"))
+                .typeStyle(.callout)
+                .foregroundStyle(Color.textSecondary)
+                .padding(.horizontal, Spacing.space1)
+                .accessibilityIdentifier("recordings.empty")
+        } else {
+            ForEach(model.recordings) { r in
+                RecordingRow(recording: r, playing: model.playingID == r.id,
+                             onPlay: { model.toggle(r) }, onDelete: { model.delete(r) })
+                    .padding(.horizontal, Spacing.space1)
             }
-        } header: {
-            // Q-015 r5: the identifiers sit on the header. On the Section (not a container) they replaced every child's
-            // own: each row read `recordings` instead of `recording.row` (AX dump), and the empty line lost its id.
-            Text(CopyKey("set.voice.recordings"))
-                .probeID("settings.row.voice.recordings")
-                .accessibilityIdentifier("recordings")
         }
-        .id("voice.recordings")
-        .onAppear { model.reload() }
     }
 }
 

@@ -64,6 +64,18 @@ public struct MessageRepository: Sendable {
         }
     }
 
+    /// A part that arrives after a message's final write (the per-turn memory capture's line): stored after its last
+    /// part. False when the message is gone.
+    @discardableResult
+    public func appendPart(_ messageID: String, _ part: PartContent) throws -> Bool {
+        try database.write { db in
+            guard try MessageRecord.fetchOne(db, key: messageID) != nil else { return false }
+            let last = try Int.fetchOne(db, sql: "SELECT max(idx) FROM message_part WHERE message_id = ?", arguments: [messageID])
+            try Self.upsertPart(messageID, idx: (last ?? -1) + 1, part, db: db)
+            return true
+        }
+    }
+
     /// AT-250 c2 (M7 bars): a late citation verdict for a finished reply. When the stored text still starts with
     /// `checked` (the text the checks ran on; a later [Continue] only appends), that part becomes `settled` (markers
     /// removed, words unchanged); the `citations_checking` flag is cleared either way. Returns the new text, or nil

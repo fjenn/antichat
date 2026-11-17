@@ -122,12 +122,19 @@ struct MemorySuggestionCard: View {
 
 /// One memory row: topic chip + text, then [Undo] (saved), `memory.undone` (undone) or nothing (read-only).
 struct MemoryNoticeRow: View {
+    /// A topic as people read it: models name topics like `measurement_preference` (owner 2026-11-17: no raw tags).
+    static func readable(_ topic: String) -> String {
+        let words = topic.replacingOccurrences(of: "_", with: " ").replacingOccurrences(of: "-", with: " ")
+            .trimmingCharacters(in: .whitespaces)
+        return words.prefix(1).uppercased() + words.dropFirst()
+    }
+
     let row: MemoryNotice.Row
     let onUndo: (() -> Void)?
 
     var body: some View {
         HStack(spacing: Spacing.space2) {
-            Text(verbatim: row.topic)
+            Text(verbatim: Self.readable(row.topic))
                 .typeStyle(.caption)
                 .padding(.horizontal, Spacing.space2).padding(.vertical, 2)
                 .background(Capsule().fill(Color.surfaceSunken))

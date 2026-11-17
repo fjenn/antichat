@@ -74,8 +74,9 @@ final class ComposerTests: XCTestCase {
         launch("empty", ["-FakeEvilEnabled", "YES"])
         let mode = element("modeSwitch")
         XCTAssertTrue(mode.waitForExistence(timeout: 5))
-        XCTAssertGreaterThan(mode.frame.minX, app.buttons["thinkHarder"].frame.minX)
-        XCTAssertLessThan(mode.frame.maxX, app.buttons["composer.mic"].frame.maxX)
+        // ux/simplify: the picker sits in the window toolbar, above and left of the composer's controls.
+        XCTAssertLessThan(mode.frame.maxY, app.buttons["composer.mic"].frame.minY)
+        XCTAssertLessThan(mode.frame.minX, app.buttons["composer.mic"].frame.minX)
     }
 
     // MARK: (2) Growth, scrolling, bottom row

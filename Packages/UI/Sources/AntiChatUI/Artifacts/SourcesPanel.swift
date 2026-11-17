@@ -13,7 +13,16 @@ public struct SourcesContent: Equatable, Sendable {
 
     /// Fetched sources only; `citedOrder` = the reply's pill order.
     public init(sources: [MessageProvenance.WebSourceRecord], citedOrder: [Int]) {
-        let fetched = sources.filter(\.fetched)
+        // Each page once: a search can return the same page (or the same title on the same site) twice.
+        var seenPages = Set<String>()
+        let fetched = sources.filter(\.fetched).filter { s in
+            let url = s.url.lowercased().split(separator: "#").first.map(String.init) ?? s.url
+            let page = url.hasSuffix("/") ? String(url.dropLast()) : url
+            let titled = CitationPill.siteKey(s) + "|" + s.title.lowercased()
+            guard !seenPages.contains(page), !seenPages.contains(titled) else { return false }
+            seenPages.insert(page); seenPages.insert(titled)
+            return true
+        }
         let byN = Dictionary(fetched.map { ($0.n, $0) }, uniquingKeysWith: { a, _ in a })
         cited = citedOrder.compactMap { byN[$0] }
         let citedSet = Set(cited.map(\.n))
@@ -21,6 +30,13 @@ public struct SourcesContent: Equatable, Sendable {
     }
 
     public var all: [MessageProvenance.WebSourceRecord] { cited + more }
+
+    /// Up to three pages for the Sources button's icons: different sites first.
+    var faces: [MessageProvenance.WebSourceRecord] {
+        var seen = Set<String>()
+        let distinct = all.filter { seen.insert(CitationPill.siteKey($0)).inserted }
+        return Array(distinct.prefix(3))
+    }
 }
 
 struct SourcesPanel: View {
@@ -32,12 +48,15 @@ struct SourcesPanel: View {
             LazyVStack(alignment: .leading, spacing: Spacing.space1) {
                 ForEach(content.cited, id: \.n) { row($0) }
                 if !content.more.isEmpty {
-                    Text(CopyKey("search.sources.more"))
-                        .typeStyle(.footnote).fontWeight(.semibold)
-                        .foregroundStyle(Color.textSecondary)
-                        .padding(.top, content.cited.isEmpty ? 0 : Spacing.space3)
-                        .padding(.horizontal, Spacing.space3)
-                        .probeID("sourcesMore")
+                    // "More" only divides the cited pages from the rest; a list with one kind has no heading.
+                    if !content.cited.isEmpty {
+                        Text(CopyKey("search.sources.more"))
+                            .typeStyle(.footnote).fontWeight(.semibold)
+                            .foregroundStyle(Color.textSecondary)
+                            .padding(.top, Spacing.space3)
+                            .padding(.horizontal, Spacing.space3)
+                            .probeID("sourcesMore")
+                    }
                     ForEach(content.more, id: \.n) { row($0) }
                 }
             }
@@ -52,9 +71,9 @@ struct SourcesPanel: View {
         } label: {
             VStack(alignment: .leading, spacing: Spacing.space1) {
                 HStack(spacing: Spacing.space2) {
-                    SourceFavicon(data: s.faviconData, size: 16)
+                    SourceFavicon(data: s.faviconData, size: 16, site: s.site)
                     Text(verbatim: CitationPill.domain(s.site)).typeStyle(.footnote).foregroundStyle(Color.textSecondary)
-                    if let d = s.date { Text(verbatim: "· \(d)").typeStyle(.footnote).foregroundStyle(Color.textTertiary) }
+                    if let d = s.date { Text(verbatim: "· \(SourceFavicon.displayDate(d))").typeStyle(.footnote).foregroundStyle(Color.textTertiary) }
                 }
                 Text(verbatim: s.title).typeStyle(.callout).fontWeight(.medium).foregroundStyle(Color.textPrimary)
                     .lineLimit(2).multilineTextAlignment(.leading)
@@ -97,8 +116,8 @@ struct SourcesButton: View {
         Button(action: action) {
             HStack(spacing: Spacing.space2) {
                 HStack(spacing: 2) {
-                    ForEach(Array(content.all.prefix(3).enumerated()), id: \.offset) { _, s in
-                        SourceFavicon(data: s.faviconData, size: 14)
+                    ForEach(Array(content.faces.enumerated()), id: \.offset) { _, s in
+                        SourceFavicon(data: s.faviconData, size: 16, site: s.site)
                     }
                 }
                 Text(CopyKey("search.sources")).typeStyle(.footnote).fontWeight(.medium)

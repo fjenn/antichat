@@ -9,6 +9,8 @@
 // ±300 ms of a scripted question start. Pass (AC1): 0 self-interruptions and ≥ 18 of 20 questions answered.
 // `--listen-seconds N` (AC3, `tools/voice/ducking-check.sh`): no questions, the session just listens for N seconds
 // (the music bed plays meanwhile) with the ducking setting `--duck`.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 @preconcurrency import AVFoundation
 import AntiChatEngineProtocol
 import AntiChatHarness
@@ -265,3 +267,4 @@ extension BenchMode {
         say("aec: \(questionLog.count) questions, \(answered) answered, \(selfInterruptions) self-interruptions, half duplex \(halfDuplex ?? "no")")
     }
 }
+#endif

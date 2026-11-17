@@ -41,7 +41,7 @@ final class UninstallUITests: XCTestCase {
     func testRemoveEverythingRequiresREMOVE() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)
-        el(app, "settings.nav.storage").click()
+        el(app, "settings.nav.privacy").click()
         // The page grows while it measures (bar, legend, model rows): a click aimed before that lands on whatever moved
         // under it (it opened the Clean up sheet). Refresh is disabled while measuring.
         let measured = expectation(for: NSPredicate(format: "isEnabled == true"), evaluatedWith: el(app, "storage.refresh"))

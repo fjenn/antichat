@@ -65,5 +65,24 @@ extension WindowSuites {
         #expect(setup.rows.first?.state == .checking)
         #expect(SetupProgress.compute(normal: items, evil: [], jobs: [], present: { _ in true }, installed: ids).rows.first?.state == .ready)
     }
+
+    /// Owner bug 2026-11-15: after Pause the row kept "Pause" (SetupProgress counts user-paused files as downloading)
+    /// and nothing could resume it. Every open file user-paused ⇒ paused (Resume); one running again ⇒ downloading.
+    @Test func userPausedPackReadsPaused() {
+        let items = CapabilitiesPackTests().model(.T1, enabled: [.chat, .photo]).items(.photo, modes: [.normal])
+        let reqs = items.flatMap(\.requests)
+        func job(_ r: DownloadRequest, _ s: DownloadJob.State, _ why: DownloadJob.PauseReason?) -> DownloadJob {
+            DownloadJob(id: r.sha256, request: r, state: s, pauseReason: why, bytesDone: r.size / 4, retries: 0, errorKey: nil, createdAt: Date())
+        }
+        let paused = reqs.map { job($0, .paused, .user) }
+        let state = PackRowState.compute(eligible: true, reason: nil, enabled: true, items: items, jobs: paused, present: { _ in false },
+                                         installed: [], hasUpdate: false)
+        guard case .downloading(_, true, _, _) = state else { Issue.record("\(state)"); return }
+        var oneRunning = paused
+        oneRunning[0].state = .running
+        let resumed = PackRowState.compute(eligible: true, reason: nil, enabled: true, items: items, jobs: oneRunning, present: { _ in false },
+                                           installed: [], hasUpdate: false)
+        guard case .downloading(_, false, _, _) = resumed else { Issue.record("\(resumed)"); return }
+    }
 }
 }

@@ -125,6 +125,16 @@ public enum NetworkGate {
         return m as URLRequest
     }
 
+    /// `request` marked as asked for by the user's own action (opening Settings › Connections reads the list of apps
+    /// from the relay before any app is connected, while the relay category is still off by default). Such a request
+    /// passes a category that is off; Offline only still refuses it. No category has a user-facing switch besides
+    /// Offline only, so this never overrides a choice the user made.
+    public static func userOpened(_ request: URLRequest) -> URLRequest {
+        let m = (request as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+        URLProtocol.setProperty(true, forKey: GateURLProtocol.userOpenedKey, in: m)
+        return m as URLRequest
+    }
+
     // MARK: Errors
 
     static let errorDomain = "app.antichat.network.gate"

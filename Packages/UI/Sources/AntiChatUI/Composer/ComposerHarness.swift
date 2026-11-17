@@ -51,6 +51,8 @@ public struct ComposerHarnessView: View {
 
     private var probes: some View {
         HStack(spacing: Spacing.space3) {
+            // ux/simplify: the mode picker lives in the window toolbar; the harness has none, so it sits up here.
+            if model.evilEnabled { ModePicker(mode: Bindable(model).mode, isLocked: model.modeLocked) }
             probe("harnessSendCount", "\(sent.count)")
             probe("harnessLastSent", sent.last?.markdown ?? "")
             probe("harnessLastAttachments", "\(sent.last?.attachments.count ?? 0)")

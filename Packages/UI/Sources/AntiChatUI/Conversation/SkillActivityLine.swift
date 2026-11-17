@@ -23,7 +23,7 @@ struct SkillActivityLine: View {
             } label: {
                 HStack(spacing: Spacing.space2) {
                     Image(systemName: "sparkles").foregroundStyle(Color.textSecondary)
-                    Text(CopyText(CopyKey("act.skill"), ["name": activity.tool])).typeStyle(.subhead).foregroundStyle(Color.textSecondary)
+                    Text(CopyText(CopyKey("act.skill"), ["name": SkillDisplay.name(slug: activity.tool)])).typeStyle(.subhead).foregroundStyle(Color.textSecondary)
                     if let first = needs.first {
                         Text(first).typeStyle(.subhead).foregroundStyle(Color.textTertiary)
                     }

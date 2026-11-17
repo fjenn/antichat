@@ -219,12 +219,14 @@ enum ShortcutsProbe {
         ShortcutBindings.shared.restoreDefaults()
         let restored = ShortcutCatalog.names.allSatisfy { KeyboardShortcuts.getShortcut(for: $0) == $0.initialShortcut }
         // Settings → Keyboard shortcuts shows every entry.
-        SettingsModel.shared.open(.shortcuts)
+        // General → About & Help → Keyboard shortcuts (the rebinding sheet).
         _ = await SettingsProbe.openSettingsWithCommandComma()
-        SettingsModel.shared.open(.shortcuts)
+        SettingsModel.shared.open(.general, row: "shortcuts")
+        SettingsModel.shared.showingShortcuts = true
         await SettingsProbe.settle(600)
         SettingsProbe.capture(SettingsProbe.settingsWindow, "S-21-shortcuts.png", dir)
         let rowsShown = SettingsProbe.present("settings.row.shortcut.newChat")
+        SettingsModel.shared.showingShortcuts = false
         await SettingsProbe.closeSettings()
 
         let menus = menuTitles()

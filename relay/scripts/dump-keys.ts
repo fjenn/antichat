@@ -7,7 +7,7 @@ import { writeFileSync } from "node:fs";
 import { Redis } from "@upstash/redis";
 import { UpstashKV } from "../src/store.js";
 
-const KEY_RULE = /^(sess:ac_[0-9a-f]{32}|rl:(mcp|exec|session|link|newid|global):[^:]+:\d+)$/;
+const KEY_RULE = /^(cat:toolkits|sess:ac_[0-9a-f]{32}|rl:(mcp|exec|session|link|catalog|newid|global):[^:]+:\d+)$/;
 
 async function main() {
   const outIdx = process.argv.indexOf("--json");

@@ -4,7 +4,7 @@ Hay dos formas. Las dos eliminan todo lo que AntiChat guarda en este Mac.
 
 ## 1. Usa Desinstalar AntiChat (recomendado)
 
-Elige **AntiChat › Desinstalar AntiChat…** (o Ajustes › Almacenamiento › Desinstalar AntiChat…). La ventana muestra lo que se eliminará y cuánto espacio libera. Haz clic en **Exportar antes mis datos** si quieres conservar tus chats; luego escribe UNINSTALL y haz clic en **Desinstalar**. AntiChat elimina sus modelos, chats, imágenes, archivos, cachés, registros y ajustes, desactiva Abrir al iniciar sesión, borra sus atajos de teclado, se mueve a la Papelera y se cierra.
+Elige **AntiChat › Desinstalar AntiChat…** (o Ajustes › Privacidad y datos › Avanzado › Desinstalar AntiChat…). La ventana muestra lo que se eliminará y cuánto espacio libera. Haz clic en **Exportar antes mis datos** si quieres conservar tus chats; luego escribe UNINSTALL y haz clic en **Desinstalar**. AntiChat elimina sus modelos, chats, imágenes, archivos, cachés, registros y ajustes, desactiva Abrir al iniciar sesión, borra sus atajos de teclado, se mueve a la Papelera y se cierra.
 
 ## 2. Elimínalo a mano
 
@@ -24,7 +24,7 @@ Elige **AntiChat › Desinstalar AntiChat…** (o Ajustes › Almacenamiento ›
 - `~/Library/Logs/DiagnosticReports/AntiChat*.ips`
 - `$TMPDIR/AntiChat-incognito-*` (temporal; macOS también lo borra al reiniciar)
 
-Si moviste la carpeta de modelos a otro disco (Ajustes › Almacenamiento › Carpeta de modelos › Mover…), elimina también esa carpeta. Ajustes › Almacenamiento muestra dónde está, con Mostrar en Finder.
+Si moviste la carpeta de modelos a otro disco (Ajustes › Privacidad y datos › Avanzado › Carpeta de modelos › Mover…), elimina también esa carpeta. Ajustes › Privacidad y datos › Avanzado muestra dónde está, con Mostrar en Finder.
 
 Los elementos del llavero llamados app.antichat.* se pueden eliminar en Acceso a Llaveros.
 

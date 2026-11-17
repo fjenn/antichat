@@ -138,7 +138,45 @@ enum CitationPill {
         return sources.count > 1 ? "\(site) +\(sources.count - 1)" : site
     }
 
-    static func domain(_ site: String) -> String { site.hasPrefix("www.") ? String(site.dropFirst(4)) : site }
+    /// The site as shown: no "www.", and one name when the page gave its name twice ("Open Travel Guide; Open Travel
+    /// Guide", from two site-name tags).
+    static func domain(_ site: String) -> String {
+        let first = site.split(separator: ";").map { $0.trimmingCharacters(in: .whitespaces) }.first { !$0.isEmpty } ?? site
+        return first.hasPrefix("www.") ? String(first.dropFirst(4)) : first
+    }
+
+    static func siteName(_ site: String) -> String { domain(site) }
+
+    /// A source's identity for "the same page / site listed twice".
+    static func siteKey(_ s: WebSourceRecord) -> String {
+        (URL(string: s.url)?.host() ?? domain(s.site)).lowercased().replacingOccurrences(of: "www.", with: "")
+    }
+
+    /// The pages a reply without accepted inline citations most likely drew on: the fetched pages whose title or
+    /// snippet share the most distinctive words with the reply, one per site, at most `limit` (the first fetched
+    /// pages when nothing matches). Shown as small chips after the reply, so a web answer always names its pages.
+    static func used(text: String, sources: [WebSourceRecord], limit: Int = 3) -> [WebSourceRecord] {
+        let fetched = sources.filter(\.fetched)
+        guard !fetched.isEmpty else { return [] }
+        let words = Set(text.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).filter { $0.count >= 5 }.map(String.init))
+        let scored = fetched.enumerated().map { i, s -> (Int, Int, WebSourceRecord) in
+            let hay = Set((s.title + " " + s.snippet).lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init))
+            return (words.intersection(hay).count, i, s)
+        }.sorted { $0.0 != $1.0 ? $0.0 > $1.0 : $0.1 < $1.1 }
+        var seen = Set<String>(), out: [WebSourceRecord] = []
+        for (_, _, s) in scored where seen.insert(siteKey(s)).inserted {
+            out.append(s)
+            if out.count == limit { break }
+        }
+        return out.sorted { $0.n < $1.n }
+    }
+
+    /// `text` with one chip per used page on a line of its own after it (nothing when there is none).
+    static func withTrailingChips(_ text: String, sources: [WebSourceRecord]) -> String {
+        let pages = used(text: text, sources: sources)
+        guard !pages.isEmpty else { return text }
+        return text + "\n\n" + pages.map { "[\(label([$0]))](\(scheme)://\($0.n))" }.joined(separator: " ")
+    }
 
     /// Spaces left before punctuation by a removed marker; doubled spaces around a pill.
     static func tidy(_ s: String) -> String {
@@ -223,7 +261,9 @@ struct CitationPillView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                             .accessibilityHidden(true)
                     } else {
-                        Image(systemName: "globe").font(.system(size: 10, weight: .medium)).accessibilityHidden(true)
+                        // No icon of its own: the site's tinted initial, as on the Sources button (not a grey globe).
+                        SourceFavicon(data: nil, size: 12, site: first.site.isEmpty ? (URL(string: first.url)?.host() ?? "") : first.site)
+                            .accessibilityHidden(true)
                     }
                     Text(verbatim: CitationPill.label(cited))
                 }
@@ -246,7 +286,7 @@ struct CitationPillView: View {
                 }
             }
             .popover(isPresented: $showCard, arrowEdge: .bottom) {
-                CitationHoverCard(sources: cited).onHover { if !$0 { showCard = false } }
+                CitationHoverCard(sources: cited).onHover { if !$0 { showCard = false } }.popoverSurface()
             }
             .help(checking ? CopyKey("cite.checking").string() : cited.map(\.title).joined(separator: "\n"))
             .accessibilityLabel(Text(verbatim: cited.map { "\($0.title), \(CitationPill.domain($0.site))" }.joined(separator: "; ")

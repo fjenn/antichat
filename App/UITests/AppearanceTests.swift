@@ -38,7 +38,7 @@ final class AppearanceTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let settings = app.windows.containing(.any, identifier: "settings.root").firstMatch
         XCTAssertTrue(settings.waitForExistence(timeout: 3))
-        element(settings, "settings.nav.appearance").click()
+        element(settings, "settings.nav.general").click()
         for id in ["colorMode", "accentColor", "chatFont", "textSize", "readingWidth", "reduceMotion",
                    "reduceTransparency", "increaseContrast"] {
             XCTAssertTrue(element(settings, "settings.control.\(id)").exists, id)

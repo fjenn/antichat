@@ -45,6 +45,10 @@ import XPC
             "app.antichat.AntiChat.FileTools.Net.slot1", "app.antichat.AntiChat.FileTools.Net.slot2", "app.antichat.AntiChat.FileTools.Net.slot3",
         ])
         #expect(!FileToolsProtocol.isNetServiceName("app.antichat.AntiChat.FileTools.slot1"))
+        // Debug app = its own ids (one bundle id, one signing identity); everything else the shipped ids.
+        #expect(FileToolsProtocol.prefix(forHost: "app.antichat.AntiChat.dev") == "app.antichat.AntiChat.dev")
+        #expect(FileToolsProtocol.prefix(forHost: "app.antichat.AntiChat") == "app.antichat.AntiChat")
+        #expect(FileToolsProtocol.prefix(forHost: nil) == "app.antichat.AntiChat")
     }
 
     @Test func wireRoundTripsPayloadAndDescriptors() throws {

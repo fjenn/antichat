@@ -10,6 +10,8 @@
 //   V2 stages: endpointing = turnEnded − lastVoiced, STT final = finalTranscript − turnEnded, LLM TTFT = first reply
 //   delta (this process) − finalTranscript, first clause = tts.firstClauseReady − first delta, TTS first chunk =
 //   tts.firstChunkSynth − firstClauseReady, audio out = firstSample − firstChunkSynth.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 @preconcurrency import AVFoundation
 import AntiChatEngineProtocol
 import AntiChatHarness
@@ -177,3 +179,4 @@ final class LockedNs: @unchecked Sendable {
     private var v: UInt64?
     func withLock<R>(_ body: (inout UInt64?) -> R) -> R { lock.lock(); defer { lock.unlock() }; return body(&v) }
 }
+#endif

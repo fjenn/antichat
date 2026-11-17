@@ -12,7 +12,10 @@ public enum VerbClassifier {
         "send", "create", "delete", "update", "post", "reply", "move", "archive", "remove", "add", "insert", "patch",
         "put", "upload", "share", "invite", "merge", "close", "assign",
     ]
-    public static let readVerbs: Set<String> = ["get", "list", "search", "fetch", "read", "find"]
+    public static let readVerbs: Set<String> = [
+        "get", "list", "search", "fetch", "read", "find", "query", "retrieve", "view", "count", "check", "download",
+        "export", "lookup", "describe", "whoami", "profile", "show",
+    ]
 
     /// The words of a tool name: snake/kebab/dot/space separated and camelCase split, lower-cased.
     public static func words(_ name: String) -> [String] {

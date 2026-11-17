@@ -12,6 +12,8 @@
 //              NFR-M3: evict → image → reload; a chat request sent at the image result is queued and answered.
 //   coresident --tier-cap T2-24 --model chat-9b-q4 --quant q8 --res 1024 --runs 10 …   (R-236: no eviction)
 //   cancel     --quant q4 --res 1024 --runs 10 --cancel-step 2 …   (M9.T05: cancel → stopped and → memory freed ≤ 2 s)
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatHarness
 import AntiChatPlatform
 import AntiChatStorage
@@ -326,3 +328,4 @@ extension BenchMode {
         }
     }
 }
+#endif

@@ -77,7 +77,7 @@ struct WebSearchConsentSheet: View {
                     .controlSize(.large)
                     .probeID("search.consent.cancel")
                 Button { consent.answer(true) } label: { Text(CopyKey("search.consent.on")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .controlSize(.large)
                     .probeID("search.consent.on")
             }

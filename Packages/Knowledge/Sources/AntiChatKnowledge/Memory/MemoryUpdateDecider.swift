@@ -56,6 +56,9 @@ public struct MemoryUpdateDecider: Sendable {
         public var vector: [Float]?
         public var neighbours: [Neighbour]
         public var usedModel: Bool
+        /// The model was asked and gave nothing usable (the decision then falls back to ADD). The background review
+        /// reads this as "unsure".
+        public var modelFailed = false
     }
 
     public func decide(new text: String, scope: MemoryScope, projectID: String?) async -> Outcome {
@@ -79,8 +82,8 @@ public struct MemoryUpdateDecider: Sendable {
         }
         guard !neighbours.isEmpty, let model else { return Outcome(decision: .add, vector: vector, neighbours: neighbours, usedModel: false) }
         let raw = await model.complete(system: Self.systemPrompt, user: Self.userPrompt(new: text, neighbours: neighbours.map(\.item)))
-        let decision = raw.flatMap { Self.parse($0, known: Set(neighbours.map(\.item.id)), new: text) } ?? .add
-        return Outcome(decision: decision, vector: vector, neighbours: neighbours, usedModel: true)
+        let decision = raw.flatMap { Self.parse($0, known: Set(neighbours.map(\.item.id)), new: text) }
+        return Outcome(decision: decision ?? .add, vector: vector, neighbours: neighbours, usedModel: true, modelFailed: decision == nil)
     }
 
     func ftsNeighbours(_ text: String, among candidates: [MemoryItem]) -> [MemoryItem] {

@@ -57,15 +57,6 @@ import Testing
         #expect(empty.accessibilityLabel.string == CopyText(CopyKey("a11y.send")).string)
     }
 
-    /// M9.T08: the toolbar names the Library, Projects and Chats pages instead of "New chat".
-    @Test func toolbarNamesPageRoutes() {
-        #expect(MainWindow.pageTitle(.library) == CopyKey("library.title"))
-        #expect(MainWindow.pageTitle(.projects) == CopyKey("side.projects"))
-        #expect(MainWindow.pageTitle(.chats) == CopyKey("chats.page.title"))
-        #expect(MainWindow.pageTitle(.newChat) == nil)
-        #expect(MainWindow.pageTitle(.chat("x")) == nil)
-    }
-
     @Test func stopCallsTheHostOnlyWhileGenerating() {
         let m = ComposerModel()
         var stops = 0
@@ -92,11 +83,12 @@ import Testing
         #expect(!m.handlePaste(String(repeating: "a", count: 20_000)), "no paste cards into a disabled field")
     }
 
-    @Test func placeholderFollowsMode() {
+    /// ux/simplify: one placeholder in both modes (the toolbar's picker says which mode the chat is in).
+    @Test func placeholderIsTheSameInBothModes() {
         let m = ComposerModel()
         #expect(m.placeholder.key == CopyKey("composer.placeholder"))
         m.mode = .evil
-        #expect(m.placeholder.key == CopyKey("composer.placeholder.evil"))
+        #expect(m.placeholder.key == CopyKey("composer.placeholder"))
     }
 
     // MARK: (4) Keys

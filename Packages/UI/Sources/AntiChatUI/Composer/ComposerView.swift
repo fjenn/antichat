@@ -5,11 +5,11 @@
 // cards with Harness `PastedTextAttachmentStore`. Accessibility ids other suites use: `composerText`,
 // `voiceOrSend` (voice / send), `stop` (Stop, same position).
 //
-// Layout (step 1/2): a `radius.xl` field on `surface.sunken`. One line: [+] [text] [think · mode · mic · send].
+// Layout (step 1/2): a `radius.xl` field on `surface.sunken`. One line: [+] [text] [think · mic · voice · send].
 // When the text wraps or the tray has items the controls move to a bottom row under the text (F-093):
 //   [tray]
 //   [text, grows 1 → 12 lines, then scrolls]
-//   [+]                       [think · mode · mic · send]
+//   [+]                       [think · mic · voice · send]
 import AntiChatDesign
 import AntiChatFoundation
 import AntiChatPlatform
@@ -27,7 +27,6 @@ public struct ComposerView: View {
     /// The field's measured widths. Not view state (fix/selection-hang-2): a geometry callback that writes @State
     /// costs a transaction per layout pass and can feed a layout loop; these go to the text view's measurer directly.
     @State private var widths = ComposerWidths()
-    @Environment(\.openSettings) private var openSettings
 
     public init(model: ComposerModel, maxTextHeight: CGFloat? = nil) {
         self.model = model
@@ -37,6 +36,8 @@ public struct ComposerView: View {
     nonisolated static let hPadding: CGFloat = Spacing.space2 + 2  // 10 pt: + and send circles sit 10 pt from the edge
     nonisolated static let vPadding: CGFloat = (Layout.composerMinHeight - 24) / 2  // 52 pt pill at one line (tokens.md)
     nonisolated static let gap: CGFloat = Spacing.space2
+    /// The + glyph's optical edge inside its 32 pt circle (the wrapped text's inset).
+    nonisolated static let wrappedTextInset: CGFloat = Spacing.space2
 
     private var textHeight: CGFloat {
         ComposerRules.visibleTextHeight(lines: model.lineCount, scale: scale, cap: maxTextHeight)
@@ -47,7 +48,12 @@ public struct ComposerView: View {
         let _ = ViewWork.evaluated.append("composer")
         #endif
         VStack(spacing: Spacing.space2) {
-            if let notice = model.notice { ComposerNotice(text: notice) }  // M1.T18 ctx.tooLarge
+            if let notice = model.notice {
+                ComposerNotice(text: notice)  // M1.T18 ctx.tooLarge
+            } else if let setup = model.evilSetupNotice {
+                // Evil picked, its model not ready: said before Send has to refuse.
+                EvilSetupNotice(text: setup, retry: model.evilSetupCanRetry ? model.evilSetupRetry : nil)
+            }
             StarterLabel(label: model.starterLabel)  // M2.T20 (R-203)
             field
             if model.menus.chips.chips.contains(where: { $0.item.state == .offline }) {  // VQ (S-25)
@@ -64,7 +70,7 @@ public struct ComposerView: View {
         }
         .onAppear {
             model.requestFocus()
-            model.menus.openSettings = { openSettings() }  // M1.T17: "Enable in Settings" rows
+            model.menus.openSettings = { SettingsPresenter.shared.show() }  // M1.T17: "Enable in Settings" rows
         }
     }
 
@@ -76,12 +82,13 @@ public struct ComposerView: View {
                 VoiceOverlay(voice: voice, embedded: true, onTypeInstead: { model.requestFocus() })
                 Divider().padding(.horizontal, -Self.hPadding)
             }
-            if !model.attachments.isEmpty { tray }
+            if !model.attachments.isEmpty { tray.padding(.horizontal, Self.wrappedTextInset) }  // one edge with the text
             // The text view keeps one structural position in both layouts, so switching rows never recreates
             // the NSTextView (which would drop focus, IME state and undo).
             HStack(alignment: .center, spacing: Self.gap) {
                 if !model.usesBottomRow { leading }
-                text
+                // Wrapped text sits over the bottom row: inset so its edge lines up with the + glyph under it.
+                text.padding(.horizontal, model.usesBottomRow ? Self.wrappedTextInset : 0)
                 if !model.usesBottomRow { trailing }
             }
             if model.usesBottomRow {
@@ -173,22 +180,19 @@ public struct ComposerView: View {
             .probeID("composerAdd")
             .disabled(!model.isFieldEnabled)
             .popover(isPresented: Bindable(model.menus).isConnectionsMenuOpen, arrowEdge: .top) {  // M7.T06
-                ConnectionsSubmenu(chips: model.menus.chips)
+                ConnectionsSubmenu(chips: model.menus.chips).popoverSurface()
             }
             .popover(isPresented: Bindable(model.menus).isSkillsMenuOpen, arrowEdge: .top) {  // M7.T12
-                SkillsSubmenu(chips: model.menus.chips)
-            }
-            .popover(isPresented: Bindable(model.menus).isToolsMenuOpen, arrowEdge: .top) {  // M7.T14
-                ToolsSubmenu(chips: model.menus.chips, web: model.menus.context.webSearch)
+                SkillsSubmenu(chips: model.menus.chips).popoverSurface()
             }
             .popover(isPresented: Bindable(model.menus).isAddMenuOpen, arrowEdge: .top) {  // M1.T17 AddMenu
-                AddMenu(menus: model.menus)
+                AddMenu(menus: model.menus).popoverSurface()
             }
             // M1.T17: sticky tool chips (none while the active model is chat-only, D-023).
             ForEach(model.menus.chips.chips) { chip in
                 ToolChipView(chip: chip) { model.menus.chips.remove(chip.id) }
             }
-            if model.menus.chips.showsAspects {  // M4.T07: aspect chips beside Create image
+            if model.menus.chips.showsAspects {  // M4.T07: the shape chip beside Create image
                 AspectChips(selected: model.menus.chips.aspect) { model.menus.chips.setAspect($0) }
             }
             // M7.T03 step 4: a pasted http(s) URL → the "Read this URL" suggestion (accepting forces read_url).
@@ -221,13 +225,10 @@ public struct ComposerView: View {
 
     private var trailing: some View {
         HStack(spacing: Spacing.space1) {
-            ThinkHarderToggle(isOn: $model.thinkHarder, preset: model.thinkHarderPreset)  // M1.T15
+            // A model without a thinking mode has no Think harder button (it used to explain itself in a tooltip).
+            if !model.thinkHarderPreset { ThinkHarderToggle(isOn: $model.thinkHarder, preset: false) }  // M1.T15
 
-            if model.evilEnabled {
-                ModeSwitch(mode: $model.mode, isLocked: model.modeLocked, onContinue: model.onContinueInMode,
-                           evilUnavailable: model.evilUnavailableLine)  // M2.T20: evil.downloading
-                    .onHover { if $0 { model.hints?.modeSwitchHover(current: model.mode) } }  // M2.T15 WarmupHints
-            }
+            // ux/simplify: the chat's mode is picked in the window toolbar (`ModePicker`), not in the field.
 
             // vq/voice-mac-capture (S-16): during a call the VoiceOverlay carries the microphone controls; the field's
             // dictate and talk buttons left a second mic / voice pair under the overlay's (IS-9: one visible mic state).
@@ -404,6 +405,7 @@ struct MicButton: View {
             .frame(width: 260)
             .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
             .accessibilityIdentifier("micInstallCard")
+            .popoverSurface()
         }
         // Q-015 r3: two `.popover`s on one view present only one of them (the denied popover never showed, nor
         // sometimes the install card); the denied popover hangs off its own anchor of the same frame.

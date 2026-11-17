@@ -46,6 +46,8 @@ struct HelpAndLegalTests {
         #expect(SiteLinks.url("/legal/terms/", downloadURL: "https://a.example/download/")?.absoluteString
                 == "https://a.example/legal/terms/")
         #expect(SiteLinks.url("/help/faq/", downloadURL: nil) == nil)
+        // Help › AntiChat Help and Settings › General › Help open the help centre's front page.
+        #expect(HelpCentre.url == SiteLinks.url("/help/"))
     }
 
     @Test(.isolatedSettings) func whatsNewRules() {
@@ -70,14 +72,5 @@ struct HelpAndLegalTests {
         let data = try Data(contentsOf: Self.repo.appendingPathComponent("notes/0.0.1.json"))
         let n = try JSONDecoder().decode(WhatsNewNotes.self, from: data)
         #expect(n.version == "0.0.1" && (3 ... 5).contains(n.items.count))
-    }
-
-    @Test(.isolatedSettings) func tourListsInstalledPacks() {
-        #expect(TourTip.itemKeys([.chat]) == ["tour.item.chat", "tour.item.files"])
-        #expect(TourTip.itemKeys([.chat, .voice, .photo, .video]) ==
-                ["tour.item.chat", "tour.item.voice", "tour.item.photo", "tour.item.video", "tour.item.files"])
-        // VQ round 65: one line of capability nouns, never the suggestion rows' prompts.
-        #expect(TourTip.line([.chat, .voice, .photo]) == "Chat, Voice, Pictures, Your files, all on this Mac")
-        #expect(!TourTip.line([.chat, .voice, .photo]).contains("Talk to me"))
     }
 }

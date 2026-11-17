@@ -98,6 +98,19 @@ final class FakeQuickBackend: QuickPanelBackend {
         #expect(m.escape() == .hidePanel, "empty panel: Esc hides")
     }
 
+    /// Owner 2026-11-16: the × button hides the panel as it is; the typed text is still there when it comes back.
+    @Test func closeHidesAndKeepsTheDraft() {
+        let (m, b, hides) = make()
+        m.text = "half a question"
+        m.close()
+        #expect(hides() == 1 && m.text == "half a question")
+        m.shown()
+        #expect(m.text == "half a question" && m.phase == .empty)
+        m.send()
+        m.close()
+        #expect(hides() == 2 && m.phase == .streaming && b.stopped.isEmpty, "closing never stops the answer")
+    }
+
     @Test func openInAppHandsTheSameChat() {
         let (m, b, hides) = make()
         #expect(m.openInApp() == nil, "no chat yet")

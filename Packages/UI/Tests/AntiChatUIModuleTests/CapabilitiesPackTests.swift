@@ -213,9 +213,9 @@ extension WindowSuites {
         for look in Look.allCases {
             let list = VStack(alignment: .leading, spacing: 6) {
                 ForEach(Array(states.enumerated()), id: \.offset) { _, s in
-                    PackRow(pack: .photo, state: s.1, modes: CopyText(CopyKey("set.cap.modes.both")), isOn: true)
+                    PackRow(pack: .photo, state: s.1, isOn: true)
                 }
-                PackRow(pack: .chat, state: .ready(bytesOnDisk: 6_400_000_000), modes: CopyText(CopyKey("set.cap.modes.normalOnly")), isOn: true)
+                PackRow(pack: .chat, state: .ready(bytesOnDisk: 6_400_000_000), isOn: true)
                 Divider()
                 DisablePackSheet(pack: .photo, frees: 2_870_000_000, onKeep: {}, onRemove: {}, onCancel: {})
             }

@@ -7,11 +7,14 @@ import { logConfigError, logConfigNotice, logRequest, uid8 } from "./log.js";
 import { belowMinVersion, ConfigError, loadConfig, type RelayConfig } from "./policy.js";
 import { makeLimiters, retryAfterSeconds, type Limiters, type LimitResult } from "./ratelimit.js";
 import { MemoryKV, UpstashKV, type KV } from "./store.js";
+import type { CatalogCache } from "./toolkits.js";
 
 export type RelayContext = {
   cfg: RelayConfig;
   kv: KV;
   limiters: Limiters;
+  /** GET /v1/toolkits: the list kept in this instance's memory (src/toolkits.ts). */
+  catalog: CatalogCache;
   /** Only built when a real (non-stub) key is configured. */
   gateway(): ComposioGateway;
 };
@@ -48,6 +51,7 @@ export function buildContext(env: Record<string, string | undefined> = process.e
     cfg,
     kv,
     limiters,
+    catalog: {},
     gateway() {
       if (!gw) {
         if (!cfg.composioKey) throw new Error("not configured");

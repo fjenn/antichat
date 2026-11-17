@@ -23,7 +23,6 @@ public enum WindowRoute: Hashable, Sendable {
     case projects
     /// M8.T04: one project's page.
     case project(String)
-    case chats
     /// M1.T20: the window's incognito chat (`WindowState.incognito`); never in the sidebar or the history stacks.
     case incognito
 }
@@ -45,7 +44,9 @@ public final class WindowState {
     // MARK: Inputs
 
     public let service: ChatListService
-    public let enabledPacks: Set<SuggestionPack>
+    /// Re-read when onboarding finishes (this window exists, hidden, while it runs; 2026-11-16 the tip said
+    /// "Chat, Your files" with Voice just chosen).
+    public private(set) var enabledPacks: Set<SuggestionPack>
 
     // MARK: Navigation
 
@@ -126,7 +127,7 @@ public final class WindowState {
     private var transcriptToken: ObservationToken?
 
     public struct PendingDelete: Equatable {
-        public enum Anchor: Equatable { case row, toolbar, chatsPage }
+        public enum Anchor: Equatable { case row, toolbar }
         public var ids: [String]
         public var title: String
         public var anchor: Anchor
@@ -141,7 +142,10 @@ public final class WindowState {
         suggestions = SuggestionProvider.suggestions(enabled: enabledPacks, seed: seed)
         // M2.T20 step 6: the first chat after onboarding (this window existed, hidden, while onboarding ran).
         firstChatObserver = NotificationCenter.default.addObserver(forName: StarterSuggestions.didFinish, object: nil, queue: .main) {
-            [weak self] _ in MainActor.assumeIsolated { self?.applyFirstChat() }
+            [weak self] _ in MainActor.assumeIsolated {
+                self?.enabledPacks = SuggestionProvider.enabledPacks()
+                self?.applyFirstChat()
+            }
         }
     }
 
@@ -222,8 +226,9 @@ public final class WindowState {
         return isDocked || incognito.hasContent
     }
 
-    /// The toolbar IncognitoButton is enabled: on an empty chat only (components.md: disabled inside a non-empty chat).
-    public var canToggleIncognito: Bool { !isDocked || (isIncognito && !hasIncognitoContent) }
+    /// The toolbar IncognitoButton always works: it opens a new incognito chat from anywhere (and, in an incognito
+    /// chat, a new regular one — after the close confirmation when that chat has messages).
+    public var canToggleIncognito: Bool { true }
 
     /// ⇧⌘N, ⌘K "New incognito chat", the toolbar button: opens a fresh incognito chat (an empty one stays).
     public func newIncognitoChat() {
@@ -397,6 +402,9 @@ public final class WindowState {
     }
 
     private func startNewChat(seed: UInt64) {
+        // A new chat starts Normal: ⌘N on a new chat that was set to Evil (still the same unsaved chat for the composer)
+        // asks for Normal, as ⇧⌘E asks for Evil.
+        if newChatMode == nil, route == .newChat, shownMode == .evil { newChatMode = .normal }
         headlineSeed = seed
         headline = EmptyHeadline.pick(seed: seed)
         suggestions = SuggestionProvider.suggestions(enabled: enabledPacks, seed: seed)
@@ -477,14 +485,13 @@ public final class WindowState {
         }
     }
 
-    /// VQ-M10 round 65 (S-15; Claude's artifact panel): the side panel opened or closed. When the sidebar, the panel
-    /// (`panelWidth`) and a comfortable conversation (`SidePanelModel.comfortableChatWidth`) do not all fit, opening
-    /// the panel collapses the sidebar, and closing it brings the sidebar back. Before, the chat was squeezed to a
-    /// ~250 pt column beside a 766 pt panel.
-    public func sidePanelChanged(open: Bool, panelWidth: CGFloat) {
+    /// The side panel (files, Sources) opened or closed. On a window at least `sidebarStaysWidth` wide the sidebar
+    /// stays as it was; on a narrower one opening the panel collapses it and closing the panel brings it back.
+    public static let sidebarStaysWidth: CGFloat = 1100
+
+    public func sidePanelChanged(open: Bool) {
         if open {
-            guard columnVisibility != .detailOnly, windowWidth > 0,
-                  windowWidth - Layout.sidebarWidth - panelWidth < SidePanelModel.comfortableChatWidth else { return }
+            guard columnVisibility != .detailOnly, windowWidth > 0, windowWidth < Self.sidebarStaysWidth else { return }
             columnVisibility = .detailOnly
             panelCollapsed = true
         } else if panelCollapsed {

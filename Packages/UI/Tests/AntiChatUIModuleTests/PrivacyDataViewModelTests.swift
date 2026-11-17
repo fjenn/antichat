@@ -8,13 +8,14 @@ import AntiChatHarness
 import AntiChatNetwork
 import AntiChatPlatform
 import AntiChatStorage
+import Defaults
 import Foundation
 import Testing
 @testable import AntiChatUI
 
 @MainActor
 @Suite(.isolatedSettings) struct PrivacyDataViewModelTests {
-    static let statement = "Your chats never leave this Mac unless you use an online feature. AntiChat never trains on your data and has no telemetry."
+    static let statement = "Your chats never leave this Mac unless you use an online feature. AntiChat never trains on your data and collects no usage data."
 
     private static var repoRoot: URL {
         var u = URL(fileURLWithPath: #filePath)
@@ -49,7 +50,7 @@ import Testing
     }
 
     @Test func rowsAreTheSettingsMapOrderAndCoverAC4() {
-        let registry = SettingsRegistry.rows.filter { $0.section == .privacy }.map(\.id)
+        let registry = SettingsRegistry.rows.filter { $0.section == .privacy && !$0.id.hasPrefix("storage.") }.map(\.id)
         #expect(registry == PrivacyDataViewModel.rowOrder)
         #expect(PrivacyDataViewModel.rowOrder == [
             "offlineOnly", "networkActivity", "privacyLocation", "newChatsIncognito", "incognitoPersonalizationDefault",
@@ -61,7 +62,7 @@ import Testing
             #expect(PrivacyDataViewModel.rowOrder.contains(id), "\(id)")
         }
         #expect(SettingsKeys.defaults["newChatsIncognito"] == "false")
-        #expect(SettingsKeys.defaults["searchUsesLocation"] == "false")
+        #expect(SettingsKeys.defaults["searchUsesLocation"] == "true")  // owner 2026-11-16: on; macOS is asked just in time
         #expect(DeleteAllSheet.isConfirmed("DELETE") && !DeleteAllSheet.isConfirmed("delete"))
     }
 
@@ -147,6 +148,45 @@ import Testing
         #expect(location.requestCount == 1)
         #expect(location.status == .notDetermined)  // the dialog is left unanswered
         #expect(SearchLocationRow.notice(enabled: true, status: location.status, asked: true) == CopyKey("perm.location.waiting"))
+    }
+
+    /// Owner 2026-11-16: the setting is on by default; macOS is asked only at the first search that would use it,
+    /// after the explainer, and never again once answered.
+    @Test func locationIsAskedOnceAtTheFirstSearchThatWouldUseIt() {
+        SettingsKeys.resetAll()
+        defer { SettingsKeys.resetAll() }
+        let store = UserDefaults.inMemory()
+        let location = LocationPermission(system: .fake(.notDetermined), observeActivation: false)
+        var window = false
+        let prompt = SearchLocationPrompt(location: location, defaults: store, canShow: { window })
+        #expect(Defaults[.searchUsesLocation] && !prompt.isShowing && location.requestCount == 0, "nothing at launch")
+        prompt.searchWantsLocation()
+        #expect(!prompt.isShowing && !prompt.hasAsked, "no window to show it in: not asked, the next search tries again")
+        window = true
+        prompt.searchWantsLocation()
+        #expect(prompt.isShowing && location.requestCount == 0, "the explainer first, no macOS dialog yet")
+        prompt.respond(true)  // [Continue]
+        #expect(!prompt.isShowing && location.requestCount == 1 && prompt.hasAsked && Defaults[.searchUsesLocation])
+        prompt.searchWantsLocation()
+        #expect(!prompt.isShowing, "answered once: never again by itself")
+
+        // [Not now]: no macOS dialog, the switch turns off, and it is not asked again.
+        let declined = LocationPermission(system: .fake(.notDetermined), observeActivation: false)
+        let second = SearchLocationPrompt(location: declined, defaults: UserDefaults.inMemory(), canShow: { true })
+        second.searchWantsLocation()
+        second.respond(false)
+        #expect(declined.requestCount == 0 && !Defaults[.searchUsesLocation] && second.hasAsked)
+        Defaults[.searchUsesLocation] = true  // turned on again in Settings (its own explainer sheet)
+        second.searchWantsLocation()
+        #expect(!second.isShowing)
+
+        // Already granted or denied: nothing to explain.
+        for state in [LocationAuthorization.granted, .denied, .servicesOff] {
+            let p = SearchLocationPrompt(location: LocationPermission(system: .fake(state), observeActivation: false),
+                                         defaults: UserDefaults.inMemory(), canShow: { true })
+            p.searchWantsLocation()
+            #expect(!p.isShowing, "\(state)")
+        }
     }
 
     @Test func deniedLocationOffersSystemSettings() {

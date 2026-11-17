@@ -48,11 +48,12 @@ import Testing
         #expect(e.filter { !n.contains($0) } == [Self.toneStandIn])
     }
 
-    @Test func basePersonaIsOneNeutralSentence() {
+    /// One paragraph: who AntiChat is and what the app lets it do (so "what can you do?" is answered truthfully).
+    @Test func basePersonaIsOneShortParagraph() {
         let base = PromptComposer.bundledBasePersona.trimmingCharacters(in: .whitespacesAndNewlines)
-        #expect(base.contains("AntiChat"))
+        #expect(base.hasPrefix("You are AntiChat"))
         #expect(!base.contains("\n"))
-        #expect(base.filter { ".!?".contains($0) }.count == 1)
+        #expect(base.count < 900)
     }
 
     @Test func personalizationRendersFixedSentences() {

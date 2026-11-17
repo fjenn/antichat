@@ -35,18 +35,19 @@ struct IncognitoEmptyState<Composer: View>: View {
                 .alignmentGuide(.top) { d in d[.bottom] + Spacing.space6 }
             }
             .overlay(alignment: .bottom) {
-                Picker(selection: $personalization) {
-                    Text(CopyKey("incognito.personalized")).tag(IncognitoPersonalization.personalized)
-                    Text(CopyKey("incognito.unpersonalized")).tag(IncognitoPersonalization.unpersonalized)
-                } label: {
-                    EmptyView()
+                // One switch that says what it does (it was a "Personalized / Unpersonalized" pair with no explanation).
+                VStack(spacing: Spacing.space1) {
+                    Toggle(isOn: Binding(get: { personalization == .personalized },
+                                         set: { personalization = $0 ? .personalized : .unpersonalized })) {
+                        Text(CopyKey("incognito.usePreferences")).typeStyle(.callout).foregroundStyle(Color.textPrimary)
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                    .probeID("incognitoPersonalization")
+                    Text(CopyKey("incognito.usePreferences.hint")).typeStyle(.footnote).foregroundStyle(Color.textTertiary)
                 }
-                .pickerStyle(.segmented).accentFilledSegments()
-                .labelsHidden()
                 .fixedSize()
                 .alignmentGuide(.bottom) { d in d[.top] - Spacing.space5 }
-                .accessibilityLabel(Text(CopyKey("title.incognito")))
-                .probeID("incognitoPersonalization")
             }
             .padding(.horizontal, Spacing.space6)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

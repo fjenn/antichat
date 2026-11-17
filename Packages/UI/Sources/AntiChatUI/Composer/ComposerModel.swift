@@ -190,7 +190,7 @@ public final class ComposerModel {
     /// M1.T15: the active model has no thinking mode (Think harder = the sampling preset, tooltip `think.tip.preset`).
     public var thinkHarderPreset = false
 
-    /// Evil is enabled on this Mac (M2; `-FakeEvilEnabled YES` in tests): shows the ModeSwitch.
+    /// Evil is enabled on this Mac (M2; `-FakeEvilEnabled YES` in tests): shows the toolbar's ModePicker.
     public var evilEnabled: Bool
     /// The chat's mode (`chat.mode`). Evil tints the send button.
     public var mode: ComposerChatMode = .normal
@@ -199,6 +199,12 @@ public final class ComposerModel {
     /// M2.T20 / R-203 AC5: the Evil model is not verified yet — the switch cannot pick Evil and says why
     /// (`evil.downloading` "Evil ready in ~{minutes} min" / `evil.downloading.queued`). nil = Evil selectable.
     public var evilUnavailableLine: CopyText?
+    /// Evil's setup stopped and will not move by itself (a failed download, a view that could not be written): the
+    /// line under the field offers Retry. nil = no Retry (downloading, finishing).
+    @ObservationIgnored public var evilSetupRetry: (@MainActor () -> Void)?
+    public var evilSetupCanRetry = false
+    /// The shown chat is an Evil one and Evil cannot answer yet: said under the field before anything is typed.
+    public var evilSetupNotice: CopyText? { mode == .evil && !isReadOnly ? evilUnavailableLine : nil }
     /// Status-row chips: set from `chat.project_id` / `chat.mode` by the host (step 7). `nil` = no chip.
     public var statusProjectName: String?
     public var statusMode: ComposerChatMode?
@@ -311,7 +317,7 @@ public final class ComposerModel {
     public var placeholder: CopyText {
         if availability == .noModel { return CopyText(CopyKey("composer.noModel")) }
         if isReadOnly { return CopyText(CopyKey("evil.readOnly")) }
-        return CopyText(mode == .evil ? CopyKey("composer.placeholder.evil") : CopyKey("composer.placeholder"))
+        return CopyText(CopyKey("composer.placeholder"))  // both modes: the toolbar picker says which
     }
 
     // MARK: Actions

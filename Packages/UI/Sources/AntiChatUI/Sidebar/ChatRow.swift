@@ -1,4 +1,4 @@
-// ChatRow (components.md §1): title, red dot for Evil chats, running indicator, ⋯ menu on hover.
+// ChatRow (components.md §1): title, a small quiet glyph for Evil chats, running indicator, ⋯ menu on hover.
 // States: default · hover (⋯ visible) · selected · streaming (spinner) · renaming (inline field) · deleting
 // (confirmation popover). M1.T19: `activity` (spinner while the chat's turn runs) and `chat.unread` (a reply
 // finished off screen: accent dot + semibold title, cleared when the chat is opened).
@@ -68,7 +68,7 @@ struct ChatRow: View {
         .onHover { hovering = $0 }
         .animation(.easeOut(duration: MotionToken.fast.duration), value: hovering)
         .popover(isPresented: .constant(deleting), arrowEdge: .trailing) {
-            DeleteConfirmation(title: chat.title, onConfirm: onConfirmDelete, onCancel: onCancelDelete)
+            DeleteConfirmation(title: chat.title, onConfirm: onConfirmDelete, onCancel: onCancelDelete).popoverSurface()
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(Text(verbatim: accessibilityTitle))
@@ -107,10 +107,8 @@ struct ChatRow: View {
                 .background(Capsule().strokeBorder(Color.textTertiary.opacity(0.5)))
                 .probeID("chatRow.imported")
         } else if chat.isEvil {
-            Circle()
-                .fill(Color.evilBase)
-                .frame(width: 6, height: 6)
-                .accessibilityHidden(true)
+            // ux/simplify: a tiny quiet glyph, not a bright dot (the row's label says ", Evil mode chat").
+            EvilGlyph(size: 9, color: .textTertiary)
                 .probeID("chatRow.evilDot")  // M2.T17 AT-210
         }
     }

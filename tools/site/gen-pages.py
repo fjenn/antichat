@@ -30,7 +30,7 @@ def changelog() -> str:
 def uninstall() -> str:
     src = (ROOT / "App/AntiChat/Resources/Help/uninstall.md").read_text()
     body = re.sub(r"^# .*\n+", "", src, count=1)
-    return ("---\ntitle: How to uninstall AntiChat\nsidebar: {order: 7}\n---\n"
+    return ("---\ntitle: How to uninstall AntiChat\nsidebar: {order: 15}\n---\n"
             "<!-- GENERATED from App/AntiChat/Resources/Help/uninstall.md by tools/site/gen-pages.py -->\n\n" + body)
 
 

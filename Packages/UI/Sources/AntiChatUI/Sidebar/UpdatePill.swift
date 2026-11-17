@@ -83,7 +83,7 @@ struct UpdateNotesSheet: View {
                     .accessibilityIdentifier("update.later")
                     .keyboardShortcut(.cancelAction)
                 Button(action: restart) { Text(needsDownload ? CopyKey("update.download") : CopyKey("update.restart")) }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .accessibilityIdentifier("update.restart")
             }
         }

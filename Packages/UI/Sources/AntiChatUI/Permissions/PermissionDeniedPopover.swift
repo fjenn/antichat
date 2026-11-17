@@ -34,5 +34,6 @@ struct PermissionDeniedPopover: View {
         .frame(width: 260, alignment: .leading)
         .accessibilityElement(children: .contain)  // Q-015 r3: else the popover's id replaced `voice.denied` (P3 pattern)
         .probeID("permissionDeniedPopover")
+        .popoverSurface()
     }
 }

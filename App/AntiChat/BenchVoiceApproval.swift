@@ -10,6 +10,8 @@
 // (the mic is gated while the assistant speaks). Pass = the card is answered `allowOnce` by voice, the reply that
 // waited for the answer was never stopped, the answer was not sent as a chat message, and the session is listening
 // again at the end.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatEngineProtocol
 import AntiChatFoundation
 import AntiChatHarness
@@ -114,3 +116,4 @@ extension BenchMode {
         if !pass { throw NSError(domain: "bench", code: 9, userInfo: [NSLocalizedDescriptionKey: "voice-approval failed"]) }
     }
 }
+#endif

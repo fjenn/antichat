@@ -1,11 +1,13 @@
-// Settings → Appearance (M1.T23; settings-map §2; R-101, NFR-A4): Color mode, Accent color (8 presets), Chat font,
-// Text size (12–24 pt stepper), Reading width, Reduce motion, Reduce transparency, Increase contrast. Each control
-// writes its Defaults key (Keys.swift); `AppearanceRoot` applies the values to every window at once (no restart).
+// Settings → General → Appearance (M1.T23; settings-map §2; R-101, NFR-A4). On the page: Color mode, Accent color
+// (8 presets), Chat font, Text size (12–24 pt stepper). Under Advanced: Reading width, Reduce motion, Reduce
+// transparency, Increase contrast. Each control writes its Defaults key (Keys.swift); `AppearanceRoot` applies the
+// values to every window at once (no restart).
 import AntiChatDesign
 import Defaults
 import SwiftUI
 
-struct AppearanceSection: View {
+struct AppearanceRows: View {
+    let part: SettingsPart
     @Default(.colorMode) private var colorMode
     @Default(.accentColor) private var accentColor
     @Default(.chatFont) private var chatFont
@@ -16,64 +18,69 @@ struct AppearanceSection: View {
     @Default(.increaseContrast) private var increaseContrast
 
     var body: some View {
-        Section {
-            SettingsItem("colorMode") {
-                Segmented(selection: $colorMode, id: "colorMode",
-                          options: ColorModeChoice.allCases.map { ($0.rawValue, "set.appearance.colorMode.\($0.rawValue)") })
-            }
-            SettingsItem("accentColor") {
-                HStack(spacing: Spacing.space2) {
-                    ForEach(AccentPreset.allCases, id: \.self) { p in
-                        Swatch(preset: p, selected: accentColor == p.rawValue) { accentColor = p.rawValue }
+        if part == .main { main } else { advanced }
+    }
+
+    @ViewBuilder private var main: some View {
+        SettingsItem("colorMode") {
+            Segmented(selection: $colorMode, id: "colorMode",
+                      options: ColorModeChoice.allCases.map { ($0.rawValue, "set.appearance.colorMode.\($0.rawValue)") })
+        }
+        SettingsItem("accentColor") {
+            HStack(spacing: Spacing.space2) {
+                // "Default" is the blue; the separate Blue dot looked the same and is not offered (a stored "blue" stays valid).
+                ForEach(AccentPreset.allCases.filter { $0 != .blue }, id: \.self) { p in
+                    Swatch(preset: p, selected: accentColor == p.rawValue || (p == .default && accentColor == AccentPreset.blue.rawValue)) {
+                        accentColor = p.rawValue
                     }
                 }
-                .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
-                .probeID("settings.control.accentColor")
             }
+            .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
+            .probeID("settings.control.accentColor")
         }
-        Section {
-            SettingsItem("chatFont") {
-                Picker(selection: $chatFont) {
-                    ForEach(ChatFont.allCases, id: \.self) { f in
-                        Text(CopyKey("set.appearance.chatFont.\(f.rawValue)")).tag(f.rawValue)
-                    }
-                } label: { Text(CopyKey("set.appearance.chatFont")) }
-                    .pickerStyle(.menu)
-                    .fixedSize()
-                    .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
-                    .probeID("settings.control.chatFont")
-            }
-            SettingsItem("textSize") {
-                HStack(spacing: Spacing.space2) {
-                    Text(CopyText(CopyKey("set.appearance.textSize.value"), ["size": "\(textSize)"]))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.textSecondary)
-                        .probeID("settings.value.textSize")
-                    Stepper(value: $textSize, in: AppearanceSettings.textSizeRange) {
-                        Text(CopyKey("set.appearance.textSize"))
-                    }
-                    .labelsHidden()
-                    .probeID("settings.control.textSize")
+        SettingsItem("chatFont") {
+            Picker(selection: $chatFont) {
+                ForEach(ChatFont.allCases, id: \.self) { f in
+                    Text(CopyKey("set.appearance.chatFont.\(f.rawValue)")).tag(f.rawValue)
                 }
-            }
-            SettingsItem("readingWidth") {
-                Segmented(selection: $readingWidth, id: "readingWidth",
-                          options: ReadingWidth.allCases.map { ($0.rawValue, "set.appearance.readingWidth.\($0.rawValue)") })
+            } label: { Text(CopyKey("set.appearance.chatFont")) }
+                .pickerStyle(.menu)
+                .fixedSize()
+                .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
+                .probeID("settings.control.chatFont")
+        }
+        SettingsItem("textSize") {
+            HStack(spacing: Spacing.space2) {
+                Text(textSize == Defaults.Keys.textSize.defaultValue ? CopyText(CopyKey("set.appearance.chatFont.default"))
+                     : CopyText(CopyKey("set.appearance.textSize.value"), ["size": "\(textSize)"]))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.textSecondary)
+                    .probeID("settings.value.textSize")
+                Stepper(value: $textSize, in: AppearanceSettings.textSizeRange) {
+                    Text(CopyKey("set.appearance.textSize"))
+                }
+                .labelsHidden()
+                .probeID("settings.control.textSize")
             }
         }
-        Section {
-            SettingsItem("reduceMotion") {
-                Segmented(selection: $reduceMotion, id: "reduceMotion",
-                          options: ReduceMotionChoice.allCases.map { ($0.rawValue, "set.appearance.reduceMotion.\($0.rawValue)") })
-            }
-            SettingsItem("reduceTransparency") {
-                Segmented(selection: $reduceTransparency, id: "reduceTransparency",
-                          options: FollowsSystemChoice.allCases.map { ($0.rawValue, "set.appearance.follows.\($0.rawValue)") })
-            }
-            SettingsItem("increaseContrast") {
-                Segmented(selection: $increaseContrast, id: "increaseContrast",
-                          options: FollowsSystemChoice.allCases.map { ($0.rawValue, "set.appearance.follows.\($0.rawValue)") })
-            }
+    }
+
+    @ViewBuilder private var advanced: some View {
+        SettingsItem("readingWidth") {
+            Segmented(selection: $readingWidth, id: "readingWidth",
+                      options: ReadingWidth.allCases.map { ($0.rawValue, "set.appearance.readingWidth.\($0.rawValue)") })
+        }
+        SettingsItem("reduceMotion") {
+            Segmented(selection: $reduceMotion, id: "reduceMotion",
+                      options: ReduceMotionChoice.allCases.map { ($0.rawValue, "set.appearance.reduceMotion.\($0.rawValue)") })
+        }
+        SettingsItem("reduceTransparency") {
+            Segmented(selection: $reduceTransparency, id: "reduceTransparency",
+                      options: FollowsSystemChoice.allCases.map { ($0.rawValue, "set.appearance.follows.\($0.rawValue)") })
+        }
+        SettingsItem("increaseContrast") {
+            Segmented(selection: $increaseContrast, id: "increaseContrast",
+                      options: FollowsSystemChoice.allCases.map { ($0.rawValue, "set.appearance.follows.\($0.rawValue)") })
         }
     }
 }

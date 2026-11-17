@@ -1,5 +1,6 @@
 // M7.T06 step 4 (R-081): the Connections page's state over the app's MCPHost (MCPTools.host) and its rows. Reloads on
-// every `MCPHost.didChange`. Add flow: `check` (dry `tools/list` via MCPHost.preview) → consent sheet → `confirm`
+// every `MCPHost.didChange`. Apps (Composio, M7.T11) are `ConnectFlow.shared`'s: the page reads them from `flow`.
+// Custom connections: `check` (dry `tools/list` via MCPHost.preview) → the consent step of the add sheet → `confirm`
 // (row + Keychain token + tools) or `decline` (nothing stored). Per-tool permissions are `tool_permission` rows
 // `mcp:<server>:<tool>` (Always allow / Ask / Block); a stored row replaces the tool's default.
 import AntiChatFoundation
@@ -34,11 +35,17 @@ final class ConnectionsModel {
     var checkError: String?
     /// The OAuth server offers neither CIMD nor DCR: the add sheet shows `conn.mcp.clientId`.
     private(set) var needsClientID = false
+    /// The server refused a check made without a sign-in: the add sheet opens its sign-in choices and says so.
+    private(set) var needsAuth = false
     @ObservationIgnored private var token: NSObjectProtocol?
+    @ObservationIgnored private let fixed: [ServerView]?
     let host: MCPHost?
 
-    init(host: MCPHost? = MCPTools.host) {
+    /// `servers`: a fixed list to draw (snapshots), never reloaded.
+    init(host: MCPHost? = MCPTools.host, flow: ConnectFlow = .shared, servers: [ServerView]? = nil) {
         self.host = host
+        self.flow = flow
+        fixed = servers
         reload()
         token = NotificationCenter.default.addObserver(forName: MCPHost.didChange, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reload() }
@@ -46,9 +53,12 @@ final class ConnectionsModel {
     }
 
     var repository: MCPRepository? { host?.repository }
-    var curated: [MCPCuratedEntry] { MCPCurated.Store.shared.entries() }
+
+    /// The connections the user added by address (the apps' own Composio connection is not one of them).
+    var custom: [ServerView] { servers.filter { $0.row.kind != .composio } }
 
     func reload() {
+        if let fixed { servers = fixed; return }
         guard let repo = repository else { servers = []; return }
         servers = ((try? repo.servers()) ?? []).map { ServerView(row: $0, tools: (try? repo.tools(server: $0.id)) ?? []) }
     }
@@ -63,20 +73,40 @@ final class ConnectionsModel {
         return "\(error)"
     }
 
+    /// The address as typed, as a URL: "example.com/mcp" means https; nil for anything that is not a web address
+    /// (the add sheet then says so under the field).
+    nonisolated static func address(_ text: String) -> URL? {
+        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty, !t.contains(where: \.isWhitespace) else { return nil }
+        guard let u = URL(string: t.contains("://") ? t : "https://\(t)"), ["https", "http"].contains(u.scheme?.lowercased() ?? ""),
+              let host = u.host(), host.contains(".") || host == "localhost" || host.contains(":"), !host.hasSuffix(".") else { return nil }
+        return u
+    }
+
+    /// A new add sheet starts clean.
+    func resetCheck() {
+        checkError = nil
+        needsAuth = false
+        needsClientID = false
+    }
+
     func check(name: String, url: String, auth: MCPAuthInput, curatedID: String? = nil) async {
-        guard let host, let u = URL(string: url.trimmingCharacters(in: .whitespaces)), ["https", "http"].contains(u.scheme ?? "") else {
-            checkError = "URL"
-            return
-        }
+        guard let host, let u = Self.address(url) else { return }
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         checking = true
         checkError = nil
+        needsAuth = false
         defer { checking = false }
         do {
             let p = try await host.preview(url: u, auth: auth)
             needsClientID = false
             pending = Pending(name: name.isEmpty ? (u.host() ?? url) : name, url: u, auth: auth, curatedID: curatedID, preview: p)
         } catch {
-            checkError = Self.reason(error)
+            if case MCPTransportError.unauthorized = error, auth == .none {
+                needsAuth = true  // not a failure to show in red: the sheet asks how to sign in
+            } else {
+                checkError = Self.reason(error)
+            }
             if let e = error as? MCPOAuthError, e == .needsClientID { needsClientID = true }
             await host.declined()
         }
@@ -102,77 +132,11 @@ final class ConnectionsModel {
         await host?.declined()
     }
 
-    // MARK: Composio (M7.T11)
+    // MARK: Apps (Composio, M7.T11): a view over `ConnectFlow.shared`, the state the in-chat Connect card reads too
 
-    /// Apps the relay offers (the default list until it answered) and the linked ones (toolkit → connection id).
-    private(set) var composioTiles: [String] = ComposioTiles.defaults
-    private(set) var composioLinked: [String: String] = [:]
-    /// The tile waiting for its browser sign-in; the copy key of the last relay error (`relay.*`).
-    private(set) var composioWaiting: String?
-    private(set) var composioError: String?
-    /// The tile whose consent sheet is open (first Composio use only).
-    var composioConsent: ComposioConsentItem?
-    struct ComposioConsentItem: Identifiable, Equatable { var toolkit: String; var id: String { toolkit } }
-    @ObservationIgnored var openURL: @MainActor (URL) -> Void = { _ in }
-    @ObservationIgnored private var waitTask: Task<Void, Never>?
-
-    /// No deployed relay (empty RelayURL, as in release 1) → no Composio tiles and no connect flow (an existing row still shows, to remove).
-    let composioAvailable = RelayClient.isAvailable()
-    var composio: ComposioConnection? { composioAvailable ? host.map { ComposioConnection(host: $0) } : nil }
-    var hasComposio: Bool { servers.contains { $0.row.kind == .composio } }
-
-    /// The relay's list (only once the Composio row exists: no install ID and no request before the user's first use).
-    func refreshComposio() async {
-        guard hasComposio, let c = composio else { return }
-        do {
-            let r = try await c.connections()
-            let offered = r.toolkits.filter { $0 != "*" }
-            composioTiles = offered.isEmpty ? ComposioTiles.defaults : offered
-            composioLinked = Dictionary(r.connections.filter(\.isActive).map { ($0.toolkit, $0.id) }, uniquingKeysWith: { a, _ in a })
-            composioError = nil
-        } catch {
-            composioError = Self.relayKey(error)
-        }
-    }
-
-    /// Step 1, [Connect] on a tile: the consent sheet the first time, else straight to the browser.
-    func connectTile(_ toolkit: String) {
-        guard composioAvailable else { return }
-        if hasComposio { Task { await beginComposio(toolkit) } } else { composioConsent = ComposioConsentItem(toolkit: toolkit) }
-    }
-
-    /// Step 2 ([Continue]) → step 3 (the browser): row + session, the sign-in link, then polling until it is linked.
-    func beginComposio(_ toolkit: String) async {
-        guard let c = composio else { return }
-        composioError = nil
-        do {
-            let url = try await c.begin(toolkit: toolkit)
-            openURL(url)
-            composioWaiting = toolkit
-            waitTask?.cancel()
-            waitTask = Task { [weak self] in
-                let ok = (try? await c.waitConnected(toolkit: toolkit)) ?? false
-                guard let self, !Task.isCancelled else { return }
-                composioWaiting = nil
-                if ok { await refreshComposio() }
-            }
-        } catch {
-            composioError = Self.relayKey(error)
-        }
-        reload()
-    }
-
-    func disconnectTile(_ toolkit: String) async {
-        guard let c = composio, let id = composioLinked[toolkit] else { return }
-        do { try await c.disconnect(id) } catch { composioError = Self.relayKey(error) }
-        await refreshComposio()
-    }
-
-    /// The copy key for a relay failure (`relay.*`), or the generic connection error.
-    static func relayKey(_ error: any Error) -> String {
-        if let e = error as? AntiChatError, e.domain == .relay { return e.userMessageKey }
-        return "conn.state.error"
-    }
+    @ObservationIgnored let flow: ConnectFlow
+    /// No deployed relay (empty RelayURL) → no apps and no connect flow (an existing row still shows, to remove).
+    var composioAvailable: Bool { flow.isAvailable }
 
     func setEnabled(_ id: String, _ on: Bool) async { await host?.setEnabled(id, on) }
     func remove(_ id: String) async { await host?.remove(id) }

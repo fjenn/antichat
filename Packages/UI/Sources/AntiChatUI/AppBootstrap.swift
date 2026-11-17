@@ -24,6 +24,7 @@ public enum AppBootstrap {
         // M9.T05 (NFR-U1): off the main thread (chmods and a listing of the backups and logs folders, every launch).
         Task.detached(priority: .utility) { protectDataAtRest(database: database) }
         NetworkActivityStore.install(database: database)
+        StoredFileNames.database = database  // the names of generated pictures and clips, by stored path
         VoiceSection.database = database  // M3.T03: Settings → Voice → Recent recordings
         TurnNetworkLedger.shared.connect(GateNetworkEventSource())  // M2.T03: the globe chip's hosts
         HardwareLaunch.start(database: database)
@@ -32,6 +33,8 @@ public enum AppBootstrap {
         ModelUpdatesLaunch.start(database: database)
         EnginePolicyPush.start()  // M2.T12: live SetPolicy on keep-alive / allow-over-budget changes
         PowerLaunch.start()  // M2.T14: PowerPolicy, thermal, memory pressure
+        Task { @MainActor in FileToolsAutoInstall.start(database: database) }  // Run code needs no manual install
+        Task { @MainActor in VideoRuntimeInstall.shared.start(database: database) }  // the Video pack's runtime
     }
 
     /// M8.T08 step 8 (NFR-PR4): 0700 on the container, caches and logs directories; 0600 on the database triple,
@@ -109,6 +112,8 @@ struct GateNetworkEventSource: NetworkEventSource {
 public enum CatalogLaunch {
     nonisolated(unsafe) public private(set) static var shared: CatalogStore?
     nonisolated(unsafe) private static var schedule: Task<Void, Never>?
+    nonisolated(unsafe) private static var directorySchedule: Task<Void, Never>?
+    nonisolated(unsafe) private static var appsSchedule: Task<Void, Never>?
     nonisolated(unsafe) private static var engineToken: NSObjectProtocol?
     nonisolated(unsafe) private static var curatedToken: NSObjectProtocol?
     nonisolated(unsafe) private static var packToken: NSObjectProtocol?
@@ -143,9 +148,16 @@ public enum CatalogLaunch {
         // once at window creation, so a fresh install that fetched its catalog later never saw it (Q-015 catch-up:
         // create_video waited for a plan card that could never be built).
         packToken = NotificationCenter.default.addObserver(forName: CatalogStore.didChange, object: store, queue: .main) { _ in
-            Task { @MainActor in await PackManagementModel.shared.refresh() }
+            Task { @MainActor in await PackManagementModel.shared.reconcileInstalls() }  // refreshes, then finishes installs
         }
         schedule = store.startSchedule()
+        // The skills index comes from its public repository on GitHub (Endpoints.plist `SkillsIndexURL`), unsigned:
+        // DirectoryCatalogs.swift says what it is trusted on instead. Nothing is asked for until the user has
+        // opened Settings › Skills once.
+        directorySchedule = DirectoryCatalogs.start(url: DirectoryCatalogs.endpoint(Endpoints.string("SkillsIndexURL")),
+                                                    directory: store.cacheDirectory)
+        // The apps of Connections: every install asks the relay which ones exist (no publishing step).
+        appsSchedule = LiveAppCatalog.start(directory: store.cacheDirectory)
     }
 
     /// M7.T01 (R-253, AT-253): the search engine overrides follow every verified catalog, without a relaunch. A bad
@@ -171,6 +183,8 @@ public enum DownloadsLaunch {
     nonisolated(unsafe) public private(set) static var coordinator: DownloadCoordinator?
     nonisolated(unsafe) public private(set) static var policy: DownloadPolicy?
     nonisolated(unsafe) public private(set) static var aggregator: ProgressAggregator?
+    /// Ends once the `download` rows are restored and the policy runs (the install reconcile waits for it).
+    nonisolated(unsafe) public private(set) static var restored: Task<Void, Never>?
     /// The observable progress the sidebar StatusPill and the M8 menu bar item bind to.
     @MainActor public static let menuBar = MenuBarProgressModel()
     /// The policy's status (notices, ask / disk-short sheets), on the main actor.
@@ -195,10 +209,17 @@ public enum DownloadsLaunch {
         aggregator = agg
         policy.observe { s in Task { @MainActor in DownloadsLaunch.status.status = s } }
         Task { @MainActor in DownloadsLaunch.menuBar.bind(agg) }
-        Task.detached(priority: .utility) {
+        let restore = Task.detached(priority: .utility) {
             do { try await dl.restore() } catch { AppLog.log(.download, .error, "downloads: restore failed: \(error)") }
             await agg.attach(dl)
             await policy.start()
+        }
+        restored = restore
+        // Owner bug 2026-11-16: a download that ended in an earlier run (or ends in this one) with every file in the
+        // store but no install view is finished here, without fetching anything.
+        Task { @MainActor in
+            await restore.value
+            await PackManagementModel.shared.reconcileInstalls()
         }
     }
 }

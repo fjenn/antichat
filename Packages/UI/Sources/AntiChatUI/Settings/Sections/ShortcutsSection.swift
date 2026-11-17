@@ -6,6 +6,31 @@ import AntiChatDesign
 import KeyboardShortcuts
 import SwiftUI
 
+/// General → About & Help → Keyboard shortcuts: the rebinding list in a sheet.
+struct ShortcutsSheet: View {
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Form { ShortcutsSection() }
+                .formStyle(.grouped)
+                .scrollContentBackground(.hidden)
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: onClose) { Text(CopyKey("help.placeholder.close")) }
+                    .keyboardShortcut(.defaultAction)
+                    .probeID("settings.shortcuts.close")
+            }
+            .padding(Spacing.space4)
+        }
+        .frame(width: 560, height: 600)
+        .background(Color.surfaceCanvas)
+        .accessibilityElement(children: .contain)
+        .probeID("settings.shortcuts.sheet")
+    }
+}
+
 struct ShortcutsSection: View {
     @State private var bindings = ShortcutBindings.shared
 
@@ -16,7 +41,7 @@ struct ShortcutsSection: View {
                     ShortcutRow(entry: entry)
                 }
             } header: {
-                Text(group.title).typeStyle(.subhead)
+                Text(group.title).typeStyle(.headline).foregroundStyle(Color.textPrimary)
             }
         }
         Section {
@@ -25,7 +50,6 @@ struct ShortcutsSection: View {
                 Button { bindings.restoreDefaults() } label: { Text(CopyKey("set.shortcuts.restore")) }
                     .probeID("settings.control.shortcutsRestore")
             }
-            .id("shortcutsRestore")
         }
     }
 }

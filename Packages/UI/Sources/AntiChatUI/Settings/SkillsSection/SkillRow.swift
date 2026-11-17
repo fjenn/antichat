@@ -1,63 +1,72 @@
-// M7.T12 step 3 (R-082 AC1/AC3/AC4): one installed skill — name, description, source, switch; its state line
-// (invalid `skills.invalid`, scripts `skills.scripts.pending`, `skills.needs`) and the ⋯ menu (Apply to every chat,
-// Show in Finder, Export, Delete with a confirmation).
+// M7.T12 step 3 (R-082 AC1/AC3/AC4): one installed skill as a directory row (DirectoryRow) — an icon tile, its name,
+// one line (its description; or what is wrong: invalid `skills.invalid`, `skills.needs`, scripts
+// `skills.scripts.pending`) and one glyph at the far right: a check mark while it is on, a plus while it is off
+// (click = switch). The ⋯ menu shows on hover and is the row's context menu (Turn on / off, Apply to every chat, Show
+// in Finder, Export, Delete with a confirmation). A skill the catalogue has a newer version of also has a quiet
+// "Update" before that glyph (a small spinner while it downloads; one plain line if it failed).
 import AntiChatDesign
+import AntiChatHarness
 import AntiChatTools
 import SwiftUI
 
 struct SkillRow: View {
     let skill: InstalledSkill
     let library: SkillsLibrary
+    var pinnedHover: Bool?
     @State private var confirmDelete = false
+    @State private var hovering = false
+
+    private var on: Bool { skill.record.enabled && skill.isValid }
+    private var name: String { SkillDisplay.name(skill) }
+
+    private var detail: (text: String, color: Color, id: String?) {
+        if let reason = skill.invalidReason {
+            return (CopyText(CopyKey("skills.invalid"), ["reason": reason]).string, .danger, "skills.invalid.\(skill.name)")
+        }
+        if let e = library.updateErrors[skill.name] { return (e, .warning, "skills.update.error.\(skill.name)") }
+        let needs = SkillsLibrary.needs(skill).map(\.string)
+        if !needs.isEmpty { return (needs.joined(separator: " · "), .textSecondary, "skills.needs.\(skill.name)") }
+        if skill.hasScripts { return (CopyKey("skills.scripts.pending").string(), .textSecondary, "skills.scripts.\(skill.name)") }
+        return (SkillDisplay.summary(skill), .textSecondary, nil)
+    }
 
     var body: some View {
-        HStack(alignment: .top, spacing: Spacing.space2) {
-            Image(systemName: "sparkles").foregroundStyle(Color.textSecondary).padding(.top, 2)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: Spacing.space2) {
-                    Text(verbatim: SkillDisplay.name(skill)).font(.body.weight(.medium))
-                        .probeID("skills.name.\(skill.name)")
-                    Text(CopyKey(skill.record.trust == .bundled ? "skills.source.bundled" : "skills.source.user"))
-                        .typeStyle(.caption).foregroundStyle(Color.textTertiary)  // type.caption: 11 pt medium (badges)
-                        .probeID("skills.source.\(skill.name)")
-                    if skill.record.applyAll {
-                        Text(CopyKey("skills.applyAll")).typeStyle(.caption).foregroundStyle(Color.textTertiary)
+        let detail = detail
+        DirectoryRow(title: name, badge: skill.record.applyAll ? CopyKey("skills.applyAll") : nil, detail: detail.text,
+                     detailColor: detail.color, detailID: detail.id, pinnedHover: pinnedHover) {
+            Image(systemName: SkillDisplay.symbol(skill)).font(.system(size: 18)).foregroundStyle(Color.textPrimary)
+        } trailing: {
+            HStack(spacing: 0) {
+                // ⋯ shows on hover (and always to keyboard / VoiceOver: it stays in the tree).
+                DirectoryMenu(label: "\(CopyKey("chat.more").string()), \(name)") { actions }
+                    .opacity((pinnedHover ?? hovering) ? 1 : 0)
+                    .probeID("skills.menu.\(skill.name)")
+                if library.updating.contains(skill.name) {
+                    ProgressView().controlSize(.small).frame(width: 28, height: 28).probeID("skills.updating.\(skill.name)")
+                } else if library.updates[skill.name] != nil {
+                    DirectoryTextButton(title: CopyKey("skills.update"),
+                                        label: CopyText(CopyKey("skills.update.label"), ["name": name]).string,
+                                        help: library.offline ? CopyKey("network.blockedByOfflineOnly").string() : nil,
+                                        id: "skills.update.\(skill.name)") {
+                        Task { await library.update(skill.name) }
                     }
+                    .disabled(library.offline)
                 }
-                let summary = SkillDisplay.summary(skill)
-                if !summary.isEmpty {
-                    Text(verbatim: summary).font(.callout).foregroundStyle(Color.textSecondary).lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                DirectoryGlyphButton(symbol: on ? "checkmark" : "plus", label: name,
+                                     help: CopyKey(on ? "skills.turnOff" : "skills.turnOn").string(),
+                                     id: "skills.toggle.\(skill.name)") {
+                    library.setEnabled(skill.name, !on)
                 }
-                if let reason = skill.invalidReason {
-                    Text(CopyText(CopyKey("skills.invalid"), ["reason": reason])).font(.caption).foregroundStyle(Color.danger)
-                        .probeID("skills.invalid.\(skill.name)")
-                } else {
-                    if skill.hasScripts {
-                        Text(CopyKey("skills.scripts.pending")).typeStyle(.caption).foregroundStyle(Color.textSecondary)
-                            .help(CopyKey("skills.scripts.note").string())
-                            .probeID("skills.scripts.\(skill.name)")
-                    }
-                    ForEach(Array(SkillsLibrary.needs(skill).enumerated()), id: \.offset) { _, line in
-                        Text(line).typeStyle(.caption).foregroundStyle(Color.textSecondary)
-                            .accessibilityIdentifier("skills.needs.\(skill.name)")
-                    }
-                }
+                .accessibilityValue(Text(verbatim: on ? "1" : "0"))
+                .accessibilityAddTraits(.isToggle)
+                .disabled(!skill.isValid)
             }
-            Spacer(minLength: Spacing.space2)
-            Toggle(isOn: Binding(get: { skill.record.enabled && skill.isValid }, set: { library.setEnabled(skill.name, $0) })) {
-                Text(verbatim: SkillDisplay.name(skill))
-            }
-            .labelsHidden()
-            .toggleStyle(.accessibleSwitch)
-            .disabled(!skill.isValid)
-            .probeID("skills.toggle.\(skill.name)")
-            menu
         }
-        .padding(.vertical, Spacing.space1)
+        .onHover { hovering = $0 }
+        .contextMenu { actions }
         .accessibilityElement(children: .contain)
         .probeID("skills.row.\(skill.name)")
-        .confirmationDialog(CopyText(CopyKey("skills.delete.confirm"), ["name": SkillDisplay.name(skill)]).string, isPresented: $confirmDelete) {
+        .confirmationDialog(CopyText(CopyKey("skills.delete.confirm"), ["name": name]).string, isPresented: $confirmDelete) {
             Button(role: .destructive) { library.delete(skill.name) } label: { Text(CopyKey("skills.delete")) }
                 .probeID("skills.delete.confirm")
             Button(role: .cancel) {} label: { Text(CopyKey("skills.review.cancel")) }
@@ -65,30 +74,23 @@ struct SkillRow: View {
         }
     }
 
-    private var menu: some View {
-        Menu {
-            Toggle(isOn: Binding(get: { skill.record.applyAll }, set: { library.setApplyAll(skill.name, $0) })) {
-                Text(CopyKey("skills.applyAll"))
-            }
+    @ViewBuilder private var actions: some View {
+        Button { library.setEnabled(skill.name, !on) } label: { Text(CopyKey(on ? "skills.turnOff" : "skills.turnOn")) }
             .disabled(!skill.isValid)
-            .probeID("skills.applyAll.\(skill.name)")
-            Button { library.reveal(skill.name) } label: { Text(CopyKey("skills.reveal")) }
-                .probeID("skills.reveal.\(skill.name)")
-            Button { library.export(skill.name) } label: { Text(CopyKey("skills.export")) }
-                .disabled(!skill.isValid)
-                .probeID("skills.export.\(skill.name)")
-            Divider()
-            Button(role: .destructive) { confirmDelete = true } label: { Text(CopyKey("skills.delete")) }
-                .probeID("skills.delete.\(skill.name)")
-        } label: {
-            Image(systemName: "ellipsis.circle")
+            .probeID("skills.power.\(skill.name)")
+        Toggle(isOn: Binding(get: { skill.record.applyAll }, set: { library.setApplyAll(skill.name, $0) })) {
+            Text(CopyKey("skills.applyAll"))
         }
-            .accessibilityLabel(Text(CopyKey("chat.more")))  // M9.T01: "More"
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
-        .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
-        .probeID("skills.menu.\(skill.name)")
+        .disabled(!skill.isValid)
+        .probeID("skills.applyAll.\(skill.name)")
+        Button { library.reveal(skill.name) } label: { Text(CopyKey("skills.reveal")) }
+            .probeID("skills.reveal.\(skill.name)")
+        Button { library.export(skill.name) } label: { Text(CopyKey("skills.export")) }
+            .disabled(!skill.isValid)
+            .probeID("skills.export.\(skill.name)")
+        Divider()
+        Button(role: .destructive) { confirmDelete = true } label: { Text(CopyKey("skills.delete")) }
+            .probeID("skills.delete.\(skill.name)")
     }
 }
 
@@ -108,9 +110,21 @@ enum SkillDisplay {
         return humanize(skill.name)
     }
 
+    /// The display name of the skill stored as `slug` (a skill that is gone reads as its humanized slug).
+    static func name(slug: String) -> String {
+        SkillTools.store?.skill(named: slug).map(name) ?? humanize(slug)
+    }
+
     static func summary(_ skill: InstalledSkill) -> String {
         if skill.record.trust == .bundled, let k = starterKey(skill.name) { return CopyKey("skills.starter.\(k).about").string() }
         return userFacing(skill.description)
+    }
+
+    /// The glyph in the row's tile: the starters have their own, any other skill the Skills mark.
+    static func symbol(_ skill: InstalledSkill) -> String {
+        guard skill.record.trust == .bundled else { return "sparkles" }
+        return ["email-polish": "envelope", "meeting-notes": "list.bullet.clipboard", "recipe-scaler": "fork.knife",
+                "study-flashcards": "rectangle.on.rectangle", "trip-planner": "airplane"][skill.name] ?? "sparkles"
     }
 
     static func humanize(_ slug: String) -> String {

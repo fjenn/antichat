@@ -1,6 +1,7 @@
 // Drag-out (M4.T10 step 3, P-files-tools-07): dragging a card hands Finder / Mail a real file named `display_name`
 // (the blob on disk is `<sha256>.<ext>`), so the provider exports a named copy (APFS clone) from a per-drag temp
 // folder. Images also export `public.png` data for apps that take image data rather than files.
+import AntiChatStorage
 import AntiChatTools
 import AppKit
 import Foundation
@@ -53,6 +54,31 @@ public enum DragOut {
         try FileManager.default.copyItem(at: url, to: target)
         try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: target.path)
         return target
+    }
+
+    /// A stored file under the name people know it by, for Quick Look and other apps (their window title is the
+    /// file's name, and the media store's is a content hash): one copy per stored file and name, reused while it
+    /// exists (stored files never change). The stored file itself when it already has that name or cannot be copied.
+    public static func named(_ url: URL, as displayName: String?) -> URL {
+        guard let displayName, !displayName.isEmpty else { return url }
+        let name = safeName(displayName, fallbackExtension: url.pathExtension)
+        guard name != url.lastPathComponent else { return url }
+        let key = url.deletingPathExtension().lastPathComponent.prefix(16)
+        let folder = stagingRoot(for: url).appendingPathComponent("named-\(key)", isDirectory: true)
+        let target = folder.appendingPathComponent(name)
+        if FileManager.default.fileExists(atPath: target.path) { return target }
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: url, to: target)
+            return target
+        } catch {
+            return url
+        }
+    }
+
+    /// `named` for a stored media file whose name the store knows (the file itself otherwise).
+    public static func named(storedPath path: String) -> URL {
+        named(URL(fileURLWithPath: path), as: StoredFileNames.name(forPath: path))
     }
 
     /// The item provider a card's `.onDrag` returns: a file URL (named copy) and, for images, PNG data.

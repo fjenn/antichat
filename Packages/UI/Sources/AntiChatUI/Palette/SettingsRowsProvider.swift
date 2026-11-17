@@ -1,32 +1,28 @@
-// ⌘K settings rows (M1.T11 step 4, R-012 AC2 "settings rows are searchable"): the 13 Settings sections of S-21
-// and the searchable rows index. M1.T11 ships the General rows that exist today (settings-map §1: Send with,
-// Plain-text composer, Show context usage); M1.T22's `SettingsRegistry` registers every row through
-// `SettingsRowsIndex.register(_:)` and consumes `SettingsNavigator.pending` to open Settings at that row.
+// The Settings pages, the searchable rows index (the search field in Settings) and `SettingsNavigator`, which opens
+// Settings at a page or row. M1.T22's `SettingsRegistry` registers every row through `SettingsRowsIndex.register(_:)`.
 import AntiChatDesign
 import CommandPaletteKit
 import Observation
 import SwiftUI
 
-/// The Settings sections, in S-21 order (`set.*` copy keys).
+/// The Settings pages, in sidebar order. Six since the 2026-11 simplification: Appearance, Updates, Keyboard shortcuts
+/// and About live on General; Evil Mode, Voice and the tool switches on Capabilities; Storage on Privacy & Data.
+/// A request for a row always lands on the row's own page (`SettingsNavigator.request`).
 public enum SettingsSection: String, CaseIterable, Hashable, Sendable {
-    case general, appearance, capabilities, evil, voice, personalization, tools, skills, privacy, storage, updates,
-         shortcuts, about
+    case general, capabilities, connections, skills, personalization, privacy
+
+    /// The old "Tools & Connections" page: its switches are on Capabilities now. Kept so a link written against the
+    /// old page still compiles; with a row it opens that row's page.
+    public static let tools = SettingsSection.capabilities
 
     public var title: CopyKey {
         switch self {
         case .general: CopyKey("set.general")
-        case .appearance: CopyKey("set.appearance")
         case .capabilities: CopyKey("set.capabilities")
-        case .evil: CopyKey("set.evil")
-        case .voice: CopyKey("set.voice")
-        case .personalization: CopyKey("set.personalization")
-        case .tools: CopyKey("set.tools")
+        case .connections: CopyKey("conn.title")
         case .skills: CopyKey("set.skills")
+        case .personalization: CopyKey("set.personalization")
         case .privacy: CopyKey("set.privacy")
-        case .storage: CopyKey("set.storage")
-        case .updates: CopyKey("set.updates")
-        case .shortcuts: CopyKey("set.shortcuts")
-        case .about: CopyKey("set.about")
         }
     }
 
@@ -34,18 +30,11 @@ public enum SettingsSection: String, CaseIterable, Hashable, Sendable {
     public var symbol: String {
         switch self {
         case .general: "gearshape"
-        case .appearance: "paintpalette"
         case .capabilities: "square.stack.3d.up"
-        case .evil: "flame"
-        case .voice: "waveform"
-        case .personalization: "person.crop.circle"
-        case .tools: "wrench.and.screwdriver"
+        case .connections: "app.connected.to.app.below.fill"
         case .skills: "sparkles"
+        case .personalization: "person.crop.circle"
         case .privacy: "hand.raised"
-        case .storage: "internaldrive"
-        case .updates: "arrow.triangle.2.circlepath"
-        case .shortcuts: "keyboard"
-        case .about: "questionmark.circle"
         }
     }
 }
@@ -106,8 +95,9 @@ public final class SettingsNavigator {
     /// Number of open requests made (probe and tests).
     public private(set) var requestCount = 0
 
+    /// A row is opened on its own page, whatever `section` says (links written before pages were merged keep working).
     public func request(_ section: SettingsSection, row: String? = nil) {
-        pending = Request(section: section, rowID: row)
+        pending = Request(section: row.flatMap { SettingsRegistry.row($0)?.section } ?? section, rowID: row)
         requestCount += 1
     }
 
@@ -118,25 +108,7 @@ public final class SettingsNavigator {
     }
 }
 
-/// Settings matches for the palette: sections (as "open settings page" actions) and rows.
-@MainActor
-enum SettingsRowsProvider {
-    /// Rows whose label, section or keywords fuzzy-match `query` (all rows for an empty query), best first.
-    static func rows(matching query: String, rows: [SettingsRowEntry] = SettingsRowsIndex.rows) -> [PaletteItem] {
-        let scored: [(PaletteItem, Int)] = rows.compactMap { row in
-            let label = row.label.string()
-            let section = row.section.title.string()
-            guard let score = PaletteMatch.score(query, fields: [label, section] + row.keywords) else { return nil }
-            let item = PaletteItem(id: "setting.\(row.id)", kind: .setting(row.section, rowID: row.id),
-                                   group: .settings, title: label, subtitle: section,
-                                   symbol: row.section.symbol)
-            return (item, score)
-        }
-        return PaletteMatch.ranked(scored)
-    }
-}
-
-/// Fuzzy matching for actions and settings rows (CommandPaletteKit's `paletteFuzzyScore`). Loose subsequence
+/// Fuzzy matching for settings rows (CommandPaletteKit's `paletteFuzzyScore`). Loose subsequence
 /// matches count only for short queries ("nc" → New chat), so a word like "send with" does not pull in rows that
 /// merely contain its letters in order.
 enum PaletteMatch {
@@ -152,10 +124,4 @@ enum PaletteMatch {
         return best >= substringFloor || q.count <= looseQueryLength ? best : nil
     }
 
-    /// Stable sort by score, best first (ties keep the provider order).
-    static func ranked(_ scored: [(PaletteItem, Int)]) -> [PaletteItem] {
-        scored.enumerated().sorted { a, b in
-            a.element.1 != b.element.1 ? a.element.1 > b.element.1 : a.offset < b.offset
-        }.map(\.element.0)
-    }
 }

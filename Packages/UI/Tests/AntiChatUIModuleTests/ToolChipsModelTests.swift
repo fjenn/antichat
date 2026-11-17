@@ -20,13 +20,14 @@ import Testing
 
     @Test func chatOnlyListsDisabledPacksAndHidesWebAndConnections() {
         let c = ComposerMenuContext(activeModelKey: "chat-9b-q4", tools: Self.tools)
-        #expect(ids(c) == ["files", "image", "video", "tools", "project"])  // M7.T14: Tools › for a tool-taking model
+        // Connections is always listed (it opens the Connections page when nothing is connected); no project row.
+        #expect(ids(c) == ["files", "image", "video", "connections"])
         #expect(state("files", c) == .enabled)
         #expect(state("image", c) == .needsPack("photo"))
         #expect(state("video", c) == .needsPack("video"))
-        #expect(ComposerMenus.reason(.needsPack("photo"))?.string == "Install Photo to use this")
+        #expect(ComposerMenus.reason(.needsPack("photo"))?.string == "Install Images to use this")
         #expect(ComposerMenus.reason(.needsPack("video"))?.string == "Install Video to use this")
-        #expect(state("project", c) == .notYet)
+        #expect(state("project", c) == nil)
     }
 
     @Test func installedButOffSaysEnableInSettingsAndStaysListed() {
@@ -48,7 +49,7 @@ import Testing
     @Test func fullFakeSetShowsWebAndConnectionsEnabled() {
         let c = ComposerMenuContext(installedPacks: ["chat", "photo", "video"], webSearchEnabled: true,
                                     connectionsEnabled: true, activeModelKey: "chat-9b-q4", tools: Self.tools)
-        #expect(ids(c) == ["files", "image", "video", "web", "connections", "tools", "project"])  // M7.T14: Tools ›
+        #expect(ids(c) == ["files", "image", "video", "web", "connections"])
         #expect(state("web", c) == .enabled)
         #expect(state("connections", c) == .enabled)
         #expect(SlashCommandRegistry.menuItems(c).map(\.id).last == "tool:echo")
@@ -59,7 +60,7 @@ import Testing
                                     connectionsEnabled: true, activeModelKey: "chat-0.8b", tools: Self.tools)
         let all = SlashCommandRegistry.menuItems(c).map(\.id)
         #expect(!all.contains("web") && !all.contains("connections") && !all.contains("tool:echo"))
-        #expect(all == ["files", "image", "video", "project"])
+        #expect(all == ["files", "image", "video"])
         let chips = ToolChipsModel()
         chips.load(toolsJSON: #"["tool:echo","web"]"#)
         chips.available = SlashCommandRegistry.menuItems(c)

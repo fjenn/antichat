@@ -11,7 +11,9 @@ struct ComposerStatusRow: View {
     var memoryOff: Binding<Bool>? = nil
     var memoryOffLocked = false
 
-    var isEmpty: Bool { projectName == nil && mode == nil && memoryOff == nil }
+    /// The memory chip shows only while memory is off for this chat (a status worth seeing); the switch itself lives
+    /// in + › Tools, so a normal chat has no chip under the composer.
+    var isEmpty: Bool { projectName == nil && mode == nil && memoryOff?.wrappedValue != true }
 
     var body: some View {
         if !isEmpty {
@@ -21,13 +23,13 @@ struct ComposerStatusRow: View {
                         .accessibilityIdentifier("statusProject")
                 }
                 if let mode {
-                    StatusChip(symbol: mode == .evil ? "circle.fill" : "circle",
+                    StatusChip(symbol: mode == .evil ? "flame.fill" : "circle",
                                tint: mode == .evil ? .evilBase : .textTertiary,
                                text: Text(CopyKey(mode == .evil ? "mode.evil" : "mode.normal")))
                         .accessibilityIdentifier("statusMode")
                 }
                 Spacer(minLength: 0)
-                if let memoryOff {
+                if let memoryOff, memoryOff.wrappedValue {
                     // VQ round 65 (S-05): a labelled chip ("Memory on" / "Memory off"), not a bare brain glyph that
                     // nothing explained.
                     Button { memoryOff.wrappedValue.toggle() } label: {
@@ -65,7 +67,7 @@ private struct StatusChip: View {
     var body: some View {
         HStack(spacing: Spacing.space1) {
             Image(systemName: symbol)
-                .font(.system(size: symbol == "circle.fill" || symbol == "circle" ? 7 : 11, weight: .medium))
+                .font(.system(size: symbol == "circle" ? 7 : symbol == "flame.fill" ? 10 : 11, weight: .medium))
                 .foregroundStyle(tint)
             text
                 .typeStyle(.footnote)

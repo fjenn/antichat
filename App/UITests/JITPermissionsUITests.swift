@@ -87,9 +87,10 @@ final class JITPermissionsUITests: XCTestCase {
 
     @MainActor
     func testLocationOnEnable() {
-        let app = launch(["-SkipOnboarding", "YES", "-FakePermission", "location=notDetermined"])
+        // The switch is on by default (2026-11-16); this leg is the user turning it on in Settings.
+        let app = launch(["-SkipOnboarding", "YES", "-FakePermission", "location=notDetermined", "-searchUsesLocation", "NO"])
         app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
+        app.descendants(matching: .any).matching(identifier: "settings.nav.capabilities").firstMatch.click()
         app.descendants(matching: .any).matching(identifier: "settings.control.searchUsesLocation").firstMatch.click()  // a CheckBox on macOS
         XCTAssertTrue(app.staticTexts["location.explainer.text"].waitForExistence(timeout: 3))
     }

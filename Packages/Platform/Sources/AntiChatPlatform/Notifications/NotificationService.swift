@@ -185,6 +185,7 @@ public struct LiveUserNotificationClient: UserNotificationClient {
     public func removeAllDelivered() { Self.center?.removeAllDeliveredNotifications() }
 }
 
+#if DEBUG || ANTICHAT_PERF_HARNESS
 /// DEBUG `-NotificationSpy <file>`: records every request (JSON array, rewritten on each add) instead of delivering.
 public final class SpyUserNotificationClient: UserNotificationClient, @unchecked Sendable {
     private let lock = NSLock()
@@ -208,6 +209,7 @@ public final class SpyUserNotificationClient: UserNotificationClient, @unchecked
 
     public func removeAllDelivered() { lock.withLock { removed += 1 } }
 }
+#endif
 
 @MainActor @Observable
 public final class NotificationService: NSObject, UNUserNotificationCenterDelegate {

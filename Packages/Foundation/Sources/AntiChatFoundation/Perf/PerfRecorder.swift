@@ -26,10 +26,16 @@ public enum PerfRecorder {
 
     private static let state = OSAllocatedUnfairLock(initialState: State(config: environmentConfig()))
 
+    /// `ANTICHAT_PERF_LOG` / `ANTICHAT_PERF_QUIT_AFTER` (tools/perf): DEBUG and perf-harness builds only. A release
+    /// build reads neither, so it never writes a perf log and never quits after a phase.
     static func environmentConfig(_ env: [String: String] = ProcessInfo.processInfo.environment) -> Config {
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         let p = env["ANTICHAT_PERF_LOG"].flatMap { $0.isEmpty ? nil : $0 }
         let q = (env["ANTICHAT_PERF_QUIT_AFTER"] ?? "").split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
         return Config(path: p, quitAfter: Set(q.filter { !$0.isEmpty }))
+        #else
+        return Config(path: nil, quitAfter: [])
+        #endif
     }
 
     /// True when a perf log is being written (cheap; callers may skip extra work otherwise).

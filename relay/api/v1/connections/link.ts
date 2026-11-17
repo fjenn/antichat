@@ -1,5 +1,6 @@
 // POST /v1/connections/link {toolkit[, callback_url]} → {url, id}: the Composio hosted auth URL the app opens in
-// the user's browser (M7.T10 step 4). Toolkit must be on RELAY_ALLOWED_TOOLKITS; 10 attempts/h per install.
+// the user's browser (M7.T10 step 4). Any valid toolkit slug, or only those on RELAY_ALLOWED_TOOLKITS when it is
+// set; 10 attempts/h per install.
 import { ensureSession, fail, isCaller, json, rateLimited, route } from "../../../src/handler.js";
 import { toolkitAllowed } from "../../../src/policy.js";
 

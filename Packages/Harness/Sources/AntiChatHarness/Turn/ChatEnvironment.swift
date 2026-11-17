@@ -205,6 +205,7 @@ extension ToolRuntime {
             registry: registry, permissions: permissions,
             policy: .forTier(fallback), router: router, tier: tier ?? { fallback })
         runtime.chatFilter = MCPTools.filter(mcp.tools, permissions: permissions)
+        runtime.connectApps = RelayClient.isAvailable(options: options)
         // M7.T14 (R-266): the tool index embeds with the router's model (the same vectors space as the message's).
         runtime.index = ToolIndex(embedding: router?.scorer?.embeddingModel)
         // M7.T12: the Skills folder next to the database (starters copied once); an in-memory database (incognito,

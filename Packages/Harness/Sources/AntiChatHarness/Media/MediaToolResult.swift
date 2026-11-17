@@ -11,9 +11,18 @@ public enum MediaToolResult {
     /// The model-visible text of `result` for tool `name` (unchanged for every other tool or non-JSON text).
     public static func forModel(name: String, result: String) -> String {
         guard ImageTurnPolicy.imageTools.contains(name) || VideoTurnPolicy.videoTools.contains(name),
-              var o = (try? JSONSerialization.jsonObject(with: Data(result.utf8))) as? [String: Any],
-              hiddenKeys.contains(where: { o[$0] != nil }) else { return result }
+              var o = (try? JSONSerialization.jsonObject(with: Data(result.utf8))) as? [String: Any] else { return result }
+        // Nothing was made: without this line models answer "unavailable" with a vague or wrong sentence.
+        if o["status"] as? String == "unavailable" {
+            o["note"] = "Nothing was created: a download this needs is missing or not finished. Tell the user in one short sentence to check Settings > Capabilities and try again."
+            return (try? JSONSerialization.data(withJSONObject: o, options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) } ?? result
+        }
+        guard hiddenKeys.contains(where: { o[$0] != nil }) else { return result }
         for k in hiddenKeys { o.removeValue(forKey: k) }
+        // The card already shows the result: without this line models append a made-up image link under it.
+        if o["status"] as? String == "done" {
+            o["note"] = "The result is already shown to the user. Reply with one short sentence. Do not add a link or a Markdown image."
+        }
         return (try? JSONSerialization.data(withJSONObject: o, options: [.sortedKeys])).map { String(decoding: $0, as: UTF8.self) } ?? result
     }
 }

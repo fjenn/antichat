@@ -59,6 +59,9 @@
 - id: app.report
   keys: [⌘K, type:report, Return]
   expect: reportSheet
+- id: report.attach
+  keys: [⌘K, type:report, Return]
+  expect: report.attach
 - id: sidebar.focus
   keys: [⌃⌘S]
   expect: sidebar
@@ -117,8 +120,14 @@
   keys: [⌘K, type:attach, Return]
   expect: composerAdd
 - id: composer.modeSwitch
-  keys: [⌘N, ⇧Tab, Right]
+  keys: [⌘N, ⇧⌘E]
   expect: modeSwitch
+- id: composer.emptyModeEvil
+  keys: [⌘N, ⇧⌘E]
+  expect: emptyMode.evil
+- id: composer.emptyModeNormal
+  keys: [⇧⌘E, ⌘N]
+  expect: emptyMode.normal
 - id: composer.thinkHarder
   keys: [Tab, Tab, VO-Space]
   expect: thinkHarder
@@ -324,11 +333,20 @@
   keys: [⌘,, ⌘F, type:text size]
   expect: settings.root
 - id: settings.close
-  keys: [⌘,, ⌘W]
+  keys: [⌘,, Esc]
   expect: composer
+- id: settings.shortcutsSheet
+  keys: [⌘,, ⌘F, type:Keyboard shortcuts, Return, Tab, VO-Space]
+  expect: settings.shortcuts.sheet
 - id: settings.shortcutRebind
-  keys: [⌘,, ⌘F, type:shortcuts, Return, Tab, Space, ⌥⌘K]
+  keys: [⌘,, ⌘F, type:Keyboard shortcuts, Return, Tab, VO-Space, Tab, Space, ⌥⌘K]
   expect: settings.shortcut.palette
+- id: settings.connectionsDirectory
+  keys: [⌘K, type:Connections, Return]
+  expect: connections.search
+- id: settings.skillsDirectory
+  keys: [⌘K, type:Skills, Return]
+  expect: skills.search
 - id: uninstall.open
   keys: [⌘K, type:uninstall, Return]
   expect: uninstallSheet
@@ -360,7 +378,7 @@
   keys: [⌘K, type:Plain-text composer, Return]
   expect: settings.row.plainTextComposer
 - id: settings.showContextUsage
-  keys: [⌘K, type:Show context usage, Return]
+  keys: [⌘K, type:Show how full a chat is, Return]
   expect: settings.row.showContextUsage
 - id: settings.launchAtLogin
   keys: [⌘K, type:Launch at login, Return]
@@ -374,6 +392,9 @@
 - id: settings.quickPanelHotkey
   keys: [⌘K, type:Quick panel hotkey, Return]
   expect: settings.row.quickPanelHotkey
+- id: settings.notifications
+  keys: [⌘K, type:Notifications, Return]
+  expect: settings.row.notifications
 - id: settings.notifyWhen
   keys: [⌘K, type:Notify me, Return]
   expect: settings.row.notifyWhen
@@ -381,7 +402,7 @@
   keys: [⌘K, type:Responses, Return]
   expect: settings.row.notifyResponses
 - id: settings.notifyMedia
-  keys: [⌘K, type:Pictures and videos, Return]
+  keys: [⌘K, type:Images and videos, Return]
   expect: settings.row.notifyMedia
 - id: settings.notifyDownloads
   keys: [⌘K, type:Downloads, Return]
@@ -421,36 +442,36 @@
   expect: settings.row.increaseContrast
 - id: settings.pack.chat
   keys: [⌘K, type:Chat, Return]
-  expect: settings.row.pack.chat
+  expect: settings.pack.chat
 - id: settings.pack.voice
   keys: [⌘K, type:Voice, Return]
-  expect: settings.row.pack.voice
+  expect: settings.pack.voice
 - id: settings.pack.photo
-  keys: [⌘K, type:Photo, Return]
-  expect: settings.row.pack.photo
+  keys: [⌘K, type:Images, Return]
+  expect: settings.pack.photo
 - id: settings.pack.video
   keys: [⌘K, type:Video, Return]
-  expect: settings.row.pack.video
+  expect: settings.pack.video
+- id: settings.pack.evil
+  keys: [⌘K, type:Evil Mode, Return]
+  expect: settings.pack.evil
 - id: settings.starter
   keys: [⌘K, type:Starter model, Return]
   expect: settings.row.starter
-- id: settings.capabilities.advanced
-  keys: [⌘K, type:Advanced, Return]
-  expect: settings.row.capabilities.advanced
 - id: settings.showModelInfo
   keys: [⌘K, type:Show model info, Return]
   expect: settings.row.showModelInfo
 - id: settings.modelOverrides
   keys: [⌘K, type:Reset to recommended, Return]
-  expect: settings.row.modelOverrides
+  expect: settings.row.capabilities.models
 - id: settings.keepLoadedMinutes
   keys: [⌘K, type:Keep models loaded, Return]
   expect: settings.row.keepLoadedMinutes
 - id: settings.allowOverBudget
-  keys: [⌘K, type:Allow loads above the memory budget, Return]
+  keys: [⌘K, type:Allow models too large for this Mac, Return]
   expect: settings.row.allowOverBudget
 - id: settings.videoAdvancedSteps
-  keys: [⌘K, type:Video steps, Return]
+  keys: [⌘K, type:Video quality, Return]
   expect: settings.row.videoAdvancedSteps
 - id: settings.videoAdvancedResolution
   keys: [⌘K, type:Video resolution, Return]
@@ -459,11 +480,8 @@
   keys: [⌘K, type:Video length, Return]
   expect: settings.row.videoAdvancedSeconds
 - id: settings.yieldGPU
-  keys: [⌘K, type:Pause video jobs when another app needs the GPU, Return]
+  keys: [⌘K, type:Pause video making for other apps, Return]
   expect: settings.row.yieldGPU
-- id: settings.evil.later
-  keys: [⌘K, type:Evil Mode arrives with model downloads., Return]
-  expect: settings.row.evil.later
 - id: settings.voiceInputDevice
   keys: [⌘K, type:Microphone, Return]
   expect: settings.row.voiceInputDevice
@@ -513,7 +531,7 @@
   keys: [⌘K, type:Include sensitive topics in memory, Return]
   expect: settings.row.memoryIncludeSensitive
 - id: settings.memoryReviewEnabled
-  keys: [⌘K, type:Suggest things to remember, Return]
+  keys: [⌘K, type:Keep memory up to date automatically, Return]
   expect: settings.row.memoryReviewEnabled
 - id: settings.manageMemories
   keys: [⌘K, type:Manage memories, Return]
@@ -531,10 +549,10 @@
   keys: [⌘K, type:Create files, Return]
   expect: settings.row.createFiles
 - id: settings.runCode
-  keys: [⌘K, type:Run code for analysis, Return]
+  keys: [⌘K, type:Analyse data, Return]
   expect: settings.row.runCode
 - id: settings.codeNet
-  keys: [⌘K, type:Allow network for code, Return]
+  keys: [⌘K, type:Use the internet when analysing files, Return]
   expect: settings.row.codeNet
 - id: settings.webSearch
   keys: [⌘K, type:Web search, Return]
@@ -548,12 +566,6 @@
 - id: settings.suggestWebSearch
   keys: [⌘K, type:Suggest web search when helpful, Return]
   expect: settings.row.suggestWebSearch
-- id: settings.toolImage
-  keys: [⌘K, type:Create image, Return]
-  expect: settings.row.toolImage
-- id: settings.toolVideo
-  keys: [⌘K, type:Create video, Return]
-  expect: settings.row.toolVideo
 - id: settings.toolMemory
   keys: [⌘K, type:Memory, Return]
   expect: settings.row.toolMemory
@@ -562,13 +574,13 @@
   expect: settings.row.toolAccess
 - id: settings.connections
   keys: [⌘K, type:Connections, Return]
-  expect: settings.row.connections
+  expect: connections.intro
 - id: settings.skills
   keys: [⌘K, type:Skills, Return]
   expect: settings.row.skills
 - id: settings.addSkill
   keys: [⌘K, type:Add skill, Return]
-  expect: settings.row.addSkill
+  expect: skills.add
 - id: settings.offlineOnly
   keys: [⌘K, type:Offline only, Return]
   expect: settings.row.offlineOnly
@@ -611,9 +623,6 @@
 - id: settings.exportLogs
   keys: [⌘K, type:Export logs, Return]
   expect: settings.row.exportLogs
-- id: settings.storage.later
-  keys: [⌘K, type:The storage dashboard arrives in a later update., Return]
-  expect: settings.row.storage.later
 - id: settings.storage.modelsFolder
   keys: [⌘K, type:Models folder, Return]
   expect: settings.row.storage.modelsFolder
@@ -644,9 +653,9 @@
 - id: settings.updates.check
   keys: [⌘K, type:Check now, Return]
   expect: settings.row.updates.check
-- id: settings.shortcutsRestore
-  keys: [⌘K, type:Restore defaults, Return]
-  expect: settings.row.shortcutsRestore
+- id: settings.shortcuts
+  keys: [⌘K, type:Keyboard shortcuts, Return]
+  expect: settings.row.shortcuts
 - id: settings.version
   keys: [⌘K, type:Version, Return]
   expect: settings.row.version
@@ -668,4 +677,4 @@
 - id: settings.licences
   keys: [⌘K, type:Licences, Return]
   expect: settings.row.licences
-# 222 entries
+# 225 entries

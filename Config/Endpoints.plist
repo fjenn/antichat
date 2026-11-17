@@ -32,6 +32,11 @@
 	<!-- M7.T11: the Composio relay (`make relay-dev` locally; `-RelayURL <url>` overrides it in Debug). Written by
 	     tools/release/set-hosting.py from Config/Hosting.json `relayURL` (release 2: the deployed relay). Empty = no relay:
 	     release builds hide the Composio connectors (RelayClient.isAvailable), and the strict endpoints check fails. -->
+	<!-- The skills list of Settings › Skills (DirectoryCatalogs.swift): the public index repository, refreshed weekly by
+	     its own workflow (tools/skills). Not derived from Hosting.json; must be https. No Debug twin: every build reads
+	     the same public file, and only once Settings › Skills has been opened. -->
+	<key>SkillsIndexURL</key>
+	<string>https://raw.githubusercontent.com/fjenn/antichat-skills-index/main/skills-index.json</string>
 	<key>RelayURL</key>
 	<string>https://antichat-relay.vercel.app</string>
 </dict>

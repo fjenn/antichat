@@ -120,13 +120,11 @@ final class MCPOAuthUITests: XCTestCase {
         }
         app.launch()
         app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
-        // Connections sit below the fold of Tools & Connections; bring them on screen (Q-015 catch-up).
-        app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch.scroll(byDeltaX: 0, deltaY: -700)
+        app.descendants(matching: .any).matching(identifier: "settings.nav.connections").firstMatch.click()
         app.buttons["connections.add"].click()
         let url = app.textFields["connections.url"]
         url.click(); url.typeText(mcp.absoluteString)
-        app.descendants(matching: .any).matching(identifier: "connections.authMode").firstMatch.radioButtons.element(boundBy: 2).click()  // Sign in with the app
+        app.descendants(matching: .any).matching(identifier: "connections.auth.show").firstMatch.click()  // opens on "Sign in in the browser"
         app.buttons["connections.check"].click()
         // The system's "wants to use … to sign in" alert: press Continue wherever it is shown (a sheet on the add
         // sheet's window, or the authentication agent's own window). The user's one action in the browser leg.

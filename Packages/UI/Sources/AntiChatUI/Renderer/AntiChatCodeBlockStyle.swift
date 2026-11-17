@@ -117,7 +117,8 @@ struct CodeBlockView: View {
 
     private var header: some View {
         HStack(spacing: Spacing.space3) {
-            Text(verbatim: language?.isEmpty == false ? language! : "code")
+            // No label for a fence without a language (or "text"): "text" over a line of output says nothing.
+            Text(verbatim: ["", "text", "plaintext", "plain", "txt"].contains(language?.lowercased() ?? "") ? "" : language!)
                 .typeStyle(.footnote)
                 .foregroundStyle(Color.textSecondary)
                 .probeID("codeLanguage")

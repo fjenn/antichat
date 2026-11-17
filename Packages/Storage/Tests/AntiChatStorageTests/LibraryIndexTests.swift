@@ -84,7 +84,7 @@ import Testing
         #expect(vid.path.hasSuffix("Media/2026/b2.mp4"), "the documented data folder layout")
     }
 
-    @Test func newestVersionPerArtifact() throws {
+    @Test func everyPictureVersionIsListed() throws {
         let e = try Self.seeded()
         try e.db.write { db in
             try Self.blob(e, db, "b9", ext: "png")
@@ -93,9 +93,16 @@ import Testing
                 """)
         }
         let items = try LibraryIndex(e.db).items(filter: .images, showEvil: false)
-        #expect(items.map(\.id) == ["img", "att"], "one entry per artifact, at its newest version's date")
+        // A picture's edit is a picture of its own: both versions are listed (the newest under the artifact's id, the
+        // older one under its version id), and each is found by its own prompt.
+        #expect(Set(items.map(\.id)) == ["img", "att", "img-v1"] && items[0].id == "img")
         #expect(items[0].source == .artifact(versionID: "img-v2") && items[0].path.hasSuffix("b9.png"))
-        #expect(try LibraryIndex(e.db).items(query: "dusk", showEvil: false).map(\.id) == ["img"], "an older version's prompt still finds it")
+        #expect(try LibraryIndex(e.db).items(query: "dusk", showEvil: false).map(\.id) == ["img-v1"])
+        #expect(try LibraryIndex(e.db).items(query: "fog", showEvil: false).map(\.id) == ["img"])
+        // Deleting the older picture leaves the newer one.
+        let old = try #require(items.first { $0.id == "img-v1" })
+        _ = try LibraryIndex(e.db).delete(old)
+        #expect(try LibraryIndex(e.db).items(filter: .images, showEvil: false).map(\.id).sorted() == ["att", "img"])
     }
 
     @Test func searchesNamesAndPrompts() throws {

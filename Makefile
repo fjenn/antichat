@@ -10,7 +10,7 @@ PY := $(ROOT)/tools/.venv/bin/python
 BEAUTIFY := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --quiet' || echo cat)
 
 .PHONY: mfa filetools-runtime-ready tools-venv m0-gate build-release build-tryout sign verify-signing notarize release-preflight dmg appcast test-release-tools site site-test site-deploy-preview site-deploy-prod bench-release runtime-video audit-vendor vendor-bump vendor-report bootstrap pins-verify binaries stage-binaries stub-models models-dev models-clean build test-unit test-unit-selftest xcodeproj fixtures runtime-video-test runtime-filetools \
-	catalog site-dev catalog-fixtures audit audit-selftest dev-catalog test-integration-stub test-install test-integration-real test-ui perf perf-all build-perf perf-compare perf-targets soak bench test-offline test-visual design-gen run vendor-js vendor-fonts relay-dev relay-test bundle-secret-scan
+	catalog skills-index site-dev catalog-fixtures audit audit-selftest dev-catalog test-integration-stub test-install test-integration-real test-ui perf perf-all build-perf perf-compare perf-targets soak bench test-offline test-visual design-gen run vendor-js vendor-fonts relay-dev relay-test bundle-secret-scan
 
 m0-gate: ; tools/m0/$(shell echo $(AT) | tr A-Z a-z).sh
 
@@ -313,6 +313,17 @@ catalog:
 	  cp build/catalog/catalog.json $(CATALOG_BASELINE); cp build/catalog/catalog.json.sig $(CATALOG_BASELINE).sig; \
 	  echo "catalog: published version $$v → $(CATALOG_SITE)/ and the bundled baseline"
 endif
+# make skills-index: refresh the skills index the app ships (the bundled copy and the pins in tools/skills/
+# overrides.json) from its sources' newest commits, validated first (tools/skills/refresh.py: the app's rules,
+# counts, every skill file's size and hash). A refused run changes nothing. DRY=1: generate and validate only.
+# Users do not wait for this: the app fetches the list from the public index repository, which runs the same
+# refresh by itself every week (catalog/README.md; tools/skills/export-index-repo.sh copies the tooling there).
+# The apps of Connections need no publishing: every install asks the relay (GET /v1/toolkits); the bundled curated
+# snapshot is refreshed at release time with tools/composio/build-catalog.py.
+SKILLS_WORK ?= $(or $(RUNNER_TEMP),$(TMPDIR),/tmp)/antichat-skills-index
+skills-index:
+	python3 -I tools/skills/refresh.py --work "$(SKILLS_WORK)" $(if $(DRY),,--apply)
+
 # make catalog-fixtures: re-derive the signed fixture catalogs (fixtures/catalog/*.json) from the built catalog.
 catalog-fixtures:
 	$(CATALOG_TOOL) fixtures --from build/catalog/catalog.json --out $(FIXTURES)/catalog --key-file $(CATALOG_KEY)

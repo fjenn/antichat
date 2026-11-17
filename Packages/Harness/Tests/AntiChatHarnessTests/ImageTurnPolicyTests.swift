@@ -83,10 +83,12 @@ import Testing
 
     @Test func modelViewOfMediaResults() {
         let done = ImageTurnPolicy.Outcome.done(imageID: "a1", width: 768, height: 512, path: "/x/a.png").resultJSON
-        #expect(MediaToolResult.forModel(name: "create_image", result: done) == ImageTurnPolicy.Outcome.done(imageID: "a1", width: 768, height: 512).resultJSON)
+        // No path; and a done result tells the model the card already shows it (no made-up image link).
+        let note = #""note":"The result is already shown to the user. Reply with one short sentence. Do not add a link or a Markdown image.""#
+        #expect(MediaToolResult.forModel(name: "create_image", result: done) == #"{"height":512,"image_id":"a1",\#(note),"status":"done","width":768}"#)
         #expect(MediaToolResult.forModel(name: "edit_image", result: done).contains("a1"))
         let video = #"{"path":"/x/v.mp4","poster":"/x/v.jpg","status":"done","video_id":"v1"}"#
-        #expect(MediaToolResult.forModel(name: "create_video", result: video) == #"{"status":"done","video_id":"v1"}"#)
+        #expect(MediaToolResult.forModel(name: "create_video", result: video) == #"{\#(note),"status":"done","video_id":"v1"}"#)
         #expect(MediaToolResult.forModel(name: "create_document", result: #"{"path":"/x/d.docx"}"#) == #"{"path":"/x/d.docx"}"#)
         #expect(MediaToolResult.forModel(name: "create_image", result: "not json") == "not json")
         // A later turn rebuilds the history from the stored parts: the same view.

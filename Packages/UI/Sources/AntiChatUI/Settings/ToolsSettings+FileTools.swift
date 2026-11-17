@@ -1,6 +1,7 @@
 import AntiChatDesign
 import AntiChatFoundation
 import AntiChatHarness
+import AntiChatNetwork
 import AntiChatPlatform
 import AntiChatStorage
 import Defaults
@@ -55,11 +56,19 @@ final class FileToolsSettingsModel {
 
     var installLabel: String { CopyKey("sandbox.notInstalled").string(["size": sizeLabel]) }
 
-    /// The Run code row's description: the reason (no File tools yet, with their size), an install error, or the note.
+    /// The Run code row's description: an install error, "Getting ready · n%" while File tools arrives, or the note.
     var runCodeDescription: CopyText {
         if let errorKey { return CopyText(CopyKey(errorKey)) }
-        if installed == nil, progress == nil { return CopyText(CopyKey("set.tools.code.needsRuntime"), ["size": sizeLabel]) }
+        if progress != nil { return CopyText(CopyKey("set.tools.codeInstalling"), ["percent": "\(Int(fraction * 100))"]) }
         return CopyText(CopyKey("set.tools.code.note"))
+    }
+
+    /// The install as something to await (the first `run_python` of a chat, FileToolsTools.ensureRuntime).
+    func installAndWait() async -> Bool {
+        refresh()
+        if installed == nil, progress == nil { install() }
+        while progress != nil { try? await Task.sleep(for: .milliseconds(200)) }
+        return installed != nil && Defaults[.runCodeEnabled]
     }
 
     func install() {
@@ -92,43 +101,80 @@ struct FileToolsSettingsRows: View {
     @Default(.runCodeEnabled) private var runCode
     @Default(.allowNetworkForCode) private var network
 
-    init(database: AppDatabase?) { _model = State(initialValue: FileToolsSettingsModel.shared(database: database)) }
+    /// On the page: Create files, Run code (+ install). Advanced: Allow network for code.
+    let part: SettingsPart
+
+    init(part: SettingsPart, database: AppDatabase?) {
+        self.part = part
+        _model = State(initialValue: FileToolsSettingsModel.shared(database: database))
+    }
 
     var body: some View {
-        SettingsItem("createFiles", description: CopyKey("set.tools.createFiles.note")) {
-            Toggle(isOn: $createFiles) { Text(CopyKey("set.tools.createFiles")) }
-                .toggleStyle(.accessibleSwitch).labelsHidden().probeID("settings.control.createFiles")
-        }
-        SettingsItem("runCode", descriptionText: model.runCodeDescription) {
-            if model.installed != nil {
-                Toggle(isOn: $runCode) { Text(CopyKey("set.tools.code")) }
-                    .toggleStyle(.accessibleSwitch).labelsHidden().probeID("settings.control.runCode")
-            } else {
-                if model.progress != nil {
-                    HStack {
-                        ProgressView(value: model.fraction).frame(width: 120)
-                            .accessibilityLabel(Text(CopyKey("set.tools.code")))  // own name (M9.T03)
-                        Text(CopyKey("set.tools.codeInstalling").string(["percent": "\(Int(model.fraction * 100))"]))
-                            .monospacedDigit()
-                    }
-                    .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
-                    .probeID("settings.control.runCode")
-                } else {
-                    // VQ (S-21 Tools, M10): a short verb; the why and the size are in the row's description.
-                    Button { model.install() } label: { Text(CopyKey("set.tools.code.get")) }
-                        .disabled(model.runtime == nil)
-                        .probeID("settings.control.runCode")
+        Group {
+            if part == .main { main } else {
+                SettingsItem("codeNet", description: CopyKey("set.tools.codeNet.note")) {
+                    Toggle(isOn: $network) { Text(CopyKey("set.tools.codeNet")) }
+                        .toggleStyle(.accessibleSwitch).labelsHidden().disabled(model.installed == nil)
+                        .probeID("settings.control.codeNet")
                 }
             }
-        }
-        SettingsItem("codeNet") {
-            Toggle(isOn: $network) { Text(CopyKey("set.tools.codeNet")) }
-                .toggleStyle(.accessibleSwitch).labelsHidden().disabled(model.installed == nil)
-                .probeID("settings.control.codeNet")
         }
         .onReceive(NotificationCenter.default.publisher(for: .init(ToolDefaults.runtimeDidChangeNotification))) { _ in
             model.refresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: CatalogStore.didChange)) { _ in model.refresh() }
+    }
+
+    @ViewBuilder private var main: some View {
+        SettingsItem("createFiles", description: CopyKey("set.tools.createFiles.note")) {
+            Toggle(isOn: $createFiles) { Text(CopyKey("set.tools.createFiles")) }
+                .toggleStyle(.accessibleSwitch).labelsHidden().probeID("settings.control.createFiles")
+        }
+        // A plain switch: File tools installs by itself (FileToolsAutoInstall); turning the switch on before it
+        // has arrived starts the install too, and the row says how far it is.
+        SettingsItem("runCode", descriptionText: model.runCodeDescription) {
+            Toggle(isOn: Binding(get: { model.installed != nil ? runCode : model.progress != nil },
+                                 set: { on in if model.installed != nil { runCode = on } else if on { model.install() } })) {
+                Text(CopyKey("set.tools.code"))
+            }
+            .toggleStyle(.accessibleSwitch).labelsHidden()
+            .disabled(model.installed == nil && (model.runtime == nil || model.progress != nil))
+            .probeID("settings.control.runCode")
+        }
+    }
+}
+
+/// File tools (the sandboxed Python runtime behind "Run code for analysis" and Office edits) installs by itself: once
+/// onboarding is done and the Mac is online (never under Offline only), at launch, when the catalog arrives, and on
+/// demand when a chat's first `run_python` runs before it is there. Nobody has to find a button in Settings.
+@MainActor
+enum FileToolsAutoInstall {
+    private static var model: FileToolsSettingsModel?
+    private static var observers: [NSObjectProtocol] = []
+    private static var attempts = 0
+
+    static func start(database: AppDatabase) {
+        guard model == nil, !database.isInMemory, !UserDefaults.antichatIsIsolated else { return }
+        let m = FileToolsSettingsModel.shared(database: database)
+        model = m
+        FileToolsTools.ensureRuntime.withLock { $0 = { await FileToolsAutoInstall.ensure() } }
+        NotificationCenter.default.post(name: .init(ToolDefaults.runtimeDidChangeNotification), object: "filetools-runtime")
+        for name in [CatalogStore.didChange, NetworkPolicyStore.didChange, PathStatus.didChange] {
+            observers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { _ in
+                MainActor.assumeIsolated { kick() }
+            })
+        }
+        kick()
+    }
+
+    static func ensure() async -> Bool { await model?.installAndWait() ?? false }
+
+    /// Starts the install when it is missing and allowed (a few tries per launch; a failure shows on the Settings row).
+    static func kick() {
+        guard let m = model, attempts < 3, !OnboardingGate.shouldShow(), !NetworkPolicyStore.shared.offlineOnly else { return }
+        m.refresh()
+        guard m.installed == nil, m.progress == nil, m.runtime != nil, m.mayInstallNew() else { return }
+        attempts += 1
+        m.install()
     }
 }

@@ -1,7 +1,9 @@
-// M8.T03 AT-246 (R-246 AC1/AC2): (a) default off on T0/T1, on T2–T4; (b) gates: battery, idle 299 s vs 300 s, Low
-// Power Mode, a running turn, thermal, 6 h spacing; (c) a run with a scripted model returning 3 facts writes 3
-// pending suggestions and zero memory_item rows (a TransactionObserver counts inserts during the run); (d) Save →
-// one active item (origin review), Dismiss → dismissed.
+// M8.T03 AT-246 (R-246 AC1/AC2; owner 2026-11-16: automatic memory): (a) default off on T0/T1, on T2–T4; (b) gates:
+// battery, idle 299 s vs 300 s, Low Power Mode, a running turn, thermal, 6 h spacing; (c) a run saves the facts the
+// model marked certain (one active item + one memory_event each, origin review) and leaves unsure / unmarked ones as
+// pending suggestions; a certain fact that touches an existing memory, or whose comparison failed, stays pending;
+// unparseable output saves nothing; sensitive facts need the setting; nothing is saved or suggested twice;
+// (d) Save → one active item (origin review), Dismiss → dismissed.
 //   make test-unit FILTER=MemoryReviewServiceTests
 import AntiChatStorage
 import Foundation
@@ -25,8 +27,18 @@ final class ItemInsertCounter: TransactionObserver, @unchecked Sendable {
     func databaseDidRollback(_ db: Database) {}
 }
 
+/// Answers the review's extraction prompt with `facts` and the decider's comparison prompt with `decision`.
+struct ReviewModel: MemoryDecisionModel {
+    var facts: String?
+    var decision: String? = #"{"event":"ADD"}"#
+    func complete(system: String, user: String) async -> String? {
+        guard system == MemoryUpdateDecider.systemPrompt else { return facts }
+        return decision.map { $0.replacingOccurrences(of: "$FIRST", with: ScriptedDecisionModel.firstID(user) ?? "") }
+    }
+}
+
 @Suite struct MemoryReviewServiceTests {
-    static let facts = #"[{"topic":"Music","text":"Plays jazz piano","sensitive_category":"none"},{"topic":"Work","text":"Works as a nurse on nights","sensitive_category":"none"},{"topic":"Food","text":"Cooks vegetarian food","sensitive_category":"none"},{"topic":"Health","text":"Has asthma since childhood","sensitive_category":"health"},{"topic":"X","text":"short"}]"#
+    static let facts = #"[{"topic":"Music","text":"Plays jazz piano","confidence":"certain","sensitive_category":"none"},{"topic":"Work","text":"Works as a nurse on nights","confidence":"unsure","sensitive_category":"none"},{"topic":"Food","text":"Cooks vegetarian food","sensitive_category":"none"},{"topic":"Health","text":"Has asthma since childhood","confidence":"certain","sensitive_category":"health"},{"topic":"X","text":"short","confidence":"certain"}]"#
 
     func gates(_ power: FakePower = FakePower(), idle: Double = 600, busy: Bool = false, thermal: Bool = true,
                policy: MemoryPolicy = MemoryPolicy(), enabled: Bool = true) -> MemoryReviewService.Gates {
@@ -63,17 +75,28 @@ final class ItemInsertCounter: TransactionObserver, @unchecked Sendable {
         #expect(s.skipReason(gates(), lastRun: store.now().addingTimeInterval(-3600)) == .tooSoon)
     }
 
-    @Test func runWritesPendingSuggestionsOnly() async throws {
+    @Test func certainIsSavedUnsureStaysPending() async throws {
         let (db, store) = try seeded()
         let counter = ItemInsertCounter()
         db.writer.add(transactionObserver: counter)
-        let s = MemoryReviewService(store: store, model: ScriptedDecisionModel(Self.facts), embedder: nil)
-        #expect(try await s.run(gates(), lastRun: nil).isEmpty == false)
+        let s = MemoryReviewService(store: store, model: ReviewModel(facts: Self.facts), embedder: nil)
+        let rows = try await s.run(gates(), lastRun: nil)
+        #expect(rows.map(\.state) == [.saved, .pending, .pending], "sensitive off + < 8 chars dropped")
+        // certain → saved by itself: one active item, origin review, one add event (undo / delete in Settings).
+        let active = try store.active()
+        #expect(active.map(\.item.text) == ["Plays jazz piano"] && active[0].item.origin == .review && active[0].topic.name == "Music")
+        #expect(try store.events(itemID: active[0].item.id).map(\.op) == [.add])
+        #expect(counter.count.withLock { $0 } == 1)
+        // unsure, and no confidence at all → pending, nothing stored.
         let pending = try s.pending()
-        #expect(pending.map(\.text) == ["Plays jazz piano", "Works as a nurse on nights", "Cooks vegetarian food"], "sensitive off + < 8 chars dropped")
-        #expect(counter.count.withLock { $0 } == 0)
-        #expect(try db.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM memory_item") } == 0)
-        print("AT-246 memory_item inserts during review: \(counter.count.withLock { $0 })")
+        #expect(pending.map(\.text) == ["Works as a nurse on nights", "Cooks vegetarian food"])
+        // The same facts again: nothing saved or suggested twice.
+        #expect(try await s.run(gates(), lastRun: nil).isEmpty)
+        #expect(try store.active().count == 1 && s.pending().count == 2)
+        // An undone automatic save is not brought back by the next run.
+        try store.undo(eventID: try #require(try store.events(itemID: active[0].item.id).first).id)
+        #expect(try await s.run(gates(), lastRun: nil).isEmpty)
+        #expect(try store.active().isEmpty)
         // Gated: nothing.
         #expect(try await s.run(gates(FakePower(onACPower: false)), lastRun: nil).isEmpty)
         // (d) Save → one active item; Dismiss → dismissed.
@@ -81,8 +104,61 @@ final class ItemInsertCounter: TransactionObserver, @unchecked Sendable {
         #expect(item.origin == .review)
         #expect(try store.active().count == 1)
         try s.dismiss(pending[1].id)
-        #expect(try s.pending().map(\.text) == ["Cooks vegetarian food"])
+        #expect(try s.pending().isEmpty)
         #expect(try s.save(pending[1].id) == nil, "a dismissed suggestion cannot be saved")
+        #expect(try await s.run(gates(), lastRun: nil).isEmpty, "a dismissed fact is not proposed again")
+    }
+
+    @Test func sensitiveNeedsTheSetting() async throws {
+        let (_, store) = try seeded()
+        let s = MemoryReviewService(store: store, model: ReviewModel(facts: Self.facts), embedder: nil)
+        let rows = try await s.run(gates(policy: MemoryPolicy(includeSensitive: true)), lastRun: nil)
+        #expect(rows.first { $0.text == "Has asthma since childhood" }?.state == .saved)
+        #expect(try store.active().first { $0.item.text == "Has asthma since childhood" }?.topic.sensitiveCategory == .health)
+        let (_, store2) = try seeded()
+        let off = MemoryReviewService(store: store2, model: ReviewModel(facts: Self.facts), embedder: nil)
+        #expect(try await off.run(gates(), lastRun: nil).contains { $0.sensitiveCategory != nil } == false)
+        #expect(try store2.active().contains { $0.topic.sensitiveCategory != nil } == false)
+    }
+
+    @Test func unparseableOrUnmarkedOutputSavesNothing() async throws {
+        for raw in ["Sure! The user plays jazz piano.", #"[{"topic":"Music","text":"Plays jazz piano","confidence":"certain""#, ""] {
+            let (_, store) = try seeded()
+            let s = MemoryReviewService(store: store, model: ReviewModel(facts: raw), embedder: nil)
+            #expect(try await s.run(gates(), lastRun: nil).isEmpty)
+            #expect(try store.active().isEmpty && s.pending().isEmpty)
+        }
+        // Parsed, but the confidence is missing, not a string, or a word we do not know: unsure → pending.
+        let (_, store) = try seeded()
+        let odd = #"[{"topic":"Music","text":"Plays jazz piano"},{"topic":"Work","text":"Works as a nurse","confidence":0.9},{"topic":"Food","text":"Cooks vegetarian food","confidence":"high"},{"topic":"Home","text":"Lives in Lisbon","confidence":" Certain "}]"#
+        let s = MemoryReviewService(store: store, model: ReviewModel(facts: odd), embedder: nil)
+        #expect(try await s.run(gates(), lastRun: nil).map(\.state) == [.pending, .pending, .pending, .saved])
+        #expect(try store.active().map(\.item.text) == ["Lives in Lisbon"])
+        #expect(MemoryReviewService.parse(odd).map(\.certain) == [false, false, false, true])
+    }
+
+    @Test func conflictWithAnExistingMemoryStaysPending() async throws {
+        let certain = #"[{"topic":"Home","text":"Lives in Hamburg now","confidence":"certain"}]"#
+        // The comparison says the new fact changes (UPDATE) or contradicts (DELETE) a stored one, or gives no usable
+        // answer: the user chooses. The stored memory is untouched.
+        for decision in [#"{"event":"UPDATE","id":"$FIRST","text":"Lives in Hamburg"}"#, #"{"event":"DELETE","id":"$FIRST"}"#, "no idea", nil] {
+            let (_, store) = try seeded()
+            try store.insert(topic: "Home", key: "city", text: "Lives in Berlin", origin: .tool)
+            let s = MemoryReviewService(store: store, model: ReviewModel(facts: certain, decision: decision), embedder: nil)
+            #expect(try await s.run(gates(), lastRun: nil).map(\.state) == [.pending], "\(decision ?? "nil")")
+            #expect(try store.active().map(\.item.text) == ["Lives in Berlin"])
+        }
+        // Already covered (NONE), or the same text in other casing / punctuation: nothing at all.
+        let (_, store) = try seeded()
+        try store.insert(topic: "Home", key: "city", text: "Lives in Berlin", origin: .tool)
+        let covered = MemoryReviewService(store: store, model: ReviewModel(facts: certain, decision: #"{"event":"NONE","id":"$FIRST"}"#), embedder: nil)
+        #expect(try await covered.run(gates(), lastRun: nil).isEmpty)
+        let same = MemoryReviewService(store: store, model: ReviewModel(facts: #"[{"topic":"City","text":"lives in BERLIN.","confidence":"certain"}]"#), embedder: nil)
+        #expect(try await same.run(gates(), lastRun: nil).isEmpty)
+        // The same fact twice in one answer: stored once.
+        let twice = MemoryReviewService(store: store, model: ReviewModel(facts: #"[{"topic":"Pets","text":"Has a dog named Rex","confidence":"certain"},{"topic":"Pets","text":"has a dog named rex!","confidence":"certain"}]"#), embedder: nil)
+        #expect(try await twice.run(gates(), lastRun: nil).map(\.state) == [.saved])
+        #expect(try store.active().count == 2 && covered.pending().isEmpty)
     }
 
     @Test func evilAndMemoryOffChatsAreNotRead() async throws {
@@ -93,7 +169,7 @@ final class ItemInsertCounter: TransactionObserver, @unchecked Sendable {
             try d.execute(sql: "INSERT INTO message (id, chat_id, role, created_at) VALUES ('u2', 'e1', 'user', 2)")
             try d.execute(sql: "INSERT INTO message_part (message_id, idx, kind, body) VALUES ('u2', 0, 'text', 'I play jazz piano')")
         }
-        let s = MemoryReviewService(store: store, model: ScriptedDecisionModel(Self.facts), embedder: nil)
+        let s = MemoryReviewService(store: store, model: ReviewModel(facts: Self.facts), embedder: nil)
         #expect(try await s.run(gates(), lastRun: nil).isEmpty, "memory-off and Evil chats are not read")
         #expect(try await s.run(gates(policy: MemoryPolicy(useInEvil: true)), lastRun: nil).count == 3)
     }

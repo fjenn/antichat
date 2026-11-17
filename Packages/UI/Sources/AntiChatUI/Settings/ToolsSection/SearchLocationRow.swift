@@ -1,7 +1,8 @@
-// Settings › Tools & Connections › Web search › "Use my approximate location for search" (M8.T08 step 4; R-091 AC3,
-// R-109; settings-map §7): Off by default. Turning it on shows the in-app explainer (`perm.location.why`) first and
+// Settings › Capabilities › Advanced › "Use my approximate location for search" (M8.T08 step 4; R-091 AC3,
+// R-109; settings-map §7): On by default; macOS is asked at the first web search that would use it
+// (SearchLocationPrompt). Turning the switch on here shows the in-app explainer (`perm.location.why`) first and
 // only then asks macOS (LocationPermission.request → `requestWhenInUseAuthorization`). Location is never requested
-// at launch, during onboarding or by any other control. Denied, restricted or Location Services off → an inline
+// at launch or during onboarding. Denied, restricted or Location Services off → an inline
 // notice with [Open System Settings]; while the macOS dialog is open → `perm.location.waiting`.
 import AntiChatDesign
 import AntiChatPlatform
@@ -24,6 +25,7 @@ struct SearchLocationRow: View {
             LocationExplainerSheet(onContinue: {
                 explaining = false
                 useLocation = true
+                SearchLocationPrompt.shared.markAsked()  // answered here: the row above the composer stays away
                 location.request()
             }, onCancel: { explaining = false })
         }

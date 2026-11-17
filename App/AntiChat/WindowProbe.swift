@@ -138,7 +138,7 @@ enum WindowProbe {
 
         // Leg 2: toolbar contents and centred title.
         do {
-            let required = ["sidebarToggle", "navBack", "navForward", "toolbarTitle", "chatMoreMenu"]
+            let required = ["sidebarToggle", "toolbarTitle", "chatMoreMenu"]
             let present = Dictionary(uniqueKeysWithValues: required.map { id in (id, find(window, id) != nil) })
             let lights = [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton]
                 .allSatisfy { window.standardWindowButton($0).map { !$0.isHidden } ?? false }
@@ -154,9 +154,9 @@ enum WindowProbe {
                                  "windowFrame": "\(window.frame)"]
         }
 
-        // Leg 3a: headline from empty.headline.1…5, ≥ 5 distinct over seeds 1…30; composer centred ±10 %.
+        // Leg 3a: the one headline (empty.headline) on every new chat, seeds 1…30; composer centred ±10 %.
         do {
-            let allowed = Set(EmptyHeadline.keys.map { $0.string() })
+            let allowed: Set<String> = [EmptyHeadline.key.string()]
             var seen: [String] = []
             for seed in UInt64(1)...30 {
                 state.newChat(seed: seed)
@@ -167,7 +167,7 @@ enum WindowProbe {
             let composer = find(window, "composer")?.frame ?? .zero
             let column = find(window, "chatColumn")?.frame ?? .zero
             let dy = abs(composer.midY - column.midY)
-            let pass = distinct.isSubset(of: allowed) && distinct.count >= 5 && column.height > 0
+            let pass = distinct == allowed && column.height > 0
                 && dy <= 0.1 * column.height
             legs["3a-headline-centre"] = ["pass": pass, "distinct": Array(distinct).sorted(), "count": distinct.count,
                                          "composerMidY": composer.midY, "columnMidY": column.midY,

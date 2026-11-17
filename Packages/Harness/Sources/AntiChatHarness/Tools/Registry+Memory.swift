@@ -23,15 +23,21 @@ public final class MemoryRuntime: Sendable {
     public static func `for`(_ database: AppDatabase) -> MemoryRuntime {
         byDatabase.withLock { map in
             if let r = map[ObjectIdentifier(database)] { return r }
-            let r = MemoryRuntime(database: database)
+            let r = MemoryRuntime(database: database, captures: .shared)
             map[ObjectIdentifier(database)] = r
             return r
         }
     }
 
-    public init(database: AppDatabase, policy: @escaping @Sendable () -> MemoryPolicy = { MemoryPolicy.from(MemoryRuntime.settings) }) {
+    /// Per-turn capture: which turns run and which capture calls are open (the app's runtime shares the one coordinator
+    /// with every chat, incognito ones too; a runtime made directly gets its own).
+    public let captures: MemoryCaptureCoordinator
+
+    public init(database: AppDatabase, policy: @escaping @Sendable () -> MemoryPolicy = { MemoryPolicy.from(MemoryRuntime.settings) },
+                captures: MemoryCaptureCoordinator = MemoryCaptureCoordinator()) {
         self.database = database
         self.policy = policy
+        self.captures = captures
     }
 
     /// The Settings store (UserDefaults.antichat's rule: `-DefaultsSuite` in DEBUG, else the app domain).
@@ -54,6 +60,14 @@ public final class MemoryRuntime: Sendable {
     }
     public var snapshots: MemorySnapshotBuilder { MemorySnapshotBuilder(store: store, embedder: embedder) }
     public var executor: MemoryToolExecutor { MemoryToolExecutor(store: store, decider: decider, policy: policy) }
+    /// The per-turn capture (nil until the app attached the chat model: no model, no capture).
+    public var capture: MemoryCapture? {
+        let l = late.withLock { $0 }
+        guard let model = l.model else { return nil }
+        var c = MemoryCapture(store: store, model: model, embedder: l.embedder)
+        c.config = config
+        return c
+    }
 
     /// The chat's access (its `memory_enabled` switch and mode come from its row).
     public func access(chatID: String, isIncognito: Bool) -> MemoryPolicy.Access {
@@ -90,8 +104,11 @@ public final class MemoryRuntime: Sendable {
 }
 
 /// The ambiguous-band decision on the chat model (temperature 0, ≤ 160 tokens, 20 s budget; nil on any failure → ADD).
-public struct EngineMemoryDecisionModel: MemoryDecisionModel {
+/// The per-turn capture calls it under its own, shorter budget. Every call has its own session id, like the title
+/// call, so the chat's prefix cache / slot is not the one it writes to.
+public struct EngineMemoryDecisionModel: BudgetedMemoryModel {
     public static let timeout: Duration = .seconds(20)
+    public static let maxTokens = 160
     public let engine: any EngineService
     public let slot: @Sendable () -> ModelSlot
 
@@ -101,10 +118,16 @@ public struct EngineMemoryDecisionModel: MemoryDecisionModel {
     }
 
     public func complete(system: String, user: String) async -> String? {
+        await complete(system: system, user: user, budget: MemoryCallBudget(maxTokens: Self.maxTokens, timeout: Self.timeout))
+    }
+
+    /// Ends early with nil when the calling task is cancelled (the engine request is cancelled with it).
+    public func complete(system: String, user: String, budget: MemoryCallBudget) async -> String? {
+        guard !Task.isCancelled else { return nil }
         let request = ChatRequest(
             sessionID: UUID(), modelSlot: slot(),
             messages: [.layer(PromptLayer(id: "memoryDecision", content: system)), .message(ChatMessage(role: .user, content: user))],
-            reasoning: .off, sampling: Sampling(temperature: 0, maxTokens: 160))
+            reasoning: .off, sampling: Sampling(temperature: 0, maxTokens: budget.maxTokens))
         let engine = engine
         enum Outcome: Sendable { case text(String?), timedOut }
         let result: String? = await withTaskGroup(of: Outcome.self) { group in
@@ -123,7 +146,7 @@ public struct EngineMemoryDecisionModel: MemoryDecisionModel {
                 return .text(nil)
             }
             group.addTask {
-                try? await Task.sleep(for: Self.timeout)
+                try? await Task.sleep(for: budget.timeout)
                 return .timedOut
             }
             defer { group.cancelAll() }

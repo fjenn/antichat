@@ -1,5 +1,5 @@
 // Sidebar (M1.T07 step 5; screens.md S-05, components.md §1): SidebarHeader (New chat ⌘N, Search ⌘K), nav items
-// Library / Projects / Chats, sections Pinned · Today · Previous 7 days · Older, SidebarFooter (Settings).
+// Library / Projects, sections Pinned · Today · Previous 7 days · Older, SidebarFooter (Settings).
 // No icon rail and no product switcher (R-001 AC1).
 import AntiChatDesign
 import AntiChatHarness
@@ -32,8 +32,6 @@ struct SidebarView: View {
                                selected: state.route == .library) { state.open(.library) }
                 SidebarNavItem(symbol: "folder", title: CopyKey("side.projects"), id: "sidebar.projects",
                                selected: state.route == .projects) { state.open(.projects) }
-                SidebarNavItem(symbol: "bubble.left.and.bubble.right", title: CopyKey("chats.page.title"),
-                               id: "sidebar.chats", selected: state.route == .chats) { state.open(.chats) }
             }
             if let projects = state.projects, !projects.projects.isEmpty {  // M8.T04: ProjectRows above Recents
                 Section {

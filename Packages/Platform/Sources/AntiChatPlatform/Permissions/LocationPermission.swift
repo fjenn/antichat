@@ -50,7 +50,8 @@ public struct LocationSystem: Sendable {
         self.open = open
     }
 
-    /// A fixed state; `request` moves `.notDetermined` to `answer` (nil = the dialog stays unanswered).
+    #if DEBUG || ANTICHAT_PERF_HARNESS
+    /// A fixed state (`-FakePermission location=…`, tests); `request` moves `.notDetermined` to `answer` (nil = the dialog stays unanswered).
     public static func fake(_ state: LocationAuthorization, answer: LocationAuthorization? = nil,
                             opened: (@Sendable (URL) -> Void)? = nil) -> LocationSystem {
         let box = Box(state)
@@ -68,6 +69,7 @@ public struct LocationSystem: Sendable {
             set { lock.withLock { v = newValue } }
         }
     }
+    #endif
 }
 
 @MainActor @Observable

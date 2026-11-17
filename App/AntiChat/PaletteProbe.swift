@@ -145,22 +145,15 @@ enum PaletteProbe {
         legs["0-fixture"] = ["pass": chatCount >= 10_000 && tokenChat != nil, "nonArchivedChats": chatCount,
                              "zebracornChat": tokenChat ?? ""]
 
-        // Leg 1: ⌘K opens a palette with tabs All, Actions, Chats (+ Settings); footer shows the key hints;
-        // the empty query lists recent chats.
+        // Leg 1: ⌘K opens the chat search: one field, no tabs and no footer; the empty field lists New chat and
+        // the recent chats.
         do {
             let how = await open(palette)
-            let tabs = ["all", "actions", "chats", "settings"].map { ("palette.tab.\($0)", present("palette.tab.\($0)")) }
-            let hints = ["select", "open", "askTab", "close"].map { ("palette.hint.\($0)", present("palette.hint.\($0)")) }
-            let recents = palette.items.prefix { $0.group == .chats }.count
+            let noTabs = !present("palette.tab.all") && !present("palette.footer")
+            let recents = palette.items.filter { if case .chat = $0.kind { true } else { false } }.count
             capture("S-18-empty-light.png", dir)
-            let pass = how == "commandK" && tabs.allSatisfy(\.1) && hints.allSatisfy(\.1) && recents > 0
-            legs["1-open-tabs-footer"] = ["pass": pass, "openedBy": how, "tabs": Dictionary(uniqueKeysWithValues: tabs),
-                                          "footerHints": Dictionary(uniqueKeysWithValues: hints),
-                                          "footerText": [CopyKey("palette.hint.select").string(),
-                                                         CopyKey("palette.hint.open").string(),
-                                                         CopyKey("search.askTab").string(),
-                                                         CopyKey("palette.hint.close").string()],
-                                          "recentChatsShown": recents]
+            let pass = how == "commandK" && noTabs && recents > 0 && palette.items.first?.kind == .newChat
+            legs["1-open-recents"] = ["pass": pass, "openedBy": how, "noTabsNoFooter": noTabs, "recentChatsShown": recents]
         }
 
         // Leg 2: a body-only token finds its chat; a title word finds title matches.
@@ -168,13 +161,13 @@ enum PaletteProbe {
             let t = await search("zebracorn", palette)
             await settle(150)
             let found = palette.items.contains { $0.id == "chat.\(tokenChat ?? "-")" && !$0.titleMatched }
-            let excerpt = palette.items.first { $0.group == .chats }?.excerpt.contains { $0.isMatch } ?? false
+            let excerpt = palette.items.first { $0.id.hasPrefix("chat.") }?.excerpt.contains { $0.isMatch } ?? false
             let row = present("palette.row.chat.\(tokenChat ?? "-")")
             capture("S-18-typing-light.png", dir)
             await clear("zebracorn".count)
             let t2 = await search("pasta", palette)
             await settle(100)
-            let titleHits = palette.items.filter { $0.group == .chats && $0.titleMatched }.count
+            let titleHits = palette.items.filter { $0.id.hasPrefix("chat.") && $0.titleMatched }.count
             await clear("pasta".count)
             let pass = found && excerpt && row && titleHits > 0 && t != nil && t2 != nil
             legs["2-body-and-title"] = ["pass": pass, "bodyTokenFound": found, "highlightedExcerpt": excerpt,
@@ -225,50 +218,6 @@ enum PaletteProbe {
             legs["4-noresults-selection"] = ["pass": empty && opened != nil, "noResultsEmpty": empty,
                                              "noResultsCopy": CopyKey("search.empty").string(["query": "qwxzvbnm"]),
                                              "thirdRow": third?.id ?? "", "returnOpenedIt": opened != nil]
-        }
-
-        // Leg 5: Actions tab lists New chat, New incognito chat, every settings section, Switch chat.
-        do {
-            _ = await open(palette)
-            let clicked = click("palette.tab.actions")
-            _ = await waitUntil { palette.tab == .actions }
-            await settle(200)
-            let titles = palette.items.map(\.title)
-            let sections = SettingsSection.allCases.map { $0.title.string() }
-            let required = [CopyKey("side.newChat").string(), CopyKey("palette.action.newIncognito").string(),
-                            CopyKey("palette.action.switchChat").string()] + sections
-            let missing = required.filter { !titles.contains($0) }
-            capture("S-18-actions-light.png", dir)
-            click("palette.tab.all")
-            _ = await waitUntil { palette.tab == .all }
-            legs["5-actions"] = ["pass": clicked && missing.isEmpty, "tabClicked": clicked, "missing": missing,
-                                 "count": titles.count]
-        }
-
-        // Leg 6: "send with" shows the General row "Send with"; selecting it requests Settings at that row
-        // (the Settings window itself is M1.T22's: forward leg, convention 9).
-        do {
-            _ = await search("send with", palette)
-            await settle(150)
-            let idx = palette.items.firstIndex { $0.id == "setting.sendWithCommandEnter" }
-            let row = idx.map { palette.items[$0] }
-            capture("S-18-settings-row-light.png", dir)
-            let before = SettingsNavigator.shared.requestCount
-            if let idx {
-                for _ in 0..<idx { down(); await settle(60) }
-                returnKey()
-            }
-            let requested = await waitUntil {
-                SettingsNavigator.shared.requestCount == before + 1
-                    && SettingsNavigator.shared.pending == .init(section: .general, rowID: "sendWithCommandEnter")
-            }
-            let closed = await waitUntil { !palette.isPresented }
-            _ = SettingsNavigator.shared.take()
-            legs["6-settings-row"] = ["pass": row?.title == "Send with" && row?.subtitle == "General" && requested != nil
-                                          && closed != nil,
-                                      "rowTitle": row?.title ?? "", "section": row?.subtitle ?? "",
-                                      "settingsRequested": requested != nil,
-                                      "forward": "opens Settings at that row → M1.T22 (J09/J10)"]
         }
 
         // Leg 7: Tab asks the query as a new chat (text in the composer, not sent); Esc closes.

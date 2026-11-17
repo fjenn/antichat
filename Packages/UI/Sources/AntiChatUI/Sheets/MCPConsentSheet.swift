@@ -72,7 +72,7 @@ struct MCPConsentSheet: View {
                 Button { onCancel(); dismiss() } label: { Text(CopyKey("conn.mcp.cancel")) }.keyboardShortcut(.cancelAction)
                     .controlSize(.large)
                     .probeID("mcpConsent.cancel")
-                Button { onAllow(); dismiss() } label: { Text(CopyKey("conn.mcp.allow")) }.keyboardShortcut(.defaultAction)
+                Button { onAllow(); dismiss() } label: { Text(CopyKey("conn.mcp.allow")) }.keyboardShortcut(.defaultAction).buttonStyle(.primary)
                     .controlSize(.large)
                     .probeID("mcpConsent.allow")
             }

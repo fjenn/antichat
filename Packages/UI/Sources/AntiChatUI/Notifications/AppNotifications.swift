@@ -191,10 +191,10 @@ public enum AppNotifications {
             }
         case .capabilities:
             SettingsNavigator.shared.request(.capabilities)
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsPresenter.shared.show()
         case .updates:
-            SettingsNavigator.shared.request(.updates)
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsNavigator.shared.request(.general, row: "updates.check")
+            SettingsPresenter.shared.show()
         case .app:
             withWindow { s in if let w = s.window { BackgroundRun.makeKeyAndOrderFront(w) } }
         }
@@ -244,7 +244,7 @@ public final class PermissionExplainers {
     public static let shared = PermissionExplainers()
 
     /// The kind whose explainer is on screen (nil = none).
-    public private(set) var pending: PermissionRequestKind?
+    public internal(set) var pending: PermissionRequestKind?
     @ObservationIgnored private var answer: CheckedContinuation<Bool, Never>?
     /// DEBUG / probe: answers instead of waiting for a click (nil = wait).
     @ObservationIgnored public var scriptedAnswer: Bool?

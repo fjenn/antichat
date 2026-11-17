@@ -19,6 +19,9 @@ public struct RelayConnection: Sendable, Equatable, Decodable {
 public struct RelayConnections: Sendable, Equatable, Decodable {
     public var toolkits: [String]
     public var connections: [RelayConnection]
+    /// The relay links every toolkit, not only `toolkits` (absent on a relay from before the app catalogue).
+    public var all: Bool?
+    public var linksAll: Bool { all == true || toolkits.contains("*") }
 }
 
 public struct RelayClient: Sendable {
@@ -72,6 +75,9 @@ public struct RelayClient: Sendable {
     /// The MCP endpoint (the Composio row's `url_or_cmd`).
     public var mcpURL: URL { baseURL.appending(path: "v1/mcp") }
 
+    /// Whether this install already has its ID (it has used Connections before); never creates one.
+    public var hasInstallID: Bool { installID.existing != nil }
+
     /// §8.2 headers (creates the install ID: only call from a Connections action).
     public func headers() throws -> [String: String] {
         ["X-AntiChat-Install": try installID.current(), "X-AntiChat-Version": version, "User-Agent": "AntiChat/\(version)"]
@@ -96,7 +102,11 @@ public struct RelayClient: Sendable {
     /// The hosted sign-in URL for `toolkit` (opened in the user's browser).
     public func link(toolkit: String) async throws -> URL {
         let body = try JSONSerialization.data(withJSONObject: ["toolkit": toolkit])
-        let (d, _) = try await send("POST", "v1/connections/link", body: body)
+        let d: Data
+        do { d = try await send("POST", "v1/connections/link", body: body).0 } catch let e as AntiChatError where e.detail == "relay HTTP 400" {
+            // The relay's allow-list does not have this app (`relay.badRequest`): a plain sentence, not a failure code.
+            throw AntiChatError(domain: .relay, code: "appUnavailable", userMessageKey: "conn.unavailable", recovery: [], detail: toolkit)
+        }
         guard let o = (try? JSONSerialization.jsonObject(with: d)) as? [String: Any], let s = o["url"] as? String,
               let u = URL(string: s), ["https", "http"].contains(u.scheme ?? "") else {
             throw AntiChatError(.toolFailed, detail: "relay link: bad body")
@@ -110,27 +120,42 @@ public struct RelayClient: Sendable {
     }
 
     /// Deletes this install's Composio user and cached state (Remove everything / Uninstall), then the local ID.
-    /// Without a stored ID there is nothing to forget and no request is made.
+    /// Without a stored ID there is nothing to forget and no request is made. The user's own action, so it goes out
+    /// although the relay category is still off (an ID that opening Connections created, no app connected yet);
+    /// Offline only refuses it.
     public func forget() async throws {
         guard installID.existing != nil else { return }
-        _ = try await send("POST", "v1/forget")
+        _ = try await send("POST", "v1/forget", userOpened: true)
         installID.delete()
+    }
+
+    /// The apps that exist right now (`GET /v1/toolkits`): the body as the relay sent it and its ETag; nil = not
+    /// modified since `etag`. A relay from before this route answers 404, which throws like any failure.
+    /// `userOpened`: the user opened Connections, so the request may go out before any app is connected (the relay
+    /// category is off until then; `NetworkGate.userOpened`). Offline only refuses it either way.
+    public func toolkits(etag: String? = nil, userOpened: Bool = false) async throws -> (data: Data, etag: String?)? {
+        let (d, http) = try await send("GET", "v1/toolkits", extra: etag.map { ["If-None-Match": $0] } ?? [:], accept: [304],
+                                       userOpened: userOpened)
+        return http.statusCode == 304 ? nil : (d, http.value(forHTTPHeaderField: "ETag"))
     }
 
     // MARK: Transport
 
-    func send(_ method: String, _ path: String, body: Data? = nil, auth: Bool = true) async throws -> (Data, HTTPURLResponse) {
+    func send(_ method: String, _ path: String, body: Data? = nil, auth: Bool = true, extra: [String: String] = [:],
+              accept: Set<Int> = [], userOpened: Bool = false) async throws -> (Data, HTTPURLResponse) {
         var r = URLRequest(url: baseURL.appending(path: path))
         r.httpMethod = method
         r.timeoutInterval = 30
+        if !accept.isEmpty { r.cachePolicy = .reloadIgnoringLocalCacheData }  // our own conditional request, not URLCache's
         if auth { for (k, v) in try headers() { r.setValue(v, forHTTPHeaderField: k) } }
+        for (k, v) in extra { r.setValue(v, forHTTPHeaderField: k) }
         if let body {
             r.httpBody = body
             r.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
-        let (d, resp) = try await session().data(for: r)
+        let (d, resp) = try await session().data(for: userOpened ? NetworkGate.userOpened(r) : r)
         guard let http = resp as? HTTPURLResponse else { throw AntiChatError(.toolFailed, detail: "relay: no HTTP response") }
-        if (200..<300).contains(http.statusCode) { return (d, http) }
+        if (200..<300).contains(http.statusCode) || accept.contains(http.statusCode) { return (d, http) }
         throw Self.error(status: http.statusCode, body: d, retryAfter: http.value(forHTTPHeaderField: "Retry-After"))
     }
 

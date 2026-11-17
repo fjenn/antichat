@@ -41,7 +41,7 @@ struct LegalSheet: View {
                 } label: { Text(CopyKey("legal.viewOnline")) }
                     .accessibilityIdentifier("legal.viewOnline")
                 Spacer()
-                Button(action: onClose) { Text(CopyKey("systemReport.close")) }.keyboardShortcut(.defaultAction)
+                Button(action: onClose) { Text(CopyKey("systemReport.close")) }.keyboardShortcut(.defaultAction).buttonStyle(.primary)
             }
         }
         .padding(Spacing.space5)

@@ -435,7 +435,12 @@ def probe_launch(a, metric: str) -> ProbeResult:
     """U1 launch loop. Primary = cold (or warm-ish), variant 'warm' = back-to-back relaunch."""
     exe = os.path.join(a.app, "Contents/MacOS/AntiChat")
     if not os.access(exe, os.X_OK):
-        raise RuntimeError(f"{exe} missing: run make build (or make build-release) first")
+        raise RuntimeError(f"{exe} missing: run make build-perf first")
+    # A release build carries no developer hooks (tools/ci/dev-modes-guard.py): it reads neither ANTICHAT_PERF_LOG nor
+    # ANTICHAT_PERF_QUIT_AFTER, so it would never record launchToUsable and never quit. U1 is measured on the
+    # perf-harness build (Release optimisation + the hooks; make build-perf), which never ships.
+    if app_build(a.app).get("config") == "Release":
+        raise RuntimeError(f"{a.app} is a release build (no perf hooks): measure U1 with the perf-harness app (make build-perf)")
     # M9.T05 prep: a dev-container launch is a BackgroundRun (LaunchOptions.isAutomationRun): the app never activates,
     # the composer never becomes first responder and no launchToUsable is ever recorded (n = 0 since BackgroundRun
     # landed). NFR-U1 is a foreground launch by definition, so it takes focus: only with ANTICHAT_PERF_FOREGROUND=1
@@ -452,7 +457,7 @@ def probe_launch(a, metric: str) -> ProbeResult:
     def launch(tag: str) -> float | None:
         before = len(read_log(log, "launchToUsable")) if os.path.exists(log) else 0
         env = dict(os.environ, ANTICHAT_PERF_LOG=log, ANTICHAT_PERF_QUIT_AFTER="launchToUsable", ANTICHAT_BACKGROUND="0")
-        # Debug builds honour -ANTICHAT_DEV_CONTAINER (an empty temp container); Release ignores it.
+        # Debug and perf-harness builds honour -ANTICHAT_DEV_CONTAINER (an empty temp container).
         # -ApplePersistenceIgnoreState: a killed or quit previous run must not restore its window state (without it
         # the restored window never focused the composer in the 2026-10-30 smoke run).
         p = subprocess.Popen([exe, "-ApplePersistenceIgnoreState", "YES", "-ANTICHAT_DEV_CONTAINER", container, "-SkipOnboarding", "YES"], env=env,

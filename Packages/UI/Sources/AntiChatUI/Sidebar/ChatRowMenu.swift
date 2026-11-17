@@ -12,8 +12,8 @@ struct ChatMenuItems: View {
     let chat: ChatSummary
     let state: WindowState
     var deleteAnchor: WindowState.PendingDelete.Anchor = .row
-    /// M1.T24: the main menu (Edit › Rename / Pin / Archive / Delete) dispatches the shortcuts; kept for callers.
-    var bindsShortcuts = false
+    /// The toolbar's ⋯ menu leaves Export out: the Share button beside it is the one entry point there.
+    var showsExport = true
 
     var body: some View {
         Button { state.renamingChatID = chat.id } label: { Text(CopyKey("row.rename")) }
@@ -21,6 +21,7 @@ struct ChatMenuItems: View {
         Button { state.togglePin(chat.id) } label: { Text(chat.pinned ? CopyKey("row.unpin") : CopyKey("row.pin")) }
             .accessibilityIdentifier("menu.pin")
         MoveToProjectMenu(chatID: chat.id, currentProjectID: chat.projectID, state: state)  // M8.T04
+        if showsExport {
         Menu {
             if FeatureFlag.exportAll.isEnabled() {  // M8.T07 step 5: the Share menu's items, then the tree JSON (R-296)
                 ShareMenuItems(chatID: chat.id, database: state.service.database)
@@ -32,6 +33,7 @@ struct ChatMenuItems: View {
             Button { ChatExporter.save(chat, as: .json, state: state) } label: { Text(CopyKey("row.export.json")) }
                 .accessibilityIdentifier("menu.export.json")
         } label: { Text(CopyKey("row.export")) }
+        }
         Button {  // M6.T13 (R-017 AC2)
             if state.currentChatID != chat.id { state.open(.chat(chat.id)) }
             state.presentedSheet = .filesInChat

@@ -1,0 +1,52 @@
+# tools/ci/dev-modes-guard.py allow-list: reads of launch arguments, environment variables and literal defaults keys
+# that a RELEASE build legitimately contains. Everything else of that kind is developer-only and lives inside
+# `#if DEBUG || ANTICHAT_PERF_HARNESS`. Add a line only for something a user's app needs; never for a test hook.
+# Format: <path>  <token>  # <reason>      (token: the literal name, or `arguments` / `environment`)
+
+# --- the app's own process plumbing (set by the app for itself or its children, never by a user) ---
+App/EngineHelper/main.swift  environment  # the standby trampoline tells the helper which XPC service name to serve (M1.T12)
+App/EngineHelper/main.swift  ANTICHAT_ENGINE_SERVICE  # same: read once, then unset so engine children never inherit it
+App/EngineStandby/main.swift  ANTICHAT_ENGINE_SERVICE  # the trampoline sets it before re-executing the helper binary
+Packages/EngineHost/Sources/AntiChatEngineHost/EngineListener.swift  arguments  # argv[0] only: the helper's own path for the watchdog re-exec
+Packages/Engines/Sources/AntiChatEngines/LLM/LlamaWatchdog.swift  arguments  # `--llama-watchdog <pgid>`: the helper re-executes itself as the llama-server watchdog
+Packages/Engines/Sources/AntiChatEngines/LLM/LlamaWatchdog.swift  environment  # the bundled watchdog's path, passed by the app to its own helper
+Packages/Engines/Sources/AntiChatEngines/LLM/LlamaWatchdog.swift  ANTICHAT_LLAMA_WATCHDOG  # the name of that variable
+Packages/Engines/Sources/AntiChatEngines/Video/VideoRuntimeProcess.swift  ANTICHAT_VIDEO_TOKEN  # the per-run secret handed to the video runtime child (set, never read from the user's shell)
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/FileToolsService.swift  environment  # APP_SANDBOX_CONTAINER_ID: is this service really sandboxed (fail closed otherwise)
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/Launcher.swift  ANTICHAT_SCRATCH  # set for the jailed File tools child
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/Launcher.swift  ANTICHAT_FILETOOLS_NETWORK  # set for the jailed File tools child
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/Launcher.swift  ANTICHAT_LIMITS  # set for the jailed File tools child
+Packages/FileToolsHost/Sources/AntiChatFileToolsHost/Launcher.swift  ANTICHAT_RUN_CPU_SECONDS  # set for the jailed File tools child
+Packages/UI/Sources/AntiChatUI/Failure/NewerDataWindow.swift  arguments  # the app relaunching itself (Restart after an update, a moved Models folder, Remove everything)
+Packages/UI/Sources/AntiChatUI/Failure/NewerDataWindow.swift  -RelaunchAfterPID  # same: the new instance waits for the old one to exit
+Packages/UI/Sources/AntiChatUI/Failure/NewerDataWindow.swift  -RelaunchSweepData  # same: the relaunch after Remove everything finishes the sweep
+
+# --- macOS's own defaults keys (system settings the app follows) ---
+Packages/Design/Sources/AntiChatDesign/Environment/AppearanceEnvironment.swift  AppleInterfaceStyle  # the system's light/dark setting
+Packages/Design/Sources/AntiChatDesign/Tokens/DesignBundle.swift  AppleAccentColor  # the system accent colour
+Packages/Foundation/Sources/AntiChatFoundation/Locale/AppLanguage.swift  AppleLanguages  # Settings › Language writes the per-app language macOS reads
+Packages/Platform/Sources/AntiChatPlatform/Updates/UpdaterService.swift  SULastCheckTime  # Sparkle's last-check date shown in Settings › Updates
+Packages/UI/Sources/AntiChatUI/Window/LastShownChats.swift  NSQuitAlwaysKeepsWindows  # System Settings › "Close windows when quitting an application"
+Packages/UI/Sources/AntiChatUI/Window/LastShownChats.swift  ApplePersistenceIgnoreState  # AppKit's own "do not restore windows" switch
+
+# --- a settings key written as a literal ---
+Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryTool.swift  memoryMode  # Settings › Memory (the Keys.swift name, repeated below the UI layer)
+
+# --- signatures whose default argument is the environment; the developer-only reads inside are gated ---
+Packages/Foundation/Sources/AntiChatFoundation/Debug/LaunchOptions.swift  arguments  # `parse` is compiled to "no options" in a release
+Packages/Foundation/Sources/AntiChatFoundation/Perf/PerfRecorder.swift  environment  # ANTICHAT_PERF_LOG / _QUIT_AFTER are read only inside the gate
+Packages/Foundation/Sources/AntiChatFoundation/Settings/AppDefaults.swift  environment  # XCTest host detection (never true for a user's app)
+Packages/Platform/Sources/AntiChatPlatform/Storage/DataPaths.swift  environment  # ANTICHAT_ROOT / ANTICHAT_MODELS_FOLDER are read only inside the gate
+Packages/UI/Sources/AntiChatUI/Window/BackgroundRun.swift  environment  # `wanted` is false and `policy` fixed in a release
+Packages/UI/Sources/AntiChatUI/Window/BackgroundRun.swift  ANTICHAT_BACKGROUND  # the name only; its read is gated
+Packages/UI/Sources/AntiChatUI/Window/BackgroundRun.swift  ANTICHAT_BACKGROUND_POLICY  # the name only; its read is gated
+Packages/UI/Sources/AntiChatUI/Window/LastShownChats.swift  environment  # XCTest host detection (never true for a user's app)
+
+# --- KNOWN GAPS, not yet gated: Packages/Harness was frozen for another task when this guard landed. Each of these is a
+# --- developer-only read still compiled into a release; gate it and delete its line.
+Packages/Harness/Sources/AntiChatHarness/Engine/EngineService.swift  environment  # GAP: default argument of appFitGuard / devFitGuard
+Packages/Harness/Sources/AntiChatHarness/Engine/EngineService.swift  ANTICHAT_DEV_CATALOG  # GAP: the dev catalog's memory-fit guard is reachable in a release
+Packages/Harness/Sources/AntiChatHarness/Engine/MemoryFitGuard.swift  environment  # GAP: devResolver reads the dev model cache
+Packages/Harness/Sources/AntiChatHarness/Engine/MemoryFitGuard.swift  ANTICHAT_DEV_CACHE  # GAP: same
+Packages/Harness/Sources/AntiChatHarness/Voice/DictationController.swift  environment  # GAP: fixture lookup for a scripted voice script (unreachable: no script without launch options)
+Packages/Harness/Sources/AntiChatHarness/Voice/DictationController.swift  ANTICHAT_FIXTURES  # GAP: same

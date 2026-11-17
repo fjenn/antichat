@@ -1,0 +1,1537 @@
+{
+ "sources": [
+  {
+   "id": "anthropic-work",
+   "repo": "anthropics/knowledge-work-plugins",
+   "author": "Anthropic",
+   "license": "Apache-2.0",
+   "commit": "e91a134584eb798bac7fb0379358006a2b63b965"
+  },
+  {
+   "id": "anthropic",
+   "repo": "anthropics/skills",
+   "author": "Anthropic",
+   "license": "Apache-2.0",
+   "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba"
+  },
+  {
+   "id": "rezvani",
+   "repo": "alirezarezvani/claude-skills",
+   "author": "Alireza Rezvani",
+   "license": "MIT",
+   "commit": "4680893d91f2aee6f77ca1519fd1b86b7a104c87"
+  }
+ ],
+ "categories": [
+  {
+   "id": "writing",
+   "title": "Writing"
+  },
+  {
+   "id": "marketing",
+   "title": "Marketing & social"
+  },
+  {
+   "id": "sales",
+   "title": "Sales & customers"
+  },
+  {
+   "id": "business",
+   "title": "Business & strategy"
+  },
+  {
+   "id": "finance",
+   "title": "Money & finance"
+  },
+  {
+   "id": "data",
+   "title": "Data & charts"
+  },
+  {
+   "id": "research",
+   "title": "Research & learning"
+  },
+  {
+   "id": "people",
+   "title": "Hiring & people"
+  },
+  {
+   "id": "legal",
+   "title": "Legal & contracts"
+  },
+  {
+   "id": "product",
+   "title": "Product & design"
+  },
+  {
+   "id": "planning",
+   "title": "Planning & productivity"
+  },
+  {
+   "id": "other",
+   "title": "Other"
+  }
+ ],
+ "skills": {
+  "anthropic-work/bio-research/skills/scientific-problem-selection": {
+   "category": "research",
+   "title": "Research Problem Picker",
+   "summary": "Choose and sharpen a scientific research question"
+  },
+  "anthropic-work/customer-support/skills/customer-escalation": {
+   "category": "sales",
+   "title": "Customer Escalation",
+   "summary": "Write up a customer problem for the team that can fix it"
+  },
+  "anthropic-work/customer-support/skills/customer-research": {
+   "category": "sales",
+   "title": "Customer Question Research",
+   "summary": "Research a customer question and cite the sources"
+  },
+  "anthropic-work/customer-support/skills/draft-response": {
+   "category": "sales",
+   "title": "Customer Reply",
+   "summary": "Draft a clear, professional reply to a customer",
+   "featured": 8
+  },
+  "anthropic-work/customer-support/skills/kb-article": {
+   "category": "sales",
+   "title": "Help Article",
+   "summary": "Turn a solved problem into a help centre article"
+  },
+  "anthropic-work/customer-support/skills/ticket-triage": {
+   "category": "sales",
+   "title": "Support Ticket Triage",
+   "summary": "Sort and prioritise an incoming support request"
+  },
+  "anthropic-work/data/skills/analyze": {
+   "category": "data",
+   "title": "Data Questions",
+   "summary": "Answer questions about your data, quick or in depth",
+   "featured": 3
+  },
+  "anthropic-work/data/skills/create-viz": {
+   "category": "data",
+   "title": "Chart Maker",
+   "summary": "Turn your numbers into a clean, readable chart",
+   "featured": 6
+  },
+  "anthropic-work/data/skills/data-visualization": {
+   "category": "data",
+   "title": "Chart Design Guide",
+   "summary": "Pick the right chart and make it easy to read"
+  },
+  "anthropic-work/data/skills/explore-data": {
+   "category": "data",
+   "title": "Data Explorer",
+   "summary": "Profile a new data file for shape, quality and patterns"
+  },
+  "anthropic-work/data/skills/statistical-analysis": {
+   "category": "data",
+   "title": "Statistics Helper",
+   "summary": "Run trends, outliers and significance tests on your data"
+  },
+  "anthropic-work/data/skills/validate-data": {
+   "category": "data",
+   "title": "Analysis Check",
+   "summary": "Double-check an analysis before you share it"
+  },
+  "anthropic-work/design/skills/accessibility-review": {
+   "category": "product",
+   "title": "Accessibility Review",
+   "summary": "Check a design or page against accessibility standards"
+  },
+  "anthropic-work/design/skills/design-critique": {
+   "category": "product",
+   "title": "Design Feedback",
+   "summary": "Get structured feedback on a design"
+  },
+  "anthropic-work/design/skills/research-synthesis": {
+   "category": "product",
+   "title": "User Research Synthesis",
+   "summary": "Turn interviews and surveys into themes and insights"
+  },
+  "anthropic-work/design/skills/user-research": {
+   "category": "product",
+   "title": "User Research Planner",
+   "summary": "Plan interviews, surveys and usability tests"
+  },
+  "anthropic-work/design/skills/ux-copy": {
+   "category": "product",
+   "title": "App Wording",
+   "summary": "Write buttons, error messages and other interface text"
+  },
+  "anthropic-work/finance/skills/close-management": {
+   "category": "finance",
+   "title": "Month-End Close Planner",
+   "summary": "Plan and track the tasks of a month-end close"
+  },
+  "anthropic-work/finance/skills/financial-statements": {
+   "category": "finance",
+   "title": "Financial Statements",
+   "summary": "Build income, balance sheet and cash flow statements"
+  },
+  "anthropic-work/finance/skills/journal-entry-prep": {
+   "category": "finance",
+   "title": "Journal Entries",
+   "summary": "Prepare journal entries with debits, credits and support"
+  },
+  "anthropic-work/finance/skills/reconciliation": {
+   "category": "finance",
+   "title": "Account Reconciliation",
+   "summary": "Match ledger balances to bank and other records"
+  },
+  "anthropic-work/finance/skills/variance-analysis": {
+   "category": "finance",
+   "title": "Budget Variance",
+   "summary": "Explain what drove the gap between plan and actual"
+  },
+  "anthropic-work/human-resources/skills/comp-analysis": {
+   "category": "people",
+   "title": "Pay Benchmarking",
+   "summary": "Compare pay against the market and plan salary bands"
+  },
+  "anthropic-work/human-resources/skills/draft-offer": {
+   "category": "people",
+   "title": "Job Offer Letter",
+   "summary": "Draft an offer letter with pay and terms"
+  },
+  "anthropic-work/human-resources/skills/interview-prep": {
+   "category": "people",
+   "title": "Interview Plan",
+   "summary": "Build interview questions and a scorecard for a role",
+   "featured": 10
+  },
+  "anthropic-work/human-resources/skills/onboarding": {
+   "category": "people",
+   "title": "New Hire Onboarding",
+   "summary": "Create a checklist and first-week plan for a new hire"
+  },
+  "anthropic-work/human-resources/skills/org-planning": {
+   "category": "people",
+   "title": "Team Structure Planner",
+   "summary": "Plan headcount and how a team is organised"
+  },
+  "anthropic-work/human-resources/skills/people-report": {
+   "category": "people",
+   "title": "People Report",
+   "summary": "Report on headcount, turnover and team health"
+  },
+  "anthropic-work/human-resources/skills/performance-review": {
+   "category": "people",
+   "title": "Performance Review",
+   "summary": "Structure a fair, useful performance review",
+   "featured": 9
+  },
+  "anthropic-work/human-resources/skills/recruiting-pipeline": {
+   "category": "people",
+   "title": "Hiring Tracker",
+   "summary": "Track candidates through each hiring stage"
+  },
+  "anthropic-work/legal/skills/brief": {
+   "category": "legal",
+   "title": "Legal Briefing",
+   "summary": "Get a briefing on a legal topic or incident"
+  },
+  "anthropic-work/legal/skills/compliance-check": {
+   "category": "legal",
+   "title": "Compliance Check",
+   "summary": "Find the rules that apply to a planned action"
+  },
+  "anthropic-work/legal/skills/legal-risk-assessment": {
+   "category": "legal",
+   "title": "Legal Risk Rating",
+   "summary": "Rate a legal risk by severity and likelihood"
+  },
+  "anthropic-work/legal/skills/meeting-briefing": {
+   "category": "legal",
+   "title": "Legal Meeting Prep",
+   "summary": "Prepare for a meeting with legal stakes and track actions"
+  },
+  "anthropic-work/legal/skills/review-contract": {
+   "category": "legal",
+   "title": "Contract Review",
+   "summary": "Review a contract and flag terms to push back on",
+   "featured": 2
+  },
+  "anthropic-work/legal/skills/triage-nda": {
+   "category": "legal",
+   "title": "NDA Check",
+   "summary": "Sort an NDA into sign, review or escalate"
+  },
+  "anthropic-work/marketing/skills/brand-review": {
+   "category": "marketing",
+   "title": "Brand Voice Check",
+   "summary": "Check content against your brand voice and style"
+  },
+  "anthropic-work/marketing/skills/campaign-plan": {
+   "category": "marketing",
+   "title": "Campaign Plan",
+   "summary": "Plan a campaign with audience, channels and calendar",
+   "featured": 7
+  },
+  "anthropic-work/marketing/skills/competitive-brief": {
+   "category": "marketing",
+   "title": "Competitor Brief",
+   "summary": "Compare competitors' positioning and find gaps"
+  },
+  "anthropic-work/marketing/skills/content-creation": {
+   "category": "marketing",
+   "title": "Marketing Content Guide",
+   "summary": "Write posts, newsletters and pages that fit each channel"
+  },
+  "anthropic-work/marketing/skills/draft-content": {
+   "category": "marketing",
+   "title": "Content Draft",
+   "summary": "Draft a blog post, newsletter, press release or case study"
+  },
+  "anthropic-work/marketing/skills/email-sequence": {
+   "category": "marketing",
+   "title": "Email Sequence",
+   "summary": "Write a series of emails with timing and follow-ups"
+  },
+  "anthropic-work/marketing/skills/performance-report": {
+   "category": "marketing",
+   "title": "Marketing Report",
+   "summary": "Report on marketing results, trends and next steps"
+  },
+  "anthropic-work/marketing/skills/seo-audit": {
+   "category": "marketing",
+   "title": "SEO Audit",
+   "summary": "Audit a site's search visibility and list fixes"
+  },
+  "anthropic-work/operations/skills/capacity-plan": {
+   "category": "planning",
+   "title": "Workload Planner",
+   "summary": "Plan team workload and spot capacity gaps"
+  },
+  "anthropic-work/operations/skills/change-request": {
+   "category": "planning",
+   "title": "Change Request",
+   "summary": "Write up a change with impact analysis and rollback plan"
+  },
+  "anthropic-work/operations/skills/compliance-tracking": {
+   "category": "planning",
+   "title": "Compliance Tracker",
+   "summary": "Track compliance requirements and audit readiness"
+  },
+  "anthropic-work/operations/skills/process-doc": {
+   "category": "planning",
+   "title": "Process Document",
+   "summary": "Document a process as steps, roles and a flowchart"
+  },
+  "anthropic-work/operations/skills/process-optimization": {
+   "category": "planning",
+   "title": "Process Improver",
+   "summary": "Find the bottlenecks in a process and streamline it"
+  },
+  "anthropic-work/operations/skills/risk-assessment": {
+   "category": "planning",
+   "title": "Risk Assessment",
+   "summary": "Identify, rate and plan for operational risks"
+  },
+  "anthropic-work/operations/skills/runbook": {
+   "category": "planning",
+   "title": "How-To Runbook",
+   "summary": "Write step-by-step instructions for a recurring task"
+  },
+  "anthropic-work/operations/skills/status-report": {
+   "category": "planning",
+   "title": "Status Report",
+   "summary": "Write a status update with progress, risks and actions",
+   "featured": 5
+  },
+  "anthropic-work/operations/skills/vendor-review": {
+   "category": "planning",
+   "title": "Vendor Review",
+   "summary": "Evaluate a supplier on cost, risk and fit"
+  },
+  "anthropic-work/product-management/skills/metrics-review": {
+   "category": "product",
+   "title": "Product Metrics Review",
+   "summary": "Review product numbers and what they mean"
+  },
+  "anthropic-work/product-management/skills/product-brainstorming": {
+   "category": "product",
+   "title": "Product Brainstorm",
+   "summary": "Explore product ideas and challenge assumptions"
+  },
+  "anthropic-work/product-management/skills/roadmap-update": {
+   "category": "product",
+   "title": "Roadmap Update",
+   "summary": "Create or reprioritise a product roadmap"
+  },
+  "anthropic-work/product-management/skills/sprint-planning": {
+   "category": "product",
+   "title": "Sprint Planning",
+   "summary": "Scope the work and set goals for the next sprint"
+  },
+  "anthropic-work/product-management/skills/stakeholder-update": {
+   "category": "product",
+   "title": "Stakeholder Update",
+   "summary": "Write an update tailored to who is reading it"
+  },
+  "anthropic-work/product-management/skills/synthesize-research": {
+   "category": "product",
+   "title": "Research Insights",
+   "summary": "Turn user feedback into structured insights"
+  },
+  "anthropic-work/product-management/skills/write-spec": {
+   "category": "product",
+   "title": "Product Spec",
+   "summary": "Turn an idea into a clear feature spec"
+  },
+  "anthropic-work/sales/skills/account-plan": {
+   "category": "sales",
+   "title": "Account Plan",
+   "summary": "Build a plan for growing a key customer account"
+  },
+  "anthropic-work/sales/skills/account-research": {
+   "category": "sales",
+   "title": "Company Research",
+   "summary": "Research a company and contact before reaching out"
+  },
+  "anthropic-work/sales/skills/account-tiering": {
+   "category": "sales",
+   "title": "Account Scoring",
+   "summary": "Score and rank a list of accounts by fit"
+  },
+  "anthropic-work/sales/skills/call-prep": {
+   "category": "sales",
+   "title": "Call Prep",
+   "summary": "Get a brief ready before a customer meeting"
+  },
+  "anthropic-work/sales/skills/call-summary": {
+   "category": "sales",
+   "title": "Call Summary",
+   "summary": "Turn call notes into a summary and follow-up email"
+  },
+  "anthropic-work/sales/skills/close-plan": {
+   "category": "sales",
+   "title": "Deal Close Plan",
+   "summary": "Build the business case and action plan to close a deal"
+  },
+  "anthropic-work/sales/skills/competitive-intelligence": {
+   "category": "sales",
+   "title": "Competitor Battlecard",
+   "summary": "Position against a competitor in a live deal"
+  },
+  "anthropic-work/sales/skills/create-an-asset": {
+   "category": "sales",
+   "title": "Sales One-Pager",
+   "summary": "Build a customer deck or one-pager from your notes"
+  },
+  "anthropic-work/sales/skills/deal-slip-scenario": {
+   "category": "sales",
+   "title": "Deal Slip Scenarios",
+   "summary": "See what a slipped deal does to your sales target"
+  },
+  "anthropic-work/sales/skills/draft-outreach": {
+   "category": "sales",
+   "title": "Outreach Email",
+   "summary": "Draft a personal first email to a prospect"
+  },
+  "anthropic-work/sales/skills/forecast": {
+   "category": "sales",
+   "title": "Sales Forecast",
+   "summary": "Write up commit, best case and pipeline for a forecast"
+  },
+  "anthropic-work/sales/skills/handle-objection": {
+   "category": "sales",
+   "title": "Objection Handling",
+   "summary": "Work out a response to a buyer's objection"
+  },
+  "anthropic-work/sales/skills/lead-triage": {
+   "category": "sales",
+   "title": "Lead Scoring",
+   "summary": "Score and rank new leads against your ideal customer"
+  },
+  "anthropic-work/sales/skills/pipeline-review": {
+   "category": "sales",
+   "title": "Pipeline Review",
+   "summary": "Check pipeline health stage by stage"
+  },
+  "anthropic-work/sales/skills/stakeholder-map": {
+   "category": "sales",
+   "title": "Stakeholder Map",
+   "summary": "Map who matters in a deal and how to reach them"
+  },
+  "anthropic-work/sales/skills/win-loss-review": {
+   "category": "sales",
+   "title": "Win-Loss Review",
+   "summary": "Find patterns in the deals you win and lose"
+  },
+  "anthropic/skills/internal-comms": {
+   "category": "writing",
+   "title": "Internal Updates",
+   "summary": "Write status updates, newsletters and FAQs for your team",
+   "featured": 4
+  },
+  "anthropic/skills/theme-factory": {
+   "category": "writing",
+   "title": "Theme Picker",
+   "summary": "Style slides and documents with a ready-made theme"
+  },
+  "rezvani/business-growth/skills/contract-and-proposal-writer": {
+   "category": "legal",
+   "title": "Contract and Proposal Writer",
+   "summary": "Draft a freelance contract, proposal or NDA"
+  },
+  "rezvani/business-growth/skills/customer-success-manager": {
+   "category": "sales",
+   "title": "Customer Health Score",
+   "summary": "Score customer health, churn risk and growth potential"
+  },
+  "rezvani/business-growth/skills/revenue-operations": {
+   "category": "sales",
+   "title": "Revenue Metrics",
+   "summary": "Check pipeline coverage and forecast accuracy"
+  },
+  "rezvani/business-operations/skills/knowledge-ops": {
+   "category": "planning",
+   "title": "Procedure Writer",
+   "summary": "Write, check and tidy standard operating procedures"
+  },
+  "rezvani/business-operations/skills/process-mapper": {
+   "category": "planning",
+   "title": "Process Mapper",
+   "summary": "Map a business process end to end and find delays"
+  },
+  "rezvani/business-operations/skills/procurement-optimizer": {
+   "category": "business",
+   "title": "Spend Reducer",
+   "summary": "Find savings on software and supplier spend"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/board-prep": {
+   "category": "business",
+   "title": "Board Meeting Prep",
+   "summary": "Prepare for the hard questions before a board meeting"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/challenge": {
+   "category": "business",
+   "title": "Plan Pre-Mortem",
+   "summary": "Imagine the plan failed and work out why"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/executive-mentor": {
+   "category": "business",
+   "title": "Executive Mentor",
+   "summary": "Get a plan or tough decision pressure-tested"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/hard-call": {
+   "category": "business",
+   "title": "Hard Decision",
+   "summary": "Think through a decision where every option hurts"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/postmortem": {
+   "category": "business",
+   "title": "Blameless Review",
+   "summary": "Learn from a failure without blame"
+  },
+  "rezvani/c-level-advisor/executive-mentor/skills/stress-test": {
+   "category": "business",
+   "title": "Plan Stress Test",
+   "summary": "Test the assumptions a plan depends on"
+  },
+  "rezvani/c-level-advisor/skills/board-deck-builder": {
+   "category": "business",
+   "title": "Board Deck Builder",
+   "summary": "Structure a board deck or investor update"
+  },
+  "rezvani/c-level-advisor/skills/ceo-advisor": {
+   "category": "business",
+   "title": "CEO Advisor",
+   "summary": "Advice on running a company, boards and investors"
+  },
+  "rezvani/c-level-advisor/skills/cfo-advisor": {
+   "category": "finance",
+   "title": "Startup Finance Advisor",
+   "summary": "Work through runway, burn, unit economics and fundraising"
+  },
+  "rezvani/c-level-advisor/skills/change-management": {
+   "category": "business",
+   "title": "Change Rollout",
+   "summary": "Plan how to roll out a big change to your team"
+  },
+  "rezvani/c-level-advisor/skills/chief-customer-officer-advisor": {
+   "category": "sales",
+   "title": "Customer Retention Advisor",
+   "summary": "Advice on retention, segments and support team size"
+  },
+  "rezvani/c-level-advisor/skills/chro-advisor": {
+   "category": "people",
+   "title": "People Strategy Advisor",
+   "summary": "Advice on hiring plans, pay bands and retention"
+  },
+  "rezvani/c-level-advisor/skills/cmo-advisor": {
+   "category": "marketing",
+   "title": "Marketing Leadership Advisor",
+   "summary": "Advice on positioning, growth model and budget"
+  },
+  "rezvani/c-level-advisor/skills/company-os": {
+   "category": "business",
+   "title": "Company Operating System",
+   "summary": "Choose and set up how your company runs"
+  },
+  "rezvani/c-level-advisor/skills/coo-advisor": {
+   "category": "business",
+   "title": "Operations Advisor",
+   "summary": "Advice on process, goals and operating rhythm"
+  },
+  "rezvani/c-level-advisor/skills/cpo-advisor": {
+   "category": "product",
+   "title": "Product Leadership Advisor",
+   "summary": "Advice on product-market fit, vision and portfolio"
+  },
+  "rezvani/c-level-advisor/skills/cro-advisor": {
+   "category": "sales",
+   "title": "Revenue Leadership Advisor",
+   "summary": "Advice on forecasting, quotas and sales model"
+  },
+  "rezvani/c-level-advisor/skills/culture-architect": {
+   "category": "people",
+   "title": "Company Culture",
+   "summary": "Define company values and turn them into behaviours"
+  },
+  "rezvani/c-level-advisor/skills/founder-coach": {
+   "category": "business",
+   "title": "Founder Coach",
+   "summary": "Coaching on delegation, burnout and growing as a leader"
+  },
+  "rezvani/c-level-advisor/skills/general-counsel-advisor": {
+   "category": "legal",
+   "title": "Startup Legal Advisor",
+   "summary": "Review contracts and term sheets and spot legal risk"
+  },
+  "rezvani/c-level-advisor/skills/internal-narrative": {
+   "category": "writing",
+   "title": "Company Story",
+   "summary": "Prepare an all-hands, investor update or crisis message"
+  },
+  "rezvani/c-level-advisor/skills/intl-expansion": {
+   "category": "business",
+   "title": "New Country Launch",
+   "summary": "Plan an expansion into a new country"
+  },
+  "rezvani/c-level-advisor/skills/ma-playbook": {
+   "category": "business",
+   "title": "Buying or Selling a Company",
+   "summary": "Work through diligence, valuation, terms and integration"
+  },
+  "rezvani/c-level-advisor/skills/org-health-diagnostic": {
+   "category": "business",
+   "title": "Company Health Check",
+   "summary": "Check the health of every part of the company"
+  },
+  "rezvani/c-level-advisor/skills/scenario-war-room": {
+   "category": "business",
+   "title": "What-If Scenarios",
+   "summary": "Plan for several things going wrong at once"
+  },
+  "rezvani/c-level-advisor/skills/strategic-alignment": {
+   "category": "business",
+   "title": "Goal Alignment",
+   "summary": "Find where teams' goals pull in different directions"
+  },
+  "rezvani/commercial/skills/commercial-forecaster": {
+   "category": "sales",
+   "title": "Revenue Forecast Builder",
+   "summary": "Build a bookings or revenue forecast with scenarios"
+  },
+  "rezvani/commercial/skills/deal-desk": {
+   "category": "sales",
+   "title": "Deal Review Desk",
+   "summary": "Review a discounted or non-standard deal before closing"
+  },
+  "rezvani/commercial/skills/partnerships-architect": {
+   "category": "business",
+   "title": "Partnership Planner",
+   "summary": "Decide whether and how to sign a partner"
+  },
+  "rezvani/commercial/skills/rfp-responder": {
+   "category": "sales",
+   "title": "RFP Responder",
+   "summary": "Break down a request for proposal and plan the response"
+  },
+  "rezvani/finance/business-investment-advisor/skills/business-investment-advisor": {
+   "category": "finance",
+   "title": "Investment Decision",
+   "summary": "Decide whether a big business purchase is worth it"
+  },
+  "rezvani/finance/skills/financial-analyst": {
+   "category": "finance",
+   "title": "Financial Analyst",
+   "summary": "Analyse statements, value a company and forecast",
+   "featured": 11
+  },
+  "rezvani/finance/skills/passive-deal-screener": {
+   "category": "finance",
+   "title": "Private Deal Screener",
+   "summary": "Screen a private investment deal for red flags"
+  },
+  "rezvani/finance/skills/saas-metrics-coach": {
+   "category": "finance",
+   "title": "Subscription Metrics Coach",
+   "summary": "Understand recurring revenue, churn and customer value"
+  },
+  "rezvani/marketing-skill/skills/ab-test-setup": {
+   "category": "marketing",
+   "title": "A/B Test Planner",
+   "summary": "Plan a split test and work out the sample size"
+  },
+  "rezvani/marketing-skill/skills/ad-creative": {
+   "category": "marketing",
+   "title": "Ad Copy",
+   "summary": "Write ad headlines and variations for each platform"
+  },
+  "rezvani/marketing-skill/skills/app-store-optimization": {
+   "category": "marketing",
+   "title": "App Store Listing",
+   "summary": "Improve an app's store listing, keywords and ranking"
+  },
+  "rezvani/marketing-skill/skills/brand-guidelines": {
+   "category": "marketing",
+   "title": "Brand Guidelines",
+   "summary": "Write brand rules for colour, type, logo and tone"
+  },
+  "rezvani/marketing-skill/skills/business-name-fit": {
+   "category": "marketing",
+   "title": "Name Checker",
+   "summary": "Test a company or product name, including abroad"
+  },
+  "rezvani/marketing-skill/skills/campaign-analytics": {
+   "category": "marketing",
+   "title": "Campaign Analytics",
+   "summary": "Work out return, cost per customer and attribution"
+  },
+  "rezvani/marketing-skill/skills/churn-prevention": {
+   "category": "marketing",
+   "title": "Cancellation Saver",
+   "summary": "Design cancel flows and offers that keep customers"
+  },
+  "rezvani/marketing-skill/skills/cold-email": {
+   "category": "marketing",
+   "title": "Cold Email",
+   "summary": "Write outreach emails and follow-ups that get replies"
+  },
+  "rezvani/marketing-skill/skills/competitor-alternatives": {
+   "category": "marketing",
+   "title": "Comparison Page",
+   "summary": "Write an honest \"us vs them\" comparison page"
+  },
+  "rezvani/marketing-skill/skills/content-production": {
+   "category": "writing",
+   "title": "Article Writer",
+   "summary": "Write a blog post or guide from research to final draft",
+   "featured": 1
+  },
+  "rezvani/marketing-skill/skills/copy-editing": {
+   "category": "writing",
+   "title": "Copy Editor",
+   "summary": "Edit and tighten existing copy in focused passes",
+   "featured": 12
+  },
+  "rezvani/marketing-skill/skills/copywriting": {
+   "category": "writing",
+   "title": "Copywriter",
+   "summary": "Write headlines, taglines and page copy that convert"
+  },
+  "rezvani/marketing-skill/skills/form-cro": {
+   "category": "marketing",
+   "title": "Form Improver",
+   "summary": "Fix a sign-up or contact form that people abandon"
+  },
+  "rezvani/marketing-skill/skills/free-tool-strategy": {
+   "category": "marketing",
+   "title": "Free Tool Ideas",
+   "summary": "Plan a free calculator or checker as a marketing asset"
+  },
+  "rezvani/marketing-skill/skills/launch-strategy": {
+   "category": "marketing",
+   "title": "Launch Plan",
+   "summary": "Plan a product launch phase by phase"
+  },
+  "rezvani/marketing-skill/skills/local-seo-manager": {
+   "category": "marketing",
+   "title": "Local SEO",
+   "summary": "Help a local business rank on Google Maps and search"
+  },
+  "rezvani/marketing-skill/skills/marketing-demand-acquisition": {
+   "category": "marketing",
+   "title": "Demand Generation",
+   "summary": "Plan paid and organic customer acquisition"
+  },
+  "rezvani/marketing-skill/skills/marketing-ideas": {
+   "category": "marketing",
+   "title": "Marketing Ideas",
+   "summary": "Get proven marketing ideas for a software product"
+  },
+  "rezvani/marketing-skill/skills/marketing-psychology": {
+   "category": "marketing",
+   "title": "Marketing Psychology",
+   "summary": "Apply behavioural science ethically to a page or offer"
+  },
+  "rezvani/marketing-skill/skills/marketing-strategy-pmm": {
+   "category": "marketing",
+   "title": "Positioning and Go-to-Market",
+   "summary": "Define positioning, ideal customer and launch plan"
+  },
+  "rezvani/marketing-skill/skills/onboarding-cro": {
+   "category": "marketing",
+   "title": "First-Run Experience",
+   "summary": "Help new users reach value sooner after sign-up"
+  },
+  "rezvani/marketing-skill/skills/paid-ads": {
+   "category": "marketing",
+   "title": "Paid Ads Strategy",
+   "summary": "Plan ad campaigns, targeting and budgets"
+  },
+  "rezvani/marketing-skill/skills/paywall-upgrade-cro": {
+   "category": "marketing",
+   "title": "Upgrade Screen",
+   "summary": "Design a paywall or upgrade prompt that converts"
+  },
+  "rezvani/marketing-skill/skills/popup-cro": {
+   "category": "marketing",
+   "title": "Popup Improver",
+   "summary": "Create popups and banners that convert without annoying"
+  },
+  "rezvani/marketing-skill/skills/pricing-strategy": {
+   "category": "marketing",
+   "title": "Pricing Strategy",
+   "summary": "Set pricing tiers, packaging and price changes"
+  },
+  "rezvani/marketing-skill/skills/referral-program": {
+   "category": "marketing",
+   "title": "Referral Programme",
+   "summary": "Design a referral or affiliate programme"
+  },
+  "rezvani/marketing-skill/skills/signup-flow-cro": {
+   "category": "marketing",
+   "title": "Sign-Up Flow",
+   "summary": "Fix a sign-up flow that loses people"
+  },
+  "rezvani/marketing-skill/skills/social-content": {
+   "category": "marketing",
+   "title": "Social Posts",
+   "summary": "Write posts tailored to each social platform"
+  },
+  "rezvani/marketing-skill/skills/social-media-analyzer": {
+   "category": "marketing",
+   "title": "Social Media Analytics",
+   "summary": "Score social performance against benchmarks"
+  },
+  "rezvani/marketing-skill/skills/social-media-manager": {
+   "category": "marketing",
+   "title": "Social Media Planner",
+   "summary": "Plan social strategy and a content calendar"
+  },
+  "rezvani/marketing-skill/skills/webinar-marketing": {
+   "category": "marketing",
+   "title": "Webinar Planner",
+   "summary": "Plan and promote a webinar or online event"
+  },
+  "rezvani/marketing-skill/skills/x-twitter-growth": {
+   "category": "marketing",
+   "title": "X Growth",
+   "summary": "Write posts and threads and plan growth on X"
+  },
+  "rezvani/marketing-skill/video-content-strategist/skills/video-content-strategist": {
+   "category": "marketing",
+   "title": "Video Strategy",
+   "summary": "Plan video topics, scripts and short-form clips"
+  },
+  "rezvani/marketing/linkedin/skills/linkedin-analytics": {
+   "category": "marketing",
+   "title": "LinkedIn Analytics",
+   "summary": "Find out which LinkedIn posts worked and why"
+  },
+  "rezvani/marketing/linkedin/skills/linkedin-content": {
+   "category": "marketing",
+   "title": "LinkedIn Posts",
+   "summary": "Write, edit or review a LinkedIn post"
+  },
+  "rezvani/marketing/linkedin/skills/linkedin-engagement": {
+   "category": "marketing",
+   "title": "LinkedIn Outreach",
+   "summary": "Write comments, connection notes and messages"
+  },
+  "rezvani/marketing/linkedin/skills/linkedin-profile": {
+   "category": "marketing",
+   "title": "LinkedIn Profile",
+   "summary": "Audit and rewrite your LinkedIn profile"
+  },
+  "rezvani/marketing/linkedin/skills/linkedin-strategy": {
+   "category": "marketing",
+   "title": "LinkedIn Strategy",
+   "summary": "Build a LinkedIn plan with themes and a steady rhythm"
+  },
+  "rezvani/product-team/agile-product-owner/skills/agile-product-owner": {
+   "category": "product",
+   "title": "User Stories",
+   "summary": "Write user stories, acceptance criteria and split epics"
+  },
+  "rezvani/product-team/research-summarizer/skills/research-summarizer": {
+   "category": "research",
+   "title": "Paper Summariser",
+   "summary": "Summarise a paper, article or report and compare sources"
+  },
+  "rezvani/product-team/skills/competitive-teardown": {
+   "category": "product",
+   "title": "Competitor Teardown",
+   "summary": "Take a competitor apart across pricing, reviews and more"
+  },
+  "rezvani/product-team/skills/experiment-designer": {
+   "category": "product",
+   "title": "Experiment Designer",
+   "summary": "Plan a product experiment and read the results"
+  },
+  "rezvani/product-team/skills/product-analytics": {
+   "category": "product",
+   "title": "Product Analytics",
+   "summary": "Define product measures and analyse retention"
+  },
+  "rezvani/product-team/skills/product-discovery": {
+   "category": "product",
+   "title": "Idea Validation",
+   "summary": "Test whether a product idea solves a real problem"
+  },
+  "rezvani/product-team/skills/product-manager-toolkit": {
+   "category": "product",
+   "title": "Product Manager Toolkit",
+   "summary": "Prioritise features and synthesise customer interviews"
+  },
+  "rezvani/product-team/skills/product-strategist": {
+   "category": "product",
+   "title": "Product Strategy",
+   "summary": "Set product goals, vision and roadmap"
+  },
+  "rezvani/product-team/skills/ux-researcher-designer": {
+   "category": "product",
+   "title": "Personas and Journeys",
+   "summary": "Create personas, journey maps and usability test plans"
+  },
+  "rezvani/productivity/capture/skills/capture": {
+   "category": "planning",
+   "title": "Brain Dump Organiser",
+   "summary": "Turn a messy brain dump into organised next steps"
+  },
+  "rezvani/productivity/deep-work/skills/deep-work": {
+   "category": "planning",
+   "title": "Focus Day Planner",
+   "summary": "Plan a focused day with time blocks"
+  },
+  "rezvani/productivity/meetings/skills/meetings": {
+   "category": "planning",
+   "title": "Meeting Decider",
+   "summary": "Decide whether a meeting is worth it and plan it well"
+  },
+  "rezvani/productivity/monetize": {
+   "category": "business",
+   "title": "Side Income Ideas",
+   "summary": "Find ways to earn from your experience"
+  },
+  "rezvani/productivity/reflect/skills/reflect": {
+   "category": "planning",
+   "title": "Step Back",
+   "summary": "Pause and check whether you are still on track"
+  },
+  "rezvani/productivity/roast/skills/roast": {
+   "category": "business",
+   "title": "Idea Roast",
+   "summary": "Have a panel pick your idea apart from five angles"
+  },
+  "rezvani/productivity/swedish-mentor": {
+   "category": "research",
+   "title": "Swedish Mentor",
+   "summary": "Get a Swedish learning path with clips and podcasts"
+  },
+  "rezvani/productivity/weekly-review/skills/weekly-review": {
+   "category": "planning",
+   "title": "Weekly Review",
+   "summary": "Close open loops and plan the week ahead"
+  },
+  "rezvani/project-management/skills/meeting-analyzer": {
+   "category": "planning",
+   "title": "Meeting Analyser",
+   "summary": "Find patterns and actions in meeting transcripts"
+  },
+  "rezvani/project-management/skills/scrum-master": {
+   "category": "planning",
+   "title": "Sprint Analytics",
+   "summary": "Forecast velocity and check sprint health"
+  },
+  "rezvani/project-management/skills/senior-pm": {
+   "category": "planning",
+   "title": "Project Manager",
+   "summary": "Plan projects, track risks and write status reports"
+  },
+  "rezvani/research-ops/skills/clinical-research": {
+   "category": "research",
+   "title": "Clinical Study Design",
+   "summary": "Design a clinical study with endpoints and sample size"
+  },
+  "rezvani/research-ops/skills/market-research": {
+   "category": "research",
+   "title": "Market Sizing",
+   "summary": "Size a market and plan a survey"
+  },
+  "rezvani/research-ops/skills/product-research": {
+   "category": "research",
+   "title": "User Research Methods",
+   "summary": "Choose a research method and synthesise findings"
+  },
+  "rezvani/research-ops/skills/research-finance": {
+   "category": "finance",
+   "title": "Research Budget",
+   "summary": "Plan and track a research and development budget"
+  },
+  "rezvani/research/deepread": {
+   "category": "research",
+   "title": "Deep Reading",
+   "summary": "Read a book or paper deeply and test your understanding"
+  },
+  "rezvani/research/meta-research/skills/meta-research": {
+   "category": "research",
+   "title": "Careful Research",
+   "summary": "Research a high-stakes question with extra rigour"
+  }
+ },
+ "_comment": "Curated input for build-index.py. A skill is in the catalogue only if it is listed under 'skills' (key: <source id>/<path of the skill folder in the repo>). 'featured' is a rank, 1 first. 'reserved_names' are never offered. 'excluded' records why groups of upstream skills were left out (documentation only).",
+ "reserved_names": [
+  "email-polish",
+  "meeting-notes",
+  "recipe-scaler",
+  "study-flashcards",
+  "trip-planner"
+ ],
+ "excluded": {
+  "anthropic-work: partner-built/*": "third-party plugins tied to one vendor's connector (Apollo, Slack, Zoom, Common Room)",
+  "anthropic-work: small-business/*": "every skill reads ../../shared/*.md files that live outside the skill folder",
+  "anthropic-work: engineering, cowork-plugin-management, enterprise-search, productivity, pdf-viewer, most of bio-research": "need a coding agent, a plugin host, specific connectors, a local file workspace or pip-installed toolchains",
+  "anthropic-work: CRM-bound sales skills, SQL skills, design-handoff, design-system, signature-request, vendor-check, legal-response, policy-lookup, SOX skills, build-dashboard, data-context-extractor": "useful only with a connected system of record, or too technical for the audience",
+  "anthropic-work: finance/journal-entry, product-management/competitive-brief": "duplicate of an included skill",
+  "anthropic: docx, pdf, pptx, xlsx": "the app creates these files natively; the skills expect LibreOffice and a shell",
+  "anthropic: claude-api, mcp-builder, skill-creator, webapp-testing, web-artifacts-builder, frontend-design, algorithmic-art, slack-gif-creator": "engineering, shell scripts or pip installs",
+  "anthropic: canvas-design": "over 2 MB",
+  "anthropic: doc-coauthoring": "no licence file or licence field in the skill folder",
+  "anthropic: brand-guidelines, academy-guide, discernment-nudge": "specific to Anthropic's brand or products, or changes how every answer ends",
+  "rezvani: engineering, engineering-team, agent-launcher, loop-library, markdown-html, compliance-os, ra-qm-team, c-level-agents": "engineering, coding-agent slash commands, or regulatory specialisms",
+  "rezvani: routers (*-skills, chief-of-staff, agent-protocol, context-engine, cs-onboard, marketing-ops, marketing-context, board-meeting, decision-logger)": "only route to or coordinate other skills, or keep state in a project folder",
+  "rezvani: cto-advisor, vpe-advisor, ciso-advisor, chief-data-officer-advisor, chief-ai-officer-advisor, analytics-tracking, schema-markup, programmatic-seo, prompt-engineer-toolkit, landing, product-team engineering skills, Atlassian skills": "technical audience or specific connectors",
+  "rezvani: aeo, page-cro, site-architecture, litreview, roadmap-communicator, interview-mapper": "bundled scripts open network connections or start processes",
+  "rezvani: dossier, grants, patent, syllabus, research, pulse, notebooklm, youtube-full, inbox-setup, inbox-triage, session-handoff, fable-goal": "need Node.js, a shell, browser automation, pip installs or specific connectors",
+  "rezvani: sales-engineer": "matched an automatic safety pattern (a checklist line about sharing demo credentials; benign, left out anyway)",
+  "rezvani: stock-analysis": "over 2 MB",
+  "rezvani: content-humanizer, andreessen, cinematic-shot-prompting, ai-decision-authority, content-creator": "framed around hiding AI authorship, imitates a real person, targets video tools the app lacks, or deprecated",
+  "rezvani: team-communications, internal-comms, email-sequence, seo-audit, month-end-close, competitive-intel, capacity-planner, vendor-management, pricing-strategist, content-strategy": "same name as, derived from, or overlapping an included skill"
+ },
+ "known": [
+  "anthropic-work/bio-research/skills/instrument-data-to-allotrope",
+  "anthropic-work/bio-research/skills/nextflow-development",
+  "anthropic-work/bio-research/skills/scvi-tools",
+  "anthropic-work/bio-research/skills/single-cell-rna-qc",
+  "anthropic-work/bio-research/skills/start",
+  "anthropic-work/cowork-plugin-management/skills/cowork-plugin-customizer",
+  "anthropic-work/cowork-plugin-management/skills/create-cowork-plugin",
+  "anthropic-work/data/skills/build-dashboard",
+  "anthropic-work/data/skills/data-context-extractor",
+  "anthropic-work/data/skills/sql-queries",
+  "anthropic-work/data/skills/write-query",
+  "anthropic-work/design/skills/design-handoff",
+  "anthropic-work/design/skills/design-system",
+  "anthropic-work/engineering/skills/architecture",
+  "anthropic-work/engineering/skills/code-review",
+  "anthropic-work/engineering/skills/debug",
+  "anthropic-work/engineering/skills/deploy-checklist",
+  "anthropic-work/engineering/skills/documentation",
+  "anthropic-work/engineering/skills/incident-response",
+  "anthropic-work/engineering/skills/standup",
+  "anthropic-work/engineering/skills/system-design",
+  "anthropic-work/engineering/skills/tech-debt",
+  "anthropic-work/engineering/skills/testing-strategy",
+  "anthropic-work/enterprise-search/skills/digest",
+  "anthropic-work/enterprise-search/skills/knowledge-synthesis",
+  "anthropic-work/enterprise-search/skills/search",
+  "anthropic-work/enterprise-search/skills/search-strategy",
+  "anthropic-work/enterprise-search/skills/source-management",
+  "anthropic-work/finance/skills/audit-support",
+  "anthropic-work/finance/skills/journal-entry",
+  "anthropic-work/finance/skills/sox-testing",
+  "anthropic-work/human-resources/skills/policy-lookup",
+  "anthropic-work/legal/skills/legal-response",
+  "anthropic-work/legal/skills/signature-request",
+  "anthropic-work/legal/skills/vendor-check",
+  "anthropic-work/partner-built/apollo/skills/enrich-lead",
+  "anthropic-work/partner-built/apollo/skills/prospect",
+  "anthropic-work/partner-built/apollo/skills/sequence-load",
+  "anthropic-work/partner-built/brand-voice/skills/brand-voice-enforcement",
+  "anthropic-work/partner-built/brand-voice/skills/discover-brand",
+  "anthropic-work/partner-built/brand-voice/skills/guideline-generation",
+  "anthropic-work/partner-built/common-room/skills/account-research",
+  "anthropic-work/partner-built/common-room/skills/call-prep",
+  "anthropic-work/partner-built/common-room/skills/compose-outreach",
+  "anthropic-work/partner-built/common-room/skills/contact-research",
+  "anthropic-work/partner-built/common-room/skills/prospect",
+  "anthropic-work/partner-built/common-room/skills/weekly-prep-brief",
+  "anthropic-work/partner-built/slack/skills/slack-messaging",
+  "anthropic-work/partner-built/slack/skills/slack-search",
+  "anthropic-work/partner-built/zoom-plugin/skills/build-zoom-bot",
+  "anthropic-work/partner-built/zoom-plugin/skills/build-zoom-meeting-app",
+  "anthropic-work/partner-built/zoom-plugin/skills/choose-zoom-approach",
+  "anthropic-work/partner-built/zoom-plugin/skills/cobrowse-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/contact-center",
+  "anthropic-work/partner-built/zoom-plugin/skills/contact-center/android",
+  "anthropic-work/partner-built/zoom-plugin/skills/contact-center/ios",
+  "anthropic-work/partner-built/zoom-plugin/skills/contact-center/web",
+  "anthropic-work/partner-built/zoom-plugin/skills/debug-zoom",
+  "anthropic-work/partner-built/zoom-plugin/skills/debug-zoom-integration",
+  "anthropic-work/partner-built/zoom-plugin/skills/design-mcp-workflow",
+  "anthropic-work/partner-built/zoom-plugin/skills/general",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/android",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/electron",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/ios",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/linux",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/macos",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/react-native",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/unreal",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/web",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/web/client-view",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/web/component-view",
+  "anthropic-work/partner-built/zoom-plugin/skills/meeting-sdk/windows",
+  "anthropic-work/partner-built/zoom-plugin/skills/oauth",
+  "anthropic-work/partner-built/zoom-plugin/skills/phone",
+  "anthropic-work/partner-built/zoom-plugin/skills/plan-zoom-integration",
+  "anthropic-work/partner-built/zoom-plugin/skills/plan-zoom-product",
+  "anthropic-work/partner-built/zoom-plugin/skills/probe-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/rest-api",
+  "anthropic-work/partner-built/zoom-plugin/skills/rivet-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/rtms",
+  "anthropic-work/partner-built/zoom-plugin/skills/scribe",
+  "anthropic-work/partner-built/zoom-plugin/skills/setup-zoom-mcp",
+  "anthropic-work/partner-built/zoom-plugin/skills/setup-zoom-oauth",
+  "anthropic-work/partner-built/zoom-plugin/skills/start",
+  "anthropic-work/partner-built/zoom-plugin/skills/team-chat",
+  "anthropic-work/partner-built/zoom-plugin/skills/ui-toolkit",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/android",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/flutter",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/ios",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/linux",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/macos",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/react-native",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/unity",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/web",
+  "anthropic-work/partner-built/zoom-plugin/skills/video-sdk/windows",
+  "anthropic-work/partner-built/zoom-plugin/skills/virtual-agent",
+  "anthropic-work/partner-built/zoom-plugin/skills/virtual-agent/android",
+  "anthropic-work/partner-built/zoom-plugin/skills/virtual-agent/ios",
+  "anthropic-work/partner-built/zoom-plugin/skills/virtual-agent/web",
+  "anthropic-work/partner-built/zoom-plugin/skills/webhooks",
+  "anthropic-work/partner-built/zoom-plugin/skills/websockets",
+  "anthropic-work/partner-built/zoom-plugin/skills/zoom-apps-sdk",
+  "anthropic-work/partner-built/zoom-plugin/skills/zoom-mcp",
+  "anthropic-work/partner-built/zoom-plugin/skills/zoom-mcp/whiteboard",
+  "anthropic-work/pdf-viewer/skills/view-pdf",
+  "anthropic-work/product-management/skills/competitive-brief",
+  "anthropic-work/productivity/skills/memory-management",
+  "anthropic-work/productivity/skills/start",
+  "anthropic-work/productivity/skills/task-management",
+  "anthropic-work/productivity/skills/update",
+  "anthropic-work/sales/skills/account-context",
+  "anthropic-work/sales/skills/crm-hygiene-check",
+  "anthropic-work/sales/skills/customer-health",
+  "anthropic-work/sales/skills/customer-voice",
+  "anthropic-work/sales/skills/daily-briefing",
+  "anthropic-work/sales/skills/deal-advance-gap",
+  "anthropic-work/sales/skills/deal-review",
+  "anthropic-work/sales/skills/deal-signals",
+  "anthropic-work/sales/skills/end-of-day",
+  "anthropic-work/sales/skills/expansion-whitespace",
+  "anthropic-work/sales/skills/inbox-sweep",
+  "anthropic-work/sales/skills/log-activity",
+  "anthropic-work/sales/skills/renewal-radar",
+  "anthropic-work/sales/skills/rep-context",
+  "anthropic-work/sales/skills/route-lead",
+  "anthropic-work/sales/skills/schedule-meeting",
+  "anthropic-work/sales/skills/setup",
+  "anthropic-work/sales/skills/team-pipeline",
+  "anthropic-work/sales/skills/update-opportunity",
+  "anthropic-work/sales/skills/weekly-wrap",
+  "anthropic-work/small-business/skills/ad-manager",
+  "anthropic-work/small-business/skills/ap-processor",
+  "anthropic-work/small-business/skills/brand-style",
+  "anthropic-work/small-business/skills/build-agent",
+  "anthropic-work/small-business/skills/build-connector",
+  "anthropic-work/small-business/skills/business-pulse",
+  "anthropic-work/small-business/skills/call-list",
+  "anthropic-work/small-business/skills/canva-creator",
+  "anthropic-work/small-business/skills/cash-flow-snapshot",
+  "anthropic-work/small-business/skills/close-month",
+  "anthropic-work/small-business/skills/content-strategy",
+  "anthropic-work/small-business/skills/contract-review",
+  "anthropic-work/small-business/skills/crm-autopilot",
+  "anthropic-work/small-business/skills/grant-rfp-writer",
+  "anthropic-work/small-business/skills/grow-pipeline",
+  "anthropic-work/small-business/skills/growth-pulse",
+  "anthropic-work/small-business/skills/hiring-screener",
+  "anthropic-work/small-business/skills/inbox-manager",
+  "anthropic-work/small-business/skills/inventory-planner",
+  "anthropic-work/small-business/skills/invoice-chase",
+  "anthropic-work/small-business/skills/job-post-builder",
+  "anthropic-work/small-business/skills/lead-finder",
+  "anthropic-work/small-business/skills/lead-triage",
+  "anthropic-work/small-business/skills/marketing-monday",
+  "anthropic-work/small-business/skills/monday-brief",
+  "anthropic-work/small-business/skills/month-end-prep",
+  "anthropic-work/small-business/skills/outreach-composer",
+  "anthropic-work/small-business/skills/pay-the-bills",
+  "anthropic-work/small-business/skills/payroll-prep",
+  "anthropic-work/small-business/skills/plan-payroll",
+  "anthropic-work/small-business/skills/proposal-builder",
+  "anthropic-work/small-business/skills/reactivate",
+  "anthropic-work/small-business/skills/report-builder",
+  "anthropic-work/small-business/skills/report-pack",
+  "anthropic-work/small-business/skills/restock",
+  "anthropic-work/small-business/skills/review-reputation",
+  "anthropic-work/small-business/skills/seo-ai-visibility",
+  "anthropic-work/small-business/skills/smb-onboard",
+  "anthropic-work/small-business/skills/smb-router",
+  "anthropic-work/small-business/skills/social-content-engine",
+  "anthropic-work/small-business/skills/speed-to-lead",
+  "anthropic-work/small-business/skills/tax-prep",
+  "anthropic-work/small-business/skills/tax-season-organizer",
+  "anthropic-work/small-business/skills/ticket-deflector",
+  "anthropic/skills/academy-guide",
+  "anthropic/skills/algorithmic-art",
+  "anthropic/skills/brand-guidelines",
+  "anthropic/skills/canvas-design",
+  "anthropic/skills/claude-api",
+  "anthropic/skills/discernment-nudge",
+  "anthropic/skills/doc-coauthoring",
+  "anthropic/skills/docx",
+  "anthropic/skills/frontend-design",
+  "anthropic/skills/mcp-builder",
+  "anthropic/skills/pdf",
+  "anthropic/skills/pptx",
+  "anthropic/skills/skill-creator",
+  "anthropic/skills/slack-gif-creator",
+  "anthropic/skills/web-artifacts-builder",
+  "anthropic/skills/webapp-testing",
+  "anthropic/skills/xlsx",
+  "anthropic/template",
+  "rezvani/agent-launcher/skills/agent-launcher-orchestrator",
+  "rezvani/agent-launcher/skills/grade-iterate",
+  "rezvani/agent-launcher/skills/interview",
+  "rezvani/agent-launcher/skills/run-without-you",
+  "rezvani/agent-launcher/skills/stage-launch",
+  "rezvani/agent-launcher/skills/wrap-up",
+  "rezvani/business-growth/skills/business-growth-skills",
+  "rezvani/business-growth/skills/sales-engineer",
+  "rezvani/business-operations/skills/business-operations-skills",
+  "rezvani/business-operations/skills/capacity-planner",
+  "rezvani/business-operations/skills/internal-comms",
+  "rezvani/business-operations/skills/vendor-management",
+  "rezvani/c-level-advisor/arquiteto-de-empresa/skills/arquiteto-de-empresa",
+  "rezvani/c-level-advisor/chief-ai-officer-advisor/skills/chief-ai-officer-advisor",
+  "rezvani/c-level-advisor/chief-customer-officer-advisor/skills/chief-customer-officer-advisor",
+  "rezvani/c-level-advisor/chief-data-officer-advisor/skills/chief-data-officer-advisor",
+  "rezvani/c-level-advisor/general-counsel-advisor/skills/general-counsel-advisor",
+  "rezvani/c-level-advisor/skills/agent-protocol",
+  "rezvani/c-level-advisor/skills/arquiteto-de-empresa",
+  "rezvani/c-level-advisor/skills/board-meeting",
+  "rezvani/c-level-advisor/skills/c-level-skills",
+  "rezvani/c-level-advisor/skills/chief-ai-officer-advisor",
+  "rezvani/c-level-advisor/skills/chief-data-officer-advisor",
+  "rezvani/c-level-advisor/skills/chief-of-staff",
+  "rezvani/c-level-advisor/skills/ciso-advisor",
+  "rezvani/c-level-advisor/skills/competitive-intel",
+  "rezvani/c-level-advisor/skills/context-engine",
+  "rezvani/c-level-advisor/skills/cs-onboard",
+  "rezvani/c-level-advisor/skills/cto-advisor",
+  "rezvani/c-level-advisor/skills/decision-logger",
+  "rezvani/c-level-advisor/skills/vpe-advisor",
+  "rezvani/c-level-advisor/vpe-advisor/skills/vpe-advisor",
+  "rezvani/c-level-agents/skills/boardroom",
+  "rezvani/c-level-agents/skills/brief",
+  "rezvani/c-level-agents/skills/c-level-agents",
+  "rezvani/c-level-agents/skills/caio-review",
+  "rezvani/c-level-agents/skills/cco-review",
+  "rezvani/c-level-agents/skills/cdo-review",
+  "rezvani/c-level-agents/skills/cfo-review",
+  "rezvani/c-level-agents/skills/ciso-review",
+  "rezvani/c-level-agents/skills/cmo-review",
+  "rezvani/c-level-agents/skills/cpo-review",
+  "rezvani/c-level-agents/skills/cro-review",
+  "rezvani/c-level-agents/skills/cross-eval",
+  "rezvani/c-level-agents/skills/cto-review",
+  "rezvani/c-level-agents/skills/decide",
+  "rezvani/c-level-agents/skills/execute",
+  "rezvani/c-level-agents/skills/founder-mode",
+  "rezvani/c-level-agents/skills/freeze",
+  "rezvani/c-level-agents/skills/gc-review",
+  "rezvani/c-level-agents/skills/office-hours",
+  "rezvani/c-level-agents/skills/onboard",
+  "rezvani/c-level-agents/skills/post-mortem",
+  "rezvani/c-level-agents/skills/vpe-review",
+  "rezvani/commercial/skills/channel-economics",
+  "rezvani/commercial/skills/commercial-policy",
+  "rezvani/commercial/skills/commercial-skills",
+  "rezvani/commercial/skills/pricing-strategist",
+  "rezvani/compliance-os/skills/ai-act-readiness",
+  "rezvani/compliance-os/skills/aims-audit",
+  "rezvani/compliance-os/skills/compliance-os",
+  "rezvani/compliance-os/skills/compliance-readiness",
+  "rezvani/compliance-os/skills/fda-qsr-audit-prep",
+  "rezvani/compliance-os/skills/gdpr-audit-prep",
+  "rezvani/compliance-os/skills/iso13485-audit-prep",
+  "rezvani/compliance-os/skills/iso27001-audit-prep",
+  "rezvani/compliance-os/skills/soc2-audit-prep",
+  "rezvani/engineering-team/a11y-audit/skills/a11y-audit",
+  "rezvani/engineering-team/google-workspace-cli/skills/google-workspace-cli",
+  "rezvani/engineering-team/playwright-pro/skills/browserstack",
+  "rezvani/engineering-team/playwright-pro/skills/coverage",
+  "rezvani/engineering-team/playwright-pro/skills/fix",
+  "rezvani/engineering-team/playwright-pro/skills/generate",
+  "rezvani/engineering-team/playwright-pro/skills/migrate",
+  "rezvani/engineering-team/playwright-pro/skills/pw",
+  "rezvani/engineering-team/playwright-pro/skills/pw-init",
+  "rezvani/engineering-team/playwright-pro/skills/pw-review",
+  "rezvani/engineering-team/playwright-pro/skills/report",
+  "rezvani/engineering-team/playwright-pro/skills/testrail",
+  "rezvani/engineering-team/self-improving-agent/skills/extract",
+  "rezvani/engineering-team/self-improving-agent/skills/memory-review",
+  "rezvani/engineering-team/self-improving-agent/skills/memory-status",
+  "rezvani/engineering-team/self-improving-agent/skills/promote",
+  "rezvani/engineering-team/self-improving-agent/skills/remember",
+  "rezvani/engineering-team/self-improving-agent/skills/self-improving-agent",
+  "rezvani/engineering-team/skills/adversarial-reviewer",
+  "rezvani/engineering-team/skills/ai-security",
+  "rezvani/engineering-team/skills/aws-solution-architect",
+  "rezvani/engineering-team/skills/azure-cloud-architect",
+  "rezvani/engineering-team/skills/cloud-security",
+  "rezvani/engineering-team/skills/code-reviewer",
+  "rezvani/engineering-team/skills/email-template-builder",
+  "rezvani/engineering-team/skills/embedded-iot-mentor",
+  "rezvani/engineering-team/skills/engineering-skills",
+  "rezvani/engineering-team/skills/epic-design",
+  "rezvani/engineering-team/skills/gcp-cloud-architect",
+  "rezvani/engineering-team/skills/incident-commander",
+  "rezvani/engineering-team/skills/incident-response",
+  "rezvani/engineering-team/skills/ms365-tenant-manager",
+  "rezvani/engineering-team/skills/named-persona-adversarial-review",
+  "rezvani/engineering-team/skills/red-green-proof",
+  "rezvani/engineering-team/skills/red-team",
+  "rezvani/engineering-team/skills/security-pen-testing",
+  "rezvani/engineering-team/skills/senior-architect",
+  "rezvani/engineering-team/skills/senior-backend",
+  "rezvani/engineering-team/skills/senior-computer-vision",
+  "rezvani/engineering-team/skills/senior-data-engineer",
+  "rezvani/engineering-team/skills/senior-data-scientist",
+  "rezvani/engineering-team/skills/senior-devops",
+  "rezvani/engineering-team/skills/senior-frontend",
+  "rezvani/engineering-team/skills/senior-fullstack",
+  "rezvani/engineering-team/skills/senior-ml-engineer",
+  "rezvani/engineering-team/skills/senior-prompt-engineer",
+  "rezvani/engineering-team/skills/senior-qa",
+  "rezvani/engineering-team/skills/senior-secops",
+  "rezvani/engineering-team/skills/senior-security",
+  "rezvani/engineering-team/skills/stripe-integration-expert",
+  "rezvani/engineering-team/skills/tdd-guide",
+  "rezvani/engineering-team/skills/tech-stack-evaluator",
+  "rezvani/engineering-team/skills/threat-detection",
+  "rezvani/engineering-team/snowflake-development/skills/snowflake-development",
+  "rezvani/engineering/agent-harness/skills/agent-harness",
+  "rezvani/engineering/agent-memory/skills/agent-memory",
+  "rezvani/engineering/agent-regression-evals/skills/agent-regression-evals",
+  "rezvani/engineering/agent-run-forensics/skills/agent-run-forensics",
+  "rezvani/engineering/agenthub/skills/agenthub",
+  "rezvani/engineering/agenthub/skills/board",
+  "rezvani/engineering/agenthub/skills/eval",
+  "rezvani/engineering/agenthub/skills/hub-init",
+  "rezvani/engineering/agenthub/skills/hub-run",
+  "rezvani/engineering/agenthub/skills/hub-status",
+  "rezvani/engineering/agenthub/skills/merge",
+  "rezvani/engineering/agenthub/skills/spawn",
+  "rezvani/engineering/autoresearch-agent/skills/ar-loop",
+  "rezvani/engineering/autoresearch-agent/skills/ar-resume",
+  "rezvani/engineering/autoresearch-agent/skills/ar-run",
+  "rezvani/engineering/autoresearch-agent/skills/ar-status",
+  "rezvani/engineering/autoresearch-agent/skills/autoresearch-agent",
+  "rezvani/engineering/autoresearch-agent/skills/setup",
+  "rezvani/engineering/behuman/skills/behuman",
+  "rezvani/engineering/book-to-skill/skills/book-to-skill",
+  "rezvani/engineering/boost-asio-pro",
+  "rezvani/engineering/caveman/skills/caveman",
+  "rezvani/engineering/chaos-engineering/skills/chaos-engineering",
+  "rezvani/engineering/claude-coach/skills/claude-coach",
+  "rezvani/engineering/code-tour/skills/code-tour",
+  "rezvani/engineering/coding-agent-rollout/skills/coding-agent-rollout",
+  "rezvani/engineering/collab-proof/skills/collab-proof",
+  "rezvani/engineering/commit-craft/skills/commit-craft",
+  "rezvani/engineering/data-quality-auditor/skills/data-quality-auditor",
+  "rezvani/engineering/deep-learning-book/skills/deep-learning-book",
+  "rezvani/engineering/demo-video/skills/demo-video",
+  "rezvani/engineering/docker-development/skills/docker-development",
+  "rezvani/engineering/feature-flags-architect/skills/feature-flags-architect",
+  "rezvani/engineering/grill-me/skills/grill-me",
+  "rezvani/engineering/grill-with-docs/skills/grill-with-docs",
+  "rezvani/engineering/handoff/skills/handoff",
+  "rezvani/engineering/helm-chart-builder/skills/helm-chart-builder",
+  "rezvani/engineering/hivemind",
+  "rezvani/engineering/human-gate/skills/human-gate",
+  "rezvani/engineering/i18n-localization/skills/i18n-localization",
+  "rezvani/engineering/karpathy-coder/skills/karpathy-coder",
+  "rezvani/engineering/kubernetes-operator/skills/kubernetes-operator",
+  "rezvani/engineering/llm-cost-optimizer/skills/llm-cost-optimizer",
+  "rezvani/engineering/llm-wiki/skills/llm-wiki",
+  "rezvani/engineering/memory-engineering/skills/memory-engineering",
+  "rezvani/engineering/minimalist",
+  "rezvani/engineering/prompt-governance/skills/prompt-governance",
+  "rezvani/engineering/security-guidance/skills/security-guidance",
+  "rezvani/engineering/skill-retro/skills/skill-retro",
+  "rezvani/engineering/skillopt-sleep/skills/skillopt-sleep",
+  "rezvani/engineering/skills/agent-designer",
+  "rezvani/engineering/skills/agent-regression-evals",
+  "rezvani/engineering/skills/agent-run-forensics",
+  "rezvani/engineering/skills/agent-workflow-designer",
+  "rezvani/engineering/skills/api-design-reviewer",
+  "rezvani/engineering/skills/api-test-suite-builder",
+  "rezvani/engineering/skills/browser-automation",
+  "rezvani/engineering/skills/changelog-generator",
+  "rezvani/engineering/skills/chaos-engineering",
+  "rezvani/engineering/skills/ci-cd-pipeline-builder",
+  "rezvani/engineering/skills/codebase-onboarding",
+  "rezvani/engineering/skills/coding-agent-rollout",
+  "rezvani/engineering/skills/commit-craft",
+  "rezvani/engineering/skills/database-designer",
+  "rezvani/engineering/skills/database-schema-designer",
+  "rezvani/engineering/skills/dependency-auditor",
+  "rezvani/engineering/skills/engineering-advanced-skills",
+  "rezvani/engineering/skills/env-secrets-manager",
+  "rezvani/engineering/skills/feature-flags-architect",
+  "rezvani/engineering/skills/focused-fix",
+  "rezvani/engineering/skills/full-page-screenshot",
+  "rezvani/engineering/skills/git-worktree-manager",
+  "rezvani/engineering/skills/i18n-localization",
+  "rezvani/engineering/skills/interview-system-designer",
+  "rezvani/engineering/skills/kubernetes-operator",
+  "rezvani/engineering/skills/mcp-oauth-triage",
+  "rezvani/engineering/skills/mcp-server-builder",
+  "rezvani/engineering/skills/migration-architect",
+  "rezvani/engineering/skills/monorepo-navigator",
+  "rezvani/engineering/skills/observability-designer",
+  "rezvani/engineering/skills/performance-profiler",
+  "rezvani/engineering/skills/pr-review-expert",
+  "rezvani/engineering/skills/rag-architect",
+  "rezvani/engineering/skills/runbook-generator",
+  "rezvani/engineering/skills/secrets-vault-manager",
+  "rezvani/engineering/skills/self-eval",
+  "rezvani/engineering/skills/ship-gate",
+  "rezvani/engineering/skills/skill-security-auditor",
+  "rezvani/engineering/skills/skill-tester",
+  "rezvani/engineering/skills/skill-tester/assets/sample-skill",
+  "rezvani/engineering/skills/slo-architect",
+  "rezvani/engineering/skills/spec-driven-workflow",
+  "rezvani/engineering/skills/sql-database-assistant",
+  "rezvani/engineering/skills/tc-tracker",
+  "rezvani/engineering/skills/tech-debt-tracker",
+  "rezvani/engineering/slo-architect/skills/slo-architect",
+  "rezvani/engineering/spinning-up-deep-rl/skills/spinning-up-deep-rl",
+  "rezvani/engineering/statistical-analyst/skills/statistical-analyst",
+  "rezvani/engineering/strict-api",
+  "rezvani/engineering/terraform-patterns/skills/terraform-patterns",
+  "rezvani/engineering/universal-scraping-architect/skills/universal-scraping-architect",
+  "rezvani/engineering/workflow-builder/skills/workflow-builder",
+  "rezvani/engineering/write-a-skill/skills/write-a-skill",
+  "rezvani/engineering/zero-hallucination-coder/skills/zero-hallucination-coder",
+  "rezvani/finance/month-end-close/skills/month-end-close",
+  "rezvani/finance/skills/finance-skills",
+  "rezvani/finance/skills/month-end-close",
+  "rezvani/finance/skills/stock-analysis",
+  "rezvani/loop-library",
+  "rezvani/markdown-html/skills/design-system",
+  "rezvani/markdown-html/skills/markdown-html-orchestrator",
+  "rezvani/markdown-html/skills/md-document",
+  "rezvani/markdown-html/skills/md-review",
+  "rezvani/markdown-html/skills/md-slides",
+  "rezvani/marketing-skill/skills/aeo",
+  "rezvani/marketing-skill/skills/ai-decision-authority",
+  "rezvani/marketing-skill/skills/analytics-tracking",
+  "rezvani/marketing-skill/skills/cinematic-shot-prompting",
+  "rezvani/marketing-skill/skills/content-creator",
+  "rezvani/marketing-skill/skills/content-humanizer",
+  "rezvani/marketing-skill/skills/content-strategy",
+  "rezvani/marketing-skill/skills/email-sequence",
+  "rezvani/marketing-skill/skills/marketing-context",
+  "rezvani/marketing-skill/skills/marketing-ops",
+  "rezvani/marketing-skill/skills/marketing-skills",
+  "rezvani/marketing-skill/skills/page-cro",
+  "rezvani/marketing-skill/skills/programmatic-seo",
+  "rezvani/marketing-skill/skills/prompt-engineer-toolkit",
+  "rezvani/marketing-skill/skills/schema-markup",
+  "rezvani/marketing-skill/skills/seo-audit",
+  "rezvani/marketing-skill/skills/site-architecture",
+  "rezvani/marketing-skill/skills/youtube-full",
+  "rezvani/marketing/landing/skills/landing",
+  "rezvani/marketing/linkedin/skills/linkedin-skills",
+  "rezvani/product-team/apple-hig-expert/skills/apple-hig-expert",
+  "rezvani/product-team/code-to-prd/skills/code-to-prd",
+  "rezvani/product-team/design-qa/skills/design-qa",
+  "rezvani/product-team/skills/design-qa",
+  "rezvani/product-team/skills/landing-page-generator",
+  "rezvani/product-team/skills/product-skills",
+  "rezvani/product-team/skills/roadmap-communicator",
+  "rezvani/product-team/skills/saas-scaffolder",
+  "rezvani/product-team/skills/spec-to-repo",
+  "rezvani/product-team/skills/ui-design-system",
+  "rezvani/productivity/andreessen/skills/andreessen",
+  "rezvani/productivity/email/skills/inbox-setup",
+  "rezvani/productivity/email/skills/inbox-triage",
+  "rezvani/productivity/fable-goal/skills/fable-goal",
+  "rezvani/productivity/handoff/skills/session-handoff",
+  "rezvani/project-management/skills/atlassian-admin",
+  "rezvani/project-management/skills/atlassian-templates",
+  "rezvani/project-management/skills/confluence-expert",
+  "rezvani/project-management/skills/jira-expert",
+  "rezvani/project-management/skills/pm-skills",
+  "rezvani/project-management/skills/team-communications",
+  "rezvani/ra-qm-team/access-lifecycle/skills/access-lifecycle",
+  "rezvani/ra-qm-team/cmmc-readiness/skills/cmmc-readiness",
+  "rezvani/ra-qm-team/compliance-team-eu-ai-act/skills/eu-ai-act-specialist",
+  "rezvani/ra-qm-team/compliance-team-iso42001/skills/iso42001-specialist",
+  "rezvani/ra-qm-team/cra-readiness/skills/cra-readiness",
+  "rezvani/ra-qm-team/medical-device-software/skills/medical-device-software",
+  "rezvani/ra-qm-team/skills/access-lifecycle",
+  "rezvani/ra-qm-team/skills/agent-decision-receipts",
+  "rezvani/ra-qm-team/skills/capa-officer",
+  "rezvani/ra-qm-team/skills/cmmc-readiness",
+  "rezvani/ra-qm-team/skills/cra-readiness",
+  "rezvani/ra-qm-team/skills/eu-ai-act-specialist",
+  "rezvani/ra-qm-team/skills/fda-consultant-specialist",
+  "rezvani/ra-qm-team/skills/gdpr-dsgvo-expert",
+  "rezvani/ra-qm-team/skills/information-security-manager-iso27001",
+  "rezvani/ra-qm-team/skills/isms-audit-expert",
+  "rezvani/ra-qm-team/skills/iso42001-specialist",
+  "rezvani/ra-qm-team/skills/mdr-745-specialist",
+  "rezvani/ra-qm-team/skills/medical-device-software",
+  "rezvani/ra-qm-team/skills/qms-audit-expert",
+  "rezvani/ra-qm-team/skills/quality-documentation-manager",
+  "rezvani/ra-qm-team/skills/quality-manager-qmr",
+  "rezvani/ra-qm-team/skills/quality-manager-qms-iso13485",
+  "rezvani/ra-qm-team/skills/ra-qm-skills",
+  "rezvani/ra-qm-team/skills/regulatory-affairs-head",
+  "rezvani/ra-qm-team/skills/risk-management-specialist",
+  "rezvani/ra-qm-team/skills/soc2-compliance",
+  "rezvani/research-ops/skills/interview-mapper",
+  "rezvani/research-ops/skills/research-ops-skills",
+  "rezvani/research/dossier/skills/dossier",
+  "rezvani/research/grants/skills/grants",
+  "rezvani/research/litreview/skills/litreview",
+  "rezvani/research/notebooklm/skills/notebooklm",
+  "rezvani/research/patent/skills/patent",
+  "rezvani/research/pulse/skills/pulse",
+  "rezvani/research/research/skills/research",
+  "rezvani/research/syllabus/skills/syllabus"
+ ]
+}

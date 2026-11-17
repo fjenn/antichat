@@ -1,24 +1,30 @@
 # Guia rápido do AntiChat
 
 ## Primeiros passos
-Digite na caixa na parte de baixo e pressione Return. O AntiChat responde com um modelo que roda neste Mac. Comece uma nova conversa com ⌘N; suas conversas ficam na barra lateral.
+Digite no campo na parte inferior e pressione Return. O AntiChat responde com um modelo que roda neste Mac. Comece uma nova conversa com ⌘N. Suas conversas ficam na barra lateral, e **Ajustes** fica no final dela.
 
-## Pacotes
-O Chat está sempre disponível. Voz, Foto e Vídeo são pacotes que você pode adicionar ou remover em **Ajustes › Recursos**. Cada um mostra primeiro o tamanho do download, e o AntiChat só oferece o que cabe no seu Mac.
+## O que o AntiChat faz
+O Chat está sempre disponível. Voz, Imagens e Vídeo são extras que você ativa em **Ajustes › Recursos**. Cada um mostra antes o tamanho do download, e o AntiChat só oferece o que cabe no seu Mac. Clique em **+** no campo da conversa para adicionar fotos e arquivos, ou para criar uma imagem, um vídeo ou um documento.
+
+## Apps e habilidades
+**Ajustes › Conexões** lista apps como Gmail e Google Agenda. Clique em **+** ao lado de um app e inicie sessão no navegador. Você também pode pedir em uma conversa, por exemplo "conecte meu Gmail", e aparece um cartão para conectar. **Ajustes › Habilidades** tem habilidades prontas que ensinam ao AntiChat um tipo de tarefa.
 
 ## Evil Mode
-Um modo sem filtro para adultos. Ative-o em **Ajustes › Evil Mode** depois de confirmar que você tem 18 anos ou mais; conversas Evil têm uma moldura vermelha. Uma coisa é bloqueada em todos os modos: imagens ou vídeos sexuais envolvendo menores.
+Um modo sem filtros para adultos. Ative o Evil Mode em **Ajustes › Recursos**, confirme que você tem 18 anos ou mais e aguarde o download. Depois comece uma nova conversa e escolha **Evil** no campo da conversa. As conversas Evil têm uma moldura vermelha. Uma coisa é bloqueada em todos os modos: imagens ou vídeos sexuais envolvendo menores.
 
 ## Privacidade
-Suas conversas, imagens, arquivos e modelos ficam neste Mac. Os recursos online (pesquisa na web, conexões, atualizações) estão listados em **Ajustes › Privacidade e dados**, onde **Somente offline** desativa todos eles.
+Suas conversas, imagens, arquivos e modelos ficam neste Mac. Em **Ajustes › Privacidade e dados**, **Somente offline** pausa tudo o que usa a internet: busca na web, conexões, atualizações e downloads. Uma conversa anônima (**Arquivo › Nova Conversa Anônima**) nunca é salva.
+
+## Memória
+O AntiChat pode lembrar do que você conta e usar isso em conversas futuras. Em **Ajustes › Personalização** você pode ver, alterar ou apagar o que ele lembra, e dizer como prefere as respostas.
 
 ## Espaço em disco
-Modelos são grandes. **Ajustes › Armazenamento** mostra quanto cada pacote usa, limpa versões antigas e pode mover a pasta dos modelos para outro disco.
+Os modelos são grandes. **Ajustes › Privacidade e dados** mostra em Armazenamento o que ocupa espaço, e **Limpar** apaga caches e downloads inacabados. Para remover Voz, Imagens ou Vídeo, desative em **Ajustes › Recursos** e escolha apagar os arquivos.
 
 ## Desinstalar
-**AntiChat › Desinstalar o AntiChat…** remove o app e tudo o que ele guarda. **Ajuda › Como Desinstalar** lista cada pasta se você preferir fazer isso manualmente.
+**AntiChat › Desinstalar o AntiChat…** remove o app e tudo o que ele guarda. **Ajuda › Como Desinstalar** lista cada pasta, se você preferir fazer à mão.
 
 ## Solução de problemas
-- Um download parou: **Ajustes › Recursos** e depois Tentar de novo. Os downloads continuam de onde pararam.
-- Respostas lentas: feche outros apps pesados; o AntiChat muda para um modelo menor quando falta memória.
-- Qualquer outra coisa: **Ajuda › Relatar um Problema…** monta um relatório que você pode ler antes de enviar.
+- Um download parou: **Ajustes › Recursos**, depois Tentar de novo. Os downloads continuam.
+- Respostas lentas: feche outros apps pesados. O AntiChat muda para um modelo menor quando a memória está apertada.
+- Qualquer outra coisa: **Ajuda › Relatar um Problema…** cria um relatório que você pode ler antes de enviar. Você pode anexar capturas de tela e arquivos.

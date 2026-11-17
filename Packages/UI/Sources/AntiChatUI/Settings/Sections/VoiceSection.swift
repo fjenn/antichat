@@ -1,4 +1,4 @@
-// Settings → Voice (M3.T08, R-053, settings-map §5; P-media-04: rows after Osaurus `Views/Voice/TTSModeSettingsTab.swift`
+// Settings → Capabilities → Voice (M3.T08, R-053, settings-map §5; P-media-04: rows after Osaurus `Views/Voice/TTSModeSettingsTab.swift`
 // / `VoiceSetupTab.swift`, ported): Microphone (System default + the CoreAudio input devices, a live level meter while
 // the section is visible), Spoken language (Auto-detect + Parakeet's 25 ∪ WhisperKit's languages), Voice (≥ 6 voices
 // with [Preview]), Speed (0.75×–1.5×, step 0.05), Conversation mode (Hands-free / Push-to-talk), then Recent
@@ -14,6 +14,8 @@ import SwiftUI
 struct VoiceSection: View {
     /// nil = no app database (previews, snapshot hosts): the list is empty.
     nonisolated(unsafe) static var database: AppDatabase?
+    /// On the page: Microphone (with the level meter) and Voice. Advanced: language, speed, mode, ducking, recordings.
+    let part: SettingsPart
 
     @Default(.voiceInputDevice) private var inputDevice
     @Default(.voiceSpokenLanguage) private var spokenLanguage
@@ -28,8 +30,9 @@ struct VoiceSection: View {
     private let dictationActive: @MainActor () -> Bool
 
     @MainActor
-    init(devices: AudioDeviceCatalog? = nil, meter: InputLevelMeter? = nil, voices: [VoiceChoice]? = nil,
+    init(part: SettingsPart, devices: AudioDeviceCatalog? = nil, meter: InputLevelMeter? = nil, voices: [VoiceChoice]? = nil,
          readAloud: ReadAloudController = .shared, dictationActive: (@MainActor () -> Bool)? = nil) {
+        self.part = part
         let host = Self.host
         _devices = State(initialValue: devices ?? host.devices())
         _meter = State(initialValue: meter ?? InputLevelMeter(permitted: host.meterPermitted))
@@ -57,23 +60,22 @@ struct VoiceSection: View {
     // P2-5): the meter stops and says "In use", and starts again when the mic is free, while the section is shown.
 
     var body: some View {
-        Section {
+        if part == .main {
             microphoneRow
-            languageRow
-        }
-        Section {
+                .onAppear { meter.start(deviceUID: devices.resolvedUID(inputDevice), allowed: !dictationActive()) }
+                .onDisappear { meter.stop() }
+                .onChange(of: inputDevice) { _, uid in meter.start(deviceUID: devices.resolvedUID(uid), allowed: !dictationActive()) }
+                .onChange(of: dictationActive()) { _, busy in
+                    if busy { meter.stop() } else { meter.start(deviceUID: devices.resolvedUID(inputDevice), allowed: true) }
+                }
             voiceRow
+        } else {
+            languageRow
             speedRow
             modeRow
             duckingRow
+            RecentRecordingsView(model: RecentRecordingsModel(store: Self.database.map(RecordingStore.standard)))
         }
-        RecentRecordingsView(model: RecentRecordingsModel(store: Self.database.map(RecordingStore.standard)))
-            .onAppear { meter.start(deviceUID: devices.resolvedUID(inputDevice), allowed: !dictationActive()) }
-            .onDisappear { meter.stop() }
-            .onChange(of: inputDevice) { _, uid in meter.start(deviceUID: devices.resolvedUID(uid), allowed: !dictationActive()) }
-            .onChange(of: dictationActive()) { _, busy in
-                if busy { meter.stop() } else { meter.start(deviceUID: devices.resolvedUID(inputDevice), allowed: true) }
-            }
     }
 
     // MARK: Rows

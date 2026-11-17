@@ -89,10 +89,11 @@ public struct SkillStore: Sendable {
     // MARK: Write
 
     /// Installs the folder `staged` (a validated copy; consumed) as skill `name`, replacing an existing folder of that
-    /// name when `replacing`. A re-install keeps the row id and the user's switches.
+    /// name when `replacing`. A re-install keeps the row id and the user's switches. `source` = the catalogue entry
+    /// the files were downloaded from (recorded for Update, SkillProvenance.swift); nil = not from the catalogue.
     @discardableResult
     public func install(from staged: URL, name: String, trust: SkillRecord.Trust, enabled: Bool = true,
-                        replacing: Bool = true) throws -> InstalledSkill {
+                        replacing: Bool = true, source: SkillsCatalog.Skill? = nil) throws -> InstalledSkill {
         let fm = FileManager.default
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
         let destination = directory(for: name)
@@ -106,6 +107,9 @@ public struct SkillStore: Sendable {
         let record = try repository.upsert(SkillRecord(
             name: name, path: name, enabled: enabled, manifestJSON: doc?.manifestJSON ?? "{}", trust: trust,
             contentHash: Self.contentHash(of: destination)))
+        // Without a record the skill is simply the user's own: never offered an update.
+        try? setProvenance(source.map { SkillProvenance(id: $0.id, commit: $0.commit, digest: SkillProvenance.digest(of: destination)) },
+                           for: name)
         return load(record)
     }
 
@@ -115,6 +119,7 @@ public struct SkillStore: Sendable {
         try Self.ensureContained(dir, in: root)
         if FileManager.default.fileExists(atPath: dir.path) { try FileManager.default.removeItem(at: dir) }
         try repository.delete(name)
+        try? setProvenance(nil, for: name)
     }
 
     public func setEnabled(_ name: String, _ on: Bool) throws { try repository.update(name) { $0.enabled = on } }
@@ -234,8 +239,15 @@ public struct SkillStore: Sendable {
 
     /// Upstream `ensureContained`.
     static func ensureContained(_ fileURL: URL, in baseDirectory: URL) throws {
-        let f = fileURL.standardizedFileURL.resolvingSymlinksInPath().pathComponents
-        let b = baseDirectory.standardizedFileURL.resolvingSymlinksInPath().pathComponents
+        // Resolved from the deepest folder that exists: a path that does not exist yet keeps `/private` where its
+        // existing base loses it (/private/tmp, /private/var/tmp), and a new skill folder then looked like an escape.
+        var existing = fileURL.standardized, tail: [String] = []
+        while existing.pathComponents.count > 1, !FileManager.default.fileExists(atPath: existing.path) {
+            tail.insert(existing.lastPathComponent, at: 0)
+            existing.deleteLastPathComponent()
+        }
+        let f = tail.reduce(existing.resolvingSymlinksInPath()) { $0.appendingPathComponent($1) }.pathComponents
+        let b = baseDirectory.standardized.resolvingSymlinksInPath().pathComponents
         guard f.count >= b.count, Array(f.prefix(b.count)) == b else { throw SkillFileError.archiveEntryEscapes(path: fileURL.path) }
     }
 }

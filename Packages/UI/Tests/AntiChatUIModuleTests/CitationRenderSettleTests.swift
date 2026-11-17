@@ -53,7 +53,7 @@ extension WindowSuites {
         let rig = RendererRig.Host(Reply(box: box), look: .light)
         await rig.settle(min: 0.5, stableFor: 0.4, max: 6, minHeight: 40)
         var drawn = Self.pills(rig)
-        #expect(drawn.checking == 4 && drawn.settled.isEmpty, "while checking: \(drawn)")
+        #expect(drawn.checking == 0 && drawn.settled.isEmpty, "while checking no chip shows: \(drawn)")
         // The verdict: the verifier removed the `[3]` marker; the rest stands.
         box.message.text = text.replacingOccurrences(of: " [3]", with: "")
         box.message.citationsChecking = false

@@ -3,7 +3,8 @@
 // (key/value upsert per user `:174-276`, P-media-01); our schema adds topic + scope (one topic = one document,
 // Anthropic memory-tool docs, reference only). No code copied.
 // Writes go through `insert / update / delete / undo` only, each appending one `memory_event` (the undo log), and
-// only from MemoryTool, MemorySettingsViewModel, MemoryReviewService (after a tap) and MemoryImporter (M11):
+// only from MemoryTool, MemorySettingsViewModel, MemoryReviewService (a certain fact, or a suggestion after a tap),
+// MemoryCapture (a certain fact of the turn's own message) and MemoryImporter (M11):
 // tools/ci/memory-write-paths.py enforces the caller list. Active items are mirrored into `chunk(source='memory')`
 // (FTS through its triggers; the vector when an embedder gave one, else BackgroundIndexer.embedPending fills it).
 import AntiChatStorage
@@ -216,6 +217,27 @@ public struct MemoryStore: Sendable {
                 .fetchAll(db)
             let topics = try Dictionary(uniqueKeysWithValues: MemoryTopic.fetchAll(db, keys: Set(items.map(\.topicID))).map { ($0.id, $0) })
             return items.compactMap { i in topics[i.topicID].map { MemoryEntry(item: i, topic: $0) } }
+        }
+    }
+
+    /// The text as the duplicate check compares it: case and accents folded, punctuation dropped, spaces collapsed
+    /// ("I'm  Vegetarian." == "im vegetarian").
+    public static func normalized(_ text: String) -> String {
+        text.folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: nil)
+            .filter { $0 != "'" && $0 != "\u{2019}" }
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber }).joined(separator: " ")
+    }
+
+    /// An active item that already says `text` (normalised): a global one, or one of `projectID`. Saves skip these,
+    /// so the same fact is never stored twice (the cheap check before any embedding or model call).
+    public func duplicate(of text: String, projectID: String? = nil) throws -> MemoryItem? {
+        let wanted = Self.normalized(text)
+        guard !wanted.isEmpty else { return nil }
+        return try database.read { db in
+            try MemoryItem.filter(Column("state") == MemoryItemState.active.rawValue)
+                .filter(Column("project_id") == nil || Column("project_id") == projectID)
+                .order(Column("created_at"), Column("id")).fetchAll(db)
+                .first { Self.normalized($0.text) == wanted }
         }
     }
 

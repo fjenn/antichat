@@ -1,7 +1,6 @@
-// ⌘K panel (M1.T11 step 2; S-18, components.md §5 CommandPalette): a centred 640 pt card over a dimmed window:
-// filter tabs (All | Actions | Chats | Settings) + Liked, the vendored CommandPaletteKit field and grouped result
-// list (match highlights), and the key-hint footer (↑↓ select, ⏎ open, Tab `search.askTab`, Esc close).
-// Escape, a click outside, activating a row and Tab close it (UP-CP-003 dismiss hook).
+// Chat search panel (sidebar Search, ⌘K; S-18, components.md §5 CommandPalette): a centred 640 pt card over a dimmed
+// window: one field (the vendored CommandPaletteKit) and the list — New chat and the recent chats, or the matching
+// chats with their highlighted snippets. Escape, a click outside and activating a row close it (UP-CP-003 dismiss hook).
 import AntiChatDesign
 import AntiChatHarness
 import CommandPaletteKit
@@ -9,7 +8,6 @@ import SwiftUI
 
 public struct PalettePanel: View {
     @Bindable var controller: PaletteController
-    @Environment(\.openSettings) private var openSettings
 
     static let width: CGFloat = 640
     static let listHeight: CGFloat = 400
@@ -31,13 +29,10 @@ public struct PalettePanel: View {
             card
                 .padding(.top, 72)
         }
-        .onAppear { controller.openSettingsAction = { openSettings() } }
     }
 
     private var card: some View {
         VStack(spacing: 0) {
-            PaletteTabsBar(controller: controller)
-            Divider()
             CommandPaletteView(
                 placeholder: Self.verbatim(CopyKey("palette.placeholder").string()),
                 emptyMessage: Self.verbatim(CopyKey("search.empty").string(["query": controller.query])),
@@ -52,7 +47,7 @@ public struct PalettePanel: View {
                 candidates: $controller.candidates
             ) { result, selected in
                 PaletteItemRow(item: controller.item(result.id), fallbackTitle: result.title, selected: selected,
-                               query: controller.query, underHeaders: controller.tab == .all)
+                               query: controller.query)
             }
             // VQ round 65 (S-18): the list's last visible row was cut by the card edge mid-glyph; the list now fades
             // out over its last 32 pt, so a row there reads as "more below", not as clipped.
@@ -63,7 +58,7 @@ public struct PalettePanel: View {
                         .frame(height: 32)
                 }
             }
-            .commandPaletteGroupsResultsByCategory(controller.tab == .all)
+            .commandPaletteGroupsResultsByCategory(false)
             .commandPaletteResultsLabel(CopyKey("a11y.paletteResults").string())  // M9.T03 (UP-CP-005)
             // M9.T05: the id on the TextField itself (UP-CP-006). On the whole kit view (a `.contain` group) its
             // centre is a result row: XCUITest's click on "palette.field" activated that row and closed the palette
@@ -82,8 +77,6 @@ public struct PalettePanel: View {
             .focusOnAppear(controller.isPresented, inside: true)
             // The in-process probe's presence anchor only (DEBUG): the accessibility id is the field's (above).
             .probeAnchor(Self.fieldID)
-            Divider()
-            PaletteFooter()
         }
         .frame(width: Self.width)
         .background(Color.surfaceRaised)
@@ -100,65 +93,14 @@ public struct PalettePanel: View {
     static func verbatim(_ text: String) -> LocalizedStringKey { "\(text)" }
 }
 
-/// All | Actions | Chats | Settings, plus the Liked filter on All and Chats.
-struct PaletteTabsBar: View {
-    @Bindable var controller: PaletteController
-
-    var body: some View {
-        HStack(spacing: Spacing.space1) {
-            ForEach(PaletteTab.allCases, id: \.self) { tab in
-                PaletteChip(title: tab.title, selected: controller.tab == tab) { controller.select(tab) }
-                    .probeID("palette.tab.\(tab.rawValue)")
-            }
-            Spacer(minLength: Spacing.space2)
-            if controller.tab == .all || controller.tab == .chats {
-                PaletteChip(title: CopyKey("palette.filter.liked"), symbol: "hand.thumbsup",
-                            selected: controller.likedOnly) { controller.setLikedOnly(!controller.likedOnly) }
-                    .probeID("palette.filter.liked")
-            }
-        }
-        .padding(.horizontal, Spacing.space3)
-        .padding(.vertical, Spacing.space2)
-    }
-}
-
-struct PaletteChip: View {
-    let title: CopyKey
-    var symbol: String?
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: Spacing.space1) {
-                if let symbol { Image(systemName: selected ? "\(symbol).fill" : symbol) }
-                Text(title)
-            }
-            .typeStyle(.subhead)
-            .foregroundStyle(selected ? Color.textPrimary : Color.textSecondary)
-            .padding(.horizontal, Spacing.space3)
-            .padding(.vertical, Spacing.space1)
-            .background(Capsule().fill(selected ? Color.surfaceSelected : Color.clear))
-            .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-}
-
-/// One result row: icon, title (query highlighted), a snippet with the FTS match bold, shortcut or section tag.
+/// One result row: icon, title (query highlighted), a snippet with the FTS match bold, or the row's shortcut.
 struct PaletteItemRow: View {
     let item: PaletteItem?
     let fallbackTitle: String
     let selected: Bool
     let query: String
-    /// The All tab (rows under group headers): a Settings page row drops its "Settings" tag, which only repeated its
-    /// header (VQ round 65, S-18).
-    var underHeaders = false
-
     private var subtitle: String? {
         guard let item, item.excerpt.isEmpty else { return nil }
-        if underHeaders, case .action(.openSettings) = item.kind { return nil }
         return item.subtitle
     }
 
@@ -209,7 +151,7 @@ struct PaletteItemRow: View {
         return !excerpt.isEmpty && title.contains(excerpt)  // nothing the title does not already say
     }
 
-    /// The title with the matched query span in bold (chat title matches and action/settings rows).
+    /// The title with the matched query span in bold.
     private var title: Text {
         let text = item?.title ?? fallbackTitle
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -237,42 +179,6 @@ struct PaletteExcerpt: View {
             s += part
         }
         return Text(s).typeStyle(.footnote)
-    }
-}
-
-/// ↑↓ Select · ⏎ Open · "Tab to ask as a new chat" · Esc Close.
-struct PaletteFooter: View {
-    var body: some View {
-        HStack(spacing: Spacing.space4) {
-            hint("↑↓", CopyKey("palette.hint.select"), id: "select")
-            hint("⏎", CopyKey("palette.hint.open"), id: "open")
-            hint(nil, CopyKey("search.askTab"), id: "askTab")  // the string already names the key
-            Spacer(minLength: 0)
-            hint("Esc", CopyKey("palette.hint.close"), id: "close")
-        }
-        .typeStyle(.footnote)
-        .foregroundStyle(Color.textSecondary)
-        .padding(.horizontal, Spacing.space4)
-        .padding(.vertical, Spacing.space2)
-        .accessibilityElement(children: .contain)  // own ids for the children (Q-015)
-        .probeID("palette.footer")
-    }
-
-    private func hint(_ keys: String?, _ label: CopyKey, id: String) -> some View {
-        HStack(spacing: Spacing.space1) {
-            if let keys {
-                Text(verbatim: keys)
-                    .padding(.horizontal, Spacing.space1)
-                    .background(RoundedRectangle(cornerRadius: Radius.xs).fill(Color.surfaceSunken))
-                    .accessibilityHidden(true)  // spoken by the label below
-            }
-            // M9.T03: one element per hint on the label's own frame, the keys spoken first ("↑↓, Select"). Combined
-            // with the key chip, the element's frame held two backgrounds (the chip's fill and the card) and the
-            // audit compared those instead of the text ("Contrast failed" on every hint with a chip, S-18).
-            Text(label)
-                .accessibilityLabel(keys.map { Text(verbatim: "\($0), ") + Text(label) } ?? Text(label))
-                .probeID("palette.hint.\(id)")
-        }
     }
 }
 

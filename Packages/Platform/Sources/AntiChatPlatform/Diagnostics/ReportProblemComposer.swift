@@ -3,6 +3,8 @@
 // `<IssuesURL>/new?template=bug.yml&title=…&body=…` in the browser (body ≤ 6 KB, URL ≤ 8 KB; the full text goes to the
 // pasteboard), Email opens the user's mail client with the payload attached (`NSSharingService.composeEmail`, done
 // by the UI). The endpoints come from `Config/Endpoints.plist` (`IssuesURL`, `SupportEmail`).
+// Files and screenshots the user attaches (`ReportAttachments`: ≤ 5 items, ≤ 15 MB together) ride along the same two
+// ways: Mail gets them as attachments; a GitHub issue URL cannot carry files, so the UI shows them in Finder to drag in.
 import AntiChatStorage
 import Foundation
 
@@ -55,10 +57,79 @@ public struct ProblemReport: Sendable, Equatable {
     /// Only when the user ticked "Include this chat's text".
     public var chatText: String?
     public var logBundle: URL?
+    /// Files and screenshots the user attached (already within `ReportAttachments`' limits).
+    public var attachments: [URL]
 
-    public init(whatHappened: String, steps: String = "", systemBlock: String, chatText: String? = nil, logBundle: URL? = nil) {
+    public init(whatHappened: String, steps: String = "", systemBlock: String, chatText: String? = nil, logBundle: URL? = nil,
+                attachments: [URL] = []) {
         self.whatHappened = whatHappened; self.steps = steps; self.systemBlock = systemBlock; self.chatText = chatText
-        self.logBundle = logBundle
+        self.logBundle = logBundle; self.attachments = attachments
+    }
+}
+
+/// One file the user attached to a problem report.
+public struct ReportAttachment: Sendable, Equatable, Identifiable {
+    public var url: URL
+    public var bytes: Int64
+    public var id: URL { url }
+    public var name: String { url.lastPathComponent }
+
+    public init(url: URL, bytes: Int64) { self.url = url; self.bytes = bytes }
+}
+
+/// The limits of what a report can carry: Mail is the only channel that takes files, and mail servers commonly stop
+/// at 25 MB per message after encoding (+ 37%), so 15 MB of files leaves room for the log bundle.
+public enum ReportAttachments {
+    public static let maxCount = 5
+    public static let maxTotalBytes: Int64 = 15 * 1024 * 1024
+
+    public enum Refusal: Sendable, Equatable {
+        /// More than `maxCount` items.
+        case tooMany
+        /// This file would take the total over `maxTotalBytes`.
+        case tooLarge(name: String)
+        /// A folder, or a file that cannot be read.
+        case unreadable(name: String)
+    }
+
+    public struct Outcome: Sendable, Equatable {
+        public var items: [ReportAttachment]
+        /// The first thing that was left out, to tell the user (nil: everything was added).
+        public var refusal: Refusal?
+    }
+
+    /// A readable regular file with its size; nil for a folder, a missing or an unreadable file.
+    public static func measure(_ url: URL) -> ReportAttachment? {
+        let u = url.standardizedFileURL
+        guard let v = try? u.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey, .isReadableKey]),
+              v.isRegularFile == true, v.isReadable != false, let size = v.fileSize else { return nil }
+        return ReportAttachment(url: u, bytes: Int64(size))
+    }
+
+    /// `current` plus the files at `urls`, in order, as far as the limits allow. A file already attached is skipped
+    /// without a message; a file that does not fit is left out and a smaller one after it can still be added.
+    public static func add(_ urls: [URL], to current: [ReportAttachment],
+                           measure: (URL) -> ReportAttachment? = ReportAttachments.measure) -> Outcome {
+        var out = Outcome(items: current, refusal: nil)
+        var total = current.reduce(Int64(0)) { $0 + $1.bytes }
+        for url in urls {
+            guard let item = measure(url) else {
+                if out.refusal == nil { out.refusal = .unreadable(name: url.lastPathComponent) }
+                continue
+            }
+            if out.items.contains(where: { $0.url == item.url }) { continue }
+            if out.items.count >= maxCount {
+                if out.refusal == nil { out.refusal = .tooMany }
+                break
+            }
+            if total + item.bytes > maxTotalBytes {
+                if out.refusal == nil { out.refusal = .tooLarge(name: item.name) }
+                continue
+            }
+            out.items.append(item)
+            total += item.bytes
+        }
+        return out
     }
 }
 
@@ -73,6 +144,8 @@ public enum ReportProblemComposer {
         s += "\n### Versions\n\n```\n\(r.systemBlock)\n```\n"
         if let chat = r.chatText, !chat.isEmpty { s += "\n### Chat\n\n\(chat)\n" }
         if r.logBundle != nil { s += "\n(The log bundle is attached separately.)\n" }
+        // A count only: file names can be private and an issue is public.
+        if !r.attachments.isEmpty { s += "\n(\(r.attachments.count) more attachment(s) from the reporter, added separately.)\n" }
         return s
     }
 
@@ -111,9 +184,9 @@ public enum ReportProblemComposer {
         return out
     }
 
-    /// The e-mail hand-off: subject, body and attachments (the payload file and the optional log bundle).
+    /// The e-mail hand-off: subject, body and attachments (the payload file, the optional log bundle, the user's files).
     public static func email(_ r: ProblemReport, endpoints: ReportEndpoints, payloadFile: URL?) -> (recipient: String, subject: String, body: String, attachments: [URL]) {
-        (endpoints.supportEmail, "AntiChat: \(title(r))", body(r), [payloadFile, r.logBundle].compactMap { $0 })
+        (endpoints.supportEmail, "AntiChat: \(title(r))", body(r), [payloadFile, r.logBundle].compactMap { $0 } + r.attachments)
     }
 }
 

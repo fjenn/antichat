@@ -85,6 +85,9 @@ public struct TurnUpdate: Sendable, Hashable {
         /// user has moved on from): its text with the unsupported markers removed (nil = verdict dropped, text
         /// unchanged); the checking state ends.
         case citationsSettled(String?)
+        /// Per-turn memory capture: a finished reply's "Memory updated" line, a moment after the answer (any reply of
+        /// the chat; the line is stored as an activity part of that reply).
+        case memoryCaptured(ToolActivity)
     }
 
     public var assistantID: String
@@ -112,6 +115,42 @@ public actor TurnController {
         var s = base
         s.temperature = min(base.temperature, Self.editToolTemperature)
         return s
+    }
+
+    /// What the model reads on the one text-only step after the step budget is spent.
+    static let stepLimitPrompt = "[System Notice] You have used all the tool steps for this turn, so you cannot call a tool now. "
+        + "Answer the user from what you have: say briefly what you did and found, and what is still left to do. "
+        + "Do not say you will do more now; the user can press Continue to let you go on."
+
+    /// [Continue] after the output limit: the answer so far, then the request to carry on from its last word.
+    static func lengthContinuation(_ text: String) -> [ChatMessage] {
+        [ChatMessage(role: .assistant, content: text),
+         ChatMessage(role: .user, content: "[System Notice] Your answer above was cut off at the length limit. Continue it exactly where "
+            + "it stopped: start with the very next word, do not repeat anything already written, and do not add an introduction.")]
+    }
+
+    /// What goes between the cut answer and its continuation: nothing when either side already brings the break (or
+    /// the continuation opens with closing punctuation), else one space — a cut falls between tokens, and a model
+    /// that starts again writes its first word without the space that token would have carried.
+    static func lengthJoin(_ old: String, _ new: String) -> String {
+        guard let last = old.last, let first = new.first else { return "" }
+        if last.isWhitespace || first.isWhitespace || ".,;:!?)]}…".contains(first) { return "" }
+        return " "
+    }
+
+    /// The step's output budget (OutputBudget): from the model's window and what this request's prompt already uses.
+    /// `s` is the turn's sampling after Think harder (its reasoning budget, if any, is `s.maxTokens` above the base).
+    /// A controller built with its own `maxTokens` (not the engines' flat default) keeps it.
+    private func budgeted(_ s: Sampling, composed: ComposedPrompt, conversation: [ChatMessage], slot: ModelSlot,
+                          extraPrompt: Int = 0) -> Sampling {
+        guard sampling.maxTokens == OutputBudget.floor else { return s }
+        let window = contextPolicy.window(for: slot)
+        let prompt = ContextBudget.usage(prompt: composed, conversation: conversation, window: window).tokens + extraPrompt
+        let reasoning = max(0, s.maxTokens - sampling.maxTokens)
+        var out = s
+        out.maxTokens = reasoning + OutputBudget.answerTokens(window: window, promptTokens: prompt, reasoning: reasoning,
+                                                              floor: min(s.maxTokens, sampling.maxTokens))
+        return out
     }
 
     /// AT-273 (T05: csv-16 / md-16 / pdf-16 / xlsx-16 ran into the output limit inside the call and made no file; the app's
@@ -405,6 +444,8 @@ public actor TurnController {
         /// M1.T25: per-message provenance of this turn (set once the request exists).
         var provenance: ProvenanceRecorder?
         var finalized = false
+        /// Per-turn memory capture: the new user message's words (send / edit; a retry or [Continue] has none).
+        var captureText: String?
         /// AT-250 c2 (A-M7-T03c): the citation checks ran before the final write (finalize waits for the entailment check).
         var citationsChecked = false
         /// M7 bars: the final write marks the reply's pills as checking; the settle task runs after it.
@@ -425,6 +466,17 @@ public actor TurnController {
         var betweenSteps = false
         /// M1.T16: the next text delta of a new step is preceded by a paragraph break (as the persister stores it).
         var separatorOwed = false
+        /// [Continue] after the output limit: the reply's text so far and the notice that asks the model to carry on
+        /// (appended after the tool history), and the join owed before the first continued delta (`lengthJoin`).
+        var continuationTail: [ChatMessage] = []
+        var lengthJoinOwed = false
+        /// The step budget is spent and the one text-only step that reports on it is running (or ran).
+        var limitSummary = false
+        /// The earlier replies' tool calls (EarlierToolResults, newest first) and the block of them this turn's
+        /// requests carry on the newest user message (every step, like `skillContext`).
+        var earlierTurns: [[EarlierToolResults.Entry]] = []
+        var earlierResults: String?
+        var earlierTokens = 0
         /// M2.T23: tools the turn's steps called, and whether the fallback re-ask already ran (at most once).
         var calledTools: Set<String> = []
         /// M3.T13: media the turn's successful tool calls put in the chat, in order (the spoken pointer).
@@ -452,6 +504,12 @@ public actor TurnController {
         var forcedRepairRetried = false
         /// M2.T24 step 4: a media tool call whose pack is missing → the turn ends with this card (no further step).
         var installCard: InstallCard?
+        /// The turn ends with the Connect card (ConnectAppTool): the plain "connect X" message, or a `connect_app` call.
+        var connectCard = false
+        /// A connected-app turn whose reply only announced a tool use was asked once more to make the call.
+        var appReasked = false
+        /// The request is about a connected app whose tools are offered (ConnectAppTool.turnLine).
+        var appWanted = false
         /// M6.T02 step 7: the map-reduce driver of a whole-document summary (Stop cancels it).
         var summaryTask: Task<Void, Never>?
         /// M9 review H3: the running step's tool calls (Stop cancels them: media jobs, a pending video plan card).
@@ -487,6 +545,10 @@ public actor TurnController {
     }
 
     private var current: Running?
+    /// Per-turn memory capture: this controller's key at the coordinator, and its open capture (tests wait on it).
+    private nonisolated let captureKey = UUID()
+    private nonisolated let captures: MemoryCaptureCoordinator
+    private var captureTask: Task<Void, Never>?
     /// Timestamps engine events (provenance spans, flush cadence); injectable so duration tests are deterministic.
     private let now: @Sendable () -> ContinuousClock.Instant
     /// The assistant id phase updates are tagged with (set before `current` exists, at the start of a turn).
@@ -511,6 +573,7 @@ public actor TurnController {
     ) {
         self.now = now
         self.memory = memory
+        captures = memory?.captures ?? .shared
         self.vision = vision
         self.contextPolicy = contextPolicy
         self.tools = tools
@@ -543,6 +606,8 @@ public actor TurnController {
 
     deinit {
         continuation.finish()
+        captures.turnEnded(captureKey)
+        captureTask?.cancel()  // an open capture ends with its chat; a fact it already saved keeps its stored line
         // R2 review P2-2: citation checks still running when the controller goes away (its window closed, the chat's
         // model released). Their settle held the controller weakly, so the reply would stay `citations_checking`
         // (spinning pills) until the next launch while the verifier kept sending requests no longer gated by this
@@ -636,6 +701,10 @@ public actor TurnController {
             try MessageRepository(database).flush(assistantID, parts: parts, status: .streaming)
         }
         var run = Running(requestID: UUID(), assistantID: assistantID, persister: StreamPersister(policy: policy, sink: persisterSink))
+        switch request {
+        case .send(_, let text, _, _), .edit(_, _, let text, _): run.captureText = text
+        case .retry, .continueTools: break
+        }
         run.revises = revisesNextTurn
         run.revisesBase = revisesNextTurnBase
         revisesNextTurn = nil
@@ -696,13 +765,27 @@ public actor TurnController {
             let written = try write(request, assistantID: assistantID, documents: documentPlan)
             run.userID = written.userID
             run.summaryID = written.summaryID
+            run.earlierTurns = written.earlierTurns
             prompt = written.prompt
             if let existing = written.existingParts {
                 // M1.T16 [Continue]: the reply's parts so far; the loop resumes on them.
                 resumed = existing
                 run.persister = StreamPersister(policy: policy, existing: existing, sink: persisterSink)
                 run.citationPrefix = run.persister.text
-                run.separatorOwed = run.persister.beginStep()
+                // The limit notices of the reply are spent (their [Continue] was pressed). The newest one says which
+                // limit it was: the output limit → the text carries on where it stopped (no paragraph break); the step
+                // limit → the tool loop resumes and its next text is a new paragraph.
+                let notices = existing.filter { $0.kind == .activity }.compactMap { ToolActivity(partBody: $0.body) }.filter(\.offersContinue)
+                for var n in notices {
+                    n.state = .skipped
+                    run.persister.upsertActivity(key: n.id, body: n.partBody, at: .now)
+                }
+                if notices.last?.isLengthLimit == true, !run.persister.text.isEmpty {
+                    run.continuationTail = Self.lengthContinuation(run.persister.text)
+                    run.lengthJoinOwed = true
+                } else {
+                    run.separatorOwed = run.persister.beginStep()
+                }
             }
             emit(assistantID, .accepted(version: written.version.index, versionCount: written.version.total,
                                         userVersion: written.userVersion.index, userVersionCount: written.userVersion.total))
@@ -873,6 +956,8 @@ public actor TurnController {
                                    scripts: skillPlan?.hasScripts ?? false)
         }
         var discovery: ToolLoopState.Discovery?
+        var appLine: String?  // ConnectAppTool.turnLine: the request is about a connected app
+        let connectOffered = tools.map { $0.connectApps && ConnectAppTool.isAvailable(policy: $0.onlineGate.policy, path: $0.onlineGate.path) } ?? false
         if let tools {
             // M1.T16: the registry's tools join the prompt settings' set; ToolSelection decides what this step offers
             // (none for a chat-only model, D-023 (a); none for a purely conversational turn) and adds the clause.
@@ -893,6 +978,19 @@ public actor TurnController {
                 && tools.offered(t.name, chatToolIDs) {
                 byName[t.name] = t
             }
+            // Connected apps (ConnectAppTool): `connect_app` while a connection can be started; with apps connected,
+            // Composio's search + execute stay offered and the prompt names the apps (else "what's in my inbox" got
+            // "I can't access your email": four generic meta tools say nothing about Gmail being reachable).
+            if connectOffered { byName[ConnectAppTool.name] = ConnectAppTool.schema }
+            if tools.connectApps, !dryRun, ComposioApps.isStale(), let host = MCPTools.host {
+                Task.detached { await ComposioConnection.refreshApps(host: host) }
+            }
+            let composio = MCPTools.composioTools().flatMap { c in byName[c.search] != nil && byName[c.execute] != nil ? c : nil }
+            let connectPlan = ConnectAppTool.plan(
+                userTexts: prompt.filter { $0.role == .user }.suffix(2).map(\.content), connected: ComposioApps.connected,
+                connectOffered: connectOffered, hasComposio: composio != nil, roomy: !ToolPruner.prunes(tools.tier()))
+            let connectPins = (connectPlan.pinsComposio ? [composio?.search, composio?.execute].compactMap { $0 } : [])
+                + (connectPlan.pinsConnect ? [ConnectAppTool.name] : [])
             // M7.T13: the skill tools join after selection and pruning (disclosure tools, not route tools).
             var skillTools: [ToolSchema] = []
             for n in SkillTools.toolNames.sorted() { if let t = byName.removeValue(forKey: n) { skillTools.append(t) } }
@@ -913,20 +1011,25 @@ public actor TurnController {
                     } else {
                         // M7.T14 (R-266): load tools when needed — forced set, intent tools, similarity top-k, find_tools.
                         let forced = [decision.forcedTool].compactMap { $0 } + chips.compactMap(ChipOverride.toolName(forChip:))
-                            + ((skillPlan?.active ?? []) + (skillPlan?.preloaded ?? [])).flatMap(\.allowedTools)
+                            + ((skillPlan?.active ?? []) + (skillPlan?.preloaded ?? [])).flatMap(\.allowedTools) + connectPins
                         let tier = tools.tier()
                         let vector: [Float]? = if let s = router.scorer, let userText { await s.cachedVector(userText) } else { nil }
                         let hits = await tools.index.search(query: userText ?? "", queryVector: vector, among: all,
                                                             minEmbedCosine: ToolSelector.minEmbedCosine)
                         await tools.index.prepareInBackground(all)
                         let access = tools.switches.access
-                        let sel = ToolSelector.select(eligible: all, forced: forced, routed: decision.routedTools, hits: hits,
-                                                      access: access, tier: tier, budget: .forTier(tier))
+                        // Memory saves lasting facts on its own, so `memory` is offered on every step of a chat that
+                        // may write memory (not Paused / off / Evil without the switch), whatever the message is about:
+                        // on a small tier it otherwise competed for two or three slots and was rarely there.
+                        let writesMemory = FeatureFlag.memory.isEnabled() && memory?.access(chatID: chatID, isIncognito: false).write == true
+                        let pinned = writesMemory ? [MemoryTool.name] : []
+                        let sel = ToolSelector.select(eligible: all, forced: forced, pinned: pinned, routed: decision.routedTools,
+                                                      hits: hits, access: access, tier: tier, budget: .forTier(tier))
                         plan.tools = sel.tools
                         decision.toolsToExpose = sel.tools
                         if !dryRun { lastToolSelection = sel }
                         if sel.offersFindTools {
-                            discovery = ToolLoopState.Discovery(eligible: all, forced: forced, tier: tier, access: access)
+                            discovery = ToolLoopState.Discovery(eligible: all, forced: forced, pinned: pinned, tier: tier, access: access)
                         }
                     }
                     plan.toolChoice = decision.toolChoice
@@ -962,7 +1065,14 @@ public actor TurnController {
             }
             inputs.tools = plan.tools
             inputs.toolClause = plan.clause ?? ""
+            if let line = ConnectAppTool.clause(apps: connectPlan.apps, search: composio?.search, execute: composio?.execute,
+                                                offered: plan.tools.map(\.name)) {
+                inputs.toolClause = inputs.toolClause.isEmpty ? line : inputs.toolClause + "\n\n" + line
+            }
             toolChoice = plan.toolChoice
+            appLine = ConnectAppTool.turnLine(wanted: connectPlan.wanted, search: composio?.search, execute: composio?.execute,
+                                              offered: plan.tools.map(\.name))
+            run.appWanted = appLine != nil
             // M6.T20 (AT-276): an edit request on an attached Office file: the first step must call edit_office_file
             // (later steps are free, so the model can retry from the tool's feedback), with the trust framing.
             if officeEdit, plan.tools.contains(where: { $0.name == EditOfficeFileTool.name }) {
@@ -1008,6 +1118,23 @@ public actor TurnController {
         if !dryRun {
             turnUserText = ToolSelection.newestUserText(prompt)  // M5.T10
             turnMedium = medium
+        }
+        // A plain "log into GitHub" / "connect my Gmail": the Connect card is the reply (no model step that could say
+        // "I can't log in for you").
+        // "Summarise my latest emails" with no mail app connected: the same card, and the request runs again once
+        // the app is connected (`direct: false`).
+        let newestText = ToolSelection.newestUserText(prompt)
+        if connectOffered, !continuing, chips.isEmpty,
+           let (toolkit, direct) = ConnectAppTool.cardApp(newestText, connected: ComposioApps.connected) {
+            if dryRun { return nil }
+            let card = ConnectAppTool.activity(id: "connect-\(toolkit)", app: toolkit, toolkit: toolkit, direct: direct)
+            run.persister.upsertActivity(key: card.id, body: card.partBody, at: .now)
+            run.finish = .stop
+            run.connectCard = true
+            current = run
+            emit(assistantID, .activity(card))
+            finalize()
+            return nil
         }
         if let packs, !continuing, dryRun || !mediaWithheld,
            let card = await installCard(packs: packs, userText: ToolSelection.newestUserText(prompt), prompt: prompt,
@@ -1104,6 +1231,12 @@ public actor TurnController {
             // Skill bodies in the prompt (chip, Apply to every chat, pre-load) count like a `load_skill` result.
             if UntrustedContextRule.conversationIsUntrusted(conversation)
                 || UntrustedContextRule.skillBodiesInPrompt(skillPlan) { loop.untrusted = true }
+            // [Continue] at the output limit: the answer so far and the notice follow the tool history, and the step
+            // only writes text (the tools stay in the prompt, so the cached prefix is the same).
+            if !run.continuationTail.isEmpty {
+                loop.history += run.continuationTail
+                toolChoice = ToolChoice.none
+            }
             loop.stepChoice = toolChoice
             if var d = discovery {  // M7.T14: find_tools can re-compose the next step's tools
                 d.inputs = inputs
@@ -1111,7 +1244,22 @@ public actor TurnController {
             }
             run.loop = loop
         }
-        var firstSampling = stepSampling(tuned.sampling, choice: toolChoice, officeEdit: officeEditStep)
+        let tail = run.loop == nil ? run.continuationTail : []
+        // Follow-ups see what the earlier replies' tools returned (EarlierToolResults): within the tier's share of the
+        // window and only while the prompt stays under the idle-compaction fill with it.
+        let window = contextPolicy.window(for: modelSlot)
+        let used = ContextBudget.usage(prompt: composed, conversation: conversation + (run.loop?.history ?? []) + tail, window: window).tokens
+        let room = Int(Double(window) * contextPolicy.idleThreshold) - used
+        let earlier = EarlierToolResults.render(
+            run.earlierTurns, budgetTokens: min(room, EarlierToolResults.budgetTokens(tier: tools?.tier() ?? .t1, window: window)))
+        run.earlierResults = earlier?.text
+        run.earlierTokens = earlier?.tokens ?? 0
+        if earlier?.untrusted == true { run.loop?.untrusted = true }  // NFR-SEC5: as in the turn that ran the tool
+        if !dryRun { lastTurnStartedUntrusted = run.loop?.untrusted ?? false }
+        var firstSampling = stepSampling(
+            budgeted(tuned.sampling, composed: composed, conversation: conversation + (run.loop?.history ?? []) + tail, slot: modelSlot,
+                     extraPrompt: earlier?.tokens ?? 0),
+            choice: toolChoice, officeEdit: officeEditStep)
         if let loop = run.loop {  // AT-273: a file-making step gets room for the whole file
             firstSampling = Self.fileOutSampling(firstSampling, choice: toolChoice, offered: loop.offered,
                                                  userText: ToolSelection.newestUserText(conversation),
@@ -1123,12 +1271,14 @@ public actor TurnController {
         }
         var req = composed.request(
             requestID: run.requestID, sessionID: sessionID, modelSlot: modelSlot,
-            conversation: conversation + (run.loop?.history ?? []), reasoning: tuned.reasoning,
+            conversation: conversation + (run.loop?.history ?? []) + tail, reasoning: tuned.reasoning,
             sampling: firstSampling, toolChoice: toolChoice)
         req.prefixPin = DocumentWarmth.pin(for: req, chatID: chatID)  // M6.T03 (R-279)
         if let memoryLine { req.turnContext = [req.turnContext, memoryLine].compactMap { $0 }.joined(separator: "\n") }  // M8.T02
+        if let appLine { req.turnContext = [req.turnContext, appLine].compactMap { $0 }.joined(separator: "\n") }
         if let projectLine { req.turnContext = [projectLine, req.turnContext].compactMap { $0 }.joined(separator: "\n\n") }  // M8.T05
         if let skills = run.skillContext { req.turnContext = [req.turnContext, skills].compactMap { $0 }.joined(separator: "\n\n") }  // M7.T13
+        if let earlier = run.earlierResults { req.turnContext = [req.turnContext, earlier].compactMap { $0 }.joined(separator: "\n\n") }
         // M4.T13 (R-033 AC1): when `edit_image` is offered, the picture in focus and its id (never a bypass: the model
         // still writes the call).
         if !dryRun { lastImageContextLine = nil }
@@ -1235,6 +1385,7 @@ public actor TurnController {
 
     private func reject(_ assistantID: String, generation: Int, reason: String) {
         phase = .idle
+        captures.turnEnded(captureKey)
         trace.append(.idle)
         emit(assistantID, .phase(.idle))
         emit(assistantID, .rejected(reason))
@@ -1250,6 +1401,8 @@ public actor TurnController {
         var userVersion: (index: Int, total: Int)
         /// `.continueTools`: the reply's parts so far.
         var existingParts: [PartContent]?
+        /// The earlier replies' tool calls (EarlierToolResults).
+        var earlierTurns: [[EarlierToolResults.Entry]] = []
     }
 
     /// One transaction: the chat row if new, the user message (send/edit), the pending assistant node; then the
@@ -1375,11 +1528,23 @@ public actor TurnController {
             return Written(
                 userID: userID, summaryID: summary?.id, prompt: prompt,
                 version: try MessageTree.versionInfo(assistantID, db: db),
-                userVersion: try MessageTree.versionInfo(userID, db: db), existingParts: existing)
+                userVersion: try MessageTree.versionInfo(userID, db: db), existingParts: existing,
+                earlierTurns: try earlierToolTurns(path, covered: covered, db: db))
         }
     }
 
     /// The conversation a prompt carries for `path` (turns covered by the summary left out, the summary leading).
+    /// Whether the last composed turn started with untrusted content in context (tests).
+    private(set) var lastTurnStartedUntrusted = false
+
+    /// The earlier replies' tool calls on `path` for this turn's volatile tail (EarlierToolResults).
+    private func earlierToolTurns(_ path: [MessageRecord], covered: Set<String>, db: Database) throws -> [[EarlierToolResults.Entry]] {
+        let registry = tools?.registry
+        return try EarlierToolResults.entries(path: path, covered: covered, db: db) {
+            registry?.tool(named: $0)?.outputIsUntrusted ?? true
+        }
+    }
+
     private func history(_ path: [MessageRecord], covered: Set<String>, summary: SummaryNode?, db: Database) throws -> [ChatMessage] {
         var prompt: [ChatMessage] = []
         for m in path where !covered.contains(m.id) {
@@ -1419,8 +1584,9 @@ public actor TurnController {
         let generation = prewarmGeneration
         let modelSlot = slot()
         let prompt: [ChatMessage]
+        var earlier: [[EarlierToolResults.Entry]] = []
         do {
-            prompt = try database.read { db in
+            (prompt, earlier) = try database.read { db in
                 var path: [MessageRecord] = []
                 var summary: SummaryNode?
                 var covered: Set<String> = []
@@ -1432,14 +1598,15 @@ public actor TurnController {
                         covered = Set(s.coveredIDs)
                     }
                 }
-                return try history(path, covered: covered, summary: summary, db: db)
-                    + [ChatMessage(role: .user, content: userText)]
+                return (try history(path, covered: covered, summary: summary, db: db)
+                    + [ChatMessage(role: .user, content: userText)], try earlierToolTurns(path, covered: covered, db: db))
             }
         } catch {
             return
         }
         let noop: StreamPersister.Sink = { _ in }
         var scratch = Running(requestID: UUID(), assistantID: "speculation", persister: StreamPersister(policy: policy, sink: noop))
+        scratch.earlierTurns = earlier
         let request = TurnRequest.send(userID: "speculation", text: userText, parentID: parentID, attachmentIDs: [])
         guard let turn = await compose(request, prompt: prompt, modelSlot: modelSlot, captionState: nil, resumed: nil,
                                        explicitImage: activeImageNextTurn, run: &scratch, assistantID: "speculation", dryRun: true),
@@ -1543,8 +1710,12 @@ public actor TurnController {
         run.provenance?.observe(event, at: now)
         current = run
         switch event {
-        case .textDelta(let s):
+        case .textDelta(var s):
             guard !run.stopped else { return false }  // late tokens after Stop are discarded
+            if run.lengthJoinOwed, !s.isEmpty {  // the first text after [Continue] at the output limit
+                run.lengthJoinOwed = false
+                s = Self.lengthJoin(run.persister.text, s) + s
+            }
             if !run.ttftSearchMarked, !run.calledTools.isDisjoint(with: WebSearchTools.names) {
                 run.ttftSearchMarked = true
                 let d = (now - run.sentAt).components
@@ -1724,6 +1895,17 @@ public actor TurnController {
                     emit(run.assistantID, .mediaOffer(chip))
                 }
             }
+            // Connected apps: the reply said it would search / send / check ("Let me search for the tool. Now I'll send
+            // the email.") and ended without any call, so nothing happened. One more step that must call a tool.
+            if !run.stopped, reason != .cancelled, !run.appReasked, let loop = run.loop, loop.steps == 0, run.calledTools.isEmpty,
+               loop.stepChoice != ToolChoice.none, let c = MCPTools.composioTools(),
+               loop.offered.contains(where: { $0.name == c.search }),
+               ConnectAppTool.announcesToolUse(run.persister.text) || (run.appWanted && ConnectAppTool.refusesAccess(run.persister.text)) {
+                run.appReasked = true
+                current = run
+                startStep(choice: .required)
+                return true
+            }
             // M6.T21 (AT-274 on the merged head: sc-07 empty reply, sc-12 / sc-14 a duplicate-skipped query and then a
             // text-only step that wrote prose or plotting code): a chart request whose turn only looked data up gets one
             // more step that must call create_chart (the data_ref binds the looked-up rows). Once; not after any other tool.
@@ -1748,6 +1930,15 @@ public actor TurnController {
                 current = run
                 startStep(choice: .required)
                 return true
+            }
+            // The answer ran into the output limit: it is kept as it is and [Continue] shows under it (the limit
+            // notice), instead of a reply that silently stops mid-sentence and is marked done. Not on the step-limit
+            // report (its own notice already offers Continue, for the tools).
+            if !run.stopped, reason == .length, !run.limitSummary,
+               !run.persister.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                let notice = ToolActivity.lengthLimit(key: run.persister.parts.count)
+                run.persister.upsertActivity(key: notice.id, body: notice.partBody, at: now)
+                emit(run.assistantID, .activity(notice))
             }
             current = run
             finalize()
@@ -1916,11 +2107,25 @@ public actor TurnController {
             finalize()
             return
         }
+        if run.connectCard {  // `connect_app`: the card is what happens next; the request runs again once connected
+            current?.finish = .stop
+            finalize()
+            return
+        }
         if loop.steps >= loop.policy.maxSteps {
             // R-232 AC1 / step 6: `tool.loopLimit` with [Continue].
             let notice = ToolActivity.loopLimit(step: loop.steps, key: loop.history.count)
             current?.persister.upsertActivity(key: notice.id, body: notice.partBody, at: .now)
             emit(run.assistantID, .activity(notice))
+            // The turn used to end here with tool lines and no answer. One last step, text only (no tool can be
+            // called, so the loop cannot go on), tells the user what was done and what is left; Continue stays under
+            // it. Once per turn: a step some re-ask starts after it ends the turn at this limit as before.
+            if !run.limitSummary {
+                current?.limitSummary = true
+                current?.loop?.history.append(ChatMessage(role: .user, content: Self.stepLimitPrompt))
+                startStep(choice: ToolChoice.none)
+                return
+            }
             current?.finish = .toolCalls
             finalize()
             return
@@ -1943,12 +2148,16 @@ public actor TurnController {
         var req = loop.composed.request(
             requestID: run.requestID, sessionID: sessionID, modelSlot: loop.modelSlot,
             conversation: loop.conversation + loop.history, reasoning: loop.reasoning,
-            sampling: Self.fileOutSampling(stepSampling(loop.sampling, choice: choice), choice: choice, offered: loop.offered,
+            sampling: Self.fileOutSampling(stepSampling(budgeted(loop.sampling, composed: loop.composed,
+                                                                 conversation: loop.conversation + loop.history, slot: loop.modelSlot,
+                                                                 extraPrompt: run.earlierTokens),
+                                                        choice: choice), choice: choice, offered: loop.offered,
                                            userText: ToolSelection.newestUserText(loop.conversation),
                                            window: contextPolicy.window(for: loop.modelSlot)),
             toolChoice: choice)
         req.prefixPin = DocumentWarmth.pin(for: req, chatID: chatID)  // M6.T03
         if let skills = run.skillContext { req.turnContext = [req.turnContext, skills].compactMap { $0 }.joined(separator: "\n\n") }  // M7.T13
+        if let earlier = run.earlierResults { req.turnContext = [req.turnContext, earlier].compactMap { $0 }.joined(separator: "\n\n") }
         run.loop = loop
         current = run
         requests.append(req)
@@ -1983,6 +2192,32 @@ public actor TurnController {
             record(call, result: InstallCardPolicy.packNotInstalled, activity: activity, started: started)
             current?.installCard = card
             return true
+        }
+        // `connect_app` is answered here: a connected app → the model goes on with its tools; else the Connect card ends
+        // the turn (ConnectAppTool). Before the offered-tools check: a call from a step that did not offer it still helps.
+        if call.name == ConnectAppTool.name, tools.connectApps, let app = ConnectAppTool.app(call.argumentsJSON) {
+            // A Connect card is about to look an app up: the list of apps is asked for when it is a day old (not
+            // waited for: this card resolves against the list in hand).
+            Task.detached(priority: .utility) { await LiveAppCatalog.live?.refresh(userOpened: true) }
+            let toolkit = ComposioApps.resolve(app)
+            if let toolkit, ComposioApps.connected.contains(toolkit) {
+                activity.state = .done
+                record(call, result: ConnectAppTool.result(app: ComposioApps.title(toolkit), connected: true), activity: activity, started: started)
+                return false
+            }
+            var card = ConnectAppTool.activity(id: activity.id, app: app, toolkit: toolkit, direct: false)
+            card.startedAt = activity.startedAt
+            record(call, result: ConnectAppTool.result(app: toolkit.map(ComposioApps.title) ?? app, connected: false), activity: card, started: started)
+            current?.connectCard = true
+            return true
+        }
+        // Composio's remote workbench / bash tools are never offered; a model that names one anyway (Composio's own
+        // results suggest them) is told to answer from what it has: no card, no repair turn, no line.
+        if tools.registry.tool(named: call.name) == nil,
+           !Set(VerbClassifier.words(call.name)).isDisjoint(with: ["workbench", "bash"]) {
+            activity.state = .skipped
+            record(call, result: SlugPermission.unavailableResult, activity: activity, started: started)
+            return false
         }
         // M6.T09: a tool's own checks (file specs) count as malformed too; their text is the `{"repair": true, …}` list.
         let chat = chatID, db = database, turnKey = current?.assistantID
@@ -2027,7 +2262,7 @@ public actor TurnController {
                                                 minEmbedCosine: ToolSelector.minEmbedCosine)
             let found = FindToolsTool.found(hits, limit: ToolSelector.cap(d.tier, budget: budget) - 1)
             let next = ToolSelector.afterDiscovery(found: found, previous: loop.offered, eligible: d.eligible, forced: d.forced,
-                                                   tier: d.tier, budget: budget, access: d.access)
+                                                   pinned: d.pinned, tier: d.tier, budget: budget, access: d.access)
             var inputs = d.inputs
             inputs.tools = next
             let composed = composer.compose(inputs, context: volatileContext())
@@ -2056,6 +2291,7 @@ public actor TurnController {
         // every skill, including ones imported later, so it is not honoured (and not written) for run_skill_script.
         let asksEveryTime = PermissionGate.asksEveryTime(call.name)
         stored = PermissionGate.effectiveStored(stored, toolName: call.name)
+        if stored == .ask, MCPTools.isComposioLookup(call.name) { stored = nil }  // looking up an action never asks
         var decision = PermissionGate.decide(sideEffect: tool.sideEffect, stored: stored, untrustedContext: loop.untrusted,
                                              fallback: tool.defaultPolicy)
         // M7.T16 review #5: under untrusted context a read_url to a host the user never wrote asks first.
@@ -2096,6 +2332,7 @@ public actor TurnController {
                 return false
             }
             activity.state = .running
+            activity.startedAt = Date()  // the line's seconds count the call, not the wait for the answer
             publish(activity)
         }
         }
@@ -2218,6 +2455,11 @@ public actor TurnController {
                    activity: activity, started: started)
             return false
         }
+        if slugs.contains(where: SlugPermission.isRemoteExecution) {
+            activity.state = .skipped
+            record(call, result: SlugPermission.unavailableResult, activity: activity, started: started)
+            return false
+        }
         let perms = tools?.permissions
         let checks = SlugPermission.checks(slugs: slugs, untrustedContext: untrusted) { key in
             (try? perms?.policy(toolKey: key, chatID: chatID)) ?? nil
@@ -2227,13 +2469,20 @@ public actor TurnController {
             record(call, result: "Not run: the user's settings do not allow \(blocked.slug).", activity: activity, started: started)
             return false
         }
+        var asked = false
         for (i, c) in checks.enumerated() {
             guard case .ask(let u) = c.decision else { continue }
             let id = "\(call.id)#\(i)"
             activity.state = .awaitingApproval
             publish(activity)
-            emit(assistantID, .approval(ToolApprovalRequest(id: id, tool: c.slug, argumentsJSON: call.argumentsJSON,
-                                                            sideEffect: c.writeType ? .write : .read, untrusted: u)))
+            asked = true
+            // The card shows this action alone: its app and verb (from the slug) and its own arguments.
+            let verbs = Set(VerbClassifier.words(c.slug))
+            let effect: ToolSideEffect = !c.writeType ? .read : !verbs.isDisjoint(with: ["delete", "remove"]) ? .delete
+                : !verbs.isDisjoint(with: ["send", "post", "reply", "share", "invite"]) ? .send : .write
+            emit(assistantID, .approval(ToolApprovalRequest(
+                id: id, tool: c.slug, argumentsJSON: SlugPermission.innerArguments(call.argumentsJSON, slug: c.slug),
+                sideEffect: effect, untrusted: u)))
             let answer: ApprovalAnswer? = await awaitApproval(id)
             emit(assistantID, .approval(nil))
             guard live(requestID) else { return false }
@@ -2252,6 +2501,7 @@ public actor TurnController {
             }
         }
         activity.state = .running
+        if asked { activity.startedAt = Date() }  // the line's seconds count the call, not the wait for the answer
         publish(activity)
         return true
     }
@@ -2488,7 +2738,7 @@ public actor TurnController {
         if Self.isEmptyAnswer(stopped: run.stopped, finish: run.finish, errorCode: run.errorCode, text: run.persister.text,
                               parts: Self.usableParts(run.persister.parts, onlyCutOffSteps: onlyCuts),
                               toolSteps: onlyCuts ? 0 : run.loop?.steps ?? 0,
-                              cardShown: run.installCard != nil, mediaMade: !run.mediaMade.isEmpty) {
+                              cardShown: run.installCard != nil || run.connectCard, mediaMade: !run.mediaMade.isEmpty) {
             AppLog.log(.harness, .error, "empty reply: finish=\(run.finish.map { "\($0)" } ?? "-") "
                 + "reasoning_chars=\(run.persister.reasoning.count) completion_tokens=\(run.usage.map { "\($0.completionTokens)" } ?? "-") "
                 + "requests=\(requests.count)")
@@ -2568,6 +2818,7 @@ public actor TurnController {
             reasoning: run.persister.reasoning, errorCode: code, version: version.index, versionCount: version.total,
             userVersion: userVersion.index, userVersionCount: userVersion.total,
             reasoningSeconds: provenance.reasoningMs.map { $0 / 1000 }, citationsChecking: run.citationsPending)))
+        if status == .done { scheduleMemoryCapture(run) }
         // M7 bars: settle passes held while this turn generated go on now.
         let waiters = idleWaiters
         idleWaiters = []
@@ -2641,7 +2892,69 @@ public actor TurnController {
             trace.append(next)
             if let id = updateID { emit(id, .phase(next)) }
         }
+        // Per-turn memory capture: a running turn of any chat cancels open captures and holds new ones back.
+        if next.isActive { captures.turnBegan(captureKey) } else { captures.turnEnded(captureKey) }
         return true
+    }
+
+    // MARK: - Memory capture (per turn)
+
+    /// After a reply was delivered (`.finished` is out): when memory is On for this chat, the turn's own `memory` call
+    /// wrote nothing and MemoryCaptureGate fires on the user's words, one short extraction call runs on the chat model
+    /// at `.utility` (MemoryCapture) — never during a turn or a media job, cancelled by the next turn of any chat.
+    /// A fact it saves shows as "Memory updated ▸" with Undo on this reply (`.memoryCaptured`, an activity part);
+    /// what it is unsure about goes to the suggestions. Worst case per gated turn: `MemoryCapture.budget` twice
+    /// (extraction, then the comparison with a similar memory); a turn that does not fire the gate costs nothing.
+    private func scheduleMemoryCapture(_ run: Running) {
+        guard let memory, let text = run.captureText, FeatureFlag.memory.isEnabled(), let capture = memory.capture,
+              memory.access(chatID: chatID, isIncognito: false).write,
+              !Self.memoryToolWrote(run.persister.parts), MemoryCaptureGate.fires(text),
+              !(tools?.mediaQueue?.hasRunning ?? false) else { return }
+        let scope = try? ProjectStore(database: database).memoryScope(chatID: chatID)
+        let projectID = scope?.mode == .project ? scope?.projectID : nil
+        let (assistantID, userID, policy) = (run.assistantID, run.userID, memory.policy())
+        captureTask = captures.begin { [captures, database, chatID] key in
+            BackgroundJobQueue.shared.enqueue(.memory, incognito: false) { [weak self] in
+                defer { captures.finished(key) }
+                // A reply whose citation checks still run on the model goes first.
+                if let settle = await self?.settles[assistantID] { await settle.value }
+                guard !Task.isCancelled else { return }
+                let outcome = await capture.run(userText: text, chatID: chatID, userMessageID: userID, policy: policy,
+                                                projectID: projectID)
+                AppLog.log(.store, .info, "memory capture: \(outcome.saved.count) saved, \(outcome.pending.count) to review")
+                guard !outcome.eventIDs.isEmpty else { return }
+                // Stored with the reply by the task itself, so the line survives its controller (a closed window).
+                let line = Self.memoryCaptureLine(eventIDs: outcome.eventIDs)
+                do {
+                    try MessageRepository(database).appendPart(assistantID, PartContent(kind: .activity, body: line.partBody))
+                } catch {
+                    AppLog.log(.harness, .error, "memory capture line not stored: \(error)")
+                }
+                await self?.emit(assistantID, .memoryCaptured(line))
+            }
+        }
+    }
+
+    /// Tests: returns once the open capture (if any) has ended.
+    public func memoryCaptureSettled() async { await captureTask?.value }
+
+    /// The turn's own `memory` call saved or deleted something (or was told it is already known): nothing to capture.
+    static func memoryToolWrote(_ parts: [PartContent]) -> Bool {
+        parts.contains { p in
+            guard p.kind == .activity, let a = ToolActivity(partBody: p.body), a.kind == .tool, a.tool == MemoryTool.name,
+                  a.state == .done,
+                  let args = (try? JSONSerialization.jsonObject(with: Data(a.argumentsJSON.utf8))) as? [String: Any] else { return false }
+            return ["save", "delete"].contains(args["action"] as? String ?? "")
+        }
+    }
+
+    /// The reply's line for facts the capture saved: the `memory` tool's own activity shape, so the transcript shows the
+    /// same "Memory updated ▸" with Undo (MemoryNotice reads `memoryEventIDs`).
+    static func memoryCaptureLine(eventIDs: [String]) -> ToolActivity {
+        let ids = eventIDs.map { "\"\($0)\"" }.joined(separator: ",")
+        return ToolActivity(id: "memory-capture-\(eventIDs.first ?? "")", tool: MemoryTool.name, state: .done,
+                            argumentsJSON: #"{"action":"save"}"#,
+                            result: "{\"memoryEventIDs\":[\(ids)],\"result\":\"added\",\"stored\":true}")
     }
 
     private func emit(_ assistantID: String, _ kind: TurnUpdate.Kind) {

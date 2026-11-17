@@ -5,6 +5,7 @@
 // drive NSSavePanel reliably; Debug builds only).
 import AntiChatDesign
 import AntiChatFoundation
+import AntiChatStorage
 import AntiChatTools
 import AppKit
 import UniformTypeIdentifiers
@@ -63,7 +64,7 @@ enum VideoSavePanel {
     /// Export MP4: asks, then writes (nil when cancelled or the write failed).
     @discardableResult
     static func export(_ source: URL, name: String?) async -> URL? {
-        guard let choice = await choose(suggestedName: suggestedName(name)) else { return nil }
+        guard let choice = await choose(suggestedName: suggestedName(name ?? StoredFileNames.name(forPath: source.path))) else { return nil }
         return await write(source, to: choice)
     }
 

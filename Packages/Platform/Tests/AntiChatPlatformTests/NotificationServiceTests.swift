@@ -10,7 +10,7 @@ import Testing
     func make(_ status: PermissionStatus, answer: PermissionStatus = .granted, explain: Bool? = true)
         -> (NotificationService, SpyUserNotificationClient, PermissionCoordinator) {
         let perms = PermissionCoordinator(system: PermissionCoordinator.fake([.notifications: status], answers: [.notifications: answer]),
-                                          observeActivation: false)
+                                          observeActivation: false, defaults: .inMemory())
         if let explain { perms.explainer = { _ in explain } }
         let spy = SpyUserNotificationClient()
         let s = NotificationService(client: spy, permissions: perms)
@@ -77,7 +77,7 @@ import Testing
     }
 
     @Test func concurrentEventsShareOneExplainer() async {
-        let perms = PermissionCoordinator(system: PermissionCoordinator.fake([.notifications: .notDetermined]), observeActivation: false)
+        let perms = PermissionCoordinator(system: PermissionCoordinator.fake([.notifications: .notDetermined]), observeActivation: false, defaults: .inMemory())
         var shown = 0
         perms.explainer = { _ in
             shown += 1

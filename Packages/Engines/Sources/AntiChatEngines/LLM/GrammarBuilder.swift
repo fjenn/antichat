@@ -1,9 +1,10 @@
 // GrammarBuilder (M1.T13 step 2; P-shell-09): JSON Schema → grammar constraint for the TOOL-CALL SPAN ONLY.
 //   - MLX: an xgrammar structural tag (MLXGuidedGeneration / MLXCXGrammar at mlx-swift-lm f5b0677, xgrammar
 //     v0.1.30 `structural_tag.cc`): one `tag` per offered tool — Qwen3.5/3.6: an EBNF parameter list in any order
-//     with typed values (`qwenXMLParameters`); Hermes JSON: the tool's `json_schema`. `LazyToolGrammarProcessor`
+//     with typed values (`qwenXMLParameters`); Hermes JSON: the tool's `json_schema`; Gemma 4: an EBNF argument
+//     list in any order with typed values (`gemma4Arguments`). `LazyToolGrammarProcessor`
 //     activates it only after the model itself sampled the dialect's opening token (`<tool_call>`) and drops it
-//     when the call's closing `</function>\n` / `}\n` is reached, so answer text and reasoning are never touched
+//     when the call's closing `</function>\n` / `}\n` / `}` is reached, so answer text and reasoning are never touched
 //     (R-241: no logit edits in answer generation; the "lazy grammar" fallback of M1.T13 is the default).
 //   - llama-server: no grammar from us. With `--jinja` and `tools`, llama.cpp builds its own lazy tool grammar
 //     triggered by the template's call marker (`Binaries/llama.cpp@620d222:common/chat-auto-parser-generator.cpp:
@@ -101,6 +102,107 @@ public enum GrammarBuilder {
         return rules.joined(separator: "\n")
     }
 
+    /// EBNF for the argument list of a Gemma 4 call, i.e. what stands between `call:NAME{` and the closing `}`, in the
+    /// layout the model's own template renders (mlx-community/gemma-4-26b-a4b-it-4bit@0d77464 `chat_template.jinja`,
+    /// `format_argument(…, escape_keys=False)`): `key:value` pairs joined by `,` with no whitespace; a string is wrapped
+    /// in the escape token `<|"|>`, numbers / booleans / null are bare, an object is `{key:value,…}` with unquoted keys,
+    /// an array `[value,…]`. Top-level parameters: declared names only, in any order, each with a value of its type
+    /// (string enum → one of its values; nested objects and arrays follow their `properties` / `items`; an untyped
+    /// value is any of the above). As for Qwen, the grammar does not enforce `required` or forbid duplicates (the
+    /// parser and the schema check still see them).
+    static func gemma4Arguments(_ schema: [String: Any]) -> String {
+        var b = Gemma4Rules()
+        let fields = b.fields(schema, depth: 0)
+        return (["root ::= " + fields] + b.rules + Gemma4Rules.shared).joined(separator: "\n")
+    }
+
+    struct Gemma4Rules {
+        /// The escape token, and the call / turn end tokens no string value may contain (a string that ran into one
+        /// would end the call or the generation mid-argument).
+        static let quote = "<|\"|>"
+        static let shared = [
+            "q ::= " + ebnfLiteral(quote),
+            "text ::= TagDispatch(stop_eos=true, stop_str=(), loop_after_dispatch=false, excludes=("
+                + [quote, "<tool_call|>", "<turn|>"].map(ebnfLiteral).joined(separator: ", ") + "))",
+            "str ::= q text q",
+            #"int ::= "-"? [0-9]+"#,
+            #"num ::= "-"? [0-9]+ ("." [0-9]+)? ([eE] [-+]? [0-9]+)?"#,
+            #"bool ::= "true" | "false""#,
+            #"key ::= [a-zA-Z0-9_.\-]+ | str"#,
+            #"any ::= str | num | bool | "null" | arr | obj"#,
+            #"arr ::= "[" (any ("," any)*)? "]""#,
+            #"obj ::= "{" (key ":" any ("," key ":" any)*)? "}""#,
+        ]
+        var rules: [String] = []
+
+        private mutating func rule(_ prefix: String, _ body: String) -> String {
+            let name = "\(prefix)\(rules.count)"
+            rules.append("\(name) ::= \(body)")
+            return name
+        }
+
+        /// `key:value` pairs of an object schema (without the braces): its declared properties; any pairs when it
+        /// declares none but allows additional ones; nothing otherwise.
+        mutating func fields(_ schema: [String: Any], depth: Int) -> String {
+            let props = (schema["properties"] as? [String: Any] ?? [:]).sorted { $0.key < $1.key }
+            if props.isEmpty {
+                let extra = schema["additionalProperties"]
+                let open = extra is [String: Any] || (extra as? Bool) == true
+                return open ? #"(key ":" any ("," key ":" any)*)?"# : "\"\""
+            }
+            let alts = props.map { name, raw in
+                rule("p", "\(ebnfLiteral(name + ":")) \(value(raw as? [String: Any] ?? [:], depth: depth + 1))")
+            }
+            let field = rule("f", alts.joined(separator: " | "))
+            return "(\(field) (\",\" \(field))*)?"
+        }
+
+        /// The expression for one value of `schema`.
+        mutating func value(_ schema: [String: Any], depth: Int) -> String {
+            guard depth < 8, schema["$ref"] == nil else { return "any" }
+            if let e = schema["enum"] as? [Any], !e.isEmpty {
+                return "(" + e.map(literal).joined(separator: " | ") + ")"
+            }
+            if let c = schema["const"] { return literal(c) }
+            for k in ["anyOf", "oneOf"] {
+                if let a = schema[k] as? [[String: Any]], !a.isEmpty {
+                    return "(" + a.map { value($0, depth: depth + 1) }.joined(separator: " | ") + ")"
+                }
+            }
+            let types = (schema["type"] as? String).map { [$0] } ?? schema["type"] as? [String] ?? []
+            guard !types.isEmpty else { return "any" }
+            let alts = types.map { t -> String in
+                switch t {
+                case "string": return "str"
+                case "integer": return "int"
+                case "number": return "num"
+                case "boolean": return "bool"
+                case "null": return "\"null\""
+                case "array":
+                    guard let items = schema["items"] as? [String: Any] else { return "arr" }
+                    let item = value(items, depth: depth + 1)
+                    return rule("a", "\"[\" (\(item) (\",\" \(item))*)? \"]\"")
+                case "object":
+                    guard !(schema["properties"] as? [String: Any] ?? [:]).isEmpty else { return "obj" }
+                    return rule("o", "\"{\" \(fields(schema, depth: depth + 1)) \"}\"")
+                default: return "any"
+                }
+            }
+            return alts.count == 1 ? alts[0] : "(" + alts.joined(separator: " | ") + ")"
+        }
+
+        /// An enum / const member as the template writes it: a string in the escape token, anything else bare.
+        func literal(_ v: Any) -> String {
+            if let s = v as? String { return "q \(ebnfLiteral(s)) q" }
+            if v is NSNull { return "\"null\"" }
+            if let n = v as? NSNumber {
+                if CFGetTypeID(n) == CFBooleanGetTypeID() { return ebnfLiteral(n.boolValue ? "true" : "false") }
+                return ebnfLiteral("\(n)")
+            }
+            return "any"
+        }
+    }
+
     static func ebnfLiteral(_ s: String) -> String {
         var out = "\""
         for ch in s.unicodeScalars {
@@ -127,6 +229,12 @@ public enum GrammarBuilder {
                     // The template's newlines sit in begin/end: `<function=N>` ws params `\n</function>\n`.
                     "type": "tag", "begin": "\n<function=\(t.name)>",
                     "content": ["type": "grammar", "grammar": qwenXMLParameters(schema)], "end": "\n</function>\n",
+                ]
+            case .gemma4:
+                // `<|tool_call>` is followed at once by `call:NAME{`; the closing `<tool_call|>` is the model's own.
+                return [
+                    "type": "tag", "begin": "call:\(t.name){",
+                    "content": ["type": "grammar", "grammar": gemma4Arguments(schema)], "end": "}",
                 ]
             default:  // hermesJSON
                 return [
@@ -212,7 +320,7 @@ public final class ToolGrammarCache: @unchecked Sendable {
 /// Lazy tool-call grammar as a `LogitProcessor` (`GenerationComponents.logitProcessorFactory`).
 /// Inactive it never edits logits and never waits on the GPU: it scans tokens two steps behind the sampler (those
 /// are already evaluated). When it sees the opening token outside reasoning, it commits the one token sampled
-/// since (the only unconstrained token of the span; the dialects all start the body with "\n"), then masks every
+/// since (the only unconstrained token of the span: "\n" for Qwen / Hermes, `call` for Gemma 4), then masks every
 /// step until the grammar's end string is accepted, and goes inactive again (parallel calls re-trigger).
 final class LazyToolGrammarProcessor: LogitProcessor {
     let triggerID: Int
@@ -236,6 +344,8 @@ final class LazyToolGrammarProcessor: LogitProcessor {
     /// (the only logit edit outside a call span, and only on a request that asked for a call).
     let forced: Bool
     private var forcedDone = false
+    /// The history index the forced opening tag lands at (set when its mask is handed out).
+    private var forcedAt: Int?
 
     init(
         triggerID: Int, thinkOpenID: Int?, thinkCloseID: Int?, eosID: Int, startsInThink: Bool, stats: ToolGrammarStats,
@@ -279,6 +389,15 @@ final class LazyToolGrammarProcessor: LogitProcessor {
     }
 
     func process(logits: MLXArray) -> MLXArray {
+        if let at = forcedAt {
+            // The forced opening tag was just sampled (nothing else was admitted): its body is constrained from its
+            // first token on, so a forced call cannot start as another tool's (no unconstrained token after the tag).
+            forcedAt = nil
+            if active == nil, history.count == at + 1 {
+                scanned = history.count
+                activate()
+            }
+        }
         if active == nil {
             // Tokens up to count-2 are evaluated: the sampler only has the newest one in flight.
             while scanned + 1 < history.count {
@@ -305,6 +424,7 @@ final class LazyToolGrammarProcessor: LogitProcessor {
                 forcedDone = true
             } else if inFlight != thinkOpenID || thinkOpenID == nil {
                 forcedDone = true
+                forcedAt = history.count
                 var words = [Int32](repeating: 0, count: (logits.dim(-1) + 31) / 32)
                 words[triggerID / 32] = Int32(bitPattern: UInt32(1) << UInt32(triggerID % 32))
                 return logits + bitmask.array(words, logitDim: logits.dim(-1))

@@ -9,12 +9,16 @@
 //     Settings → Capabilities). Neither is ever the default action over a failed Chat row.
 //   - Every row ready: the title changes (`onb.4.title.allReady`).
 //   - The starter answers while the Chat row still downloads: the subtitle says a chat can start, never "Chat is ready".
+//   - Nothing answers yet (no starter, Chat row not ready, not failed): Open chat is shown but disabled — the owner's
+//     rule (2026-11-15): nobody gets into a chat before a text model can answer; they wait on this screen.
 import AntiChatPlatform
 
 struct Step4State: Equatable {
     enum Primary: Equatable {
-        /// Open chat; `emphasized` once something answers (the starter or the whole Chat row).
-        case openChat(emphasized: Bool)
+        /// Nothing answers yet: Open chat is visible but disabled (the user waits here).
+        case wait
+        /// Open chat: the starter or the whole Chat row answers.
+        case openChat
         /// Chat failed: Retry (Open chat is never the primary action over a failed Chat row).
         case retry
     }
@@ -48,7 +52,7 @@ struct Step4State: Equatable {
             else if chatReady { "onb.4.subtitle.ready" }
             else if starterReady { "onb.4.subtitle.starter" }
             else { "onb.4.subtitle.waiting" }
-        primary = chatFailed ? .retry : .openChat(emphasized: chatReady || starterReady)
+        primary = chatFailed ? .retry : (chatReady || starterReady) ? .openChat : .wait
         secondary = !chatFailed ? nil : starterReady ? .openChat : .continueWithoutChat
     }
 }

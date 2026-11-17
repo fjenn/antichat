@@ -32,17 +32,10 @@ public struct SeededGenerator: RandomNumberGenerator, Sendable {
 }
 
 public enum EmptyHeadline {
-    /// `empty.headline.1…5` (copy-deck §3).
-    public static let keys: [CopyKey] = [
-        CopyKey("empty.headline.1"), CopyKey("empty.headline.2"), CopyKey("empty.headline.3"),
-        CopyKey("empty.headline.4"), CopyKey("empty.headline.5"),
-    ]
+    /// One calm headline on every new chat (`empty.headline`); it used to change at random between five.
+    public static let key = CopyKey("empty.headline")
 
-    /// One headline per new chat, picked by `seed`.
-    public static func pick(seed: UInt64) -> CopyKey {
-        var g = SeededGenerator(seed: seed)
-        return keys[Int(g.next() % UInt64(keys.count))]
-    }
+    public static func pick(seed: UInt64) -> CopyKey { key }
 }
 
 public enum SuggestionProvider {

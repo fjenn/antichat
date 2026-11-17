@@ -89,6 +89,7 @@ public struct PermissionSystem: Sendable {
         open: { url in Task { @MainActor in NSWorkspace.shared.open(url) } }
     )
 
+    #if DEBUG || ANTICHAT_PERF_HARNESS
     /// `-FakePermission microphone=<state>`: status fixed to `state`; `request` grants only from `notDetermined`
     /// when `grantOnRequest` (the system dialog's Allow), and records nothing in TCC.
     public static func fake(microphone state: PermissionStatus, grantOnRequest: Bool = true, hasMicrophone: Bool = true) -> PermissionSystem {
@@ -119,6 +120,7 @@ public struct PermissionSystem: Sendable {
             }
         }
     }
+    #endif
 }
 
 @MainActor @Observable

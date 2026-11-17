@@ -1,6 +1,8 @@
 // Dev model lookup for the M0 spikes (M0.md C6): `~/Library/Application Support/AntiChat-Dev/Models/<key>`
 // (or `$ANTICHAT_DEV_CACHE/Models`); since M2.T12 the install views `installs/<key>` of the content-addressed store
 // first (`make models-dev` → antichat-cli), the old `<Models>/<key>` dirs only for the M0 image/video spike sets.
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatEngineProtocol
 import AntiChatHarness
 import Foundation
@@ -118,3 +120,4 @@ enum DevModels {
         return slot(key)
     }
 }
+#endif

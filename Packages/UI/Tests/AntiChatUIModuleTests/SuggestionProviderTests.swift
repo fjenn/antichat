@@ -1,4 +1,4 @@
-// AT-001 leg (3)/(4) unit half (M1.T07): headlines come from empty.headline.1…5 and vary over a fixed seed set;
+// AT-001 leg (3)/(4) unit half (M1.T07): one headline (empty.headline) on every new chat;
 // suggestion cards are ≤ 4, only from enabled packs' static lists, deterministic per seed, and never need a network.
 import AntiChatDesign
 import AntiChatFoundation
@@ -7,17 +7,9 @@ import Testing
 @testable import AntiChatUI
 
 @Suite(.isolatedSettings) struct SuggestionProviderTests {
-    @Test func headlineKeysAreTheFiveDeckKeys() {
-        #expect(EmptyHeadline.keys.map(\.rawValue) == (1...5).map { "empty.headline.\($0)" })
-        for k in EmptyHeadline.keys { #expect(k.isKnown, "missing copy key \(k)") }
-    }
-
-    @Test func thirtySeedsShowAllFiveHeadlines() {
-        let picked = (UInt64(1)...30).map { EmptyHeadline.pick(seed: $0) }
-        #expect(Set(picked).count == 5)
-        #expect(Set(picked).isSubset(of: Set(EmptyHeadline.keys)))
-        // Deterministic for a seed.
-        #expect(EmptyHeadline.pick(seed: 42) == EmptyHeadline.pick(seed: 42))
+    @Test func oneHeadlineForEveryNewChat() {
+        #expect(EmptyHeadline.key.isKnown && EmptyHeadline.key.rawValue == "empty.headline")
+        #expect(Set((UInt64(1)...30).map { EmptyHeadline.pick(seed: $0) }) == [EmptyHeadline.key])
     }
 
     @Test func chatOnlyGivesTheFourChatLines() {

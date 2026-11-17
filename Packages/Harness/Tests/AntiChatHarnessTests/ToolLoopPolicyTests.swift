@@ -22,7 +22,9 @@ import Testing
         let r = try await h.log.waitFinished(a, timeout: .seconds(20))
         let n = ToolLoopPolicy.steps(for: tier)
         #expect(r.status == .done)
-        #expect(await h.controller.requests.count == n, "\(tier): model steps")
+        // n tool steps, then the one text-only step that reports on the spent budget.
+        #expect(await h.controller.requests.count == n + 1, "\(tier): model steps")
+        #expect(await h.controller.requests.last?.toolChoice == ToolChoice.none)
         #expect(h.registry.invocations(of: "echo") == n, "\(tier): echo ran once per step")
         // Every call and result is persisted; results are untrusted; one activity line per call + the limit notice.
         #expect(try h.parts(a, .toolCall).count == n)
@@ -35,7 +37,7 @@ import Testing
         #expect(acts.last?.isLoopLimit == true)
         #expect(acts.last?.steps == n)
         // Each step sees the previous steps' calls and results (step k: k-1 assistant steps + k-1 results).
-        let last = await h.controller.requests.last!
+        let last = await h.controller.requests[n - 1]
         let history = last.flattenedMessages
         #expect(history.filter { $0.role == .assistant && !$0.toolCalls.isEmpty }.count == n - 1)
         #expect(history.filter { $0.role == .tool }.count == n - 1)
@@ -51,7 +53,7 @@ import Testing
             log.all.filter { if case .finished = $0.kind { $0.assistantID == a } else { false } }.count == 2
         }
         #expect(h.registry.invocations(of: "echo") == 6)
-        #expect(await h.controller.requests.count == 3)
+        #expect(await h.controller.requests.count == 4)
         // The resumed steps see the earlier calls (history rebuilt from the parts) and run new ones.
         let first = await h.controller.requests.first!
         #expect(first.flattenedMessages.filter { $0.role == .tool }.count == 3)

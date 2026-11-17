@@ -10,3 +10,12 @@
 | `../PackIcons.xcassets/pack-evil.imageset` | `capability-evil.png` (1024×1024 RGBA, sha256 `c596156e49c0812d0b51b4c363afe71fa7070378d55d70a2309d4136a812728f`), the owner's own isometric 3D icon supplied 2026-11-13 for use as an AntiChat brand asset. Alpha below 10 cleared, resized to 512 px (Lanczos) + the 1024 px original as @2x, both quantised to a 256-colour PNG with Pillow; no other change. | owner-supplied, all rights to AntiChat |
 
 Step 1 shows it at full colour under `onb.scrim.step1`; steps 2 and 4 desaturate it in code (`onb.art.desaturate`).
+
+## App marks (`../AppLogos.xcassets`, used by `AppLogo`)
+
+Monochrome vector templates (24×24 SVG, `<title>` removed, otherwise unchanged), tinted by the app.
+
+| Asset | Source | Licence |
+|---|---|---|
+| `app-gmail`, `app-googlecalendar`, `app-googledrive`, `app-notion`, `app-github`, `app-linear` | [Simple Icons](https://github.com/simple-icons/simple-icons) 16.38.0, `icons/<slug>.svg` (npm `simple-icons@16.38.0`) | CC0-1.0. The marks are trademarks of their owners and are used only to name the app a connection is for. |
+| `app-slack`, `app-outlook` | Drawn for AntiChat (a hash sign of four rounded bars; a tile with an O beside an envelope), filling the 24-unit box at the weight of the six marks above. Simple Icons 16.38.0 has no Slack or Outlook icon; these are neutral marks, not the brands' logos. | Project licence |

@@ -80,10 +80,13 @@ final class EvilEntryPointsTests: XCTestCase {
 
     @MainActor
     private func composerEvilSegment(_ app: XCUIApplication) {
-        let segment = window(app).descendants(matching: .any).matching(identifier: "modeSwitch")
-            .descendants(matching: .radioButton).matching(NSPredicate(format: "label == 'Evil'")).firstMatch
-        XCTAssertTrue(segment.waitForExistence(timeout: 5), "the composer's Evil segment")
-        segment.click()
+        // ux/simplify: the toolbar's mode picker, then its Evil row.
+        let picker = window(app).descendants(matching: .any).matching(identifier: "modeSwitch").firstMatch
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), "the toolbar's mode picker")
+        picker.click()
+        let row = app.descendants(matching: .any).matching(identifier: "modeSwitch.evil").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 3), "the picker's Evil row")
+        row.click()
     }
 
     // MARK: right after launch

@@ -15,6 +15,9 @@ public class GateURLProtocol: URLProtocol, @unchecked Sendable {
     public static let categoryKey = "ac.category"
     public static let policyKey = "ac.policy"
     public static let turnKey = "ac.turn"
+    /// A request the user's own action asked for while its category is still off by default (`NetworkGate.userOpened`):
+    /// only Offline only refuses it.
+    public static let userOpenedKey = "ac.userOpened"
 
     static func category(of request: URLRequest, session: NetworkCategory?) -> NetworkCategory {
         if let tag = URLProtocol.property(forKey: categoryKey, in: request) as? String, let c = NetworkCategory(rawValue: tag) {
@@ -30,7 +33,9 @@ public class GateURLProtocol: URLProtocol, @unchecked Sendable {
     override public class func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https" || scheme == "ws" || scheme == "wss"
         else { return false }
-        return !policy(of: request).isEnabled(category(of: request, session: sessionCategory))
+        let policy = policy(of: request)
+        if URLProtocol.property(forKey: userOpenedKey, in: request) as? Bool == true { return policy.offlineOnly }
+        return !policy.isEnabled(category(of: request, session: sessionCategory))
     }
 
     override public class func canonicalRequest(for request: URLRequest) -> URLRequest { request }

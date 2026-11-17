@@ -17,7 +17,20 @@ public struct ComposioConnection: Sendable {
     }
 
     /// The apps the relay offers and their state (only once the user has used Connections: no install ID before).
-    public func connections() async throws -> RelayConnections { try await relay.connections() }
+    /// Every read also refreshes `ComposioApps.connected` (what the chat knows is connected).
+    public func connections() async throws -> RelayConnections {
+        let r = try await relay.connections()
+        ComposioApps.update(r)
+        return r
+    }
+
+    /// Re-reads the connected apps for the chat (launch, and per turn when stale). Only once the Composio connection
+    /// exists: no install ID and no request before the user's first use.
+    public static func refreshApps(host: MCPHost) async {
+        guard RelayClient.isAvailable() else { return }
+        guard await host.composioServer() != nil else { ComposioApps.update(nil); return }
+        _ = try? await ComposioConnection(host: host).connections()
+    }
 
     /// After consent: the Composio row exists and is connected, and the hosted sign-in URL for `toolkit` is returned.
     public func begin(toolkit: String) async throws -> URL {
@@ -35,7 +48,7 @@ public struct ComposioConnection: Sendable {
         let clock = ContinuousClock(), end = clock.now + timeout
         while clock.now < end {
             try Task.checkCancellation()
-            if try await relay.connections().connections.contains(where: { $0.toolkit == toolkit && $0.isActive }) {
+            if try await connections().connections.contains(where: { $0.toolkit == toolkit && $0.isActive }) {
                 if let row = await host.composioServer() { await host.refreshTools(row.id) }
                 return true
             }

@@ -20,8 +20,6 @@ public struct ComposerMenuItem: Sendable, Hashable, Identifiable {
         case files, image, video, web, connections, project
         /// M7.T12 (R-082 AC3): "+" → Skills › per-chat switches (no chip).
         case skills
-        /// M7.T14 (R-268 AC2): "+" → Tools › the Tools page's tools with switches for this chat (no chip).
-        case tools
     }
 
     public enum Kind: Sendable, Hashable {
@@ -209,8 +207,7 @@ public enum SlashCommandRegistry {
     /// `(query, title) → score` (higher is better; nil = no match).
     public typealias Scorer = @Sendable (_ query: String, _ title: String) -> Int?
 
-    /// The + menu: Add photos & files · Create image · Create video · Web search · Connections · Use project
-    /// (components.md AddMenu order; Create file / Skills arrive in M6 / M7).
+    /// The + menu: Add photos & files · Create image · Create video · Web search · Connections · Skills.
     public static func addItems(_ c: ComposerMenuContext) -> [ComposerMenuItem] {
         var items: [ComposerMenuItem] = [
             action(.files, .enabled, "paperclip"),
@@ -219,11 +216,10 @@ public enum SlashCommandRegistry {
         ]
         if c.offersTools {
             if let web = c.webItemState { items.append(action(.web, web, "globe")) }
-            if c.connectionsEnabled { items.append(action(.connections, .enabled, "puzzlepiece.extension")) }
+            // Always listed: with nothing connected yet the submenu is the way to Settings › Connections.
+            items.append(action(.connections, .enabled, "puzzlepiece.extension"))
         }
-        if c.offersTools { items.append(action(.tools, .enabled, "slider.horizontal.3")) }  // M7.T14
         if c.hasSkills { items.append(action(.skills, .enabled, "sparkles")) }  // M7.T12
-        items.append(action(.project, .notYet, "folder"))
         return items
     }
 

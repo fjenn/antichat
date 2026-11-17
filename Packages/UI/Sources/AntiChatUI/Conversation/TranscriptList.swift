@@ -160,6 +160,14 @@ struct TranscriptList<Item: Identifiable & Equatable, Row: View>: View where Ite
             // VQ-M10 round 65 (S-15): the side panel opening (or the sidebar collapsing for it) re-wraps every row at
             // the new width, and the taller content left an attached view "away" before the anchor caught up: the
             // reply ended under a Jump-to-bottom button nobody had asked for. A re-wrap is not the reader scrolling.
+            // A view that was at the bottom when the width changed stays there for the whole re-wrap, whatever the
+            // passes in between look like (rows re-measure one after another, and a pass whose offset was clamped up
+            // read as the reader scrolling: the Sources panel opened and the answer slid away under Jump to bottom).
+            if new.away, widthMark.isRecent, widthMark.wasAttached {
+                position.scrollTo(edge: .bottom)
+                if detached { detached = false }
+                return
+            }
             if !detached, new.away, widthMark.isRecent, !FollowGeometry.readerScrolledUp(old, new) {
                 position.scrollTo(edge: .bottom)
                 return
@@ -205,9 +213,31 @@ struct TranscriptList<Item: Identifiable & Equatable, Row: View>: View where Ite
         .onChange(of: scrollTarget) { _, id in
             if let id { position.scrollTo(id: id, anchor: .center) }
         }
-        .onGeometryChange(for: CGFloat.self) { $0.size.width.rounded() } action: { _ in
+        .onGeometryChange(for: CGFloat.self) { $0.size.width.rounded() } action: { width in
+            // The column's first width (the chat opening) is not a re-wrap: nothing holds the view at the bottom then,
+            // so a reader who scrolls up right after opening a chat is not pulled back down
+            // (TranscriptFollowHostTests.aSendRePinsAfterTheReaderLeftTheBottom).
+            let opening = widthMark.width == nil
+            if width > 0 { widthMark.width = width }
+            if opening {
+                widthMark.changedAt = ContinuousClock.now
+                if !detached { position.scrollTo(edge: .bottom) }
+                return
+            }
+            // The panel's slide changes the width on every frame: "was at the bottom" is what held when it began.
+            if !widthMark.isRecent { widthMark.wasAttached = !detached }
             widthMark.changedAt = ContinuousClock.now
-            if !detached { position.scrollTo(edge: .bottom) }
+            if widthMark.wasAttached {
+                position.scrollTo(edge: .bottom)
+                // And once more when the re-wrap has settled (the last rows measure after the last width change).
+                widthMark.settle?.cancel()
+                widthMark.settle = Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(450))
+                    guard !Task.isCancelled else { return }
+                    position.scrollTo(edge: .bottom)
+                    if detached { detached = false }
+                }
+            }
         }
         // On the scroll view itself, before the overlay: applied after it, "transcript" replaced JumpToBottom's own
         // identifier (Q-015 XCUITest catch-up).
@@ -236,6 +266,11 @@ struct TranscriptList<Item: Identifiable & Equatable, Row: View>: View where Ite
 /// geometry callback that sets it costs no transaction (the fix/selection-hang-2 rule).
 final class WidthChangeMark {
     var changedAt: ContinuousClock.Instant?
+    /// The column's width once it has one (nil until the first layout).
+    var width: CGFloat?
+    /// The view was at the bottom when this run of width changes began.
+    var wasAttached = false
+    var settle: Task<Void, Never>?
     /// Within the re-wrap's settle time (rows re-measure over a few passes after the width changes).
     var isRecent: Bool { changedAt.map { ContinuousClock.now - $0 < .milliseconds(800) } ?? false }
 }

@@ -6,7 +6,9 @@
 //                       (template text "<tool_call>\n<function=" → upstream `.xmlFunction`; the model config
 //                       selects the `.qwen35` superset parser, ToolCallFormatInference.swift:83-110)
 //   Hermes JSON (tiny fixture, Qwen3): <tool_call>\n{"name": …, "arguments": {…}}\n</tool_call>  (`.json`)
-//   Gemma 4:            <|tool_call>call:NAME{k:<|"|>v<|"|>}<tool_call|>  (`.gemma4`)
+//   Gemma 4:            <|tool_call>call:NAME{k:<|"|>v<|"|>,n:3,o:{k:v},a:[v]}<tool_call|>  (`.gemma4`; the template
+//                       of mlx-community/gemma-4-26b-a4b-it-4bit@0d77464: strings in the `<|"|>` escape token,
+//                       numbers / booleans bare, nested keys unquoted, no whitespace)
 import Foundation
 import MLXLMCommon
 
@@ -74,10 +76,18 @@ public enum ToolFormat: String, Codable, Sendable, CaseIterable {
         }
     }
 
-    /// Whether GrammarBuilder can constrain this dialect's call span on MLX (xgrammar structural tags at
-    /// mlx-swift-lm f5b0677 / xgrammar v0.1.30 have `json_schema` and `qwen_xml_parameter` contents; Gemma 4's
-    /// `<|"|>`-quoted argument syntax has none, so Gemma calls stay parser-validated only: A-M1-T13a).
-    public var grammarConstrainable: Bool { self == .qwenXML || self == .hermesJSON }
+    /// Whether GrammarBuilder can constrain this dialect's call span on MLX. Every shipped dialect: xgrammar structural
+    /// tags (v0.1.30) take a `json_schema` content (Hermes) or an EBNF `grammar` content, which carries Qwen's XML
+    /// parameter list and Gemma 4's `call:NAME{k:<|"|>v<|"|>}` argument list (`GrammarBuilder.gemma4Arguments`).
+    public var grammarConstrainable: Bool { self == .qwenXML || self == .hermesJSON || self == .gemma4 }
+
+    /// The special tokens around a reasoning span, and whether the template itself opens the span in the generation
+    /// prompt (Qwen: `<think>\n` is rendered; Gemma 4: the model writes `<|channel>thought` itself). The lazy grammar
+    /// ignores a call marker inside the span. A forced call waits for a span the template opened to close; where the
+    /// model would open it itself (Gemma 4) the forced call comes first, without reasoning.
+    public var reasoningTags: (open: String, close: String, openedByTemplate: Bool) {
+        self == .gemma4 ? ("<|channel>", "<channel|>", false) : ("<think>", "</think>", true)
+    }
 
     /// Every raw tool-call marker of the dialects AntiChat ships or meets (AT-231 "raw syntax": `<tool_call>`,
     /// `<|tool|>`, `[TOOL_CALLS]`, plus the Gemma 4 / XML / Llama tags), paired with its closing marker when the

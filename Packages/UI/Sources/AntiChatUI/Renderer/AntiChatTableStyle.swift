@@ -52,34 +52,55 @@ private struct TableBlockView: View {
     /// right corner, not at the far edge of the reading column (VQ round 65, S-08: "detached from its table").
     @State private var tableWidth: CGFloat?
 
-    var body: some View {
-        VStack(alignment: .trailing, spacing: Spacing.space1) {
-            copyButton
-            ScrollView(.horizontal) {
-                // fix/t05-u5-part6 (NFR-U5): the header and each body row are kept while their Markdown line is unchanged.
-                // The configuration's rows hold type-erased cells built by each parse, which never compare equal, so
-                // every new row of a streaming table rebuilt every row and cell (`StreamingBlocksTests`: rows 1…12
-                // re-evaluated for the 12th). The grid still lays out all rows, so column widths are unchanged.
-                let keys = TableRowKeys(source: block?.source, rows: configuration.table.rows.count)
-                Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
-                    TableRowView(key: keys.header) { configuration.table.header }
-                    ForEach(Array(configuration.table.rows.enumerated()), id: \.offset) { i, row in
-                        TableRowView(key: keys.row(i)) { row }
-                    }
-                }
-                .markdownTableCellPadding(.vertical, Spacing.space2)
-                .markdownTableCellPadding(.horizontal, Spacing.space3)
-                .markdownTableCellOverlay {
-                    Rectangle().strokeBorder(Color.borderSubtle, lineWidth: Stroke.hairline(scale: displayScale))
-                }
-                .fixedSize(horizontal: true, vertical: true)
-                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
-                    if tableWidth != w { tableWidth = w }
-                }
+    /// Up to six columns wrap their text to fit the reading column (as ChatGPT does); wider tables keep their natural
+    /// width and scroll sideways. Unknown shape (a table inside a list or quote) scrolls.
+    private var wraps: Bool {
+        guard let first = block?.source.split(separator: "\n").first else { return false }
+        let cells = first.trimmingCharacters(in: .whitespaces).split(separator: "|", omittingEmptySubsequences: true).count
+        return (1...6).contains(cells)
+    }
+
+    private var grid: some View {
+        // fix/t05-u5-part6 (NFR-U5): the header and each body row are kept while their Markdown line is unchanged.
+        // The configuration's rows hold type-erased cells built by each parse, which never compare equal, so
+        // every new row of a streaming table rebuilt every row and cell (`StreamingBlocksTests`: rows 1…12
+        // re-evaluated for the 12th). The grid still lays out all rows, so column widths are unchanged.
+        let keys = TableRowKeys(source: block?.source, rows: configuration.table.rows.count)
+        return Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
+            TableRowView(key: keys.header) { configuration.table.header }
+            ForEach(Array(configuration.table.rows.enumerated()), id: \.offset) { i, row in
+                TableRowView(key: keys.row(i)) { row }
             }
-            .scrollIndicators(.automatic)
         }
-        .frame(maxWidth: tableWidth, alignment: .leading)
+        .markdownTableCellPadding(.vertical, Spacing.space2)
+        .markdownTableCellPadding(.horizontal, Spacing.space3)
+        .markdownTableCellOverlay {
+            Rectangle().strokeBorder(Color.borderSubtle, lineWidth: Stroke.hairline(scale: displayScale))
+        }
+    }
+
+    var body: some View {
+        Group {
+            if wraps {
+                // No scroll view: the stack hugs the grid, so "Copy as CSV" sits at the table's own top right corner.
+                VStack(alignment: .trailing, spacing: Spacing.space1) {
+                    copyButton
+                    grid.fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                VStack(alignment: .trailing, spacing: Spacing.space1) {
+                    copyButton
+                    ScrollView(.horizontal) {
+                        grid.fixedSize(horizontal: true, vertical: true)
+                            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { w in
+                                if tableWidth != w { tableWidth = w }
+                            }
+                    }
+                    .scrollIndicators(.automatic)
+                }
+                .frame(maxWidth: tableWidth, alignment: .leading)
+            }
+        }
         .frame(maxWidth: .infinity, alignment: .leading)
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .named(markdownSpace)).minY } action: { y in
             context?.place(table: id, y: y)

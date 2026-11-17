@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Memory write paths (M8.T02, R-242 AC2: memory is written only by the tool or by the user).
+"""Memory write paths (M8.T02, R-242 AC2: memory is written only by the tool, the background review or the user).
 
 Fails when `MemoryStore` writes (`.insert(topic:`, `.update(id:`, `.delete(id:`, `.undo(eventID:`, `.resetAll(`) are
 called from any Swift file outside the allow-list below. Allowed entries that do not exist yet are fine (later tasks).
@@ -18,8 +18,9 @@ ALLOWED = {
     "Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryTool.swift",        # the model, via the tool (M8.T02)
     "Packages/UI/Sources/AntiChatUI/Settings/Personalization/MemorySettingsViewModel.swift",  # the user (M8.T03)
     "Packages/UI/Sources/AntiChatUI/Conversation/MemoryNoticeView.swift",          # the user's Undo tap (M8.T03)
-    "Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryReviewService.swift",  # save after the user's tap (M8.T03)
+    "Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryReviewService.swift",  # certain facts, or after the user's tap (M8.T03)
     "Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryImporter.swift",    # R-063 after a tap (M11)
+    "Packages/Knowledge/Sources/AntiChatKnowledge/Memory/MemoryCapture.swift",     # certain facts of the turn's own message
 }
 # A write is a call on a MemoryStore value: `store.insert(topic:`, `memory.store.update(id:`, `MemoryStore(…).delete(id:`.
 WRITE = re.compile(r"(?:\bstore|\bMemoryStore\([^)]*\))\s*\.(?:insert\(topic:|update\(id:|delete\(id:|undo\(eventID:|resetAll\()")

@@ -145,7 +145,9 @@ final class LibraryTests: XCTestCase {
         // Its own fresh settings suite: this test turns "Show Evil items in Library" off, and in the shared app domain
         // that stuck (showEvilInLibrary = 0), so every later run found the Library empty before it asserted "default on".
         let app = MediaUIApp.launch(["-FakeEvilEnabled", "YES", "-DefaultsSuite", "com.antichat.uitest.library-evil"])
-        element(app, "modeSwitch").radioButtons.element(boundBy: 1).click()  // Evil
+        element(app, "modeSwitch").click()  // the toolbar's mode picker
+        XCTAssertTrue(element(app, "modeSwitch.evil").waitForExistence(timeout: 3))
+        element(app, "modeSwitch.evil").click()
         MediaUIApp.send(app, "Draw me a lighthouse at dusk")
         XCTAssertTrue(element(app, "imageJobCard.result").waitForExistence(timeout: 60))
         _ = openLibrary(app)
@@ -154,13 +156,13 @@ final class LibraryTests: XCTestCase {
         XCTAssertTrue(element(app, "library.item").label.hasSuffix(", Evil"), "default on: Evil is enabled — \(element(app, "library.item").label)")
         app.typeKey(",", modifierFlags: .command)
         // Q-015 r5: Settings opens on General; the switch is in Evil Mode (settings-map §4).
-        element(app, "settings.nav.evil").click()
+        element(app, "settings.nav.capabilities").click()
         let toggle = element(app, "settings.evil.showLibrary")
-        app.scrollViews.matching(identifier: "settings.detail.evil").firstMatch.scrollUntilVisible(toggle)
+        app.scrollViews.matching(identifier: "settings.detail.capabilities").firstMatch.scrollUntilVisible(toggle)
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
         toggle.click()
         app.windows.firstMatch.typeKey("w", modifierFlags: .command)
-        element(app, "sidebar.chats").click()
+        element(app, "sidebar.newChat").click()
         _ = openLibrary(app)
         XCTAssertTrue(element(app, "library.empty").waitForExistence(timeout: 5), "hidden when the setting is off")
         XCTAssertFalse(element(app, "library.item").exists)

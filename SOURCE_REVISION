@@ -1,0 +1,4 @@
+# Written by tools/release/export-public.sh: the revision of the main tree this snapshot was exported from.
+# build = the CFBundleVersion of a release built from this snapshot (tools/release/build-release.sh).
+commit=8b6b0e86f6dafe9b9c779fa9ce81a6ee3d45dcb1
+build=1931

@@ -31,6 +31,20 @@ case "$feed" in
     *) echo "error: FEED=dev|stable" >&2; exit 2 ;;
 esac
 
+# Gatekeeper on a release archive: a signed + notarized image (up to 0.0.5) is assessed as a whole; the raw
+# read-write installer image (package-dmg.sh: unsigned by design) by the stapled app inside it, mounted read-only.
+gatekeeper_accepts() {
+    spctl -a -t open --context context:primary-signature "$1" >/dev/null 2>&1 && return 0
+    local m sp=""
+    m="$(mktemp -d "${TMPDIR:-/tmp}/antichat-appcast.XXXXXX")"
+    if hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$m" "$1" >/dev/null 2>&1; then
+        sp="$(spctl -a -vv -t exec "$m/AntiChat.app" 2>&1 || true)"
+        hdiutil detach -quiet "$m" 2>/dev/null || hdiutil detach -force -quiet "$m" 2>/dev/null || true
+    fi
+    rmdir "$m" 2>/dev/null || true
+    [[ "$sp" == *accepted* && "$sp" == *"Notarized Developer ID"* ]]
+}
+
 mkdir -p "$dir"
 shopt -s nullglob
 # The previous feed's enclosure URLs (earlier releases live under their own tag; appcast-post --keep-urls).
@@ -42,7 +56,7 @@ for dmg in "${dmgs[@]}"; do
     base="$(basename "$dmg")"
     if [[ "$feed" == stable ]]; then
         [[ "$base" != *UNNOTARIZED* && "$base" != *DEVKEYS* ]] || { echo "error: $base is labelled; not for the production feed" >&2; exit 1; }
-        spctl -a -t open --context context:primary-signature "$dmg" >/dev/null 2>&1 || { echo "error: Gatekeeper rejects $base" >&2; exit 1; }
+        gatekeeper_accepts "$dmg" || { echo "error: Gatekeeper rejects $base" >&2; exit 1; }
     fi
     # A rebuilt archive with the same name supersedes the old build: its item's signature no longer matches, so
     # the feed is regenerated from the archives (items of other versions are recreated from their DMGs).

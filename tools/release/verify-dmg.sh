@@ -1,11 +1,12 @@
 #!/bin/bash
 # tools/release/verify-dmg.sh — AT-225 AC1 (layout) + AC4 (D-014 plist key) + NFR-D1 on a built DMG (M10.T02).
 # Read-only: attaches the image read-only and hidden (-nobrowse; never opens Finder, never launches the app).
-# Checks: volume name "AntiChat Installer"; AntiChat.app + Applications → /Applications; the background TIFF with
+# Checks: volume name "AntiChat Installer"; AntiChat.app + the Applications drop target (Applications.app: the
+# installer helper, Apple folder custom icon, valid signature, devid: our team); the background TIFF with
 # 660×420 and 1320×840 representations, referenced by the .DS_Store bookmark (/Volumes/AntiChat Installer/<file>) and alias;
 # .DS_Store icon positions (180,200)/(480,200), window 660×452 (420 content), icon size 128;
-# LSMinimumSystemVersion 26.0; size ≤ 300 MB; signature (dev/devid); devid: stapled ticket + Gatekeeper
-# `spctl -a -t open --context context:primary-signature` accepted as Notarized Developer ID.
+# LSMinimumSystemVersion 26.0; size ≤ 300 MB; devid: AntiChat.app and the drop target each stapled and accepted by
+# Gatekeeper (`spctl -a -t exec`) as Notarized Developer ID (the raw read-write DMG itself carries no signature).
 # Usage: tools/release/verify-dmg.sh [--mode adhoc|dev|devid] DMG    Evidence: build/at/AT-225/verify-<date>.log
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
@@ -29,8 +30,16 @@ name="$(diskutil info "$mnt" | sed -n 's/^ *Volume Name: *//p')"
 [[ "$name" == "AntiChat Installer" ]] && ok "volume name AntiChat Installer (format ${vol:-?})" || bad "volume name '$name'"
 [[ -d "$mnt/AntiChat.app" ]] && ok "AntiChat.app present" || bad "AntiChat.app missing"
 [[ -f "$mnt/.VolumeIcon.icns" ]] && ok "volume icon .VolumeIcon.icns present" || bad "volume icon missing"
-[[ "$(readlink "$mnt/Applications" || true)" == /Applications ]] && ok "Applications → /Applications" || bad "Applications link"
-extra="$(ls -A "$mnt" | grep -v -E '^(AntiChat.app|Applications|\.background|\.background\.tiff|\.VolumeIcon\.icns|\.DS_Store|\.fseventsd|\.Trashes)$' || true)"
+drop="$mnt/Applications.app"
+if [[ -d "$drop" ]] && [[ "$(plutil -extract CFBundleIdentifier raw -o - "$drop/Contents/Info.plist")" == app.antichat.Installer ]]; then
+    ok "Applications drop target (app.antichat.Installer) present"
+    [[ -f "$drop/Icon"$'\r' ]] && ok "drop target wears the Applications folder custom icon" || bad "drop target custom icon missing"
+    codesign --verify "$drop" 2>>"$log" && ok "drop target signature valid" || bad "drop target signature"
+    if [[ "$mode" == devid ]]; then
+        [[ "$(codesign -dvv "$drop" 2>&1)" == *TeamIdentifier=446XT9839S* ]] && ok "drop target signed by team 446XT9839S" || bad "drop target team"
+    fi
+else bad "Applications drop target missing"; fi
+extra="$(ls -A "$mnt" | grep -v -E '^(AntiChat.app|Applications.app|\.background|\.background\.tiff|\.VolumeIcon\.icns|\.DS_Store|\.fseventsd|\.Trashes)$' || true)"
 [[ -z "$extra" ]] && ok "no other items" || bad "unexpected items: $extra"
 # dmgbuild stores it as /.background.tiff (create-dmg used .background/background.tiff; A-M10-T02a).
 tiff="$mnt/.background.tiff"; [[ -f "$tiff" ]] || tiff="$mnt/.background/background.tiff"
@@ -44,7 +53,7 @@ python3 -I - "$layout" <<'PY' && ok "Finder layout: icons (180,200)/(480,200), w
 import json, sys
 d = json.loads(sys.argv[1])
 assert d["icons"].get("AntiChat.app") == [180, 200], d
-assert d["icons"].get("Applications") == [480, 200], d
+assert d["icons"].get("Applications.app") == [480, 200], d
 w = d["window"]; assert w and w[2:] == [660, 452], d
 assert d["icon_size"] == 128, d
 PY
@@ -74,21 +83,18 @@ fi
 minos="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$mnt/AntiChat.app/Contents/Info.plist")"
 [[ "$minos" == 26.0 ]] && ok "LSMinimumSystemVersion 26.0 (AC4 per D-014)" || bad "LSMinimumSystemVersion $minos"
 if [[ "$mode" == devid ]]; then
-    xcrun stapler validate "$mnt/AntiChat.app" >/dev/null 2>&1 && ok "app inside the DMG has a stapled ticket" || bad "app inside the DMG not stapled"
+    for item in AntiChat.app Applications.app; do
+        xcrun stapler validate "$mnt/$item" >/dev/null 2>&1 && ok "$item has a stapled ticket" || bad "$item not stapled"
+        sp="$(spctl -a -vv -t exec "$mnt/$item" 2>&1 || true)"
+        echo "$sp" >> "$log"
+        [[ "$sp" == *accepted* && "$sp" == *"Notarized Developer ID"* ]] && ok "$item: Gatekeeper accepts (Notarized Developer ID)" \
+            || bad "$item Gatekeeper: $sp"
+    done
 fi
 cleanup; trap - EXIT
 
 size="$(stat -f %z "$dmg")"
 ((size <= 314572800)) && ok "NFR-D1 size $size bytes ≤ 314572800" || bad "NFR-D1 size $size"
-if [[ "$mode" != adhoc ]]; then
-    codesign --verify --strict "$dmg" 2>>"$log" && ok "DMG signature valid ($(codesign -dvv "$dmg" 2>&1 | sed -n 's/^Authority=//p' | head -n 1))" || bad "DMG signature"
-fi
-if [[ "$mode" == devid ]]; then
-    xcrun stapler validate "$dmg" >>"$log" 2>&1 && ok "DMG stapled ticket valid" || bad "DMG not stapled"
-    sp="$(spctl -a -vvv -t open --context context:primary-signature "$dmg" 2>&1 || true)"
-    echo "$sp" >> "$log"
-    grep -q 'accepted' <<< "$sp" && grep -q 'source=Notarized Developer ID' <<< "$sp" \
-        && ok "spctl (open, primary-signature): accepted, Notarized Developer ID" || bad "spctl: $sp"
-fi
+# The DMG itself is unsigned: a raw read-write image keeps a signature only in xattrs, which any download strips.
 echo "verify-dmg: $([[ $fails == 0 ]] && echo pass || echo "$fails failure(s)") — $log"
 ((fails == 0))

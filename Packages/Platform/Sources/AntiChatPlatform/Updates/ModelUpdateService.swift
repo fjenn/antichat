@@ -339,6 +339,10 @@ public actor ModelUpdateService {
         return Set(targets.compactMap { cat.models[$0] }.flatMap(\.files).map(\.sha256))
     }
 
+    /// The model ids of those updates (downloading, or waiting for their flip): the install reconcile leaves their
+    /// views to the flip (an update goes live at an idle moment, with its rollback window — never from a launch pass).
+    public var heldModelIDs: Set<String> { Set(pending.values.map(\.to)).union(downloading.values.map(\.to)) }
+
     // MARK: Internals
 
     private func key(_ c: UpdateCandidate) -> String { "\(c.slot)→\(c.to)" }

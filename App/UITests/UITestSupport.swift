@@ -280,8 +280,7 @@ enum MCPUI {
     @MainActor static func addTeamChat(_ app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
         let any = app.descendants(matching: .any)
         app.typeKey(",", modifierFlags: .command)
-        any.matching(identifier: "settings.nav.tools").firstMatch.click()
-        app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch.scroll(byDeltaX: 0, deltaY: -700)
+        any.matching(identifier: "settings.nav.connections").firstMatch.click()
         app.buttons["connections.add"].click()
         let url = app.textFields["connections.url"]
         XCTAssertTrue(url.waitForExistence(timeout: 5), "add sheet", file: file, line: line)
@@ -291,7 +290,7 @@ enum MCPUI {
         app.buttons["connections.check"].click()
         XCTAssertTrue(any.matching(identifier: "mcpConsent").firstMatch.waitForExistence(timeout: 10), "consent sheet", file: file, line: line)
         app.buttons["mcpConsent.allow"].click()
-        let added = any.matching(identifier: "connections.empty").firstMatch.waitForNonExistence(timeout: 10)
+        let added = any.matching(NSPredicate(format: "identifier BEGINSWITH 'connectionRow.'")).firstMatch.waitForExistence(timeout: 10)
         let error = any.matching(identifier: "connections.error").firstMatch
         XCTAssertTrue(added, "Team Chat added: \(error.exists ? error.displayText : "no error shown")", file: file, line: line)
         app.windows.containing(.any, identifier: "settings.root").firstMatch.typeKey("w", modifierFlags: .command)

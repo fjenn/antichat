@@ -74,7 +74,7 @@ struct VoiceSettingsViewModelTests {
     @Test func registryHasEverySection5Row() {
         for id in ["voiceInputDevice", "voiceSpokenLanguage", "voiceID", "voiceRate", "voiceMode", "voice.recordings"] {
             let row = SettingsRegistry.row(id)
-            #expect(row?.section == .voice && row?.enabled == true, "\(id)")
+            #expect(row?.section == .capabilities && row?.enabled == true, "\(id)")
         }
         #expect(SettingsRegistry.row("voice.later") == nil)
         #expect(!SettingsSearch.results("Spoken language").isEmpty)

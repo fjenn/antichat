@@ -48,7 +48,7 @@ final class UpdateAskUITests: XCTestCase {
         let app = try launch(catalog: "catalog-upgrade", autoUpdate: false)
         app.typeKey(",", modifierFlags: .command)
         let w = app.windows.containing(.any, identifier: "settings.root").firstMatch
-        el(w, "settings.nav.updates").click()
+        el(w, "settings.nav.general").click()
         XCTAssertEqual(el(w, "settings.control.autoUpdateModels").value as? Int, 0)
         el(w, "settings.nav.capabilities").click()
         XCTAssertTrue(el(w, "updateOffer.chat/normal/chat_fast").waitForExistence(timeout: 10))

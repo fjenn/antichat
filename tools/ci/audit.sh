@@ -7,9 +7,14 @@ cd "$root"
 py=python3
 fail=0
 summary=()
+# AUDIT_SCOPE=public (.github/workflows/release.yml, on the public snapshot made by tools/release/export-public.sh):
+# audits whose inputs are not exported (docs/research, site/, fixtures) or that need a local build or toolchain are
+# skipped and listed; every other audit runs and gates as usual. The full set stays a local step before tagging.
+skip_public=" copy-sync design-gen design-copy l10n-source l10n-langs perf-targets settings-map legal-sync uitests-build licence-scan dev-catalog "
 run() {
   local name=$1; shift
   local out rc
+  if [[ "${AUDIT_SCOPE:-}" == public && "$skip_public" == *" $name "* ]]; then summary+=("skip  $name (not in the public snapshot)"); return; fi
   out=$("$@" 2>&1); rc=$?
   printf '%s\n' "$out" | sed "s/^/[$name] /"
   if [[ $rc -eq 0 ]]; then summary+=("ok    $name"); else summary+=("FAIL  $name (exit $rc)"); fail=1; fi
@@ -45,6 +50,7 @@ run filetools-ents  $py -I tools/release/gen-filetools-entitlements.py --check  
 run tryout-guard     $py -I tools/ci/tryout-guard.py          # the owner try-out preview never reaches a release build
 run devfeed-guard    $py -I tools/ci/devfeed-guard.py         # RC review P2-8: the Sparkle test key + feed override never reach a devid build
 run perfharness-guard $py -I tools/ci/perfharness-guard.py    # M9.T05: the perf-harness build flag never reaches a release build
+run dev-modes-guard  $py -I tools/ci/dev-modes-guard.py      # bench, spike, probes, dev launch options / env / defaults keys: gated out of releases
 run signing-ids     $py -I tools/ci/signing-identity-ids.py   # M6.T19: one bundle id per signing identity (no consent dialogs)
 run perf-targets     $py -I tools/perf/gen-targets.py --check   # M1.T26a: nfr_targets.json still matches nfr.md
 run settings-map     $py -I tools/ci/settings-map-check.py      # M1.T22: Keys.swift defaults/sections vs settings-map

@@ -1,4 +1,4 @@
-// Settings → Tools & Connections → Web search (M7.T03 step 1; R-080 AC1, R-241 AC3; settings-map §7): the switch
+// Settings → Capabilities → Tools → Web search (Safe search, location and the hint: Advanced) (M7.T03 step 1; R-080 AC1, R-241 AC3; settings-map §7): the switch
 // (`set.tools.web`, note `set.tools.web.note`) is the gate's `.search` category (`net.category.search`, seeded by
 // onboarding step 4, default on). Offline only forces it off with `network.blockedByOfflineOnly` (the stored value
 // comes back when Offline only is turned off). Turning it on asks first (WebSearchConsentSheet). Under it: Safe search
@@ -10,6 +10,7 @@ import Defaults
 import SwiftUI
 
 struct WebSearchRows: View {
+    let part: SettingsPart
     var policy: NetworkPolicyStore = .shared
     var consent: WebSearchConsent = .shared
     @State private var stored = NetworkPolicyStore.shared.storedValue(.search)
@@ -18,31 +19,36 @@ struct WebSearchRows: View {
     @Default(.suggestWebSearch) private var suggestWeb  // M7.T05 (R-228 AC3)
 
     var body: some View {
-        SettingsItem("webSearch", description: CopyKey(offlineOnly ? "network.blockedByOfflineOnly" : "set.tools.web.note")) {
-            Toggle(isOn: Binding(get: { stored && !offlineOnly }, set: set)) { Text(CopyKey("set.tools.web")) }
-                .toggleStyle(.accessibleSwitch)
-                .labelsHidden()
-                .disabled(offlineOnly)
-                .probeID("settings.control.webSearch")
+        Group {
+            if part == .main {
+                SettingsItem("webSearch", description: CopyKey(offlineOnly ? "network.blockedByOfflineOnly" : "set.tools.web.note")) {
+                    Toggle(isOn: Binding(get: { stored && !offlineOnly }, set: set)) { Text(CopyKey("set.tools.web")) }
+                        .toggleStyle(.accessibleSwitch)
+                        .labelsHidden()
+                        .disabled(offlineOnly)
+                        .probeID("settings.control.webSearch")
+                }
+                .webSearchConsentSheet(.settings, consent: consent)
+            } else {
+                SettingsItem("safeSearch", description: CopyKey("set.tools.safeSearch.note")) {
+                    Toggle(isOn: $safeSearch) { Text(CopyKey("set.tools.safeSearch")) }
+                        .toggleStyle(.accessibleSwitch)
+                        .labelsHidden()
+                        .disabled(offlineOnly || !stored)
+                        .probeID("settings.control.safeSearch")
+                }
+                SearchLocationRow()  // M8.T08 (R-091 AC3)
+                SettingsItem("suggestWebSearch", description: CopyKey("set.tools.suggestWeb.note")) {
+                    Toggle(isOn: $suggestWeb) { Text(CopyKey("set.tools.suggestWeb")) }
+                        .toggleStyle(.accessibleSwitch)
+                        .labelsHidden()
+                        .probeID("settings.control.suggestWebSearch")
+                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: NetworkPolicyStore.didChange)) { _ in
             stored = policy.storedValue(.search)
             offlineOnly = policy.offlineOnly
-        }
-        .webSearchConsentSheet(.settings, consent: consent)
-        SettingsItem("safeSearch") {
-            Toggle(isOn: $safeSearch) { Text(CopyKey("set.tools.safeSearch")) }
-                .toggleStyle(.accessibleSwitch)
-                .labelsHidden()
-                .disabled(offlineOnly || !stored)
-                .probeID("settings.control.safeSearch")
-        }
-        SearchLocationRow()  // M8.T08 (R-091 AC3)
-        SettingsItem("suggestWebSearch") {
-            Toggle(isOn: $suggestWeb) { Text(CopyKey("set.tools.suggestWeb")) }
-                .toggleStyle(.accessibleSwitch)
-                .labelsHidden()
-                .probeID("settings.control.suggestWebSearch")
         }
     }
 

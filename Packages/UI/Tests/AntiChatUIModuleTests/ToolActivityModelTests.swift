@@ -104,11 +104,12 @@ import Testing
         }
     }
 
-    /// VQ-M10 S-24: the card reads the arguments as labelled lines in the model's order; nested values stay in Details.
+    /// VQ-M10 S-24: the card reads the arguments as labelled lines (recipient first, long text last); nested values stay in Details.
     @Test func approvalCardFieldsAreReadable() {
         let f = ApprovalCardView.fields(#"{"text":"Lunch is at noon.","channel":"general","meta":{"a":1},"to":["a@x.dev","b@x.dev"],"dryRun":false,"empty":""}"#)
-        #expect(f.map(\.label) == ["Text", "Channel", "To", "Dry run"])
-        #expect(f.map(\.value) == ["Lunch is at noon.", "general", "a@x.dev, b@x.dev", "false"])
+        // Who it goes to first, long text last; the rest as the model wrote it.
+        #expect(f.map(\.label) == ["Channel", "To", "Dry run", "Text"])
+        #expect(f.map(\.value) == ["general", "a@x.dev, b@x.dev", "false", "Lunch is at noon."])
         #expect(ApprovalCardView.label("channel_id") == "Channel id" && ApprovalCardView.label("threadTs") == "Thread ts")
         #expect(ApprovalCardView.fields("not json").isEmpty && ApprovalCardView.fields("[1,2]").isEmpty)
         #expect(ApprovalCardView.prettyJSON(#"{"b":1,"a":"x"}"#).contains("\n"))

@@ -4,8 +4,10 @@
 macOS ties an App Sandbox container to the code identity that created it. Launching the File tools services under
 the same bundle id with another signature (Debug/Xcode ad-hoc vs tools/release/sign.sh vs Developer ID) makes
 secinitd show the owner "… differs from previously opened versions … access data" and blocks every sandboxed launch
-until it is answered (2026-11-08). The dev identity owns the shipped ids (app.antichat.AntiChat[.FileTools[.Net]]);
-everything else must use its own ids. A-M6-T21a (a): the shipped ids are the slot ids
+until it is answered (2026-11-08; 2026-11-16: the installed Developer ID build's run_python failed with
+wipeFailed/noReply behind that dialog because Debug builds had created the shipped ids' containers). Developer ID
+owns the shipped ids (app.antichat.AntiChat.FileTools[.Net].slot<k>); Debug builds use app.antichat.AntiChat.dev.…
+(project.yml devBundleID, FileToolsProtocol.servicePrefix); everything else must use its own ids. A-M6-T21a (a): the shipped ids are the slot ids
 app.antichat.AntiChat.FileTools[.Net].slot<k>, so every slot is one more id to keep. Checks, each failing with `file: …`:
   1. tools/at/ft-release-probe.sh derives PROBE_ID from the signing mode (relprobe-$MODE), rewrites the
      CFBundleIdentifier of the probe host app AND every slot service (…FileTools[.Net].slot<k>), keeps the

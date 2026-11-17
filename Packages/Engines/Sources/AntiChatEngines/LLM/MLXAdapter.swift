@@ -140,12 +140,14 @@ public struct MLXEventMapper: Sendable {
         }
     }
 
-    /// The function name in a rejected call's raw text (`<function=name>` or `"name": "name"`), nil when absent.
+    /// The function name in a rejected call's raw text (`<function=name>`, `"name": "name"` or Gemma 4's
+    /// `<|tool_call>call:name{`), nil when absent.
     static func toolName(inPreview text: String) -> String? {
-        for pattern in [#"<function=([A-Za-z0-9_.\-]+)>"#, #""name"\s*:\s*"([A-Za-z0-9_.\-]+)""#] {
+        for pattern in [#"<function=([A-Za-z0-9_.\-]+)>"#, #""name"\s*:\s*"([A-Za-z0-9_.\-]+)""#,
+                        #"<\|tool_call>call:([A-Za-z0-9_.\-]+)\{"#] {
             if let r = text.range(of: pattern, options: .regularExpression) {
                 let m = String(text[r])
-                if let q = m.range(of: #"[A-Za-z0-9_.\-]+(?=>$|"$)"#, options: .regularExpression) { return String(m[q]) }
+                if let q = m.range(of: #"[A-Za-z0-9_.\-]+(?=>$|"$|\{$)"#, options: .regularExpression) { return String(m[q]) }
             }
         }
         return nil
@@ -386,15 +388,7 @@ public actor MLXAdapter: EngineAdapter {
         let thinking = request.reasoning.on
         // M2.T22: `tool_choice` = a function (chip, fallback re-ask) / `required` → the call opens at once and its
         // grammar admits only the named tool (all offered tools for `required`). The template still renders every tool.
-        let forced: Bool
-        let grammarTools: [ToolSchema]
-        switch request.toolChoice {
-        case .function(let n)?:
-            let only = offered.filter { $0.name == n }
-            (forced, grammarTools) = (!only.isEmpty, only.isEmpty ? offered : only)
-        case .required?: (forced, grammarTools) = (!offered.isEmpty, offered)
-        default: (forced, grammarTools) = (false, offered)
-        }
+        let (forced, grammarTools) = Self.grammarScope(request.toolChoice, offered: offered)
         // R2 review P1-2: the prefill (the prefix cache's and the prompt's own, both inside `perform`) runs inside the
         // returned stream, so its progress reaches the turn live; before, `generate` returned only after the whole
         // prefill and its progress arrived at once, so a long prefill was silence to the turn's stall watchdog.
@@ -505,6 +499,18 @@ public actor MLXAdapter: EngineAdapter {
         }
     }
 
+    /// What `tool_choice` asks of the call grammar: whether the step must open a call, and the tools a call may name
+    /// (a named function → that one alone; a name that is not offered forces nothing).
+    static func grammarScope(_ choice: ToolChoice?, offered: [ToolSchema]) -> (forced: Bool, tools: [ToolSchema]) {
+        switch choice {
+        case .function(let n)?:
+            let only = offered.filter { $0.name == n }
+            return (!only.isEmpty, only.isEmpty ? offered : only)
+        case .required?: return (!offered.isEmpty, offered)
+        default: return (false, offered)
+        }
+    }
+
     /// The token ids that open and close a tool call in this model's dialect (nil when the tag is not one token).
     static func toolCallTagIDs(context ctx: ModelContext, modelPath: String) -> (open: Int?, close: Int?) {
         var format = ToolFormat(upstream: ctx.configuration.toolCallFormat)
@@ -524,19 +530,20 @@ public actor MLXAdapter: EngineAdapter {
         guard let open = format.openTag, let trigger = ctx.tokenizer.convertTokenToId(open), let eos = ctx.tokenizer.eosTokenId
         else { return nil }
         let tokenizer = ctx.tokenizer
-        let thinkOpen = tokenizer.convertTokenToId("<think>"), thinkClose = tokenizer.convertTokenToId("</think>")
+        let reasoning = format.reasoningTags
+        let thinkOpen = tokenizer.convertTokenToId(reasoning.open), thinkClose = tokenizer.convertTokenToId(reasoning.close)
         // Build the compiled grammar now (vocab extraction once per model), not on the first trigger.
         let tag = GrammarBuilder.structuralTag(format: format, tools: tools)
             .flatMap { cache.prepare(modelKey: modelKey, tokenizer: tokenizer, tag: $0) ? $0 : nil }
         // AT-273 (xlsx-18 follow-up): a forced `tool_choice` is enforced even without a grammar (a dialect the builder
-        // cannot constrain, e.g. Gemma 4, or a failed compile): the opening tag is still the first token outside
-        // reasoning, so the step is a call, not a text answer; only the body is unconstrained.
+        // cannot constrain, or a failed compile): the opening tag is still the first token outside reasoning, so the
+        // step is a call, not a text answer; only the body is unconstrained.
         guard tag != nil || forced else { return nil }
         let make = tag.map { tag in { @Sendable in cache.checkout(modelKey: modelKey, tokenizer: tokenizer, tag: tag) } }
         return GenerationComponents(logitProcessorFactory: {
             LazyToolGrammarProcessor(
                 triggerID: trigger, thinkOpenID: thinkOpen, thinkCloseID: thinkClose, eosID: eos,
-                startsInThink: startsInThink && thinkOpen != nil, stats: stats, forced: forced,
+                startsInThink: startsInThink && thinkOpen != nil && reasoning.openedByTemplate, stats: stats, forced: forced,
                 make: make, release: { c in if let tag { cache.checkin(c, tag: tag) } })
         })
     }

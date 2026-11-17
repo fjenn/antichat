@@ -1,6 +1,7 @@
 // M7.T11 step 1 (R-255 AC2, architecture §8.2): the pseudonymous install ID the Composio relay keys a user by
 // (`userId = "ac_" + HMAC(secret, installId)` on the relay; the app never sees a Composio identity). A UUIDv4 created
-// at the first Connections use that needs the relay — never during onboarding — and kept in the Keychain
+// at the first Connections use that needs the relay (opening Settings › Connections or a chat's Connect card, which
+// ask the relay which apps exist; connecting an app) — never during onboarding, never at launch — and kept in the Keychain
 // (service `app.antichat.composio.install`, this device only). Remove everything / Uninstall deletes it after
 // `/v1/forget` (M8 calls `forget`).
 import Foundation

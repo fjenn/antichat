@@ -29,17 +29,21 @@ extension WindowSuites {
     }
 
     @Test func realPercentAndStage() {
-        var s = VideoJobCardState(aspect: 1)
+        let t0 = Date(timeIntervalSince1970: 0)
+        var s = VideoJobCardState(aspect: 1, startedAt: t0)
         s.adopt(Self.spec())
         #expect(abs(s.aspect - 1280.0 / 704) < 0.001 && s.specLine == "720p · 3.4 s", "chosen resolution and length")
         s.apply(Self.update(.queued, position: 2))
         #expect(s.stageText == "Waiting for the current job · 2 in line")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "encode", step: 1, total: 1)))
-        #expect(s.progress.percent == 0 && s.stageText == "Getting the video model ready", "encode 0 %")
+        #expect(s.progress.percent == 0 && s.stageText == "Getting ready…", "encode 0 %")
+        // One plain line while it runs: the time left (the plan's estimate first, the real progress after a tenth).
+        s.estimateS = 200
+        #expect(s.stageText(now: t0.addingTimeInterval(20)) == "Creating video… about 3 min left")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "denoise", step: 2, total: 3)))
-        #expect(s.progress.percent == 60 && s.stageText == "Generating · step 2/3")
+        #expect(s.progress.percent == 60 && s.stageText(now: t0.addingTimeInterval(120)) == "Creating video… about 1 min left")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "decode", step: 40, total: 81)))
-        #expect(s.progress.percent == 94 && s.stageText == "Finishing · frame 40/81")
+        #expect(s.progress.percent == 94 && s.stageText(now: t0.addingTimeInterval(120)) == "Creating video… less than a minute left")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "denoise", step: 1, total: 3)))
         #expect(s.progress.percent == 94, "monotonic")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "frames", step: 81, total: 81)))
@@ -51,7 +55,8 @@ extension WindowSuites {
     @Test func pausedHotOffersResumeAndOtherAppDoesNot() {
         var s = VideoJobCardState(job: "v1", aspect: 16.0 / 9)
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "denoise", step: 1, total: 3, notice: "thermal.serious")))
-        #expect(s.noticeText == "Running slower to keep your Mac cool." && s.stageText == "Generating · step 1/3")
+        #expect(s.noticeText == "Running slower to keep your Mac cool."
+                && s.stageText(now: s.startedAt.addingTimeInterval(60)) == "Creating video… about 2 min left")
         s.apply(Self.update(.running, video: VideoJobStatus(stage: "denoise", step: 1, total: 3, paused: "hot")))
         #expect(s.stageText == "Paused — your Mac is hot. Resume" && s.noticeText == nil)
         #expect(VideoJobCard(state: s, onResume: {}).phaseID == "videoJobPaused")

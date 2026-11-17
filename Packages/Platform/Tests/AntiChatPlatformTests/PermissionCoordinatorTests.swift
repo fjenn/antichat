@@ -14,7 +14,7 @@ import Testing
               explain: Bool? = true) -> (PermissionCoordinator, Box) {
         let box = Box()
         let c = PermissionCoordinator(system: PermissionCoordinator.fake(states, answers: answers, opened: { u in box.add(u) }),
-                                      observeActivation: false)
+                                      observeActivation: false, defaults: .inMemory())
         if let explain { c.explainer = { kind in box.explained.append(kind); return explain } }
         return (c, box)
     }

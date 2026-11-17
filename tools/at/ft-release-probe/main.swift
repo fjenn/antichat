@@ -124,7 +124,8 @@ for p in ["/tmp/antichat-rel-x", "/private/tmp/antichat-rel-x", H + "/Desktop/an
 try: res["info keychains listing"] = ",".join(sorted(os.listdir(H + "/Library/Keychains")))
 except OSError as e: res["info keychains listing"] = _name(e.errno or 0)
 # A-M6-T21a (a): inside its own container a slot writes only the scratch folder; never the per-bundle darwin folders.
-DATA = os.path.dirname(os.path.dirname(os.getcwd()))
+# The jail is <container>/Data/scratch/<instance>/<chat> (one scratch folder per service instance since 2026-11-09).
+DATA = os.getcwd().split("/scratch/")[0]
 for p in [DATA + "/antichat-rel-x", DATA + "/Library/antichat-rel-x", DATA + "/Library/Caches/antichat-rel-x", DATA + "/tmp/antichat-rel-x",
           DATA + "/Library/Preferences/antichat-rel-x.plist"] + [darwin_dir(n) + "antichat-rel-x" for n in (65536, 65537, 65538) if darwin_dir(n)]:
     res["write py " + p] = py_write(p); res["write c " + p] = c_write(p)

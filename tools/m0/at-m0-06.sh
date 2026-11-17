@@ -32,7 +32,8 @@ echo "[..] prompts: $PROMPTS sha256 $(shasum -a 256 "$PROMPTS" | cut -c1-16)"
 if [ "${SKIP_BENCH:-0}" != 1 ]; then
   if [ "${NO_BUILD:-0}" != 1 ] || [ ! -x "$BIN" ]; then
     xcodebuild -workspace AntiChat.xcworkspace -scheme AntiChat-Release -configuration Release -derivedDataPath build/dd-bench ARCHS=arm64 'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) NDEBUG=1' \
-      -disableAutomaticPackageResolution -packageAuthorizationProvider netrc CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO build -quiet
+      -disableAutomaticPackageResolution -packageAuthorizationProvider netrc CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO \
+      'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) ANTICHAT_PERF_HARNESS' build -quiet  # -Bench is not in a release build (tools/ci/dev-modes-guard.py)
   fi
   test -x "$APP/Contents/Helpers/sd-server" || { echo "[fail] sd-server not bundled"; exit 1; }
   echo "[..] bundled sd-server sha256 $(shasum -a 256 "$APP/Contents/Helpers/sd-server" | cut -c1-64)"

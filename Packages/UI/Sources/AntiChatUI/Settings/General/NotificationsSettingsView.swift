@@ -20,7 +20,6 @@ struct NotificationsSettingsView: View {
     private let soundNames = NotificationSound.systemSoundNames()
 
     var body: some View {
-        NotificationsDeniedBanner()
         SettingsItem("notifyWhen") {
             Picker(selection: $when) {
                 Text(CopyKey("set.notif.unfocused")).tag(NotifyWhen.unfocused.rawValue)

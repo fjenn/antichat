@@ -48,7 +48,7 @@ struct ChatFileRow: View {
 
     static func kindLabel(_ f: ChatFile) -> String {
         let ext = (f.name as NSString).pathExtension
-        return (ext.isEmpty ? f.kind : ext).uppercased()
+        return FileCardViewModel.kindLabel(ext: ext.isEmpty ? f.kind : ext)  // "Word document", "PNG"
     }
 
     static func subtitle(_ f: ChatFile) -> String {
@@ -128,7 +128,7 @@ public struct FilesInChatSheet: View {
                     }
                     TableColumn(Text(CopyKey("files.col.kind"))) { f in
                         Text(verbatim: ChatFileRow.kindLabel(f)).foregroundStyle(Color.textSecondary)
-                    }.width(60)
+                    }.width(150)
                     TableColumn(Text(CopyKey("files.col.size"))) { f in
                         Text(verbatim: ByteCountFormatter.string(fromByteCount: f.size, countStyle: .file)).monospacedDigit()
                             .foregroundStyle(Color.textSecondary)

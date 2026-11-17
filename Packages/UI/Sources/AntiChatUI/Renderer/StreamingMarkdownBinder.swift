@@ -133,10 +133,14 @@ final class StreamingMarkdownBinder {
     /// `-RendererLiveSelectable YES`: the streaming reply stays selectable (and then draws without the fade, and
     /// pays every selectable Text's overlay update on every pass). A/B runs only.
     static let liveBlocksSelectable: Bool = {
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         // A launch argument (not a setting): read the arguments, never the shared defaults domain.
         let args = ProcessInfo.processInfo.arguments
         guard let i = args.firstIndex(of: "-RendererLiveSelectable"), i + 1 < args.count else { return false }
         return ["YES", "1", "true"].contains(args[i + 1])
+        #else
+        return false
+        #endif
     }()
     /// Seconds after the last revealed word before selection starts coming back (block by block).
     static let selectionDelay = 0.6
@@ -144,6 +148,7 @@ final class StreamingMarkdownBinder {
     static let chunk = 8
 
     init(text: String, streaming: Bool) {
+        let text = streaming ? text : MarkdownBlocks.unwrappingFencedTables(text)
         #if DEBUG
         RendererBodyCounters.binders += 1
         #endif
@@ -163,6 +168,7 @@ final class StreamingMarkdownBinder {
 
     /// The message changed (new delta, final text, status change).
     func update(text: String, streaming: Bool, interrupted: Bool) {
+        let text = streaming ? text : MarkdownBlocks.unwrappingFencedTables(text)
         if sourceFinished {
             // A finished reply whose text changes: a new version streamed into the same row starts over; a changed
             // final text (AT-248 c1: citation verdicts settle the pills and may drop a marker) is re-segmented, and

@@ -42,18 +42,23 @@ public struct ChatFilesQuery: Sendable {
                 out.append(ChatFile(id: r["id"], origin: .attached, name: r["display_name"], kind: r["uti"], size: r["size"],
                                     date: r["created_at"] as Date, path: r["path"], version: nil))
             }
+            // A picture's edits are versions of one artifact, and each one is a picture the chat made: all are listed
+            // (a document's revisions are one file: its latest version).
             let produced = try Row.fetchAll(db, sql: """
-                SELECT a.id, a.kind, a.title, v.n, v.created_at, b.size, b.path
+                SELECT a.id, a.kind, a.title, v.n, v.created_at, v.spec_json, b.size, b.path,
+                       (SELECT max(n) FROM artifact_version WHERE artifact_id = a.id) AS newest
                 FROM artifact a
                 JOIN artifact_version v ON v.artifact_id = a.id
-                  AND v.n = (SELECT max(n) FROM artifact_version WHERE artifact_id = a.id)
                 JOIN file_blob b ON b.id = v.blob_id
                 WHERE a.chat_id = ?
                 """, arguments: [chatID])
             for r in produced {
                 let created: Date = r["created_at"]
-                out.append(ChatFile(id: r["id"], origin: .produced, name: r["title"], kind: r["kind"], size: r["size"],
-                                    date: created, path: r["path"], version: r["n"]))
+                let n: Int = r["n"], newest: Int = r["newest"], kind: String = r["kind"], id: String = r["id"]
+                guard n == newest || kind == "image" else { continue }
+                out.append(ChatFile(id: n == newest ? id : "\(id)#\(n)", origin: .produced,
+                                    name: StoredFileNames.name(title: r["title"], specJSON: r["spec_json"]), kind: kind,
+                                    size: r["size"], date: created, path: r["path"], version: n))
             }
             return out.sorted { ($0.date, $0.name) > ($1.date, $1.name) }
         }

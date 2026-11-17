@@ -1,6 +1,8 @@
 // SpikeChatView (M0.T04 step 6; shown with `-SpikeUI YES`). Spike only: a text field, Send/Stop, a
 // transcript and a status line. On XPC invalidation it shows the `engine.restarted` copy
 // ("The AI engine restarted." + [Retry]) and reconnects. Real chat UI = M1 (G-001/G-002).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 import AntiChatEngineProtocol
 import AntiChatHarness
 import Observation
@@ -204,3 +206,4 @@ public struct SpikeChatView: View {
     }
     #endif
 }
+#endif

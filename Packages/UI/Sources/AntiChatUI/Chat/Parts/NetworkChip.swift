@@ -25,6 +25,7 @@ struct NetworkChip: View {
                 .frame(maxWidth: 320, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("networkChip.hosts")
+                .popoverSurface()
         }
         .accessibilityIdentifier("networkChip")
         .accessibilityLabel(Text(CopyText(CopyKey("net.chip"), ["count": "\(hosts.count)"]).string))

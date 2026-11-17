@@ -1,5 +1,5 @@
 // M5.T13 (R-022, R-045 AC2, G-026; P-files-tools-08): the Library's one list of pictures, videos and files — every
-// artifact (its newest version) and every sent attachment, from `artifact_version` + `file_blob` + `attachment` with
+// artifact (its newest version; a picture's every version, each edit being a picture of its own) and every sent attachment, from `artifact_version` + `file_blob` + `attachment` with
 // the chat's mode, newest first. Filters All / Images / Videos / Files; search over names and prompts through
 // `library_fts` (v32, FTS5 external content over `library_doc`, kept in step by triggers on artifact_version /
 // artifact / attachment). Evil items carry `isEvil` and are left out unless "Show Evil items in Library" is on — its
@@ -88,7 +88,7 @@ public struct LibraryIndex: Sendable {
         guard !database.isInMemory else { return [] }
         let match = Self.ftsQuery(query)
         return try database.read { db in
-            var hits: Set<String>?
+            var hits: Set<String>?, versionHits = Set<String>()
             if let match {
                 let rows = try Row.fetchAll(db, sql: """
                     SELECT d.ref_kind, d.ref_id, v.artifact_id FROM library_fts f
@@ -97,11 +97,18 @@ public struct LibraryIndex: Sendable {
                     WHERE library_fts MATCH ?
                     """, arguments: [match])
                 hits = Set(rows.compactMap { r in (r["ref_kind"] as String) == "version" ? r["artifact_id"] : r["ref_id"] })
+                versionHits = Set(rows.compactMap { r in (r["ref_kind"] as String) == "version" ? r["ref_id"] : nil })
             }
             var out: [LibraryEntry] = []
             for row in try Row.fetchAll(db, sql: Self.listSQL(showEvil: showEvil)) {
                 guard let item = Self.item(row) else { continue }
-                if let hits, !hits.contains(item.id) { continue }
+                // A picture is found by its own name and prompt (each version is listed by itself); a document by any
+                // of its versions (only its newest is listed).
+                if let hits {
+                    if item.kind == .image, case .artifact(let version) = item.source {
+                        guard versionHits.contains(version) else { continue }
+                    } else if !hits.contains(row["artifact_id"] ?? item.id) { continue }
+                }
                 guard filter.admits(item.kind) else { continue }
                 out.append(item)
                 if out.count >= limit { break }
@@ -121,7 +128,9 @@ public struct LibraryIndex: Sendable {
     static func listSQL(showEvil: Bool, path: Bool = false) -> String {
         let evil = showEvil ? "" : "AND c.mode <> 'evil'"
         return """
-            SELECT 'artifact' AS src, a.id AS id, v.id AS version_id, a.kind AS artifact_kind, a.title AS name,
+            SELECT 'artifact' AS src,
+                   CASE WHEN v.n = (SELECT MAX(n) FROM artifact_version x WHERE x.artifact_id = a.id) THEN a.id ELSE v.id END AS id,
+                   a.id AS artifact_id, v.id AS version_id, a.kind AS artifact_kind, a.title AS name,
                    v.spec_json AS spec_json, b.id AS blob_id, b.path AS path, b.size AS size, a.chat_id AS chat_id,
                    c.mode AS mode,
                    COALESCE(v.created_by_message_id, (SELECT m2.id FROM message m2 WHERE m2.chat_id = a.chat_id
@@ -129,12 +138,12 @@ public struct LibraryIndex: Sendable {
                    v.created_at AS created_at, NULL AS uti
             FROM artifact a
             JOIN artifact_version v ON v.artifact_id = a.id
-              AND v.n = (SELECT MAX(n) FROM artifact_version x WHERE x.artifact_id = a.id)
+              AND (a.kind = 'image' OR v.n = (SELECT MAX(n) FROM artifact_version x WHERE x.artifact_id = a.id))
             JOIN file_blob b ON b.id = v.blob_id
             JOIN chat c ON c.id = a.chat_id
             WHERE 1 \(evil) \(path ? "AND b.path = ?" : "")
             UNION ALL
-            SELECT 'attachment', t.id, NULL, NULL, t.display_name, NULL, b.id, b.path, b.size, m.chat_id, c.mode, t.message_id,
+            SELECT 'attachment', t.id, NULL, NULL, NULL, t.display_name, NULL, b.id, b.path, b.size, m.chat_id, c.mode, t.message_id,
                    t.created_at, t.uti
             FROM attachment t
             JOIN message m ON m.id = t.message_id
@@ -146,7 +155,7 @@ public struct LibraryIndex: Sendable {
     }
 
     static func item(_ r: Row) -> LibraryEntry? {
-        let name: String = r["name"]
+        let name = StoredFileNames.name(title: r["name"], specJSON: r["spec_json"])
         let path: String = r["path"]
         let uti: String? = r["uti"]
         let ext = (name as NSString).pathExtension.isEmpty ? (path as NSString).pathExtension : (name as NSString).pathExtension
@@ -194,6 +203,19 @@ public struct LibraryIndex: Sendable {
         let orphaned: [String] = try database.write { db in
             var blobs: [String]
             switch item.source {
+            case .artifact(let versionID) where item.kind == .image:
+                // A picture and each of its edits are listed one by one, and each is deleted by itself; the artifact
+                // goes with its last picture.
+                guard let artifact = try String.fetchOne(db, sql: "SELECT artifact_id FROM artifact_version WHERE id = ?", arguments: [versionID]) else {
+                    blobs = []
+                    break
+                }
+                blobs = try String.fetchAll(db, sql: "SELECT blob_id FROM artifact_version WHERE id = ?", arguments: [versionID])
+                if try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM artifact_version WHERE artifact_id = ?", arguments: [artifact]) ?? 0 > 1 {
+                    try db.execute(sql: "DELETE FROM artifact_version WHERE id = ?", arguments: [versionID])
+                } else {
+                    try db.execute(sql: "DELETE FROM artifact WHERE id = ?", arguments: [artifact])
+                }
             case .artifact:
                 blobs = try String.fetchAll(db, sql: "SELECT DISTINCT blob_id FROM artifact_version WHERE artifact_id = ?", arguments: [item.id])
                 try db.execute(sql: "DELETE FROM artifact WHERE id = ?", arguments: [item.id])

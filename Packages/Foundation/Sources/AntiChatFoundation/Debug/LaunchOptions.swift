@@ -1,6 +1,7 @@
 // Debug launch-option registry (docs/prd/M1.md convention 10; M1.T02). The ONE place that parses
 // test-only launch arguments (test-strategy §4.2). Parsing only: each consuming task implements the effect.
-// Release builds compile the type but `parse` returns the empty set, so Release ignores every option.
+// Release builds compile the type (every field at its default) but neither `Key` nor the parser: `parse` returns the
+// empty set, so a release ignores every option and its binary carries none of the option names.
 // Adding an option = add it to `Key`, to the struct, to `parse`, to LaunchOptionsTests and to M1.md conv. 10.
 import Foundation
 
@@ -8,6 +9,8 @@ public struct LaunchOptions: Sendable, Equatable {
     /// Hardware tiers accepted by `-FakeHardware` (hardware-tiers §2).
     public enum Tier: String, Sendable, CaseIterable { case T0, T1, T2, T3, T4 }
 
+    // The names exist only where they are parsed: a release build carries none of them (tools/ci/dev-modes-guard.py).
+    #if DEBUG || ANTICHAT_PERF_HARNESS
     /// Every recognised argument name (without the leading `-`).
     public enum Key: String, Sendable, CaseIterable {
         case useScriptedEngine = "UseScriptedEngine"
@@ -159,6 +162,7 @@ public struct LaunchOptions: Sendable, Equatable {
         /// and the app — not the sandboxed test runner, whose prefs live in its container — starts it empty.
         case freshDefaultsSuite = "FreshDefaultsSuite"
     }
+    #endif
 
     /// `-UseScriptedEngine <path|NO>`: path of a ScriptedEngine JSONL script; `NO` = real engines.
     public var scriptedEngineScript: String?

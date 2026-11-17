@@ -98,11 +98,22 @@ public enum SkillImporter {
     }
 
     /// Installs a reviewed candidate (the user pressed Install). Re-adding a name replaces that skill's folder.
+    /// `source` = the catalogue entry it was downloaded from (kept with the skill, so it can be updated later).
     @discardableResult
-    public static func install(_ c: SkillImportCandidate, into store: SkillStore, trust: SkillRecord.Trust = .user) throws -> InstalledSkill {
+    public static func install(_ c: SkillImportCandidate, into store: SkillStore, trust: SkillRecord.Trust = .user,
+                               source: SkillsCatalog.Skill? = nil) throws -> InstalledSkill {
         guard c.canInstall else { throw SkillFileError.invalidSkillArchive }
         defer { c.discard() }
-        return try store.install(from: c.stagedRoot, name: c.name, trust: trust)
+        return try store.install(from: c.stagedRoot, name: c.name, trust: trust, source: source)
+    }
+
+    /// Replaces the installed skill of the candidate's name with it: a newer version of `source` from the catalogue
+    /// (`SkillStore.update`: the old copy comes back on any failure, the switches stay as they are).
+    @discardableResult
+    public static func update(_ c: SkillImportCandidate, into store: SkillStore, source: SkillsCatalog.Skill) throws -> InstalledSkill {
+        defer { c.discard() }
+        guard c.canInstall, c.name == source.name else { throw SkillFileError.invalidSkillArchive }
+        return try store.update(c.name, from: c.stagedRoot, source: source)
     }
 
     // MARK: -

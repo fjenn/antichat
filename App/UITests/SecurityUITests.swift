@@ -20,9 +20,7 @@ final class SecurityUITests: XCTestCase {
     @MainActor func testSafeSearchOptionOffByDefault() throws {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
-        // Connections sit below the fold of Tools & Connections; bring them on screen (Q-015 catch-up).
-        app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch.scroll(byDeltaX: 0, deltaY: -700)
+        app.descendants(matching: .any).matching(identifier: "settings.nav.connections").firstMatch.click()
         let toggle = app.descendants(matching: .any).matching(identifier: "settings.control.safeSearch").firstMatch
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
         XCTAssertEqual(toggle.value as? Int ?? (toggle.value as? String == "1" ? 1 : 0), 0, "Safe search results must be Off by default")

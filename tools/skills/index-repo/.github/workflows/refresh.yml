@@ -1,0 +1,47 @@
+# Keeps skills-index.json current with no person involved: every week this regenerates the list from its public
+# source repositories at their newest commits, checks it (refresh.py: the app's rules, counts, and every file's
+# size and hash downloaded from the URL the app would use) and commits it only when it is valid. A refused run
+# changes nothing and says why in the job summary. No secret is needed: the job's own token reads the public
+# GitHub API (to stay inside its rate limit) and pushes the commit.
+name: refresh
+on:
+  schedule:
+    - cron: "17 5 * * 1"  # Mondays 05:17 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Generate and validate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 -I refresh.py --work "$RUNNER_TEMP/skills-refresh" --apply
+      - name: Commit the new index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- skills-index.json; then
+            echo "skills-index.json is unchanged: nothing to commit."
+            # GitHub switches a schedule off after 60 days without a commit: note the check once a month.
+            last=$(git log -1 --format=%ct)
+            if [ $(( $(date +%s) - last )) -gt $(( 30 * 86400 )) ]; then
+              date -u +%Y-%m-%d > last-checked.txt
+              git add -- last-checked.txt
+              git commit -m "checked $(cat last-checked.txt): no change"
+              git push
+            fi
+            exit 0
+          fi
+          python3 -I refresh.py validate
+          day=$(python3 -I -c 'import json; print(json.load(open("skills-index.json"))["generated"])')
+          count=$(python3 -I -c 'import json; print(len(json.load(open("skills-index.json"))["skills"]))')
+          git add -- skills-index.json
+          git commit -m "skills index $day: $count skills"
+          git push

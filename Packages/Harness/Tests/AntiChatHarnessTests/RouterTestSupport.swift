@@ -1,5 +1,5 @@
 // M2.T22 test support: a deterministic embedder (hashed character trigrams → 256-d unit vectors) and the stub tools
-// the router exposes (`create_image`, `create_video`, `web_search`, `create_file`, `memory_write`; read-only, so no
+// the router exposes (`create_image`, `create_video`, `web_search`, `create_document`, `memory_write`; read-only, so no
 // ApprovalCard), plus M1's get_time / echo / write_note: eight tools in all.
 import AntiChatEngineProtocol
 import Foundation
@@ -40,7 +40,7 @@ enum RouterStubs {
                        outputIsUntrusted: false) { _ in "{\"ok\":true}" }
     }
 
-    static let names = ["create_image", "create_video", "web_search", "create_file", "memory_write"]
+    static let names = ["create_image", "create_video", "web_search", "create_document", "memory_write"]
 
     static var all: [RegisteredTool] {
         names.map(tool) + [ScriptedTools.getTime(), ScriptedTools.echo(), ScriptedTools.writeNote()]

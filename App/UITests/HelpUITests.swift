@@ -99,7 +99,7 @@ final class HelpUITests: XCTestCase {
         XCTAssertFalse(element("help.guide").exists)
     }
 
-    /// AC1 online: AntiChat Help hands the help centre URL (the site's /help/faq/) to the browser; no sheet.
+    /// AC1 online: AntiChat Help hands the help centre URL (the site's /help/) to the browser; no sheet.
     @MainActor func testHelpOnlineOpensBrowser() {
         launch(["-OfflineOnly", "NO"])
         openHelpCentre()
@@ -107,7 +107,7 @@ final class HelpUITests: XCTestCase {
         XCTAssertEqual(opened.count, 1, "one URL handed to the browser: \(opened)")
         let url = URL(string: opened.first ?? "")
         // `URL.path` drops the trailing slash; the site's pages live at the slash form (Q-015 r3).
-        XCTAssertEqual(url?.path(percentEncoded: false), "/help/faq/", "the help centre, not \(opened)")
+        XCTAssertEqual(url?.path(percentEncoded: false), "/help/", "the help centre, not \(opened)")
         XCTAssertTrue(["http", "https"].contains(url?.scheme ?? ""))
         XCTAssertFalse(element("help.guide").exists, "online: no bundled guide sheet")
     }
@@ -123,19 +123,5 @@ final class HelpUITests: XCTestCase {
         XCTAssertFalse(sheet.exists)
         launch(["-OfflineOnly", "YES", "-SimulateUpdatedFrom", "0.0.0"])  // same container + suite: version recorded
         XCTAssertFalse(element("whatsNew").waitForExistence(timeout: 3), "shown once per version")
-    }
-
-    /// AC3: the first empty chat shows "What can AntiChat do?"; Got it removes it, also after a relaunch.
-    @MainActor func testTourCardDismissForGood() {
-        launch(["-OfflineOnly", "YES"])
-        let tip = element("tourTip")
-        XCTAssertTrue(tip.waitForExistence(timeout: 5), "tour card in the first empty chat")
-        XCTAssertTrue(app.staticTexts["What can AntiChat do?"].exists)
-        app.buttons["Got it"].firstMatch.click()
-        XCTAssertTrue(tip.waitForNonExistence(timeout: 3), "dismissed")
-        launch(["-OfflineOnly", "YES"])
-        XCTAssertFalse(element("tourTip").waitForExistence(timeout: 3), "gone for good (TipKit datastore in the container)")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: container.appendingPathComponent("Tips").path),
-                      "datastore under the AntiChat container")
     }
 }

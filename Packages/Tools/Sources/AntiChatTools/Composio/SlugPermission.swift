@@ -22,6 +22,58 @@ public enum SlugPermission {
 
     public static func key(_ slug: String) -> String { "composio:\(slug.uppercased())" }
 
+    /// The meta tools that only look things up (find actions, read their schemas, check a connection): they run without
+    /// asking, like any read. Running an action is `multiExecute`, decided per slug below.
+    public static let lookupMetaTools: Set<String> = [searchTools, "COMPOSIO_GET_TOOL_SCHEMAS", "COMPOSIO_MANAGE_CONNECTIONS"]
+
+    /// What the model sees of `COMPOSIO_MULTI_EXECUTE_TOOL`: the actions to run and nothing else. Composio's own schema
+    /// also has `sync_response_to_workbench` (the result goes to a remote workbench and only a preview comes back; the
+    /// model then tried to run remote Python to read it) and bookkeeping fields a local model fills with noise.
+    public static let executeParametersJSON = """
+        {"type":"object","properties":{"tools":{"type":"array","items":{"type":"object","properties":{"tool_slug":\
+        {"type":"string"},"arguments":{"type":"object"}},"required":["tool_slug","arguments"]}}},"required":["tools"]}
+        """
+
+    /// A MULTI_EXECUTE call as it is sent: results always come back inline (`sync_response_to_workbench` false,
+    /// whatever the model wrote). Not a JSON object → unchanged (the call fails its checks as before).
+    public static func executeArguments(_ argumentsJSON: String) -> String {
+        guard var o = (try? JSONSerialization.jsonObject(with: Data(argumentsJSON.utf8))) as? [String: Any] else { return argumentsJSON }
+        o["sync_response_to_workbench"] = false
+        guard let d = try? JSONSerialization.data(withJSONObject: o, options: [.sortedKeys, .withoutEscapingSlashes]) else { return argumentsJSON }
+        return String(decoding: d, as: UTF8.self)
+    }
+
+    /// Slugs that run code on Composio's side (remote workbench, bash, Python) or are Composio's own meta tools: never
+    /// run from a chat. A result is always inline, so there is nothing for them to do.
+    public static func isRemoteExecution(_ slug: String) -> Bool {
+        let w = Set(VerbClassifier.words(slug.lowercased()))
+        return w.contains("composio") || !w.isDisjoint(with: ["workbench", "bash", "python", "shell", "codeinterpreter", "sandbox"])
+    }
+
+    /// The tool result for such a call: no card, the model answers from what it has.
+    public static let unavailableResult = "This tool is not available. The earlier results are complete and already here: "
+        + "answer the user from them now, without calling another tool."
+
+    /// A slug as people read it: `GMAIL_SEND_EMAIL` → ("Gmail", "Send email"), `GOOGLECALENDAR_CREATE_EVENT` →
+    /// ("Google Calendar", "Create event").
+    public static func display(_ slug: String) -> (app: String, action: String) {
+        let parts = slug.split(separator: "_").map { $0.lowercased() }
+        guard let first = parts.first else { return (slug, "") }
+        let action = parts.dropFirst().joined(separator: " ")
+        return (ComposioApps.title(first), action.prefix(1).uppercased() + action.dropFirst())
+    }
+
+    /// The arguments of the inner call for `slug` in a MULTI_EXECUTE call (what an approval card shows), "{}" if absent.
+    public static func innerArguments(_ argumentsJSON: String, slug: String) -> String {
+        guard let o = (try? JSONSerialization.jsonObject(with: Data(argumentsJSON.utf8))) as? [String: Any],
+              let tools = o["tools"] as? [[String: Any]],
+              let t = tools.first(where: { (($0["tool_slug"] ?? $0["slug"]) as? String)?.uppercased() == slug.uppercased() }),
+              var args = t["arguments"] as? [String: Any] else { return "{}" }
+        if args["user_id"] as? String == "me" { args["user_id"] = nil }  // the API's "this account", not something to review
+        guard let d = try? JSONSerialization.data(withJSONObject: args, options: [.sortedKeys, .withoutEscapingSlashes]) else { return "{}" }
+        return String(decoding: d, as: UTF8.self)
+    }
+
     /// Composio's tag hints for a slug (toolRouter.types.ts: readOnlyHint / createHint / updateHint / destructiveHint).
     public struct Hints: Sendable, Equatable {
         public var readOnly = false, create = false, update = false, destructive = false
@@ -49,7 +101,12 @@ public enum SlugPermission {
         }
         static func walk(_ o: Any, _ f: (String, [String]) -> Void) {
             if let m = o as? [String: Any] {
-                if let slug = (m["tool_slug"] ?? m["slug"]) as? String, let tags = m["tags"] as? [String] { f(slug, tags) }
+                if let slug = (m["tool_slug"] ?? m["slug"]) as? String {
+                    // Tags as a list, or MCP-style annotations (`{"readOnlyHint": true}`) on the tool object.
+                    let flags = (m["annotations"] as? [String: Any] ?? m).filter { $0.key.hasSuffix("Hint") && $0.value as? Bool == true }
+                    let tags = (m["tags"] as? [String] ?? []) + flags.keys
+                    if !tags.isEmpty { f(slug, tags) }
+                }
                 for v in m.values { walk(v, f) }
             } else if let a = o as? [Any] {
                 for v in a { walk(v, f) }

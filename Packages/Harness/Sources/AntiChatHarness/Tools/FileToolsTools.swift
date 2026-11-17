@@ -3,6 +3,7 @@ import AntiChatFoundation
 import AntiChatStorage
 import AntiChatTools
 import Foundation
+import Synchronization
 
 public enum FileToolsTools {
     /// A-M6-T21a (a): File tools slots that run code at once (one chat per slot container; more chats wait with
@@ -19,6 +20,11 @@ public enum FileToolsTools {
 
     static let createNames = [CreateDocumentTool.name, CreateSpreadsheetTool.name, CreatePresentationTool.name,
                               CreateChartTool.name, ExportTableTool.name]
+
+    /// Set by the app (FileToolsAutoInstall): fetches the File tools runtime when it is missing and answers whether
+    /// code can run now. With it set, `run_python` is offered before the runtime is on disk and its first call waits
+    /// for the install instead of failing with `sandbox.notInstalled` (no button to find in Settings first).
+    public static let ensureRuntime = Mutex<(@Sendable () async -> Bool)?>(nil)
 
     public static func runPython(store fixed: ArtifactStore? = nil, database fixedDB: AppDatabase? = nil,
                                  tier: @escaping @Sendable () -> DeviceTier = { .t1 }) -> RegisteredTool {
@@ -38,6 +44,9 @@ public enum FileToolsTools {
                     throw ToolRunError("run_python runs inside a chat turn only.")
                 }
                 do {
+                    if RunPythonTool.installedRuntimePath() == nil, let ensure = ensureRuntime.withLock({ $0 }) {
+                        _ = await ensure()  // first use: the turn waits here while File tools arrives
+                    }
                     return try await tool.run(argumentsJSON: args, chatID: chat, messageID: TurnContext.requestID,
                                               database: database, store: store)
                 } catch let error as RunPythonError {
@@ -47,8 +56,20 @@ public enum FileToolsTools {
                     case .attachmentNotFound(let id): throw ToolRunError("No attachment \(id) in this chat.")
                     case .service(let message): throw ToolRunError(message)
                     }
+                } catch let error as FileToolsSlots.SlotError {
+                    throw ToolRunError(sandboxUnavailable("\(error)"))
+                } catch let error as FileToolsClientError {
+                    throw ToolRunError(sandboxUnavailable("\(error)"))
                 }
             })
+    }
+
+    /// The sandbox itself did not answer (not an error in the code). The model is told not to pass off a guess as the
+    /// run's result: after `wipeFailed` it answered a standard deviation with made-up numbers (2026-11-16).
+    static func sandboxUnavailable(_ detail: String) -> String {
+        "The code did not run: the sandbox is not available right now (\(detail)). Do not call run_python again in this "
+            + "reply and do not present a result as if the code had run. Tell the user the analysis could not be run and "
+            + "they can try again; work it out by hand only if it is simple, and say that you did."
     }
 
     /// M6.T20 (R-276): `edit_office_file`, registered whenever the registry has File tools; it runs code only when the
@@ -105,7 +126,9 @@ public enum FileToolsTools {
                 createNames.forEach(registry.unregister)
             }
             registry.register(editOffice(tier: tier))  // M6.T20: offer card without File tools, in-place edit with
-            if ToolDefaults.bool(ToolDefaults.runCodeEnabled), RunPythonTool.installedRuntimePath() != nil {
+            let installed = RunPythonTool.installedRuntimePath() != nil
+            let onDemand = !installed && tier() != .t0 && ensureRuntime.withLock { $0 != nil }
+            if (ToolDefaults.bool(ToolDefaults.runCodeEnabled) && installed) || onDemand {
                 registry.register(runPython(tier: tier))
             } else {
                 registry.unregister(RunPythonTool.name)

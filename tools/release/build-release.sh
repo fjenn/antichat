@@ -4,8 +4,11 @@
 #      once, in order) → build/AntiChat.xcarchive
 #   2. ditto --arch arm64 the app → $OUT/AntiChat.app (thins universal third-party binaries such as Sparkle);
 #      dSYMs → $OUT/dSYMs (local artefact only, never uploaded, R-218)
-#   3. stamp CFBundleShortVersionString=$APP_VERSION, CFBundleVersion=`git rev-list --count HEAD` (monotonic)
-#   4. arch check: every Mach-O is arm64 only; no model files in the bundle
+#   3. stamp CFBundleShortVersionString=$APP_VERSION, CFBundleVersion=`git rev-list --count HEAD` (monotonic).
+#      In the public snapshot (tools/release/export-public.sh) the number comes from SOURCE_REVISION `build=`:
+#      the main tree's commit count at export, so builds made on GitHub keep counting where local ones stopped.
+#   4. arch check: every Mach-O is arm64 only; no model files in the bundle; no developer test mode compiled in
+#      (tools/ci/dev-modes-guard.py + perfharness-guard.py on the built binaries: bench mode, probes, launch options)
 #   5. tools/release/sign.sh --mode $SIGNING_MODE (inside out, never --deep)
 #   6. verify-signing.sh (devid: --pre-notary first)
 #   7. devid + NOTARIZE=1: notarize.sh --app (zip → notarytool → staple → validate), then verify-signing.sh again
@@ -31,7 +34,8 @@ archive="build/AntiChat.xcarchive"
 notarize="${NOTARIZE:-1}"
 version="${APP_VERSION:-$(sed -n 's/^ *CFBundleShortVersionString: *"\(.*\)"/\1/p' project.yml | head -n 1)}"
 # BUILD_NUMBER: test feeds only (AT-FA-12 stamps N-1 below N from one archive); refused for devid below.
-build_number="${BUILD_NUMBER:-$(git rev-list --count HEAD)}"
+source_build="$(sed -n 's/^build=\([0-9][0-9]*\)$/\1/p' SOURCE_REVISION 2>/dev/null | head -n 1)"
+build_number="${BUILD_NUMBER:-${source_build:-$(git rev-list --count HEAD)}}"
 commit="$(git rev-parse HEAD)"; dirty_at_start="$(git status --porcelain | wc -l | tr -d ' ')"  # what was built
 step() { echo "== build-release [$mode] $*"; }
 [[ -z "${BUILD_NUMBER:-}" || "$mode" != devid ]] || { echo "error: BUILD_NUMBER is for test feeds; devid uses the commit count" >&2; exit 1; }
@@ -108,6 +112,13 @@ done < <(find "$app" -type f)
 models="$(find "$app" \( -name '*.gguf' -o -name '*.safetensors' -o -name '*.mlpackage' \) | wc -l | tr -d ' ')"
 [[ "$models" == 0 ]] || { echo "error: $models model files inside the app bundle (NFR-D1)" >&2; exit 1; }
 echo "  $n Mach-O, all arm64; 0 model files; app $(du -sh "$app" | cut -f1)"
+# Owner decision: no developer test mode ships (bench, spike, probes, dev launch options). Refused before signing; the
+# refused app is removed so it can never be signed, packaged or tried out by mistake.
+if ! python3 -I tools/ci/dev-modes-guard.py --app "$app" || ! python3 -I tools/ci/perfharness-guard.py --app "$app"; then
+    rm -rf "$app"
+    echo "error: the build carries developer test modes (see above); not a release" >&2
+    exit 1
+fi
 
 step "sign"
 CODE_SIGN_IDENTITY="$([[ "$mode" == adhoc ]] && echo "" || echo "$IDENTITY")" \

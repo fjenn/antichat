@@ -4,7 +4,7 @@ Il y a deux façons de faire. Les deux suppriment tout ce qu’AntiChat conserve
 
 ## 1. Utiliser Désinstaller AntiChat (recommandé)
 
-Choisissez **AntiChat › Désinstaller AntiChat…** (ou Réglages › Stockage › Désinstaller AntiChat…). La fenêtre indique ce qui sera supprimé et l’espace libéré. Cliquez sur **Exporter d’abord mes données** si vous voulez garder vos discussions, puis tapez UNINSTALL et cliquez sur **Désinstaller**. AntiChat supprime ses modèles, discussions, images, fichiers, caches, journaux et réglages, désactive Ouvrir à la connexion, efface ses raccourcis clavier, se place dans la Corbeille et se ferme.
+Choisissez **AntiChat › Désinstaller AntiChat…** (ou Réglages › Confidentialité et données › Avancé › Désinstaller AntiChat…). La fenêtre indique ce qui sera supprimé et l’espace libéré. Cliquez sur **Exporter d’abord mes données** si vous voulez garder vos discussions, puis tapez UNINSTALL et cliquez sur **Désinstaller**. AntiChat supprime ses modèles, discussions, images, fichiers, caches, journaux et réglages, désactive Ouvrir à la connexion, efface ses raccourcis clavier, se place dans la Corbeille et se ferme.
 
 ## 2. Supprimer à la main
 
@@ -24,7 +24,7 @@ Choisissez **AntiChat › Désinstaller AntiChat…** (ou Réglages › Stockage
 - `~/Library/Logs/DiagnosticReports/AntiChat*.ips`
 - `$TMPDIR/AntiChat-incognito-*` (temporaire ; macOS le vide aussi au redémarrage)
 
-Si vous avez déplacé le dossier des modèles vers un autre disque (Réglages › Stockage › Dossier des modèles › Déplacer…), supprimez aussi ce dossier. Réglages › Stockage indique où il se trouve, avec Afficher dans le Finder.
+Si vous avez déplacé le dossier des modèles vers un autre disque (Réglages › Confidentialité et données › Avancé › Dossier des modèles › Déplacer…), supprimez aussi ce dossier. Réglages › Confidentialité et données › Avancé indique où il se trouve, avec Afficher dans le Finder.
 
 Les éléments du trousseau nommés app.antichat.* peuvent être supprimés dans Trousseaux d’accès.
 

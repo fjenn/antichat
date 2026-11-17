@@ -1,13 +1,11 @@
 // ToolbarTitle (components.md §1): the chat title centred in the unified toolbar, editable on double-click.
-// States: untitled ("New chat") · titled · renaming (inline field) · page (Library / Projects / Chats: its name). The pending shimmer arrives with titles (M1.T19).
+// States: untitled ("New chat") · titled · renaming (inline field).
 import AntiChatDesign
 import AntiChatHarness
 import SwiftUI
 
 struct ToolbarTitle: View {
     let chat: ChatSummary?
-    /// M9.T08: on a page route (Library, Projects, Chats) the page's name instead of "New chat".
-    var pageTitle: CopyKey? = nil
     var renaming: Bool
     var onBeginRename: () -> Void
     var onRename: (String) -> Void
@@ -17,7 +15,6 @@ struct ToolbarTitle: View {
     @FocusState private var focused: Bool
 
     private var title: String {
-        if let pageTitle { return pageTitle.string() }
         guard let chat, !chat.title.isEmpty else { return CopyKey("side.untitled").string() }
         return chat.title
     }
@@ -42,7 +39,7 @@ struct ToolbarTitle: View {
                     .foregroundStyle(Color.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .frame(maxWidth: 420)
+                    .frame(maxWidth: 300)
                     .onTapGesture(count: 2) { if chat != nil { onBeginRename() } }
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityAction(named: Text(CopyKey("row.rename"))) { if chat != nil { onBeginRename() } }  // M9.T01

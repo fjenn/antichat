@@ -126,9 +126,9 @@ final class DictationTests: XCTestCase {
         dictateAndStop(app, speechEnds: 7)  // q05: 5.9 s from 0.3 s
         XCTAssertFalse(composerText(app).isEmpty, "the dictation's text is in the composer")
         app.typeKey(",", modifierFlags: .command)
-        element(app, "settings.nav.voice").click()
+        element(app, "settings.nav.capabilities").click()
         // Recent recordings sit below the fold of the Voice section (Q-015 r3).
-        app.scrollViews.matching(identifier: "settings.detail.voice").firstMatch.scrollUntilVisible(element(app, "recording.row"))
+        app.scrollViews.matching(identifier: "settings.detail.capabilities").firstMatch.scrollUntilVisible(element(app, "recording.row"))
         XCTAssertTrue(element(app, "recording.row").waitForExistence(timeout: 5))
     }
 
@@ -146,8 +146,8 @@ final class DictationTests: XCTestCase {
         dictateAndStop(app, speechEnds: 9)  // q06: 7.8 s from 0.3 s
         XCTAssertFalse(composerText(app).isEmpty, "the incognito dictation still fills the composer")
         app.typeKey(",", modifierFlags: .command)
-        element(app, "settings.nav.voice").click()
-        app.scrollViews.matching(identifier: "settings.detail.voice").firstMatch.scrollUntilVisible(element(app, "recordings.empty"))
+        element(app, "settings.nav.capabilities").click()
+        app.scrollViews.matching(identifier: "settings.detail.capabilities").firstMatch.scrollUntilVisible(element(app, "recordings.empty"))
         XCTAssertTrue(element(app, "recordings.empty").waitForExistence(timeout: 5))
     }
 }

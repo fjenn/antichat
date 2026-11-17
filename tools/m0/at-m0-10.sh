@@ -26,7 +26,8 @@ echo "throttle: sudo -n: $(sudo -n true 2>&1 && echo ok || echo 'not available')
 if [ "${SKIP_BENCH:-0}" != 1 ]; then
   if [ ! -x "$BIN" ]; then
     xcodebuild -workspace AntiChat.xcworkspace -scheme AntiChat-Release -configuration Release -derivedDataPath "$DD" ARCHS=arm64 'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) NDEBUG=1' \
-      -packageAuthorizationProvider netrc CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO build -quiet
+      -packageAuthorizationProvider netrc CODE_SIGN_IDENTITY=- ENABLE_HARDENED_RUNTIME=NO \
+      'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) ANTICHAT_PERF_HARNESS' build -quiet  # -Bench is not in a release build (tools/ci/dev-modes-guard.py)
   fi
   # The app takes the GPU lock itself, only around load + first token (the wait is excluded from the clock).
   "$BIN" -Bench firstchat --rate 50 --runs "${RUNS50:-10}" --chunk-mb "$CHUNK_MB" --test run --raw "$R/firstchat-50.jsonl"

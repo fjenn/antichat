@@ -14,6 +14,18 @@ export const SESSION_TTL_SECONDS = 3600;
 
 export type McpTarget = { url: string; headers: Record<string, string> };
 export type Connection = { id: string; toolkit: string; status: string };
+/** One toolkit as Composio lists it (GET /api/v3.1/toolkits), reduced to what src/toolkits.ts reads. */
+export type ListedToolkit = {
+  slug: string;
+  name: string;
+  description: string;
+  logo: string;
+  categories: string[];
+  authSchemes: string[];
+  managedAuthSchemes: string[];
+  noAuth: boolean;
+  tools: number;
+};
 
 /** The Composio calls the relay makes. The real one wraps the SDK; tests use it against test/mock-composio.ts. */
 export interface ComposioGateway {
@@ -24,6 +36,8 @@ export interface ComposioGateway {
   link(sid: string, toolkit: string, callbackUrl?: string): Promise<{ url: string; id: string }>;
   disconnect(accountId: string): Promise<void>;
   deleteSession(sid: string): Promise<void>;
+  /** Every native, non-deprecated toolkit Composio lists (all pages). */
+  listToolkits(): Promise<ListedToolkit[]>;
 }
 
 export class SdkGateway implements ComposioGateway {
@@ -83,6 +97,39 @@ export class SdkGateway implements ComposioGateway {
   async deleteSession(sid: string) {
     await this.sdk.sessions.delete(sid);
   }
+
+  // The API client under the SDK (`getClient().toolkits.list`), not `sdk.toolkits.get({...})`: that one answers a
+  // bare array (no `next_cursor`, so only one page can be read) and has no `type` / `include_deprecated` filter.
+  async listToolkits() {
+    const client = this.sdk.getClient();
+    const out: ListedToolkit[] = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < 50; page++) {
+      const r = await client.toolkits.list({
+        type: "native",
+        include_deprecated: false,
+        sort_by: "alphabetically",
+        limit: 500,
+        ...(cursor ? { cursor } : {}),
+      });
+      for (const it of r.items) {
+        out.push({
+          slug: it.slug,
+          name: it.name,
+          description: it.meta?.description ?? "",
+          logo: it.meta?.logo ?? "",
+          categories: (it.meta?.categories ?? []).map((c) => c.name),
+          authSchemes: it.auth_schemes ?? [],
+          managedAuthSchemes: it.composio_managed_auth_schemes ?? [],
+          noAuth: it.no_auth === true,
+          tools: it.meta?.tools_count ?? 0,
+        });
+      }
+      if (!r.next_cursor) break;
+      cursor = r.next_cursor;
+    }
+    return out;
+  }
 }
 
 type Cached = { sid: string; url: string };
@@ -130,7 +177,15 @@ export function resetHeaderCache() {
   headerCache.clear();
 }
 
-/** Toolkits the app may show: the allow-list, or the default set when dev allows "*". */
+/**
+ * `toolkits` of GET /v1/connections: the allow-list when one is set, else the eight apps of the first releases (what
+ * app versions up to 0.0.7 show). It does not limit newer apps: with `all` they offer their whole bundled catalog.
+ */
 export function visibleToolkits(cfg: RelayConfig): string[] {
   return cfg.allowedToolkits === "*" ? DEFAULT_TOOLKITS : cfg.allowedToolkits;
+}
+
+/** True when any valid toolkit slug can be linked (no RELAY_ALLOWED_TOOLKITS list). */
+export function allToolkits(cfg: RelayConfig): boolean {
+  return cfg.allowedToolkits === "*";
 }

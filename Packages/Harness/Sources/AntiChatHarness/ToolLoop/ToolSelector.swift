@@ -40,8 +40,22 @@ public enum ToolSelector {
     /// build/at/AT-266/). A tuning value, not a tier budget.
     public static let minEmbedCosine: Float = 0.54
 
-    /// Route tool names (the router-300 label scheme, `Route.tools`) that name a registry tool differently.
-    static let routeAliases: [String: [String]] = ["memory_write": ["memory"]]
+    /// A route with several tools (`file_output`: one per file type) lists them most general first; the similarity
+    /// leg knows which of them the message is about, so within that family the best hit goes first (the rest keep
+    /// their order). Without this a small tier's slots would hold the document and spreadsheet tools for "make a deck".
+    static func rankFamily(_ routed: [String], hits: [ToolIndex.Hit]) -> [String] {
+        let family = Set(Route.fileTools)
+        let members = routed.filter(family.contains)
+        guard members.count > 1 else { return routed }
+        var rank: [String: Int] = [:]
+        for (i, h) in hits.enumerated() where rank[h.name] == nil { rank[h.name] = i }
+        let sorted = members.enumerated().sorted {
+            let a = rank[$0.element] ?? .max, b = rank[$1.element] ?? .max
+            return a != b ? a < b : $0.offset < $1.offset
+        }.map(\.element)
+        var next = sorted.makeIterator()
+        return routed.map { family.contains($0) ? next.next() ?? $0 : $0 }
+    }
 
     public enum Reason: String, Sendable, Hashable { case forced, routed, similar, alwaysOn, all, discovery }
 
@@ -62,20 +76,33 @@ public enum ToolSelector {
         ToolPruner.prunes(tier) ? min(budget.maxPerStep, ToolPruner.limit) : budget.maxPerStep
     }
 
-    public static func select(eligible: [ToolSchema], forced: [String] = [], routed: [String] = [],
+    /// The slots for tools other than `find_tools`. A pinned tool (`memory` while memory is On) rides on top of the
+    /// tier's count where R-235 AC2's four allows it (T0: 3 → 4) and on T3+; on T1/T2 (already four) it takes one of
+    /// the slots. A forced pick is never cut; a pinned one is, when the forced set alone fills the step.
+    static func slots(cap: Int, tier: DeviceTier, forced: Int, pinned: Int) -> Int {
+        let extra = ToolPruner.prunes(tier) ? min(pinned, max(0, ToolPruner.limit - cap)) : pinned
+        return max(cap - 1 + extra, forced)
+    }
+
+    /// `pinned`: offered on every step whatever the message is about (after the forced set, before the routed tools),
+    /// never the selector's `top`, and outside the schema token cap (its cost is added, not taken from the others).
+    public static func select(eligible: [ToolSchema], forced: [String] = [], pinned: [String] = [], routed: [String] = [],
                               hits: [ToolIndex.Hit] = [], access: ToolAccess = .whenNeeded, tier: DeviceTier,
                               budget: Budget, capOverride: Int? = nil) -> Selection {
         let byName = Dictionary(eligible.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
         let forcedIn = unique(forced).filter { byName[$0] != nil }
-        let routed = routed.flatMap { routeAliases[$0] ?? [$0] }
+        let pinnedIn = unique(pinned).filter { byName[$0] != nil && !forcedIn.contains($0) }
+        let pinnedTokens = SchemaCompactor.tokens(pinnedIn.compactMap { byName[$0] })
+        let routed = rankFamily(unique(routed), hits: hits)
         let relevant = hits.filter(\.relevant).map(\.name)
         let top = (forcedIn + routed + relevant).first { byName[$0] != nil }
         var reasons: [String: Reason] = [:]
         func pick(_ names: [String]) -> [ToolSchema] { names.compactMap { byName[$0] } }
 
         if access == .all {
-            let order = forcedIn + eligible.map(\.name).filter { !forcedIn.contains($0) }
-            var out = SchemaCompactor.fit(pick(order), cap: budget.schemaTokenCap, pinned: Set(forcedIn))
+            let first = forcedIn + pinnedIn
+            let order = first + eligible.map(\.name).filter { !first.contains($0) }
+            var out = SchemaCompactor.fit(pick(order), cap: budget.schemaTokenCap + pinnedTokens, pinned: Set(first))
             for t in out { reasons[t.name] = forcedIn.contains(t.name) ? .forced : .all }
             let left = eligible.map(\.name).filter { reasons[$0] == nil }
             if !left.isEmpty { out.append(FindToolsTool.schema); reasons[FindToolsTool.name] = .discovery }
@@ -87,8 +114,10 @@ public enum ToolSelector {
             for t in eligible { reasons[t.name] = forcedIn.contains(t.name) ? .forced : .all }
             return Selection(tools: eligible, reasons: reasons, top: top, leftOut: [])
         }
-        let slots = max(cap - 1, forcedIn.count)  // one slot is find_tools; a forced pick is never cut
+        // One slot is find_tools; a forced pick is never cut.
+        let slots = slots(cap: cap, tier: tier, forced: forcedIn.count, pinned: pinnedIn.count)
         var order: [(String, Reason)] = forcedIn.map { ($0, .forced) }
+        for n in pinnedIn { order.append((n, .alwaysOn)) }
         for n in routed { order.append((n, .routed)) }
         for n in relevant { order.append((n, .similar)) }
         for n in ToolPruner.alwaysOn { order.append((n, .alwaysOn)) }
@@ -97,8 +126,9 @@ public enum ToolSelector {
             chosen.append(n)
             reasons[n] = r
         }
-        var out = SchemaCompactor.fit(pick(chosen), cap: max(0, budget.schemaTokenCap - SchemaCompactor.tokens(FindToolsTool.schema)),
-                                      pinned: Set(forcedIn))
+        var out = SchemaCompactor.fit(pick(chosen),
+                                      cap: max(0, budget.schemaTokenCap - SchemaCompactor.tokens(FindToolsTool.schema)) + pinnedTokens,
+                                      pinned: Set(forcedIn + pinnedIn))
         reasons = reasons.filter { k, _ in out.contains { $0.name == k } }
         out.append(FindToolsTool.schema)
         reasons[FindToolsTool.name] = .discovery
@@ -108,15 +138,18 @@ public enum ToolSelector {
     /// The tools `find_tools` brings in for the next step: the forced set kept, then the found tools, then what was
     /// offered before, up to the same cap (find_tools stays offered).
     public static func afterDiscovery(found: [String], previous: [ToolSchema], eligible: [ToolSchema], forced: [String],
-                                      tier: DeviceTier, budget: Budget, access: ToolAccess) -> [ToolSchema] {
+                                      pinned: [String] = [], tier: DeviceTier, budget: Budget, access: ToolAccess) -> [ToolSchema] {
         let byName = Dictionary(eligible.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
         let forcedIn = unique(forced).filter { byName[$0] != nil }
+        let pinnedIn = unique(pinned).filter { byName[$0] != nil && !forcedIn.contains($0) }
         let prev = previous.map(\.name).filter { $0 != FindToolsTool.name }
-        let order = unique(forcedIn + found + prev).filter { byName[$0] != nil }
-        let slots = access == .all ? order.count : max(cap(tier, budget: budget) - 1, forcedIn.count)
+        let order = unique(forcedIn + pinnedIn + found + prev).filter { byName[$0] != nil }
+        let slots = access == .all ? order.count
+            : slots(cap: cap(tier, budget: budget), tier: tier, forced: forcedIn.count, pinned: pinnedIn.count)
         let chosen = Array(order.prefix(slots)).compactMap { byName[$0] }
         let cap = max(0, budget.schemaTokenCap - SchemaCompactor.tokens(FindToolsTool.schema))
-        return SchemaCompactor.fit(chosen, cap: cap, pinned: Set(forcedIn)) + [FindToolsTool.schema]
+            + SchemaCompactor.tokens(pinnedIn.compactMap { byName[$0] })
+        return SchemaCompactor.fit(chosen, cap: cap, pinned: Set(forcedIn + pinnedIn)) + [FindToolsTool.schema]
     }
 
     static func unique(_ names: [String]) -> [String] {

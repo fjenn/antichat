@@ -1,0 +1,5 @@
+{"version": "0.0.6", "critical": false, "prerelease": false,
+ "items": [{"icon": "arrow.down.app", "title": "Drag, and it opens", "body": "Drop AntiChat on Applications in the installer and it installs and opens by itself."},
+           {"icon": "hourglass", "title": "Chat waits for its model", "body": "Setup opens the chat only once a text model can answer."},
+           {"icon": "square.grid.2x2", "title": "Shows up in Apps", "body": "After installing, AntiChat appears in Apps and Spotlight right away."},
+           {"icon": "pause.circle", "title": "Pause and resume work", "body": "A paused download now shows Resume and picks up where it stopped. Turning off a pack with nothing downloaded just turns it off."}]}

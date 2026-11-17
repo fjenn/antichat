@@ -38,7 +38,7 @@ enum DevModels {
             #expect(ToolFormat.detect(modelDirectory: d) == want, "\(key)")
         }
         #expect(ToolFormat.qwenXML.grammarConstrainable && ToolFormat.hermesJSON.grammarConstrainable)
-        #expect(!ToolFormat.gemma4.grammarConstrainable)
+        #expect(ToolFormat.gemma4.grammarConstrainable)
     }
 
     @Test func schemaNormalisationCoversBFCLDialect() {

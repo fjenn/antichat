@@ -1,4 +1,4 @@
-// Settings → Updates (M1.T22 step 1; settings-map §11): "Update models automatically" (M2.T11, R-294 / R-220 AC2;
+// Settings → General, updates (settings-map §11): "Update models automatically" (M2.T11, R-294 / R-220 AC2;
 // default on, asks first above +2 GB) and, since M10.T03 (R-219), the Sparkle app-update rows: check
 // automatically, download automatically, beta versions, [Check now] with the last failure (`update.failed`).
 // VQ (S-21 Updates): a status card on top, as a system software-update pane has it — the app icon, "AntiChat
@@ -11,55 +11,28 @@ import AppKit
 import Defaults
 import SwiftUI
 
-struct UpdatesSection: View {
+/// The update switches (General → Advanced); the status card with [Check now] is on the page, under About & Help.
+struct UpdateRows: View {
     @Default(.autoUpdateModels) private var autoUpdateModels
     @AppStorage(WhatsNewProvider.enabledKey, store: .antichat) private var whatsNew = true  // M10.T07 (R-303 AC2); the Settings store
     private let service = UpdaterService.shared
 
     var body: some View {
         let state = service.state
-        Section {
-            UpdateStatusCard(phase: state.phase, version: AboutSection.version, lastCheck: service.lastCheckDate,
-                             onCheck: { service.checkNow() }, onRestart: { service.restartToUpdate() })
-                .id("updates.check")
-                .modifier(HighlightRow(id: "updates.check"))
-        }
-        Section {
-            SettingsItem("updates.autoCheck") {
-                Toggle(isOn: Binding(get: { state.automaticallyChecks }, set: { service.setAutomaticallyChecks($0) })) {
-                    Text(CopyKey("set.updates.autoCheck"))
-                }
+        toggle("updates.autoCheck", "set.updates.autoCheck",
+               Binding(get: { state.automaticallyChecks }, set: { service.setAutomaticallyChecks($0) }))
+        toggle("updates.autoDownload", "set.updates.auto",
+               Binding(get: { state.automaticallyDownloads }, set: { service.setAutomaticallyDownloads($0) }))
+        toggle("updates.beta", "set.updates.beta", Binding(get: { state.beta }, set: { service.setBeta($0) }))
+        toggle("updates.whatsNew", "set.updates.whatsNew", $whatsNew)
+        toggle("autoUpdateModels", "set.updates.models", $autoUpdateModels, note: "set.updates.models.note")
+    }
+
+    private func toggle(_ id: String, _ label: String, _ value: Binding<Bool>, note: String? = nil) -> some View {
+        SettingsItem(id, description: note.map { CopyKey($0) }) {
+            Toggle(isOn: value) { Text(CopyKey(label)) }
                 .toggleStyle(.accessibleSwitch)
-                .probeID("settings.control.updates.autoCheck")
-            }
-            SettingsItem("updates.autoDownload") {
-                Toggle(isOn: Binding(get: { state.automaticallyDownloads }, set: { service.setAutomaticallyDownloads($0) })) {
-                    Text(CopyKey("set.updates.auto"))
-                }
-                .toggleStyle(.accessibleSwitch)
-                .probeID("settings.control.updates.autoDownload")
-            }
-            SettingsItem("updates.beta") {
-                Toggle(isOn: Binding(get: { state.beta }, set: { service.setBeta($0) })) { Text(CopyKey("set.updates.beta")) }
-                    .toggleStyle(.accessibleSwitch)
-                    .probeID("settings.control.updates.beta")
-            }
-            SettingsItem("updates.whatsNew") {
-                Toggle(isOn: $whatsNew) { Text(CopyKey("set.updates.whatsNew")) }
-                    .toggleStyle(.accessibleSwitch)
-                    .probeID("settings.control.updates.whatsNew")
-            }
-        } header: {
-            Text(CopyKey("set.updates.app")).typeStyle(.subhead)
-        }
-        Section {
-            SettingsItem("autoUpdateModels", description: CopyKey("set.updates.models.note")) {
-                Toggle(isOn: $autoUpdateModels) { Text(CopyKey("set.updates.models")) }
-                    .toggleStyle(.accessibleSwitch)
-                    .probeID("settings.control.autoUpdateModels")
-            }
-        } header: {
-            Text(CopyKey("set.updates.modelsHeader")).typeStyle(.subhead)
+                .probeID("settings.control.\(id)")
         }
     }
 }

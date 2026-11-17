@@ -86,7 +86,11 @@ enum RemoveEverythingRunner {
         h.unregisterLoginItem = {}
         h.resetShortcuts = {}
         h.clearNotifications = {}
+        #if DEBUG || ANTICHAT_PERF_HARNESS
         let prefix = ProcessInfo.processInfo.environment["ANTICHAT_KEYCHAIN_PREFIX"] ?? "app.antichat.scratch-none."
+        #else
+        let prefix = "app.antichat.scratch-none."  // never reached: `isScratch` needs a DEBUG `ANTICHAT_ROOT` run
+        #endif
         return (prefix, "app.antichat.scratch-\(getpid())")
     }
 

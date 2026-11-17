@@ -23,7 +23,6 @@ struct FileCommands: Commands {
     @FocusedValue(\.windowState) private var focused
     private var state: WindowState? { MenuTarget.state(focused) }
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.openSettings) private var openSettings
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
@@ -55,7 +54,7 @@ struct FileCommands: Commands {
                 Button {
                     ImportRequest.shared.request()
                     SettingsNavigator.shared.request(.privacy, row: "importChats")
-                    openSettings()
+                    SettingsPresenter.shared.show()
                 } label: { Text(CopyKey("menu.file.import")) }
                     .accessibilityIdentifier("menu.file.import")
             }
@@ -63,7 +62,7 @@ struct FileCommands: Commands {
                 Button {
                     ExportRequest.shared.request()
                     SettingsNavigator.shared.request(.privacy, row: "exportAll")
-                    openSettings()
+                    SettingsPresenter.shared.show()
                 } label: { Text(CopyKey("menu.file.exportAll")) }
                     .accessibilityIdentifier("menu.file.exportAll")
             }

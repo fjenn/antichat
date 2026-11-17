@@ -14,7 +14,7 @@ public enum ToolDefaults {
     }()
 
     public static func registerDefaults() {
-        store.register(defaults: [createFilesEnabled: true, runCodeEnabled: false, allowNetworkForCode: false])
+        store.register(defaults: [createFilesEnabled: true, runCodeEnabled: false, allowNetworkForCode: true])
     }
 
     public static func bool(_ key: String) -> Bool { store.bool(forKey: key) }

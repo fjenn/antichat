@@ -151,6 +151,11 @@ extension ApprovalCardView {
     /// M9.T08 (vq-inject capture): the card names the action as people read it, matching its activity line —
     /// `team_chat_send_message` → "Team Chat · Send message", `write_note` → "Write note" — never the raw tool id.
     static func actionName(_ tool: String) -> String {
+        // A connected app's action (a Composio slug): `GMAIL_SEND_EMAIL` → "Gmail · Send email".
+        if tool.contains("_"), tool == tool.uppercased(), MCPTools.shared.descriptor(named: tool) == nil {
+            let d = SlugPermission.display(tool)
+            return d.action.isEmpty ? d.app : "\(d.app) · \(d.action)"
+        }
         guard let d = MCPTools.shared.descriptor(named: tool) else { return ActivityLineView.readableName(tool) }
         return "\(d.serverName) · \(ActivityLineView.readableName(d.toolName))"
     }
@@ -169,7 +174,18 @@ extension ApprovalCardView {
         guard let data = json.data(using: .utf8),
               let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else { return [] }
         func at(_ key: String) -> String.Index { json.range(of: "\"\(key)\"")?.lowerBound ?? json.endIndex }
-        let order = object.keys.sorted { a, b in at(a) == at(b) ? a < b : at(a) < at(b) }
+        /// Who it goes to first, then what it is called, long text last (To · Subject · … · Body), else as written.
+        func rank(_ key: String) -> Int {
+            let k = key.lowercased()
+            if k.contains("recipient") || k == "to" || k.hasPrefix("to_") || k.contains("channel") { return 0 }
+            if k == "cc" || k == "bcc" { return 1 }
+            if k.contains("subject") || k.contains("title") || k == "name" { return 2 }
+            if k.contains("body") || k.contains("message") || k.contains("text") || k.contains("content") || k.contains("description") { return 4 }
+            return 3
+        }
+        let order = object.keys.sorted { a, b in
+            rank(a) != rank(b) ? rank(a) < rank(b) : at(a) == at(b) ? a < b : at(a) < at(b)
+        }
         var out: [Field] = []
         for key in order {
             guard out.count < limit, let value = scalarText(object[key]), !value.isEmpty else { continue }

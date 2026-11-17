@@ -1,5 +1,5 @@
-// M7.T06 AT-081 c1/c4 (R-081 AC1/AC4; S-21 §7): a fresh container shows no connections and makes no `.mcp` request;
-// adding a token server through the consent sheet lists its tools; the Popular connections directory has ≥ 10 cards.
+// M7.T06 AT-081 c1 (R-081 AC1; S-21 §7): a fresh container shows no connections and makes no `.mcp` request; adding a
+// server with a key through the add sheet (form, then the consent step) puts it under "Connected".
 // Uses `-ScriptedMCP fixtures/web/mcp/scripted-server.jsonl` (no network). Pending Q-015 (XCUITest automation mode is
 // blocked on this Mac); the same flows run in-process in MCPHostTests / MCPTurnTests.
 import XCTest
@@ -15,15 +15,13 @@ final class ConnectionsUITests: XCTestCase {
                                 "-ScriptedMCP", repo.appendingPathComponent("fixtures/web/mcp/scripted-server.jsonl").path]
         app.launch()
         app.typeKey(",", modifierFlags: .command)
-        app.descendants(matching: .any).matching(identifier: "settings.nav.tools").firstMatch.click()
-        // Connections sit below the fold of Tools & Connections; bring them on screen (Q-015 catch-up).
-        app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch.scroll(byDeltaX: 0, deltaY: -700)
+        app.descendants(matching: .any).matching(identifier: "settings.nav.connections").firstMatch.click()
         return app
     }
 
     @MainActor func testNothingConnectsUntilAdded() throws {
         let app = launch()
-        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "connections.empty").firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'connectionRow.'")).firstMatch.waitForExistence(timeout: 2))
     }
 
     @MainActor func testAddRemoteWithTokenListsTools() throws {
@@ -31,13 +29,14 @@ final class ConnectionsUITests: XCTestCase {
         app.buttons["connections.add"].click()
         let url = app.textFields["connections.url"]
         url.click(); url.typeText("https://chat.example/mcp")
-        app.descendants(matching: .any).matching(identifier: "connections.authMode").firstMatch.radioButtons.element(boundBy: 1).click()
+        app.descendants(matching: .any).matching(identifier: "connections.auth.show").firstMatch.click()  // "This tool needs a sign-in"
+        app.descendants(matching: .any).matching(identifier: "connections.auth.key").firstMatch.click()  // Paste a key
         let token = app.secureTextFields["connections.token"]
         token.click(); token.typeText("tok-ui")
         app.buttons["connections.check"].click()
         XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "mcpConsent").firstMatch.waitForExistence(timeout: 10))
         app.buttons["mcpConsent.allow"].click()
-        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "connections.empty").firstMatch.waitForNonExistence(timeout: 10))
+        XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'connectionRow.'")).firstMatch.waitForExistence(timeout: 10))
     }
 
     /// M7.T15 (AT-NFR-SEC4): the consent sheet names the server, its URL (a remote server's "command"), every tool
@@ -56,21 +55,6 @@ final class ConnectionsUITests: XCTestCase {
             XCTAssertTrue(sheet.staticTexts.containing(NSPredicate(format: "value CONTAINS %@ OR label CONTAINS %@", text, text)).firstMatch.exists, text)
         }
         app.buttons["mcpConsent.cancel"].click()
-        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "connections.empty").firstMatch.waitForExistence(timeout: 5))
-    }
-
-    @MainActor func testCuratedListAtLeastTen() throws {
-        let app = launch()
-        // The directory is a lazy grid: only the cards on screen are in the tree, so scroll through it and count every
-        // card seen (Q-015 r2: 3 were on screen).
-        let cards = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'mcpDirectory.add.'"))
-        let detail = app.scrollViews.matching(identifier: "settings.detail.tools").firstMatch
-        var seen = Set<String>()
-        for _ in 0..<12 {
-            seen.formUnion(cards.allElementsBoundByIndex.map(\.identifier))
-            if seen.count >= 10 { break }
-            detail.scroll(byDeltaX: 0, deltaY: -300)
-        }
-        XCTAssertGreaterThanOrEqual(seen.count, 10, "\(seen.sorted())")
+        XCTAssertFalse(app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'connectionRow.'")).firstMatch.waitForExistence(timeout: 2))
     }
 }

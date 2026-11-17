@@ -1,6 +1,6 @@
-// M2.T03 step 2 (R-209 AC4): the sidebar footer's network state. `net.offline` when there is no route
-// (PathStatus), `net.offlineOnly` when the switch is on, `net.onlineOn` otherwise; the tooltip names the online
-// features that are on (`net.tooltip`); a click opens Settings › Privacy & Data.
+// M2.T03 step 2 (R-209 AC4): the sidebar footer's network state. Nothing while online (the normal state);
+// `net.offlineOnly` when the Offline only switch is on (a click opens Settings › Privacy & Data at that switch);
+// `net.offline` when the Mac has no network.
 import AntiChatDesign
 import AntiChatNetwork
 import SwiftUI
@@ -8,9 +8,7 @@ import SwiftUI
 struct NetworkIndicator: View {
     enum Mode: Equatable { case offline, offlineOnly, online }
 
-    @Environment(\.openSettings) private var openSettings
     @State private var mode: Mode
-    @State private var enabled: [NetworkCategory] = NetworkPolicyStore.shared.enabledCategories
     private let fixed: Bool
 
     /// `fixed` pins the state (snapshot tests); nil follows the policy and PathStatus.
@@ -41,16 +39,16 @@ struct NetworkIndicator: View {
         }
     }
 
-    /// "Online: Updates, Model list, …" (the categories on right now).
-    static func tooltip(_ enabled: [NetworkCategory]) -> String {
-        let names = enabled.map { CopyKey("net.cat.\($0.rawValue)").string() }
-        return CopyText(CopyKey("net.tooltip"), ["features": names.joined(separator: ", ")]).string
+    var body: some View {
+        Group { if mode != .online { pill } }
+            .onReceive(NotificationCenter.default.publisher(for: NetworkPolicyStore.didChange)) { _ in refresh() }
+            .onReceive(NotificationCenter.default.publisher(for: PathStatus.didChange)) { _ in refresh() }
     }
 
-    var body: some View {
+    private var pill: some View {
         Button {
-            SettingsNavigator.shared.request(.privacy, row: "networkActivity")
-            openSettings()
+            SettingsNavigator.shared.request(.privacy, row: "offlineOnly")
+            SettingsPresenter.shared.show()
         } label: {
             Label { Text(Self.title(mode)).typeStyle(.caption) } icon: { Image(systemName: Self.symbol(mode)) }
                 .foregroundStyle(Color.textSecondary)
@@ -59,15 +57,13 @@ struct NetworkIndicator: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, Spacing.space2)  // aligns with the Settings row below (same outer + inner inset)
-        .help(Text(verbatim: mode == .online ? Self.tooltip(enabled) : Self.title(mode).string()))
+        .padding(.bottom, Spacing.space1)
+        .help(Text(Self.title(mode)))
         .probeID("networkIndicator")  // + the DEBUG probe anchor (M10.T09 AT-FA-04)
-        .onReceive(NotificationCenter.default.publisher(for: NetworkPolicyStore.didChange)) { _ in refresh() }
-        .onReceive(NotificationCenter.default.publisher(for: PathStatus.didChange)) { _ in refresh() }
     }
 
     private func refresh() {
         guard !fixed else { return }
         mode = Self.current()
-        enabled = NetworkPolicyStore.shared.enabledCategories
     }
 }

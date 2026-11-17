@@ -129,6 +129,11 @@ extension WindowSuites {
         #expect(rows.contains("videoAdvancedSteps") && rows.contains("videoAdvancedResolution") && rows.contains("videoAdvancedSeconds"))
         let e = VideoPresetsTable.bundled.entry(tier: "T3", speedClass: "S4")!
         #expect(VideoAdvancedView.stepOptions(e, table: .bundled) == [1, 2, 3])
+        // "Video quality": Faster (1 step) / Balanced (2) / Best (3 = the tier's preset, stored as 0, the default).
+        #expect(VideoAdvancedView.qualityOptions(e, table: .bundled) == [
+            .init(steps: 1, label: "set.cap.video.quality.faster"), .init(steps: 2, label: "set.cap.video.quality.balanced"),
+            .init(steps: 0, label: "set.cap.video.quality.best")])
+        #expect([0, 1, 2, 3, 9].map { VideoAdvancedView.shownQuality($0, e, table: .bundled) } == [0, 1, 2, 0, 0])
         #expect(VideoAdvancedView.secondOptions(e, fps: 24) == [2, 3, 4, 5])
         let m = VideoPlanModel(input: Self.input(), power: .ac, lowPower: false, advanced: VideoAdvanced(resolution: "480p", seconds: 2))
         #expect(m.plan.spec?.resolution == "480p" && m.plan.spec?.frames == 49 && m.plan.exactLength)

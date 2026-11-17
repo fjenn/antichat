@@ -34,20 +34,6 @@ extension WindowSuites {
         }
     }
 
-    @Test func tourCard() {
-        let tip = TourTip(packs: [.chat, .voice, .photo])
-        for look in Look.allCases {
-            let v = VStack {
-                TourCard(image: tip.image, title: tip.title, message: tip.message) {}.frame(maxWidth: 520)
-                Spacer()
-            }
-            .padding(.top, Spacing.space5)
-            let img = Self.render(v, size: CGSize(width: 760, height: 120), look: look)
-            OnboardingSnapshotTests.write(img, "m10-tour-\(look.rawValue)")
-            #expect(img.size.width == 760)
-        }
-    }
-
     @Test func primaryButtonLabelContrast() throws {
         for name in [NSAppearance.Name.aqua, .darkAqua] {
             let ap = try #require(NSAppearance(named: name))

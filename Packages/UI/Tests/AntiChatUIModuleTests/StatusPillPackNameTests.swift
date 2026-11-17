@@ -23,7 +23,7 @@ import Testing
     @Test func namesTheBackgroundJobs() {
         #expect(StatusPill.title(.error(pack: "update"))?.string == "Model update download stopped")
         #expect(StatusPill.packName("repair") == "Model repair")
-        #expect(StatusPill.packName("photo") == "Photo")
+        #expect(StatusPill.packName("photo") == "Images")
         #expect(StatusPill.packName("evil") == "Evil")
     }
 

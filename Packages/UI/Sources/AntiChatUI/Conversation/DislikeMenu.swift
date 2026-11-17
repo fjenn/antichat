@@ -38,5 +38,6 @@ struct DislikeMenu: View {
         .frame(width: 240)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("dislikeMenu")
+        .popoverSurface()
     }
 }

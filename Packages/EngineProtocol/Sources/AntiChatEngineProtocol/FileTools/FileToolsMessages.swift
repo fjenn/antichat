@@ -15,8 +15,16 @@ public enum FileToolsProtocol {
     /// one slot's chat files from code running in another slot. A slot is leased to one chat at a time
     /// (`FileToolsSlots`, app side) and wiped before the lease moves.
     public static let maxSlots = 3
-    /// Bundle id prefixes (the shipped ids; the release probe uses its own prefix, `slotServiceName(prefix:)`).
-    public static let servicePrefix = "app.antichat.AntiChat"
+    /// Bundle id prefix of the slot services embedded in this app: the shipped ids, or the Debug app's own
+    /// (`….dev`; project.yml). macOS ties a sandbox container to the signature that created it, so an ad-hoc Debug
+    /// service under a shipped id blocks the Developer ID build's service at launch behind a system dialog (and
+    /// the reverse). The release probe uses its own prefix (`slotServiceName(prefix:)`).
+    public static let servicePrefix = prefix(forHost: Bundle.main.bundleIdentifier)
+    public static let shippedServicePrefix = "app.antichat.AntiChat"
+    public static func prefix(forHost hostBundleID: String?) -> String {
+        let dev = shippedServicePrefix + ".dev"
+        return hostBundleID == dev ? dev : shippedServicePrefix
+    }
     /// Mach service name of slot `slot` (1…maxSlots): `…FileTools.slot<k>`; the network variant (same code, plus
     /// `com.apple.security.network.client`, used only when "Allow network for code" is on) `…FileTools.Net.slot<k>`.
     public static func slotServiceName(_ slot: Int, network: Bool, prefix: String = servicePrefix) -> String {

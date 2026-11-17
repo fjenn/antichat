@@ -152,13 +152,13 @@ import Testing
 @Suite("Step4StateTests", .isolatedSettings) struct Step4StateTests {
     func row(_ g: String, _ s: SetupProgress.RowState) -> SetupProgress.Row { .init(group: g, state: s, bytesDone: 0, bytesTotal: 10) }
 
-    /// Nothing answers yet: "Preparing", "Getting Chat ready first", 0 ready, a quiet Open chat (the composer queues).
+    /// Nothing answers yet: "Preparing", "Getting Chat ready first", 0 ready, Open chat disabled (the user waits).
     @Test func waiting() {
         let s = Step4State(rows: [row("chat", .downloading(percent: 4)), row("voice", .waiting), row("photo", .waiting)],
                            starterReady: false)
         #expect(s.titleKey == "onb.4.title" && s.subtitleKey == "onb.4.subtitle.waiting")
         #expect(s.readyCount == 0 && s.total == 3)
-        #expect(s.primary == .openChat(emphasized: false))
+        #expect(s.primary == .wait)
     }
 
     /// The vq-m2 chatready shot: the starter answers, the Chat row is at 99 %. Chat is not "ready", it does not count
@@ -169,7 +169,7 @@ import Testing
         #expect(s.subtitleKey == "onb.4.subtitle.starter")
         #expect(s.readyCount == 0 && s.total == 3)
         #expect(s.titleKey == "onb.4.title")
-        #expect(s.primary == .openChat(emphasized: true))
+        #expect(s.primary == .openChat)
     }
 
     /// The Chat row installed and verified: "Chat is ready", it counts, the others still run.
@@ -178,7 +178,7 @@ import Testing
                            starterReady: true)
         #expect(s.subtitleKey == "onb.4.subtitle.ready" && s.titleKey == "onb.4.title")
         #expect(s.readyCount == 1 && s.total == 3)
-        #expect(s.primary == .openChat(emphasized: true))
+        #expect(s.primary == .openChat)
     }
 
     /// Every row ready: the title changes, the footer reads n of n.
@@ -186,7 +186,7 @@ import Testing
         let s = Step4State(rows: [row("chat", .ready), row("voice", .ready), row("evil", .ready)], starterReady: true)
         #expect(s.titleKey == "onb.4.title.allReady" && s.subtitleKey == "onb.4.subtitle.allReady")
         #expect(s.readyCount == 3 && s.total == 3)
-        #expect(s.primary == .openChat(emphasized: true))
+        #expect(s.primary == .openChat)
         #expect(CopyKey("onb.4.title.allReady").string() != CopyKey("onb.4.title").string())
     }
 
@@ -235,9 +235,9 @@ import Testing
     /// Another row failed but Chat is fine: that row has its own Retry; the primary stays Open chat.
     @Test func otherRowFailedKeepsOpenChat() {
         let ready = Step4State(rows: [row("chat", .ready), row("voice", .failed)], starterReady: true)
-        #expect(ready.primary == .openChat(emphasized: true) && ready.subtitleKey == "onb.4.subtitle.ready" && ready.readyCount == 1)
+        #expect(ready.primary == .openChat && ready.subtitleKey == "onb.4.subtitle.ready" && ready.readyCount == 1)
         let early = Step4State(rows: [row("chat", .downloading(percent: 5)), row("voice", .failed)], starterReady: false)
-        #expect(early.primary == .openChat(emphasized: false) && early.subtitleKey == "onb.4.subtitle.waiting")
+        #expect(early.primary == .wait && early.subtitleKey == "onb.4.subtitle.waiting")
     }
 
     /// No rows yet (before the first refresh): nothing claims to be ready.

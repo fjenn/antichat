@@ -28,7 +28,6 @@
  "Packages/UI/Sources/AntiChatUI/Settings/Storage/StorageSheets.swift": 2,
  "Packages/UI/Sources/AntiChatUI/Settings/ToolsSection/ConnectionDetail.swift": 1,
  "Packages/UI/Sources/AntiChatUI/Settings/ToolsSection/ConnectionsPage.swift": 1,
- "Packages/UI/Sources/AntiChatUI/Settings/ToolsSection/MCPDirectoryView.swift": 1,
  "Packages/UI/Sources/AntiChatUI/Settings/ToolsSection/ToolChangeReviewView.swift": 1,
  "Packages/UI/Sources/AntiChatUI/Uninstall/UninstallSheet.swift": 2
 }

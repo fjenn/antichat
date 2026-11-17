@@ -56,8 +56,9 @@ extension Migrations {
             """)
     }
 
-    /// M8.T03 step 6 (R-246 AC1): what the background review proposes. Only `pending` rows are ever written by the
-    /// review; an item becomes active only through the user's Save tap (MemoryStore.insert, origin review).
+    /// M8.T03 step 6 (R-246 AC1): the background review's rows. `pending` = it was unsure, the user chooses Save or
+    /// Dismiss; `saved` = stored (by the review when certain, owner 2026-11-16, or by the user's Save tap; either way
+    /// MemoryStore.insert, origin review); `dismissed` = the user said no.
     static func v19MemorySuggestion(_ db: Database) throws {
         try db.execute(sql: """
             CREATE TABLE memory_suggestion (

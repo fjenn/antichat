@@ -7,7 +7,9 @@
 //   * on battery below 10 % (R-207).
 // Re-evaluated on wake (`NSWorkspace.didWakeNotification`), on every path change and on every queue change.
 // Connection failures back off 1 → 2 → 4 … ≤ 60 s and retry; after 3 in a row the notice is
-// `download.pausedConnection` with [Retry] (`retryNow()`). The power assertion is held while anything downloads.
+// `download.pausedConnection` with [Retry] (`retryNow()`). When a hold clears (the network is back) the failed
+// connection jobs retry at once, and a new launch retries every failed job once, so Retry is only a fallback.
+// The power assertion is held while anything downloads.
 import AntiChatFoundation
 import AntiChatNetwork
 import Foundation
@@ -81,6 +83,19 @@ public actor DownloadPolicy {
             Task { await self?.evaluate() }
         }
         await evaluate()
+        // A new launch tries every download that "didn't finish" once more by itself (a failure for good, such as a
+        // file every source reports gone, fails again and then waits for the manual Retry).
+        if status.holds.isEmpty { await retryFailed(retryableOnly: false) }
+    }
+
+    /// Puts failed jobs back in the queue (the connection ones, or all of them).
+    private func retryFailed(retryableOnly: Bool) async {
+        for j in await coordinator.allJobs where j.state == .failed {
+            if retryableOnly, !(j.errorKey.map(DownloadCoordinator.retryableErrors.contains) ?? false) { continue }
+            retryTasks[j.id]?.cancel()
+            retryTasks[j.id] = nil
+            await coordinator.resume(j.id)
+        }
     }
 
     public func stop() {
@@ -143,9 +158,15 @@ public actor DownloadPolicy {
         assertion.set("downloads", active: running)
         if running, diskTask == nil { startDiskWatcher() }
         if !running, pending.isEmpty { diskTask?.cancel(); diskTask = nil }
+        let released = !status.holds.isEmpty && s.holds.isEmpty
         if s != status {
             status = s
             observers.send(s)
+        }
+        // The network (or disk, or power) is back: failed downloads go again now, not after the rest of a backoff.
+        if released {
+            backoff.succeeded()
+            await retryFailed(retryableOnly: true)
         }
     }
 

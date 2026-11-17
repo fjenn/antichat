@@ -118,7 +118,7 @@ import Testing
     }
 
     /// M10 visual QA (S-04 Back): Back from step 4 to step 3, Evil turned off, Continue → the queued Evil is dropped
-    /// (once); Continue again with Evil off declines nothing more.
+    /// ; Continue again with Evil off declines again (idempotent: off at step 3 always means off, 2026-11-15).
     @Test func backFromStep4ThenEvilOffDeclinesTheQueuedEvil() {
         let m = M.model(.T1)
         m.step = .evil
@@ -136,7 +136,7 @@ import Testing
         #expect(m.step == .preparing && declined == 1 && !m.evilQueued)
         m.back()
         m.next()
-        #expect(declined == 1 && accepted == 1)
+        #expect(declined == 2 && accepted == 1 && !m.evilQueued)
     }
 
     /// Review S1: a relaunch mid-onboarding resumes at step 4 with Evil queued by SetupLaunch.resume (no step-3
@@ -174,7 +174,8 @@ import Testing
         #expect(SetupChoice.load()?.evil == false)
     }
 
-    /// The resume path keeps the saved choice's packs and leaves Evil unqueued when it was not chosen.
+    /// The resume path keeps the saved choice's packs and leaves Evil unqueued when it was not chosen; Continue with
+    /// Evil off still declines (a leftover enabled Evil from an earlier install is withdrawn; harmless otherwise).
     @Test func resumeWithoutEvilQueuesNothing() {
         let m = M.model(.T1)
         var declined = 0
@@ -183,7 +184,7 @@ import Testing
         #expect(m.step == .preparing && !m.evilOn && !m.evilQueued && m.chosenPacks == [.chat])
         m.back()
         m.next()
-        #expect(declined == 0)
+        #expect(declined == 1 && !m.evilQueued)
     }
 
     @Test func diskRecheckIncludesEvil() {

@@ -1,5 +1,5 @@
-// M8.T03 step 7 (R-246 AC1): the sidebar footer's review pill. With pending `memory_suggestion` rows (written only by
-// the propose-only MemoryReviewService) it shows `memory.review.pill` "{count} new things to review"; a click opens
+// M8.T03 step 7 (R-246 AC1): the sidebar footer's review pill. With pending `memory_suggestion` rows (the facts the
+// background MemoryReviewService was unsure about; certain ones it saves itself) it shows `memory.review.pill` "{count} new things to review"; a click opens
 // Settings › Personalization, where the Suggestions cards hold [Save] / [Dismiss]. Hidden at 0 and on hosts without the
 // app database (blocked launch, previews). The count follows a ValueObservation, so Save / Dismiss / a new run update it.
 import AntiChatDesign
@@ -27,7 +27,6 @@ final class MemoryReviewPillModel {
 }
 
 struct MemoryReviewPill: View {
-    @Environment(\.openSettings) private var openSettings
     private let fixed: Int?
     @State private var model: MemoryReviewPillModel
 
@@ -45,7 +44,7 @@ struct MemoryReviewPill: View {
         if let title = Self.title(fixed ?? model.count) {
             Button {
                 SettingsNavigator.shared.request(.personalization)
-                openSettings()
+                SettingsPresenter.shared.show()
             } label: {
                 Label { Text(title).typeStyle(.caption) } icon: { Image(systemName: "brain") }
                     .foregroundStyle(Color.textSecondary)

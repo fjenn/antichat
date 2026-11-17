@@ -88,7 +88,7 @@ import Testing
     }
 
     /// T05 csv-16 / md-16 / pdf-16 / xlsx-16 (cut off at the output limit): a step that may write a file for a file
-    /// request gets 8192 tokens (the default step budget is 1024); other turns keep theirs.
+    /// request gets 8192 tokens; other turns keep the window's answer budget (OutputBudget: 4096 at 16K).
     @Test func fileStepsGetRoomForTheWholeFile() async throws {
         let h = try ToolLoopHarness(script: Self.done + "\n" + Self.turn + "\n" + Self.done, tools: Self.tools)
         let (_, a) = await h.send(#"Make me a PDF titled "Annual Inventory": a long inventory table."#)
@@ -98,7 +98,7 @@ import Testing
         _ = try await h.log.waitFinished(b)
         let second = await h.controller.requests.map(\.sampling.maxTokens)
         #expect(first == [8192], "\(first)")
-        #expect(second.last == Sampling().maxTokens, "\(second)")
+        #expect(second.last == OutputBudget.target(window: 16_384), "\(second)")
         #expect(ToolLoopPolicy.cutOffNotice("create_spreadsheet").contains("at most 40 rows"))
     }
 

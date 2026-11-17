@@ -88,7 +88,10 @@ public final class KokoroTTS: SpeechSynthesizing {
     /// The shipped placement; `ANTICHAT_KOKORO_PLACEMENT=default|noisecpu|cpuane|cpu` overrides it (perf probes only).
     public static let shippedPlacement = Placement.fluidDefault
     static var placement: KokoroAneComputeUnits {
-        (ProcessInfo.processInfo.environment["ANTICHAT_KOKORO_PLACEMENT"].flatMap(Placement.init(rawValue:)) ?? shippedPlacement).units
+        #if DEBUG || ANTICHAT_PERF_HARNESS
+        if let p = ProcessInfo.processInfo.environment["ANTICHAT_KOKORO_PLACEMENT"].flatMap(Placement.init(rawValue:)) { return p.units }
+        #endif
+        return shippedPlacement.units
     }
     private let manager: KokoroAneManager
 

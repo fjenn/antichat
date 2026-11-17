@@ -9,7 +9,7 @@ import Testing
     @Test func eraserCacheFollowsTheBuildsCachesFolder() {
         let erase = EngineListener.Paths.eraserCacheDirectory
         #expect(erase.lastPathComponent == "coreml-erase")
-        #expect(erase.deletingLastPathComponent().standardizedFileURL == EngineListener.Paths.cachesRoot.standardizedFileURL)
+        #expect(erase.deletingLastPathComponent().standardizedFileURL.path == EngineListener.Paths.cachesRoot.standardizedFileURL.path)
         #expect(EngineListener.Paths.cachesRoot.path.hasSuffix("/Library/Caches/\(EngineListener.Paths.folderName)"))
         #if DEBUG || ANTICHAT_PERF_HARNESS
         #expect(EngineListener.Paths.folderName == "AntiChat-Dev")

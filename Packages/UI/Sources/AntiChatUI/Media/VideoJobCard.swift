@@ -14,11 +14,14 @@
 import AntiChatDesign
 import AntiChatEngineProtocol
 import AntiChatHarness
+import AntiChatStorage
 import AppKit
 import SwiftUI
 
 /// What the video card shows, folded from the queue's updates (pure; snapshot tests build it directly).
 public struct VideoJobCardState: Sendable, Equatable {
+    /// The call ended `unavailable`: a needed download is missing (`video.unavailable`).
+    static let unavailableCode = "unavailable"
     public enum Phase: Sendable, Equatable {
         case placeholder
         case waiting(position: Int)
@@ -42,6 +45,8 @@ public struct VideoJobCardState: Sendable, Equatable {
     public var height = 0
     public var frames = 0
     public var fps = 0
+    /// The plan's time estimate for this clip on this Mac, in seconds (nil = none: the line shows the percent).
+    public var estimateS: Double?
 
     public init(job: String? = nil, aspect: CGFloat, startedAt: Date = Date()) {
         self.job = job
@@ -97,26 +102,38 @@ public struct VideoJobCardState: Sendable, Equatable {
         return "\(res) · \(String(format: "%.1f", Double(frames) / Double(fps))) s"
     }
 
-    /// The stage line under the frame (nil = none).
-    public var stageText: String? {
+    /// Seconds still to go at `now` (nil = unknown): from the real progress once a tenth is done, before that from
+    /// the plan's estimate.
+    public func remainingS(now: Date) -> Double? {
+        let elapsed = max(0, now.timeIntervalSince(startedAt))
+        let p = Double(progress.percent) / 100
+        if p >= 0.1 { return elapsed * (1 - p) / p }
+        guard let estimateS, estimateS > 0 else { return nil }
+        return max(estimateS - elapsed, estimateS * 0.1)
+    }
+
+    /// The one line under the frame (nil = none). While the clip is being made it says so in plain words with the
+    /// time left ("Creating video… about 3 min left"); steps and frames are the helper's business.
+    public var stageText: String? { stageText(now: Date()) }
+
+    public func stageText(now: Date) -> String? {
         switch phase {
-        case .placeholder: return nil
+        case .placeholder: return CopyKey("video.stage.preparing").string()
         case .waiting(let position):
             return position > 1 ? CopyText(CopyKey("job.waitingPosition"), ["position": "\(position)"]).string
                 : CopyKey("img.waiting").string()
         case .running:
             if video.paused == "hot" { return CopyKey("video.paused.hot").string() }
             if video.paused == "app" { return CopyKey("video.paused.app").string() }
-            switch video.stage {
-            case "denoise"? where video.total > 0:
-                return CopyText(CopyKey("video.stage"), ["step": "\(video.step)", "total": "\(video.total)"]).string
-            case "decode"?, "frames"?:
-                let total = video.total > 0 ? video.total : frames
-                return CopyText(CopyKey("video.stage.decode"), ["frame": "\(video.step)", "total": "\(total)"]).string
-            default:
-                return CopyKey("video.stage.preparing").string()
+            guard let left = remainingS(now: now) else {
+                return progress.percent > 0
+                    ? CopyText(CopyKey("video.creating.pct"), ["percent": "\(progress.percent)"]).string
+                    : CopyKey("video.stage.preparing").string()
             }
+            if left < 45 { return CopyKey("video.creating.soon").string() }
+            return CopyText(CopyKey("video.creating.left"), ["minutes": "\(max(1, Int((left / 60).rounded())))"]).string
         case .done, .blocked: return nil
+        case .failed(let code) where code == Self.unavailableCode: return CopyKey("video.unavailable").string()
         case .failed: return CopyKey("video.failed").string()  // VQ r65 (S-12): "… Retry", only Retry in the accent
         case .cancelled: return CopyKey("img.cancelled").string()
         case .lost: return CopyKey("video.lost").string()
@@ -137,6 +154,8 @@ public struct VideoJobCard: View {
     let onRetry: (() -> Void)?
     let onResume: (() -> Void)?
     @Environment(\.openVideoViewer) private var openViewer
+    @Environment(\.mediaClockNow) private var frozenNow
+    @State private var hovering = false
 
     public init(state: VideoJobCardState, poster: String? = nil, onCancel: (() -> Void)? = nil, onRetry: (() -> Void)? = nil,
                 onResume: (() -> Void)? = nil) {
@@ -197,8 +216,14 @@ public struct VideoJobCard: View {
             RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(Color.surfaceSunken)
             if case .done(let path) = state.phase {
                 InlineVideoPlayer(url: URL(fileURLWithPath: path), poster: poster, aspect: state.aspect,
-                                  onExpand: openViewer.map { open in { open(VideoViewerTarget(path: path)) } })
+                                  onExpand: openViewer.map { open in { open(VideoViewerTarget(path: path, name: StoredFileNames.name(forPath: path))) } })
                     .id(path)
+                // The clip's ⋯ sits on the clip (top left, clear of the player's own controls; shown with the pointer
+                // over it, as a picture's is): under the card it read as a stray blue "…" between clip and reply.
+                moreMenu(URL(fileURLWithPath: path))
+                    .padding(Spacing.space2)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .opacity(hovering ? 1 : 0)
             } else if state.isActive {
                 AnimatedPreview(frames: state.video.previewFrames, aspect: state.aspect,
                                 step: state.video.previewStep ?? state.video.step, total: state.video.total)
@@ -208,19 +233,15 @@ public struct VideoJobCard: View {
                 VStack {
                     Spacer()
                     HStack {
-                        ProgressPill(percent: state.progress.percent, startedAt: state.startedAt)
                         Spacer()
                         if let onCancel {
                             Button(action: onCancel) {
-                                Image(systemName: "stop.fill").font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(Color.textPrimary)
-                                    .frame(width: 24, height: 24)
-                                    .background(Circle().fill(Color.surfaceRaised.opacity(0.9)))
-                                    .contentShape(Circle())
+                                Text(CopyKey("img.cancel")).typeStyle(.footnote).foregroundStyle(Color.textPrimary)
+                                    .padding(.horizontal, Spacing.space3).frame(height: 24)
+                                    .background(Capsule().fill(Color.surfaceRaised.opacity(0.92)))
+                                    .contentShape(Capsule())
                             }
                             .buttonStyle(.plain)
-                            .help(CopyKey("img.cancel").string())
-                            .accessibilityLabel(Text(CopyKey("img.cancel")))
                             .accessibilityIdentifier("videoJob.cancel")
                         }
                     }
@@ -232,6 +253,31 @@ public struct VideoJobCard: View {
         .clipShape(RoundedRectangle(cornerRadius: Radius.md, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: Radius.md, style: .continuous).strokeBorder(Color.borderSubtle, lineWidth: Stroke.control) }
         .aspectRatio(state.aspect, contentMode: .fit)
+        .onHover { hovering = $0 }
+    }
+
+    private func moreMenu(_ url: URL) -> some View {
+        Menu {
+            Button { Task { await VideoSavePanel.export(url, name: nil) } } label: { Text(CopyKey("video.export")) }
+                .accessibilityIdentifier("videoJob.export")
+            // M5 review P2-5 (as M6 review #4): an incognito clip is never handed to Finder or another app
+            // (Quick Look thumbnails, QuickTime recents outlive the session); Export stays, an explicit save.
+            if Self.offersFinder(url) {
+                Button { NSWorkspace.shared.activateFileViewerSelecting([url]) } label: { Text(CopyKey("library.reveal")) }
+                    .accessibilityIdentifier("videoJob.reveal")
+                Button { NSWorkspace.shared.open(DragOut.named(storedPath: url.path)) } label: { Text(CopyKey("img.open")) }
+                    .accessibilityIdentifier("videoJob.open")
+            }
+        } label: {
+            Image(systemName: "ellipsis").font(.system(size: 12, weight: .semibold)).frame(width: 24, height: 24)
+        }
+        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+        .tint(Color.textPrimary)
+        .background(Capsule().fill(Color.surfaceRaised.opacity(0.92)))
+        .help(CopyKey("img.more").string())
+        .accessibilityLabel(Text(CopyKey("img.more")))
+        .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
+        .accessibilityIdentifier("videoJob.more")
     }
 
     /// M5 review P2-5: Show in Finder / Open in another app only for clips outside an incognito session's temp dir.
@@ -241,33 +287,11 @@ public struct VideoJobCard: View {
 
     @ViewBuilder private var footer: some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: Spacing.space2) {
-                stageLine
-                Spacer()
-                if let spec = state.specLine, state.phase != .blocked {
-                    Text(verbatim: spec).typeStyle(.footnote).monospacedDigit().foregroundStyle(Color.textTertiary)
-                        .accessibilityIdentifier("videoJob.spec")
-                }
-                if case .done(let path) = state.phase {
-                    let url = URL(fileURLWithPath: path)
-                    Menu {
-                        Button { Task { await VideoSavePanel.export(url, name: nil) } } label: { Text(CopyKey("video.export")) }
-                            .accessibilityIdentifier("videoJob.export")
-                        // M5 review P2-5 (as M6 review #4): an incognito clip is never handed to Finder or another app
-                        // (Quick Look thumbnails, QuickTime recents outlive the session); Export stays, an explicit save.
-                        if Self.offersFinder(url) {
-                            Button { NSWorkspace.shared.activateFileViewerSelecting([url]) } label: { Text(CopyKey("library.reveal")) }
-                                .accessibilityIdentifier("videoJob.reveal")
-                            Button { NSWorkspace.shared.open(url) } label: { Text(CopyKey("file.open")) }
-                                .accessibilityIdentifier("videoJob.open")
-                        }
-                    } label: { Image(systemName: "ellipsis") }
-                        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                        .help(CopyKey("img.more").string())
-                        .accessibilityLabel(Text(CopyKey("img.more")))
-                        .accessibilityShowMenu()  // M9.T03: AXShowMenu, as on AppKit pop-up buttons
-                        .accessibilityIdentifier("videoJob.more")
-                }
+            if state.phase == .running, state.video.paused == nil {
+                // The time left counts down by itself between progress reports.
+                TimelineView(.periodic(from: state.startedAt, by: 10)) { ctx in stageLine(now: frozenNow ?? ctx.date) }
+            } else {
+                stageLine(now: frozenNow ?? Date())
             }
             if let n = state.noticeText {
                 Text(n).typeStyle(.footnote).foregroundStyle(Color.textTertiary)
@@ -276,8 +300,8 @@ public struct VideoJobCard: View {
         }
     }
 
-    @ViewBuilder private var stageLine: some View {
-        if let text = state.stageText {
+    @ViewBuilder private func stageLine(now: Date) -> some View {
+        if let text = state.stageText(now: now) {
             if state.phase == .running, state.video.paused == "hot", let onResume {
                 Button(action: onResume) { TrailingActionLine(text: text) }
                     .buttonStyle(.plain)

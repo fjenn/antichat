@@ -274,6 +274,59 @@ final class HandoffSpy: ReportHandoff, @unchecked Sendable {
         #expect(m.attachments == [file])
     }
 
+    /// Attachments: ≤ 5 items and ≤ 15 MB together; duplicates and folders never count; Mail carries them, the
+    /// issue body only says how many.
+    @Test func attachmentLimits() throws {
+        let mb: Int64 = 1024 * 1024
+        let sizes: [String: Int64] = ["a.png": 6 * mb, "b.png": 6 * mb, "c.mov": 4 * mb, "d.txt": 3 * mb, "e.txt": 1,
+                                      "f.txt": 1, "g.txt": 1, "h.txt": 1]
+        let measure: (URL) -> ReportAttachment? = { u in sizes[u.lastPathComponent].map { ReportAttachment(url: u, bytes: $0) } }
+        let url = { (n: String) in URL(fileURLWithPath: "/tmp/report/\(n)") }
+        #expect(ReportAttachments.maxCount == 5 && ReportAttachments.maxTotalBytes == 15 * mb)
+
+        // Two fit (12 MB); the 4 MB one would make 16 MB and is left out; the 3 MB one after it still fits (15 MB).
+        var o = ReportAttachments.add(["a.png", "b.png", "c.mov", "d.txt"].map(url), to: [], measure: measure)
+        #expect(o.items.map(\.name) == ["a.png", "b.png", "d.txt"])
+        #expect(o.refusal == .tooLarge(name: "c.mov"))
+        #expect(o.items.reduce(0) { $0 + $1.bytes } == ReportAttachments.maxTotalBytes)   // exactly the cap is allowed
+
+        // One byte over the cap is refused; nothing changes.
+        let full = o.items
+        o = ReportAttachments.add([url("e.txt")], to: full, measure: measure)
+        #expect(o.items == full && o.refusal == .tooLarge(name: "e.txt"))
+
+        // The same file twice counts once and says nothing.
+        o = ReportAttachments.add([url("e.txt"), url("e.txt")], to: [], measure: measure)
+        #expect(o.items.count == 1 && o.refusal == nil)
+
+        // The sixth item is refused.
+        o = ReportAttachments.add(["d.txt", "e.txt", "f.txt", "g.txt", "h.txt", "c.mov"].map(url), to: [], measure: measure)
+        #expect(o.items.count == 5 && o.refusal == .tooMany)
+        #expect(ReportAttachments.add([url("c.mov")], to: o.items, measure: measure).refusal == .tooMany)
+
+        // A folder or a missing file is not attached.
+        o = ReportAttachments.add([url("missing.bin"), url("e.txt")], to: [], measure: measure)
+        #expect(o.items.map(\.name) == ["e.txt"] && o.refusal == .unreadable(name: "missing.bin"))
+        let dir = try tempDir("attach")
+        #expect(ReportAttachments.measure(dir) == nil)
+        let file = dir.appendingPathComponent("shot.png")
+        try Data(repeating: 7, count: 2_048).write(to: file)
+        #expect(ReportAttachments.measure(file)?.bytes == 2_048)
+        #expect(ReportAttachments.measure(dir.appendingPathComponent("nope.png")) == nil)
+    }
+
+    @Test func attachmentsGoByMailAndAreOnlyCountedInTheIssue() throws {
+        let files = [URL(fileURLWithPath: "/tmp/report/private-name.png"), URL(fileURLWithPath: "/tmp/report/b.pdf")]
+        let logs = URL(fileURLWithPath: "/tmp/report/logs.zip")
+        let r = ProblemReport(whatHappened: "Crash", systemBlock: "v", logBundle: logs, attachments: files)
+        let m = ReportProblemComposer.email(r, endpoints: Self.endpoints, payloadFile: nil)
+        #expect(m.attachments == [logs] + files)
+        let body = ReportProblemComposer.body(r)
+        #expect(body.contains("2 more attachment(s)") && !body.contains("private-name"))
+        #expect(!ReportProblemComposer.githubURL(r, endpoints: Self.endpoints).absoluteString.contains("private-name"))
+        #expect(!ReportProblemComposer.body(ProblemReport(whatHappened: "x", systemBlock: "v")).contains("attachment(s)"))
+    }
+
     @Test func askModeSendsNothingWithoutATap() throws {
         let dirs = (try tempDir("diag"), try tempDir("reports"))
         let c = CrashCollector(diagnosticsDir: dirs.0, reportsDir: dirs.1, exceptionLog: dirs.0.appendingPathComponent("none.log"))

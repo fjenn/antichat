@@ -91,7 +91,7 @@ public final class LibraryModel {
         if item.kind == .video {
             videoViewer = VideoViewerTarget(path: item.path, name: item.name)
         } else {
-            quickLookURL = URL(fileURLWithPath: item.path)
+            quickLookURL = DragOut.named(URL(fileURLWithPath: item.path), as: item.name)  // titled with its name, not a hash
         }
     }
 

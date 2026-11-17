@@ -46,14 +46,8 @@ struct QueryActivityDetail: View {
     var body: some View {
         let t = QueryActivity.rows(activity)
         VStack(alignment: .leading, spacing: Spacing.space2) {
-            Text(verbatim: QueryActivity.sql(activity))
-                .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(Color.textSecondary)
-                .textSelection(.enabled)
-                .accessibilityIdentifier("querySQL")
-            if activity.state == .failed, let r = activity.result {
-                Text(verbatim: r).typeStyle(.caption).foregroundStyle(Color.danger)
-            } else if !t.header.isEmpty {
+            // The rows the question returned; never the SQL (a query language is not something to show a person).
+            if !t.header.isEmpty {
                 ScrollView(.horizontal) {
                     Grid(alignment: .leading, horizontalSpacing: Spacing.space3, verticalSpacing: Spacing.space1) {
                         GridRow {

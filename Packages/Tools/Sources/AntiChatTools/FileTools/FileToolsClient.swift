@@ -50,7 +50,7 @@ public final class FileToolsClient: @unchecked Sendable {
     var controlReplySeconds = FileToolsClient.controlReplySeconds
     var runReplyGraceSeconds = FileToolsClient.runReplyGraceSeconds
 
-    /// `network` picks the variant; nil reads the setting (`allowNetworkForCode`, default false). Calls are routed to
+    /// `network` picks the variant; nil reads the setting (`allowNetworkForCode`, default true: owner 2026-11-16). Calls are routed to
     /// the slot `slots` leases to their chat.
     /// `offlineOnly`: the Offline only switch (default: the app's network policy), read at each call.
     public init(network: Bool? = nil, defaults: UserDefaults = AppDefaults.standard, slots: FileToolsSlots = .shared,

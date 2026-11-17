@@ -53,3 +53,53 @@ server added from a *verified* entry gets one trust input: its `readOnlyHint` to
 | `auth` | `none`, `token` (pasted bearer, Keychain) or `oauth` (OAuth 2.1, M7.T07) |
 | `cimd_only` | sign-in works only with AntiChat's client metadata document; hidden until it is published |
 | `help_url` | where to get a token |
+
+## Directory catalogues: skills (self-updating from a public index) and apps (live from the relay)
+
+The skills of Settings › Skills are listed in `skills-index.json` (per skill: title, summary, category, source,
+licence, the commit its files are pinned to, and the size and SHA-256 of every file). It is not served from the
+site and it is not signed.
+
+**Where it comes from.** A small public repository, `fjenn/antichat-skills-index`, holds the file and the tooling
+that makes it (`tools/skills/` here is the source; `tools/skills/export-index-repo.sh` copies it there, `--check`
+reports drift). Its workflow (`refresh.yml`, weekly and on demand, no secrets) runs `refresh.py`:
+
+1. `build-index.py --refresh` regenerates the index at every source's newest commit. Skills curated in
+   `overrides.json` follow their source. A skill that now breaks an automatic rule or matches an unsafe-text
+   pattern is dropped. A skill that is new upstream (neither curated nor listed under `known`) is included only
+   when it passes the automatic filters, with a derived title, summary and category; the job summary lists it.
+2. The result is refused, and nothing is committed, when the generator failed, the index lost more than 10% of
+   its skills, a skill breaks the importer's rules or points outside the source repositories, or any file
+   downloaded from the URL the app would use does not have the listed size and hash.
+3. Otherwise the new `skills-index.json` is committed. An unchanged index gives the same bytes and no commit.
+
+**What the app does** (`DirectoryCatalogs.swift`). It ships a copy and fetches the file from
+`Config/Endpoints.plist` `SkillsIndexURL` (raw.githubusercontent.com) through the gate (category `.catalog`,
+conditional requests): when the user opens Settings › Skills with a copy a day old, and from then on once a day in
+the background. An install that never opened that page asks for nothing. Never in Offline only. A download is used
+only when it is under 4 MB, passes the strict schema, has a later `generated` day than the index in use, names only
+files on raw.githubusercontent.com under one of the three source repositories compiled into the app (each at a
+40-hex commit, relative paths without `..`), and has at least half as many skills as the bundled index. Any failure
+keeps the current index, silently.
+
+**Why there is no signature.** The signed scheme this replaces needed the owner's offline key and a site deploy for
+every refresh, so the list did not move between app updates. The model catalogue keeps its signature: it decides
+what is downloaded and run without a review step. The skills list is trusted on something else:
+
+1. it comes from the owner's GitHub repository over TLS;
+2. it can only name files in the three source repositories compiled into the app, each pinned to a commit (GitHub
+   also serves fork commits under the parent repository's name, so this narrows what a tampered index could list;
+   the next three points do not depend on it);
+3. every file is checked against the index's size and SHA-256 at install;
+4. nothing is installed without the review sheet, which shows the whole skill;
+5. a skill's scripts run only in the sandbox, after their own approval.
+
+`make skills-index` runs the same refresh here, for the copy the next app build ships (`DRY=1`: validate only).
+
+The apps of Settings › Connections are not published at all. The app ships a curated snapshot
+(`composio-catalog.json`: summaries, categories, popular ranks, logos; refreshed at release time with
+`tools/composio/build-catalog.py`) and every install asks the relay which apps exist right now (`GET /v1/toolkits`,
+`relay/README.md`; at most once a day: when the user opens Settings › Connections or a Connect card, and in the background only
+once an app is connected; never in Offline only).
+`LiveAppCatalog.swift` merges the two: the relay's list decides which apps show, a curated entry wins, and a new app
+gets a derived summary, a mapped category and its logo from `logos.composio.dev` (kept in `Catalog/Logos/`, 16 MB cap).

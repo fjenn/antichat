@@ -182,14 +182,13 @@ extension WindowSuites {
 
     // MARK: Legs
 
-    /// (1) Sidebar Search opens the palette: tabs All / Actions / Chats (+ Settings), footer key hints, recents.
-    @Test func searchOpensThePaletteWithTabsFooterAndRecents() async throws {
+    /// (1) Sidebar Search opens the chat search: one field, New chat, then the recent chats (no tabs, no footer).
+    @Test func searchOpensWithNewChatAndRecents() async throws {
         let rig = try await make()
         defer { rig.window.close() }
         #expect(await openFromSidebar(rig))
-        for tab in ["all", "actions", "chats", "settings"] { #expect(present(rig, "palette.tab.\(tab)"), "tab \(tab)") }
-        for hint in ["select", "open", "askTab", "close"] { #expect(present(rig, "palette.hint.\(hint)"), "hint \(hint)") }
-        #expect(await until { rig.palette.items.prefix { $0.group == .chats }.count == 4 })
+        #expect(!present(rig, "palette.tab.all") && !present(rig, "palette.footer"))
+        #expect(await until { rig.palette.items.first?.kind == .newChat && rig.palette.items.filter(\.isChat).count == 4 })
         capture(rig, "S-18-empty-light.png")
     }
 
@@ -199,18 +198,18 @@ extension WindowSuites {
         defer { rig.window.close() }
         #expect(await openFromSidebar(rig))
         await type(rig, "zebracorn")
-        #expect(await until { rig.palette.query == "zebracorn" && !rig.palette.isSearching && rig.palette.items.contains { $0.group == .chats } })
-        #expect(rig.palette.items.filter { $0.group == .chats }.map(\.id) == ["chat.\(rig.chats["garden"]!)"], "query=\(rig.palette.query)")
+        #expect(await until { rig.palette.query == "zebracorn" && !rig.palette.isSearching && rig.palette.items.contains(where: \.isChat) })
+        #expect(rig.palette.items.filter(\.isChat).map(\.id) == ["chat.\(rig.chats["garden"]!)"], "query=\(rig.palette.query)")
         #expect(present(rig, "palette.row.chat.\(rig.chats["garden"]!)"))
         await pump(150)  // the vendored list animates row changes for 0.12 s
         capture(rig, "S-18-typing-light.png")
         for _ in 0..<9 { key(rig, "\u{7f}", code: 51, direct: true); await pump(4) }
         await type(rig, "pasta")
-        #expect(await until { rig.palette.query == "pasta" && !rig.palette.isSearching && rig.palette.items.first { $0.group == .chats }?.titleMatched == true })
-        #expect(rig.palette.items.first { $0.group == .chats }?.id == "chat.\(rig.chats["pasta"]!)")
+        #expect(await until { rig.palette.query == "pasta" && !rig.palette.isSearching && rig.palette.items.first(where: \.isChat)?.titleMatched == true })
+        #expect(rig.palette.items.first(where: \.isChat)?.id == "chat.\(rig.chats["pasta"]!)")
     }
 
-    /// No results shows `search.empty`; on the Chats tab ↓↓ moves the selection to the third recent chat and
+    /// No results shows `search.empty`; with the field cleared ↓↓ moves the selection to the third row (a chat) and
     /// Return opens it and closes the palette.
     @Test func noResultsThenKeyboardSelectionOpensAChat() async throws {
         let rig = try await make()
@@ -221,8 +220,7 @@ extension WindowSuites {
         await pump(150)
         capture(rig, "S-18-noresults-light.png")
         for _ in 0..<8 { key(rig, "\u{7f}", code: 51, direct: true); await pump(4) }
-        #expect(click(rig, "palette.tab.chats"))
-        #expect(await until { rig.palette.tab == .chats && rig.palette.query.isEmpty && rig.palette.items.count == 4 })
+        #expect(await until { rig.palette.query.isEmpty && rig.palette.items.count == 5 })
         await pump(100)
         down(rig); await pump(60); down(rig); await pump(120)
         capture(rig, "S-18-selection-light.png")
@@ -235,33 +233,6 @@ extension WindowSuites {
         } else {
             Issue.record("third row is not a chat: \(third.id)")
         }
-    }
-
-    /// (2) Clicking the Actions tab lists the required actions; "send with" finds the General row; Return on it
-    /// requests Settings at that row (Settings itself is M1.T22's, forward leg).
-    @Test func actionsTabAndSettingsRow() async throws {
-        let rig = try await make()
-        defer { rig.window.close() }
-        #expect(await openFromSidebar(rig))
-        #expect(click(rig, "palette.tab.actions"))
-        #expect(await until { rig.palette.tab == .actions })
-        let titles = rig.palette.items.map(\.title)
-        for t in ["New chat", "New incognito chat", "Switch chat"] + SettingsSection.allCases.map({ $0.title.string() }) {
-            #expect(titles.contains(t), "missing \(t)")
-        }
-        await pump(100)
-        capture(rig, "S-18-actions-light.png")
-        #expect(click(rig, "palette.tab.all"))
-        await type(rig, "send with")
-        #expect(await until { rig.palette.items.contains { $0.id == "setting.sendWithCommandEnter" } })
-        let idx = try #require(rig.palette.items.firstIndex { $0.id == "setting.sendWithCommandEnter" })
-        await pump(100)
-        for _ in 0..<idx { down(rig); await pump(40) }
-        let before = SettingsNavigator.shared.requestCount
-        key(rig, "\r", code: 36)
-        #expect(await until { SettingsNavigator.shared.requestCount == before + 1 })
-        #expect(SettingsNavigator.shared.take() == .init(section: .general, rowID: "sendWithCommandEnter"))
-        #expect(await until { !rig.palette.isPresented })
     }
 
     /// (3) Tab asks the query in a new chat (composer filled, nothing sent); Esc closes; a click outside closes.
@@ -294,7 +265,7 @@ extension WindowSuites {
         await pump(150)
         capture(rig, "S-18-empty-dark.png")
         await type(rig, "zebracorn")
-        #expect(await until { rig.palette.items.contains { $0.group == .chats } })
+        #expect(await until { rig.palette.items.contains(where: \.isChat) })
         await pump(150)
         capture(rig, "S-18-typing-dark.png")
         for _ in 0..<9 { key(rig, "\u{7f}", code: 51, direct: true); await pump(4) }
@@ -303,10 +274,13 @@ extension WindowSuites {
         await pump(150)
         capture(rig, "S-18-noresults-dark.png")
         for _ in 0..<8 { key(rig, "\u{7f}", code: 51, direct: true); await pump(4) }
-        #expect(click(rig, "palette.tab.chats"))
-        #expect(await until { rig.palette.tab == .chats && rig.palette.items.count == 4 })
+        #expect(await until { rig.palette.query.isEmpty && rig.palette.items.count == 5 })
         down(rig); await pump(60); down(rig); await pump(150)
         capture(rig, "S-18-selection-dark.png")
     }
 }
 }  // extension WindowSuites
+
+private extension PaletteItem {
+    var isChat: Bool { if case .chat = kind { true } else { false } }
+}

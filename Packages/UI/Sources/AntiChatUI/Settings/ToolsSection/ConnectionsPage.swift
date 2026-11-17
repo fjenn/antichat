@@ -1,169 +1,260 @@
-// M7.T06 step 4 (R-081 AC1/AC4; S-21 §7 → Connections, `conn.title`): the user's connections (none until they add
-// one; nothing connects before), [Add an MCP server] (URL, name, No sign-in / Paste a token / Sign in with the app —
-// M7.T07 OAuth; `conn.mcp.clientId` appears only after CIMD and DCR were both unavailable), the
-// Popular connections directory, the Composio app tiles (M7.T11) and the local-servers note (M11).
+// Settings → Connections (R-081, R-255; `conn.title`): the apps AntiChat can work with, laid out like an app
+// directory (owner 2026-11-16). The header stays put: title, search ("Search 1,547 apps"), [Add] (a custom
+// connection) and one line saying what connecting does. Under it, scrolling: "Connected" (the linked apps and the
+// connections the user added by address), then one section per category of the catalogue (`ComposioCatalog`) with its
+// first six apps in two columns — a category with more says how many and "See all" — and, last, "Browse all N apps".
+// Both open the whole list: every app from A to Z, with one chip per category to narrow it. Typing in the search
+// field replaces everything with one flat list of matches from the whole catalogue (and the user's own connections).
+// A row (`AppRow`): logo tile, name, one line, and one glyph — `+` goes straight to the browser sign-in (a small
+// spinner while that runs, "Waiting for sign-in…" under the name), `⋯` on a connected app holds Disconnect. Rows read
+// `ConnectFlow.shared`, as the in-chat Connect card does, so a connect started in either shows in both; the linked
+// apps are re-read when the page appears and when a window becomes key again (back from the browser).
+// [Add] opens AddConnectionSheet (a tool that is not in the list, by its server address); what it adds is a
+// `ConnectionRow` under "Connected", whose `⋯` opens ConnectionDetailSheet (its tools and permissions) or removes it.
+// Without a deployed relay (RelayClient.isAvailable false) the directory still shows, with one line saying apps
+// cannot be connected and no `+`; custom connections work as always.
 import AntiChatDesign
 import AntiChatFoundation
 import AntiChatTools
+import AppKit
 import SwiftUI
 
 struct ConnectionsPage: View {
-    @State private var model = ConnectionsModel()
-    @State private var selected: String?
-    @State private var adding = false
-    @State private var form = AddForm()
-    @Environment(\.openURL) private var openURL
+    /// The apps a category shows on the overview (three per column).
+    static let preview = 6
 
-    struct AddForm: Equatable {
-        var name = ""
-        var url = ""
-        var mode = Mode.none
-        var token = ""
-        var clientID = ""
-        var curatedID: String?
-        enum Mode: Hashable { case none, token, oauth }
-        var useToken: Bool { mode == .token }
+    @State private var model: ConnectionsModel
+    @State private var query: String
+    /// The whole list is showing (false = the overview), narrowed to `category` (nil = every app, A to Z).
+    @State private var browsing: Bool
+    @State private var category: String?
+    @State private var adding: Bool
+    /// The add sheet's Allow was pressed (closing it then must not decline the pending connection).
+    @State private var allowed = false
+    /// The custom connection whose details are showing.
+    @State private var detail: Detail?
+    @State private var catalog: ComposioCatalog
+    /// The page shows `ComposioCatalog.shared` and re-reads it when the live list of apps changes (false = a fixed
+    /// catalogue was passed in).
+    private let followsLive: Bool
+    private let availableOverride: Bool?
 
-        var auth: MCPAuthInput {
-            switch mode {
-            case .none: .none
-            case .token: .token(token)
-            case .oauth: clientID.isEmpty ? .oauth : .oauthClientID(clientID)
+    struct Detail: Identifiable { let id: String }
+
+    /// `flow`, `catalog`, `query`, `category`, `browseAll`, `servers`, `available`: a fixed page to draw (snapshots).
+    init(flow: ConnectFlow = .shared, catalog: ComposioCatalog? = nil, query: String = "", category: String? = nil,
+         browseAll: Bool = false, servers: [ConnectionsModel.ServerView]? = nil, available: Bool? = nil) {
+        _model = State(initialValue: servers.map { ConnectionsModel(host: nil, flow: flow, servers: $0) } ?? ConnectionsModel(flow: flow))
+        _query = State(initialValue: query)
+        _category = State(initialValue: category)
+        _browsing = State(initialValue: browseAll || category != nil)
+        _adding = State(initialValue: false)
+        _catalog = State(initialValue: catalog ?? .shared)
+        followsLive = catalog == nil
+        availableOverride = available
+    }
+
+    private var search: String { query.trimmingCharacters(in: .whitespaces) }
+    /// Apps can be connected (a relay is deployed); custom connections never need it.
+    private var available: Bool { availableOverride ?? model.composioAvailable }
+    /// The categories that hold an app (an empty "Other" never shows).
+    private var categories: [ComposioCatalog.Category] { catalog.categories.filter { !catalog.apps(in: $0.id).isEmpty } }
+    private var appCount: [String: String] { ["count": catalog.apps.count.formatted()] }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            DirectoryHeader(section: .connections, query: $query,
+                            search: (CopyText(CopyKey("conn.search"), appCount), "connections.search")) {
+                Button { model.resetCheck(); allowed = false; adding = true } label: {
+                    Label { Text(CopyKey("set.add")) } icon: { Image(systemName: "plus") }
+                }
+                .buttonStyle(.primary)
+                .help(CopyKey("conn.mcp.add").string())
+                .accessibilityLabel(Text(CopyKey("conn.mcp.add")))
+                .probeID("connections.add")
             }
+            .directoryHeaderPadding()
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.space6) { content }
+                    .directoryContentPadding()
+            }
+            .id(search.isEmpty ? (browsing ? "all.\(category ?? "")" : "") : "search")  // a new list starts at its top
+        }
+        .sheet(isPresented: $adding, onDismiss: {
+            // Closed without Allow (Cancel, Esc) after the check: nothing is stored, the dry session is torn down.
+            if !allowed, model.pending != nil { Task { await model.decline() } }
+        }) {
+            AddConnectionSheet(model: model, onAllow: { p in
+                allowed = true
+                adding = false
+                query = ""; browsing = false; category = nil  // the new row is under "Connected"
+                Task { await model.confirm(p) }
+            }, onCancel: { adding = false })
+        }
+        .sheet(item: $detail) { d in ConnectionDetailSheet(model: model, id: d.id) { detail = nil } }
+        .task {
+            await model.flow.refresh()
+            // The connected apps are known now: one the live list dropped stays in the catalogue.
+            if followsLive { catalog = .shared }
+        }
+        // The list of apps that exist comes from the relay: asked when the page opens with a list a day old (also
+        // before any app is connected: opening this page is the user looking at connections).
+        .task { if followsLive { await LiveAppCatalog.live?.refresh(userOpened: true) } }
+        .onReceive(NotificationCenter.default.publisher(for: DirectoryCatalogs.didChange)) { note in
+            if followsLive, note.userInfo?["kind"] as? String == LiveAppCatalog.kind { catalog = .shared }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
+            Task { await model.flow.refresh(maxAge: .seconds(5)) }
+        }
+    }
+
+    // MARK: Content
+
+    /// The linked apps by name (an app the catalogue does not list still shows, to disconnect).
+    private var connected: [ComposioCatalog.App] {
+        model.flow.linked.keys.map { catalog.app($0) ?? .init(slug: $0, name: ComposioApps.title($0)) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    /// The user's own connections; the apps' Composio connection is one only while there is no relay (to remove it).
+    private var custom: [ConnectionsModel.ServerView] { available ? model.custom : model.servers }
+
+    @ViewBuilder private var content: some View {
+        Group {
+            if !search.isEmpty {
+                let found = catalog.search(search)
+                let mine = custom.filter { $0.row.name.range(of: search, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
+                if found.isEmpty, mine.isEmpty {
+                    Text(CopyText(CopyKey("conn.search.none"), ["query": search]))
+                        .typeStyle(.callout).foregroundStyle(Color.textSecondary)
+                        .directoryInset()
+                        .probeID("connections.search.none")
+                } else {
+                    grid(found, custom: mine)
+                }
+            } else if browsing {
+                VStack(alignment: .leading, spacing: Spacing.space4) {
+                    DirectoryBackTitle(title: CopyKey("conn.all.title").string(), id: "connections.back") { browsing = false; category = nil }
+                    DirectoryChips(categories: categories.map { ($0.id, $0.title) }, selection: $category, id: "connections.chip")
+                    grid(category.map { catalog.apps(in: $0) } ?? Self.alphabetical(catalog.apps))
+                }
+            } else {
+                overview
+            }
+        }
+        // M9.T03: a lazy grid is an unnamed "Other" to accessibility; the rows sit in a named group.
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(CopyKey("conn.title")))
+        .probeID("connections.composio")
+    }
+
+    @ViewBuilder private var overview: some View {
+        if !available {
+            Label { Text(CopyKey("conn.apps.unavailable")).fixedSize(horizontal: false, vertical: true) }
+                icon: { Image(systemName: "info.circle") }
+                .typeStyle(.callout).foregroundStyle(Color.textSecondary)
+                .directoryInset()
+                .probeID("connections.unavailable")
+        }
+        // An add that failed after Allow (the sheet is closed by then): say why here (P6 only logged it).
+        if !adding, let e = model.checkError {
+            Text(CopyText(CopyKey("conn.mcp.failed"), ["reason": e])).typeStyle(.callout).foregroundStyle(Color.danger)
+                .fixedSize(horizontal: false, vertical: true)
+                .directoryInset()
+                .probeID("connections.error")
+        }
+        let connected = connected, custom = custom
+        if !connected.isEmpty || !custom.isEmpty {
+            VStack(alignment: .leading, spacing: Spacing.space3) {
+                DirectorySectionTitle(title: Text(CopyKey("conn.connected.title")), id: "connections.section.connected").directoryInset()
+                grid(connected, custom: custom)
+            }
+        }
+        // A catalogue of one category (the built-in eight apps) shows it whole.
+        let preview = categories.count > 1 ? Self.preview : .max
+        ForEach(categories) { c in
+            let all = catalog.apps(in: c.id)
+            VStack(alignment: .leading, spacing: Spacing.space3) {
+                DirectorySectionTitle(title: Text(verbatim: c.title), id: "connections.section.\(c.id)", count: all.count,
+                                      action: all.count > preview ? { category = c.id; browsing = true } : nil)
+                    .directoryInset()
+                grid(Array(all.prefix(preview)))
+            }
+        }
+        if categories.count > 1 {
+            DirectoryBrowseAll(title: CopyText(CopyKey("conn.browseAll"), appCount), id: "connections.browseAll") {
+                category = nil; browsing = true
+            }
+        }
+    }
+
+    static func alphabetical(_ apps: [ComposioCatalog.App]) -> [ComposioCatalog.App] {
+        apps.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private func grid(_ apps: [ComposioCatalog.App], custom: [ConnectionsModel.ServerView] = []) -> some View {
+        DirectoryGrid {
+            ForEach(apps) { a in
+                AppRow(app: a, phase: model.flow.phase(a.slug), canConnect: available,
+                       onConnect: { Task { await model.flow.connect(a.slug) } },
+                       onDisconnect: { Task { await model.flow.disconnect(a.slug) } })
+            }
+            ForEach(custom) { s in
+                ConnectionRow(server: s, onOpen: { detail = Detail(id: s.id) },
+                              onSignIn: { Task { await model.signIn(s.id) } },
+                              onRemove: { Task { await model.remove(s.id) } })
+            }
+        }
+    }
+}
+
+/// One app: its logo in a rounded square, its name, one line (what it is for; "Waiting for sign-in…"; why a connect
+/// failed) and the one thing to do — `+` connects, a spinner while that runs, `⋯` on a connected app (Disconnect, also
+/// the row's context menu). The phase is `ConnectFlow`'s, the one the in-chat Connect card shows.
+struct AppRow: View {
+    let app: ComposioCatalog.App
+    let phase: ConnectFlow.Phase
+    var pinnedHover: Bool?
+    /// false = no relay: an app that is not connected has nothing to press.
+    var canConnect = true
+    let onConnect: () -> Void
+    let onDisconnect: () -> Void
+
+    private var detail: (text: String, color: Color, id: String?) {
+        switch phase {
+        case .failed(let key): (CopyText(CopyKey(key), ["app": app.name]).string, .warning, "composio.error")
+        case .starting, .waiting: (CopyKey("conn.waiting").string(), .textSecondary, nil)
+        case .idle, .connected: (app.summary, .textSecondary, nil)
         }
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if model.servers.isEmpty {
-                Text(CopyKey("conn.empty")).font(.callout).foregroundStyle(Color.textSecondary).probeID("connections.empty")
-            }
-            ForEach(model.servers) { s in
-                VStack(alignment: .leading, spacing: 0) {
-                    ConnectionRow(server: s).onTapGesture { selected = selected == s.id ? nil : s.id }
-                        .accessibilityAddTraits(.isButton)  // M9.T01: VO-Space expands the row
-                        .accessibilityAction { selected = selected == s.id ? nil : s.id }
-                    if selected == s.id { ConnectionDetail(model: model, server: s) }
+        let detail = detail
+        DirectoryRow(title: app.name, detail: detail.text, detailColor: detail.color, detailID: detail.id,
+                     tile: AppLogo.colorLogo(app.slug) == nil ? .surfaceRaised : .white, pinnedHover: pinnedHover) {
+            AppLogo(toolkit: app.slug, name: app.name, size: 26, color: true)
+        } trailing: {
+            switch phase {
+            case .idle, .failed:
+                if canConnect {
+                        DirectoryGlyphButton(symbol: "plus", label: "\(CopyKey("conn.connect").string()) \(app.name)",
+                                         id: "connections.add.\(app.slug)", action: onConnect)
                 }
-            }
-            // An add that failed after Allow (the sheet is closed by then): say why here (P6 only logged it).
-            if !adding, let e = model.checkError {
-                Text(CopyText(CopyKey("conn.mcp.failed"), ["reason": e])).font(.caption).foregroundStyle(.red)
-                    .probeID("connections.error")
-            }
-            Button { form = AddForm(); model.checkError = nil; adding = true } label: { Label { Text(CopyKey("conn.mcp.add")) } icon: { Image(systemName: "plus") } }
-                .probeID("connections.add")
-            Divider().padding(.vertical, Spacing.space1)  // VQ (M10): the three blocks read as separate groups
-            if model.composioAvailable {  // hidden only without a deployed relay (RelayClient.isAvailable)
-                composioSection
-                Divider().padding(.vertical, Spacing.space1)
-            }
-            MCPDirectoryView(entries: model.curated) { e in
-                form = AddForm(name: e.name, url: e.url, mode: e.auth == "token" ? .token : e.auth == "oauth" ? .oauth : .none, curatedID: e.id)
-                adding = true
+            case .starting, .waiting:
+                ProgressView().controlSize(.small).probeID("connections.waiting.\(app.slug)")
+            case .connected:
+                DirectoryMenu(label: "\(CopyKey("chat.more").string()), \(app.name)") { disconnect }
+                    .probeID("connections.menu.\(app.slug)")
             }
         }
-        .sheet(isPresented: $adding) { addSheet }
-        .sheet(item: $model.composioConsent) { item in
-            ComposioConsentSheet(toolkit: item.toolkit, onContinue: { Task { await model.beginComposio(item.toolkit) } },
-                                 onCancel: {})
-        }
-        .task {
-            // The sign-in page goes to the browser, or (DEBUG `-OpenURLSpy`, ComposioUITests / MCPOAuthUITests) to the
-            // spy file, where the test plays the browser.
-            model.openURL = { url in
-                if LaunchOptions.current.openURLSpy != nil { SiteLinks.open(url) } else { openURL(url) }
-            }
-            await model.refreshComposio()
-        }
-        .sheet(item: $model.pending) { p in
-            MCPConsentSheet(pending: p, onAllow: { Task { await model.confirm(p) } }, onCancel: { Task { await model.decline() } })
-        }
+        .contextMenu { if phase == .connected { disconnect } }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(verbatim: app.name))
+        .probeID("connections.row.\(app.slug)")
     }
 
-    /// VQ (S-21 Tools): an app with its own entry under Popular connections (a direct connection, no cloud bridge) is
-    /// not offered a second time as a Composio tile, unless it is already linked through Composio.
-    private var composioShown: [String] {
-        let direct = Set(model.curated.map { $0.name.lowercased() })
-        return model.composioTiles.filter { model.composioLinked[$0] != nil || !direct.contains(ComposioTiles.title($0).lowercased()) }
-    }
-
-    /// M7.T11 (R-255 AC3): the Composio apps — one tile per toolkit with [Connect] / Connected · [Disconnect].
-    private var composioSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Text(verbatim: "Composio").font(.headline)
-                CloudBadge()
-            }
-            Text(CopyKey("conn.composio.intro")).typeStyle(.caption).foregroundStyle(Color.textSecondary)
-            // VQ (S-21 Tools, M10): two roomy tiles per row (four 150 pt tiles wrapped "Google Calendar" and crowded
-            // the card); a name stays on one line.
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 210), spacing: Spacing.space2, alignment: .leading)],
-                      alignment: .leading, spacing: Spacing.space2) {
-                ForEach(composioShown, id: \.self) { t in
-                    HStack(spacing: Spacing.space2) {
-                        Text(verbatim: ComposioTiles.title(t)).typeStyle(.callout).lineLimit(1).layoutPriority(1)
-                        Spacer(minLength: Spacing.space2)
-                        if model.composioLinked[t] != nil {
-                            Button { Task { await model.disconnectTile(t) } } label: { Text(CopyKey("conn.disconnect")) }
-                                .buttonStyle(.link).probeID("composio.disconnect.\(t)")
-                        } else if model.composioWaiting == t {
-                            ProgressView().controlSize(.small)
-                        } else {
-                            Button { model.connectTile(t) } label: { Text(CopyKey("conn.connect")) }
-                                .buttonStyle(.link).probeID("composio.connect.\(t)")
-                        }
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.surfaceSunken))  // as the directory cards
-                }
-            }
-            // M9.T03: a lazy grid is an unnamed "Other" to accessibility; the tiles sit in a named group.
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel(Text(verbatim: "Composio"))
-            if let e = model.composioError {
-                Text(CopyKey(e)).font(.caption).foregroundStyle(.orange).probeID("composio.error")
-            }
-        }
-        .accessibilityElement(children: .contain)  // keeps composio.connect.* (Q-015 catch-up)
-        .probeID("connections.composio")
-    }
-
-    private var addSheet: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(CopyKey("conn.mcp.add")).font(.headline)
-            TextField(text: $form.url) { Text(CopyKey("conn.mcp.url")) }.textFieldStyle(.roundedBorder).probeID("connections.url")
-            TextField(text: $form.name) { Text(CopyKey("conn.mcp.name")) }.textFieldStyle(.roundedBorder).probeID("connections.name")
-            Picker(selection: $form.mode) {
-                Text(CopyKey("conn.mcp.noAuth")).tag(AddForm.Mode.none)
-                Text(CopyKey("conn.mcp.token")).tag(AddForm.Mode.token)
-                Text(CopyKey("conn.mcp.oauth")).tag(AddForm.Mode.oauth)
-            } label: { EmptyView() }.pickerStyle(.segmented).accentFilledSegments().labelsHidden().probeID("connections.authMode")
-            if form.useToken {
-                SecureField(text: $form.token) { Text(CopyKey("conn.mcp.token")) }.textFieldStyle(.roundedBorder).probeID("connections.token")
-            }
-            if form.mode == .oauth, model.needsClientID {  // R-257: CIMD and DCR both unavailable at this server
-                TextField(text: $form.clientID) { Text(CopyKey("conn.mcp.clientId")) }.textFieldStyle(.roundedBorder).probeID("connections.clientId")
-            }
-            if model.checking { Text(CopyKey("conn.mcp.checking")).typeStyle(.caption).foregroundStyle(Color.textSecondary) }
-            if let e = model.checkError { Text(CopyText(CopyKey("conn.mcp.failed"), ["reason": e])).font(.caption).foregroundStyle(.red) }
-            HStack {
-                Spacer()
-                Button { adding = false } label: { Text(CopyKey("conn.mcp.cancel")) }.keyboardShortcut(.cancelAction)
-                Button {
-                    Task {
-                        await model.check(name: form.name, url: form.url, auth: form.auth, curatedID: form.curatedID)
-                        if model.pending != nil { adding = false }
-                    }
-                } label: { Text(CopyKey("conn.mcp.next")) }
-                .keyboardShortcut(.defaultAction)
-                .disabled(form.url.isEmpty || model.checking || (form.useToken && form.token.isEmpty))
-                .probeID("connections.check")
-            }
-        }
-        .padding(20)
-        .frame(width: 420)
+    private var disconnect: some View {
+        Button(role: .destructive, action: onDisconnect) { Text(CopyKey("conn.disconnect")) }
+            .probeID("connections.disconnect.\(app.slug)")
     }
 }

@@ -15,8 +15,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUIRED = ["index.html", "download/index.html", "requirements/index.html", "changelog/index.html",
-            "help/faq/index.html", "help/troubleshooting/index.html", "help/disk-full/index.html",
-            "help/uninstall/index.html", "help/composio/index.html", "help/status/index.html",
+            "help/index.html", "help/getting-started/index.html", "help/faq/index.html",
+            "help/connections/index.html", "help/skills/index.html", "help/images-video-voice/index.html",
+            "help/files/index.html", "help/evil-mode/index.html", "help/memory/index.html", "help/privacy/index.html",
+            "help/disk-full/index.html", "help/updating/index.html", "help/report-a-problem/index.html",
+            "help/troubleshooting/index.html", "help/uninstall/index.html", "help/status/index.html",
             "evil-mode/index.html", "acceptable-use/index.html", "legal/terms/index.html",
             "legal/privacy/index.html", "legal/evil-mode-terms/index.html", "legal/abuse/index.html",
             "legal/licenses/index.html", "legal/model-licenses/index.html", "legal/security/index.html",

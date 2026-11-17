@@ -45,6 +45,8 @@ enum RunPythonActivity {
         if activity.state == .done {
             return CopyText(CopyKey("act.analysing"), ["file": purpose(activity), "seconds": "\(max(0, seconds))"])
         }
+        // A failed step reads plainly, in the user's words (never "Run python didn't work").
+        if activity.state == .failed { return CopyText(CopyKey("act.analyse.failed")) }
         return nil
     }
 }

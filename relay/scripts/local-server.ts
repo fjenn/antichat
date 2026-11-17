@@ -23,6 +23,7 @@ async function routes(): Promise<{ match: RegExp; mod: Module }[]> {
     { match: /^\/v1\/session$/, mod: await imp("session.ts") },
     { match: /^\/v1\/mcp$/, mod: await imp("mcp.ts") },
     { match: /^\/v1\/forget$/, mod: await imp("forget.ts") },
+    { match: /^\/v1\/toolkits$/, mod: await imp("toolkits.ts") },
     { match: /^\/v1\/connections$/, mod: await imp("connections/index.ts") },
     { match: /^\/v1\/connections\/link$/, mod: await imp("connections/link.ts") },
     { match: /^\/v1\/connections\/[^/]+$/, mod: await imp("connections/[id].ts") },

@@ -65,7 +65,6 @@ public struct ConversationView: View {
         // M1.T24: ⌘F find bar over the transcript's top edge; ⌘A selection ends on any click or transcript change.
         .overlay(alignment: .top) { if model.find.isPresented { FindBar(model: model.find) } }
         .overlay(alignment: .top) { if !model.find.isPresented { ToolsChangedBanner() } }  // M7.T08 (R-260)
-        .overlay(alignment: .top) { if !model.find.isPresented { NotificationExplainerBanner() } }  // M8.T12 (R-109)
         .onChange(of: model.messages) { _, _ in
             if model.find.isPresented { model.find.update(model.transcriptTexts().map { ($0.id, $0.text) }) }
         }
@@ -265,6 +264,7 @@ struct ConversationRow: View, Equatable {
                 toolActions: ToolActions(answer: { model.answerApproval(m.id, $0, $1) }, continueLoop: { model.continueTools(m.id) },
                                          acceptMediaOffer: { model.acceptMediaOffer(m.id, $0) },
                                          install: { model.installFromCard(m.id) }, installLater: { model.dismissInstallCard(m.id) },
+                                         connected: { model.rerunAfterConnect(m.id) },
                                          readWhole: { model.readWholeFile(m.id) },
                                          summariseWhole: { model.summariseWholeFile(m.id, attachmentID: $0) },
                                          openPage: { model.openPage(attachmentID: $0, page: $1) },

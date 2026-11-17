@@ -129,7 +129,7 @@ extension WindowSuites {
         #expect(InstallCardView.text(card).string == "Video doesn't run well on this Mac (needs 24 GB memory).")
         #expect(!card.hasButtons)
         let offered = InstallCard(pack: .photo, state: .offered(bytes: 6_400_000_000, minutes: 17))
-        #expect(InstallCardView.text(offered).string == "Photo isn't installed. Install it (6.4 GB, ~17 min) and I'll make your picture.")
+        #expect(InstallCardView.text(offered).string == "Images isn't installed. Install it (6.4 GB, ~17 min) and I'll make your image.")
     }
 
     /// PackRow state → card availability (the reason reads lower-case inside the sentence).

@@ -79,6 +79,36 @@ def test_second_flag_line_in_build_perf_fails(tmp_path):
     assert out.returncode == 1 and "exactly" in out.stderr
 
 
+def test_bench_builder_rules(tmp_path):
+    """tools/bench.sh and the M0 gate scripts build the never-shipped bench app with the flag, into build/dd-bench."""
+    r = tree(tmp_path)
+    for rel in g.BENCH_BUILDERS:
+        (r / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / rel, r / rel)
+        assert g.BENCH_CONDITION in (r / rel).read_text(), rel
+    assert run(r).returncode == 0
+    bench = r / g.BENCH_BUILDERS[0]
+    orig = bench.read_text()
+    bench.write_text(orig + "\nOTHER_SWIFT_FLAGS=-DANTICHAT_PERF_HARNESS\n")
+    out = run(r)
+    assert out.returncode == 1 and "bench.sh" in out.stderr
+    bench.write_text(orig + "\ncp -R x build/release/AntiChat.app\n")
+    out = run(r)
+    assert out.returncode == 1 and "never archives or writes a release" in out.stderr
+    bench.write_text(orig.replace("dd-bench", "dd-other"))
+    out = run(r)
+    assert out.returncode == 1 and "not into build/dd-bench" in out.stderr
+
+
+def test_flag_in_another_tool_script_fails(tmp_path):
+    r = tree(tmp_path)
+    p = r / "tools/at/new-probe.sh"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("xcodebuild 'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) ANTICHAT_PERF_HARNESS' build\n")
+    out = run(r)
+    assert out.returncode == 1 and "new-probe.sh" in out.stderr
+
+
 def test_ungated_swift_use_fails(tmp_path):
     r = tree(tmp_path)
     edit(r, GATED, "#if DEBUG || ANTICHAT_PERF_HARNESS", "#if ANTICHAT_PERF_HARNESS")

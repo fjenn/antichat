@@ -11,6 +11,8 @@
 // `dictation-warm` (V10): evict `stt`, send the mic-hover hint (`Warmup{pack: voice, predictive}`), then a plain warm-up
 // of the `stt` slot that returns when the model is resident: hover → STT ready (Core ML built inside the load). The
 // helper stays up between runs (a cold *model*, not a cold helper process).
+// Developer-only: compiled in DEBUG and perf-harness builds, never in a release (tools/ci/dev-modes-guard.py).
+#if DEBUG || ANTICHAT_PERF_HARNESS
 @preconcurrency import AVFoundation
 import AntiChatEngineProtocol
 import AntiChatHarness
@@ -168,3 +170,4 @@ final class DictationTimes: @unchecked Sendable {
         set { lock.withLock { _stop = newValue } }
     }
 }
+#endif

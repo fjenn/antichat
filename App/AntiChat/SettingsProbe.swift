@@ -70,13 +70,14 @@ enum SettingsProbe {
         }
     }
 
-    /// The visible window holding an anchor with `id` (main window, Settings window, a sheet or a popover).
+    /// The visible window holding an anchor with `id` (main window, a sheet or a popover).
     static func window(with id: String) -> NSWindow? {
         NSApp.windows.first { $0.isVisible && UIProbeRegistry.frame(id, in: $0) != nil }
     }
 
     static func present(_ id: String) -> Bool { window(with: id) != nil }
 
+    /// The main window showing Settings (Settings is a view over the chat, inside it).
     static var settingsWindow: NSWindow? { window(with: "settings.root") }
 
     /// Clicks the anchor `id` at `fraction` of its width (segmented controls), wherever it is on screen.
@@ -171,12 +172,12 @@ enum SettingsProbe {
         await settle(150)
         key(",", code: 43, flags: .command, in: main)
         if await waitUntil(timeout: 2, { settingsWindow != nil }) { return "commandComma" }
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        SettingsPresenter.shared.show()
         return await waitUntil(timeout: 2, { settingsWindow != nil }) ? "menuAction-fallback" : "failed"
     }
 
     static func closeSettings() async {
-        settingsWindow?.performClose(nil)
+        SettingsPresenter.shared.dismiss()  // Settings is a view inside the main window: never close the window
         _ = await waitUntil { settingsWindow == nil }
     }
 
@@ -232,9 +233,7 @@ enum SettingsProbe {
                 .sorted { $0.1.maxY > $1.1.maxY }
                 .map { $0.0.title.string() }
         }
-        let expectedNav = ["General", "Appearance", "Capabilities", "Evil Mode", "Voice", "Personalization",
-                           "Tools & Connections", "Skills", "Privacy & Data", "Storage", "Updates",
-                           "Keyboard shortcuts", "About & Help"]
+        let expectedNav = ["General", "Capabilities", "Connections", "Skills", "Personalization", "Privacy & Data"]
         capture(settingsWindow, "S-21-general.png", dir)
         // Typed search (real keystrokes into the field).
         var typedOK = false
@@ -483,8 +482,8 @@ enum SettingsProbe {
             }
             _ = await openMenu()
             click("footer.updates", tracking: false)
-            items["updates"] = await waitUntil { settingsWindow != nil && model.selection == .updates
-                && present("settings.row.updates.later") }
+            items["updates"] = await waitUntil { settingsWindow != nil && model.selection == .general
+                && present("settings.row.updates.check") }
             capture(settingsWindow, "S-21-updates.png", dir)
             await closeSettings()
             legs["AT-100-3"] = ["pass": menuOK && hasAll && items.values.allSatisfy { $0 } && items.count == 4,

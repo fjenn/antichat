@@ -22,6 +22,8 @@ struct ToolLoopState: Sendable {
         var eligible: [ToolSchema]
         /// Chip tools and skill `allowed-tools` (always kept).
         var forced: [String]
+        /// Tools offered on every step (`memory` while memory is On; ToolSelector's `pinned`).
+        var pinned: [String] = []
         var tier: DeviceTier
         var access: ToolAccess
         /// The prompt inputs the step's prompt was composed from (tools replaced on discovery).

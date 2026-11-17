@@ -112,7 +112,7 @@ struct ActionBar: View {
                 icon("arrow.clockwise", tip: "msg.regenerate", id: "action.regenerate", disabled: isBusy) {
                     regenerateOpen = true
                 }
-                .popover(isPresented: $regenerateOpen, arrowEdge: .bottom) {
+                .popover(isPresented: $regenerateOpen, arrowEdge: .top) {  // above the button: below it ran off the window
                     RegeneratePopover { options in
                         regenerateOpen = false
                         actions.regenerate(options)
@@ -126,7 +126,7 @@ struct ActionBar: View {
                 actions.dislike()
                 dislikeOpen = true
             }
-            .popover(isPresented: $dislikeOpen, arrowEdge: .bottom) {
+            .popover(isPresented: $dislikeOpen, arrowEdge: .top) {
                 DislikeMenu(busy: isBusy) { choice in
                     dislikeOpen = false
                     switch choice {
@@ -190,7 +190,7 @@ struct ActionBar: View {
         .probeID("action.more")
         .popover(isPresented: Binding(get: { modelInfo != nil }, set: { if !$0 { modelInfo = nil } }),
                  arrowEdge: .bottom) {
-            if let modelInfo { ModelInfoPopover(info: modelInfo) }
+            if let modelInfo { ModelInfoPopover(info: modelInfo).popoverSurface() }
         }
     }
 
