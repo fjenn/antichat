@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "ChildSafetyCheck", targets: ["ChildSafetyCheck"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/microsoft/onnxruntime-swift-package-manager", exact: "1.24.2"),
+        .package(path: "../../ThirdParty/onnxruntime-swift-package-manager"),  // upstream repo gone (404), see ThirdParty/README.md
     ],
     targets: [
         // C shim over the ONNX Runtime C API (fixed-shape overrides for the CoreML EP; see csc_ort.h).
