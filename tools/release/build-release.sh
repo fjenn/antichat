@@ -86,6 +86,16 @@ step "copy (arm64 slices only) → $out/AntiChat.app"
 rm -rf "$out/AntiChat.app" "$out/dSYMs" "$out/notary" "$out/verify" "$out/sign-report.tsv" "$out/LABEL" "$out/build.json"
 mkdir -p "$out"
 ditto --arch arm64 --norsrc "$src" "$out/AntiChat.app"
+# `ditto --arch` left Sparkle universal on GitHub's macOS 27 runner: thin any binary still carrying other slices.
+while IFS= read -r f; do
+    [[ "$(file -b "$f")" == Mach-O* ]] || continue
+    a=" $(lipo -archs "$f" 2>/dev/null || true) "
+    [[ "$a" != " arm64 " && "$a" == *" arm64 "* ]] || continue
+    mode="$(stat -f %Lp "$f")"
+    lipo "$f" -thin arm64 -output "$f.thin"
+    chmod "$mode" "$f.thin"
+    mv -f "$f.thin" "$f"
+done < <(find "$out/AntiChat.app" -type f)
 [[ -d "$archive/dSYMs" ]] && ditto "$archive/dSYMs" "$out/dSYMs"
 app="$out/AntiChat.app"
 xattr -cr "$app"
