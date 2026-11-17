@@ -50,9 +50,10 @@ SD_KEY="$SD_SHA-$(printf '%s ' "${CMAKE_COMMON[@]}" "${SD_FLAGS[@]}" "$SD_PATCH_
 # an Xcode/clang/cmake change rebuilds (and is then checked against checksums.json) instead of
 # silently reusing a binary from the old toolchain. Not part of the checksums.json `config` key.
 TC_KEY="$({ xcodebuild -version; xcrun clang --version | head -1; cmake --version | head -1; } 2>/dev/null | shasum -a 256 | cut -c1-8)"
-# The generator only drives the build; it stays "Ninja" in the cache/config keys (CMAKE_COMMON) so a host without
-# ninja (Makefiles fallback) reuses and records the same keys.
-gen_args() { local a; for a in "${CMAKE_COMMON[@]}"; do if [ "$a" = Ninja ] && ! command -v ninja >/dev/null; then echo "Unix Makefiles"; else echo "$a"; fi; done; }
+# The generator stays "Ninja" in the cache/config keys (CMAKE_COMMON), but the build always uses Unix Makefiles:
+# Binaries/checksums.json was recorded with Makefiles (no ninja on the recording Mac). GitHub release run 44174414767
+# (ninja 1.13.2, cmake 4.4.5) reproduced llama-server but not sd-server/sd-cli; the generator is one of the two differences.
+gen_args() { local a; for a in "${CMAKE_COMMON[@]}"; do if [ "$a" = Ninja ]; then echo "Unix Makefiles"; else echo "$a"; fi; done; }
 # cache_put src dst: atomic, so a concurrent build in another worktree never copies a half-written file.
 cache_put() { cp -f "$1" "$2.tmp.$$" && mv -f "$2.tmp.$$" "$2"; }
 

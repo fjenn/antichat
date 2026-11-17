@@ -97,11 +97,28 @@ jobs:
         with:
           path: ~/Library/Caches/AntiChat-dev/binaries
           key: helpers-${{ steps.helpers.outputs.pins }}-${{ hashFiles('tools/binaries/**', 'Vendor/patches/sdcpp/**') }}
-      - name: Helper binaries (llama-server, sd-server, sd-cli from the pinned submodules; sha256 = Binaries/checksums.json)
+      - name: Helper binaries (llama-server, sd-server, sd-cli; sha256 = Binaries/checksums.json)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          # The exact recorded files come from the "build inputs" prerelease (tools/binaries/fetch-release.sh), verified
+          # against checksums.json; a mismatch fails here. Only when that release does not exist are they built from
+          # the pinned submodules, with the recording toolchain's cmake (4.4.4) and generator (Makefiles, build.sh).
           # Full history: tools/binaries/build.sh refuses shallow clones (the version stamps count commits).
-          git submodule update --init --recursive Binaries/llama.cpp Binaries/sdcpp
-          make binaries
+          rc=0; tools/binaries/fetch-release.sh "$GITHUB_REPOSITORY" || rc=$?
+          if [[ "$rc" == 0 ]]; then
+            git submodule update --init Binaries/llama.cpp Binaries/sdcpp
+            make binaries CHECK=1   # sha256 + config keys + portability, the same gate as CI
+          elif [[ "$rc" == 3 ]]; then
+            echo "::warning::no helper-binaries release for this checksums.json; building from source"
+            git submodule update --init --recursive Binaries/llama.cpp Binaries/sdcpp
+            uv tool install cmake==4.4.4
+            bindir="$(uv tool dir --bin)"; export PATH="$bindir:$PATH"
+            cmake --version | head -n 1
+            make binaries
+          else
+            exit "$rc"
+          fi
           git diff --exit-code -- Binaries/checksums.json
 
       - name: Temporary keychain (Developer ID certificate, notary profile)
