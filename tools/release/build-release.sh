@@ -91,9 +91,9 @@ while IFS= read -r f; do
     [[ "$(file -b "$f")" == Mach-O* ]] || continue
     a=" $(lipo -archs "$f" 2>/dev/null || true) "
     [[ "$a" != " arm64 " && "$a" == *" arm64 "* ]] || continue
-    mode="$(stat -f %Lp "$f")"
+    perms="$(stat -f %Lp "$f")"  # not "mode": that is the signing mode below
     lipo "$f" -thin arm64 -output "$f.thin"
-    chmod "$mode" "$f.thin"
+    chmod "$perms" "$f.thin"
     mv -f "$f.thin" "$f"
 done < <(find "$out/AntiChat.app" -type f)
 [[ -d "$archive/dSYMs" ]] && ditto "$archive/dSYMs" "$out/dSYMs"
