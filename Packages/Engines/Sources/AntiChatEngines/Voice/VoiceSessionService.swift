@@ -86,9 +86,11 @@ public final class VoiceSessionService: VoiceSessionServing {
             default: isLive ? VoiceAudioRouteProbe.current() : fake["aec"] == "unavailable" ? .speakers : .injected
             }
             let plan = HalfDuplexPolicy.plan(route: route, duckOthers: start.duckOthers)
-            // Live input runs through the session's VPIO graph (TTS player node = echo reference); injected input
-            // bypasses VPIO and plays into a silent clock (mode inject [IN-PIPELINE]).
-            let audio = VoiceAudioEngine(injected: injected, enableAEC: plan.voiceProcessing, duckingMinimum: plan.duckingMin ?? false)
+            // Live input is a plain mic tap (no route runs VPIO since 0.0.8; speakers are half duplex instead); injected
+            // input plays into a silent clock (mode inject [IN-PIPELINE]).
+            // 0.0.8: live, the reply plays on a plain engine (`PlainPlaybackDevice`), never through VPIO.
+            let audio = VoiceAudioEngine(injected: injected, enableAEC: plan.voiceProcessing, duckingMinimum: plan.duckingMin ?? false,
+                                         preferBuiltInMic: plan.preferBuiltInMic, inputDeviceUID: start.deviceUID)
             let fakeAECUnavailable = fake["aec"] == "unavailable"
             // A device change re-probes the route and rebuilds with its plan (live only, no faked route).
             let routeNow = LockedBox(route)
@@ -98,7 +100,7 @@ public final class VoiceSessionService: VoiceSessionServing {
                     let r = VoiceAudioRouteProbe.current()
                     routeNow.withLock { $0 = r }
                     let p = HalfDuplexPolicy.plan(route: r, duckOthers: duck)
-                    return (p.voiceProcessing, p.duckingMin ?? false)
+                    return (p.voiceProcessing, p.duckingMin ?? false, p.preferBuiltInMic)
                 }
             }
             AppLog.log(.voice, .info, "voice session: route \(route.rawValue), VPIO \(plan.voiceProcessing), duck min \(plan.duckingMin ?? false)")

@@ -28,10 +28,48 @@ public enum VoiceAudioRouteProbe {
         }
     }
 
-    private static func defaultOutputDevice() -> AudioDeviceID? {
+    /// The built-in mic's UID when the default input is a Bluetooth device: a headset's mic would switch the headset
+    /// to its call profile (narrowband playback) for the whole conversation. nil = keep the default input.
+    public static func builtInMicUIDIfBluetoothInput() -> String? {
+        guard let input = defaultDevice(kAudioHardwarePropertyDefaultInputDevice) else { return nil }
+        return preferredInputUID(defaultInputTransport: transportType(input), builtInInputUID: builtInInputUID())
+    }
+
+    /// The choice (pure; tests).
+    public static func preferredInputUID(defaultInputTransport: UInt32?, builtInInputUID: String?) -> String? {
+        switch defaultInputTransport {
+        case kAudioDeviceTransportTypeBluetooth, kAudioDeviceTransportTypeBluetoothLE: builtInInputUID
+        default: nil
+        }
+    }
+
+    private static func builtInInputUID() -> String? {
+        var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices, mScope: kAudioObjectPropertyScopeGlobal,
+                                              mElement: kAudioObjectPropertyElementMain)
+        var size = UInt32(0)
+        guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size) == noErr else { return nil }
+        var ids = [AudioDeviceID](repeating: 0, count: Int(size) / MemoryLayout<AudioDeviceID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &ids) == noErr else { return nil }
+        for id in ids where transportType(id) == kAudioDeviceTransportTypeBuiltIn {
+            var streams = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreams, mScope: kAudioDevicePropertyScopeInput,
+                                                     mElement: kAudioObjectPropertyElementMain)
+            var bytes = UInt32(0)
+            guard AudioObjectGetPropertyDataSize(id, &streams, 0, nil, &bytes) == noErr, bytes > 0 else { continue }
+            var uid: Unmanaged<CFString>?
+            var uidSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+            var uidAddr = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceUID, mScope: kAudioObjectPropertyScopeGlobal,
+                                                     mElement: kAudioObjectPropertyElementMain)
+            if AudioObjectGetPropertyData(id, &uidAddr, 0, nil, &uidSize, &uid) == noErr, let uid { return uid.takeRetainedValue() as String }
+        }
+        return nil
+    }
+
+    private static func defaultOutputDevice() -> AudioDeviceID? { defaultDevice(kAudioHardwarePropertyDefaultOutputDevice) }
+
+    private static func defaultDevice(_ selector: AudioObjectPropertySelector) -> AudioDeviceID? {
         var id = AudioDeviceID(0)
         var size = UInt32(MemoryLayout<AudioDeviceID>.size)
-        var addr = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+        var addr = AudioObjectPropertyAddress(mSelector: selector,
                                               mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
         let status = AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &size, &id)
         return status == noErr && id != 0 ? id : nil

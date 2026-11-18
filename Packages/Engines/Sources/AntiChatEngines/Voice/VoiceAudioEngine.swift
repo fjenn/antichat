@@ -5,6 +5,9 @@
 // M3 review: a rebuild reports that the queued output was lost (`onPlaybackReset`, P1-4: the sink re-bases its played
 // clock); a rebuild that fails twice (300 ms apart) reports `onGraphFailed` (P2-3: the session ends with
 // `voice.noDevice` instead of listening to nothing); speaker mute is the player volume (P1-3).
+// 0.0.8 "old radio" fix: live, the reply plays on a separate plain engine (`PlainPlaybackDevice`, full band, never
+// through VPIO) and capture without VPIO is a plain input tap (`MicCapture`) on the chosen mic: the user's Settings ›
+// Voice › Microphone, else the built-in mic when the default input is a Bluetooth headset (`preferBuiltInMic`).
 @preconcurrency import AVFoundation
 import Foundation
 import SpeechSwiftVendored
@@ -13,6 +16,8 @@ import SpeechSwiftVendored
 public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @unchecked Sendable {
     private struct State {
         var io: FullDuplexAudioIO?
+        /// Capture without VPIO (a plain input tap).
+        var mic: MicCapture?
         var observer: NSObjectProtocol?
         var callback: (@Sendable ([Float]) -> Void)?
         var pending: [Float] = []
@@ -36,25 +41,35 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
     private let outputSampleRate: Int
     private var enableAEC: Bool { lock.withLock { config.aec } }
     private var duckingMinimum: Bool { lock.withLock { config.duck } }
-    private var config: (aec: Bool, duck: Bool)
+    private var config: (aec: Bool, duck: Bool, builtInMic: Bool)
+    /// Settings › Voice › Microphone (nil = the system default).
+    private let inputDeviceUID: String?
+    /// The reply's output when it does not play into the VPIO graph (live sessions).
+    let playback: PlainPlaybackDevice?
     /// M3.T12 (review finding 11): asked at each graph rebuild (a route / device change) for the new plan.
-    public var planOnRebuild: (@Sendable () -> (enableAEC: Bool, duckingMinimum: Bool))? {
+    public var planOnRebuild: (@Sendable () -> (enableAEC: Bool, duckingMinimum: Bool, preferBuiltInMic: Bool))? {
         get { lock.withLock { replan } }
         set { lock.withLock { replan = newValue } }
     }
-    private var replan: (@Sendable () -> (enableAEC: Bool, duckingMinimum: Bool))?
+    private var replan: (@Sendable () -> (enableAEC: Bool, duckingMinimum: Bool, preferBuiltInMic: Bool))?
 
     /// `enableAEC` = run the input through VPIO; `duckingMinimum` = VPIO ducks other audio no more than the minimum
-    /// level (M3.T12, R-280 AC3; `HalfDuplexPolicy.plan`).
+    /// level (M3.T12, R-280 AC3; `HalfDuplexPolicy.plan`). `playback` = the reply's output; nil = a
+    /// `PlainPlaybackDevice` for live capture, none for injected input.
     public init(
         injected: (any AudioCaptureSource)? = nil,
         outputSampleRate: Int = 24_000,
         enableAEC: Bool = true,
-        duckingMinimum: Bool = true
+        duckingMinimum: Bool = true,
+        preferBuiltInMic: Bool = false,
+        inputDeviceUID: String? = nil,
+        playback: PlainPlaybackDevice? = nil
     ) {
         self.injected = injected
         self.outputSampleRate = outputSampleRate
-        config = (enableAEC, duckingMinimum)
+        self.inputDeviceUID = inputDeviceUID
+        self.playback = playback ?? (injected == nil ? PlainPlaybackDevice(sampleRate: outputSampleRate) : nil)
+        config = (enableAEC, duckingMinimum, preferBuiltInMic)
         graphQueue.setSpecific(key: graphKey, value: ())
     }
 
@@ -91,6 +106,7 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
     /// False: no running graph (a rebuild in progress, stopped): the samples are dropped and never play.
     @discardableResult
     public func schedulePlayback(_ samples: [Float], onPlayed: (@Sendable () -> Void)? = nil) -> Bool {
+        if let playback { return playback.schedulePlayback(samples, onPlayed: onPlayed) }
         guard let io = lock.withLock({ state.io }), io.state == .running else { return false }
         io.schedulePlayback(samples, onPlayed: onPlayed)
         return true
@@ -98,6 +114,7 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
 
     /// Speaker mute (volume 0) / unmute: applies to the audio already queued (M3 review P1-3).
     public func setPlaybackVolume(_ volume: Float) {
+        playback?.setPlaybackVolume(volume)
         let io = lock.withLock { () -> FullDuplexAudioIO? in
             state.volume = volume
             return state.io
@@ -106,12 +123,17 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
     }
 
     /// The end of a reply: a short burst still waiting in the prebuffer plays now (M3 review P1-4).
-    public func playPrebuffered() { lock.withLock { state.io }?.playPrebuffered() }
+    public func playPrebuffered() {
+        if let playback { return playback.playPrebuffered() }
+        lock.withLock { state.io }?.playPrebuffered()
+    }
 
     /// The graph was rebuilt (or lost): every queued buffer is gone and its `onPlayed` never fires.
     public var onPlaybackReset: (@Sendable () -> Void)? {
-        get { lock.withLock { state.onPlaybackReset } }
-        set { lock.withLock { state.onPlaybackReset = newValue } }
+        get { playback?.onPlaybackReset ?? lock.withLock { state.onPlaybackReset } }
+        set {
+            if let playback { playback.onPlaybackReset = newValue } else { lock.withLock { state.onPlaybackReset = newValue } }
+        }
     }
 
     /// A rebuild after a device change failed twice: capture has stopped for good.
@@ -121,37 +143,49 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
     }
 
     /// Output-only controls (capture keeps running): barge-in candidate / false alarm / confirmed (M3.T10).
-    public func pausePlayback() { lock.withLock { state.io }?.pausePlayback() }
-    public func resumePlayback() { lock.withLock { state.io }?.resumePlayback() }
-    public func flushPlayback() { lock.withLock { state.io }?.flushPlayback() }
+    public func pausePlayback() {
+        if let playback { return playback.pausePlayback() }
+        lock.withLock { state.io }?.pausePlayback()
+    }
+    public func resumePlayback() {
+        if let playback { return playback.resumePlayback() }
+        lock.withLock { state.io }?.resumePlayback()
+    }
+    public func flushPlayback() {
+        if let playback { return playback.flushPlayback() }
+        lock.withLock { state.io }?.flushPlayback()
+    }
 
     /// True when capture runs on the device (VPIO graph), false for injected (scripted) input.
     public var isLive: Bool { injected == nil }
 
     public func stop() {
         injected?.stop()
+        playback?.stop()
         onGraphQueue {
-            let old = lock.withLock { () -> (FullDuplexAudioIO?, NSObjectProtocol?) in
+            let old = lock.withLock { () -> (FullDuplexAudioIO?, MicCapture?, NSObjectProtocol?) in
                 state.running = false
                 state.generation &+= 1
                 state.callback = nil
                 state.pending.removeAll()
-                defer { state.io = nil; state.observer = nil }
-                return (state.io, state.observer)
+                defer { state.io = nil; state.mic = nil; state.observer = nil }
+                return (state.io, state.mic, state.observer)
             }
-            if let observer = old.1 { NotificationCenter.default.removeObserver(observer) }
+            if let observer = old.2 { NotificationCenter.default.removeObserver(observer) }
             old.0?.stop()
+            old.1?.stop()
         }
     }
 
     deinit {
         injected?.stop()
-        let old = lock.withLock { () -> (FullDuplexAudioIO?, NSObjectProtocol?) in
-            defer { state.io = nil; state.observer = nil }
-            return (state.io, state.observer)
+        let old = lock.withLock { () -> (FullDuplexAudioIO?, MicCapture?, NSObjectProtocol?) in
+            defer { state.io = nil; state.mic = nil; state.observer = nil }
+            return (state.io, state.mic, state.observer)
         }
-        if let observer = old.1 { NotificationCenter.default.removeObserver(observer) }
+        if let observer = old.2 { NotificationCenter.default.removeObserver(observer) }
         old.0?.stop()
+        old.1?.stop()
     }
 
     private func startLive() throws {
@@ -164,7 +198,15 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
         }
     }
 
+    /// The mic a capture without VPIO listens on: the user's choice, else the built-in mic instead of a Bluetooth
+    /// headset's (`preferBuiltInMic`), else the system default (nil).
+    private var captureDeviceUID: String? {
+        if let inputDeviceUID { return inputDeviceUID }
+        return lock.withLock({ config.builtInMic }) ? VoiceAudioRouteProbe.builtInMicUIDIfBluetoothInput() : nil
+    }
+
     private func startLive(aec: Bool) throws {
+        if !aec { return try startPlainCapture() }
         let io = FullDuplexAudioIO(configuration: .init(
             inputSampleRate: 16_000,
             outputSampleRate: outputSampleRate,
@@ -172,17 +214,7 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
             enableAEC: aec))
         io.otherAudioDuckingMinimum = aec && duckingMinimum
         io.setPlaybackVolume(lock.withLock { state.volume })
-        let observer = NotificationCenter.default.addObserver(
-            forName: .AVAudioEngineConfigurationChange,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.graphQueue.async { [weak self] in
-                guard let self, self.lock.withLock({ self.state.running && self.state.io != nil }) else { return }
-                self.rebuildLive()
-            }
-        }
+        let observer = observeConfigurationChanges()
         do {
             try io.start { [weak self] in self?.receive($0) }
             lock.withLock { state.io = io; state.observer = observer; state.duckingLevel = io.appliedDuckingLevel }
@@ -194,19 +226,48 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
         }
     }
 
-    private func rebuildLive(retry: Bool = true) {
-        let old = lock.withLock { () -> (FullDuplexAudioIO?, NSObjectProtocol?) in
-            defer { state.io = nil; state.observer = nil }
-            return (state.io, state.observer)
+    /// Capture without VPIO: a plain input tap on `captureDeviceUID` (nothing plays through this graph).
+    private func startPlainCapture() throws {
+        let mic = MicCapture(deviceUID: captureDeviceUID)
+        let observer = observeConfigurationChanges()
+        do {
+            try mic.start { [weak self] in self?.receive($0) }
+            lock.withLock { state.mic = mic; state.observer = observer; state.duckingLevel = nil }
+        } catch {
+            NotificationCenter.default.removeObserver(observer)
+            lock.withLock { state.running = false }
+            throw error
         }
-        if let observer = old.1 { NotificationCenter.default.removeObserver(observer) }
+    }
+
+    private func observeConfigurationChanges() -> NSObjectProtocol {
+        NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: nil, queue: nil) { [weak self] _ in
+            guard let self else { return }
+            self.graphQueue.async { [weak self] in
+                guard let self, self.lock.withLock({ self.state.running && self.hasGraph }) else { return }
+                self.rebuildLive()
+            }
+        }
+    }
+
+    /// A capture graph runs (VPIO or plain); called under `lock`.
+    private var hasGraph: Bool { state.io != nil || state.mic != nil }
+
+    private func rebuildLive(retry: Bool = true) {
+        let old = lock.withLock { () -> (FullDuplexAudioIO?, MicCapture?, NSObjectProtocol?) in
+            defer { state.io = nil; state.mic = nil; state.observer = nil }
+            return (state.io, state.mic, state.observer)
+        }
+        if let observer = old.2 { NotificationCenter.default.removeObserver(observer) }
         old.0?.stop()
-        if old.0 != nil, let reset = lock.withLock({ state.onPlaybackReset }) { reset() }
+        old.1?.stop()
+        // The reply's own output (`PlainPlaybackDevice`) reports its own reset; only the VPIO graph's queue is lost here.
+        if old.0 != nil, playback == nil, let reset = lock.withLock({ state.onPlaybackReset }) { reset() }
         if let plan = planOnRebuild?() {
             lock.withLock {
                 // A new route can need VPIO again: a failure on the old device is not carried over.
                 if plan.enableAEC != config.aec { state.aecFailed = false }
-                config = (plan.enableAEC, plan.duckingMinimum)
+                config = (plan.enableAEC, plan.duckingMinimum, plan.preferBuiltInMic)
             }
         }
         do { try startLive() } catch {
@@ -217,7 +278,7 @@ public final class VoiceAudioEngine: AudioCaptureSource, VoicePlaybackDevice, @u
             }
             if retry {
                 graphQueue.asyncAfter(deadline: .now() + Self.rebuildRetry) { [weak self] in
-                    guard let self, self.lock.withLock({ self.state.running && self.state.generation == generation && self.state.io == nil })
+                    guard let self, self.lock.withLock({ self.state.running && self.state.generation == generation && !self.hasGraph })
                     else { return }
                     self.rebuildLive(retry: false)
                 }

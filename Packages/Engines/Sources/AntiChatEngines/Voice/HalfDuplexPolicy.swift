@@ -6,6 +6,13 @@
 //   silent, i.e. no barge-in was confirmed). A headphone route is always full duplex (no echo path).
 //   Ducking (R-280 AC3): `duckOthers` on → VPIO ducks other audio to the minimum level; off → on headphones the session
 //   runs without VPIO (nothing is ducked), on speakers VPIO stays (AC1 needs AEC) at the minimum ducking level.
+// 0.0.8 "old radio" fix: a live conversation never runs voice processing. The reply plays on a plain AVAudioEngine
+// (`PlainPlaybackDevice`, full band, exactly like read aloud) because speech played through the VPIO graph sounded
+// band-limited ("like an old radio") on the built-in speakers. Without VPIO there is no echo reference, so a route
+// where echo can reach the mic (speakers, devices without AEC) runs half duplex (`echoRoute`): the mic does not listen
+// while the reply plays (+ 300 ms); a tap or the stop control still interrupts. Headphones stay full duplex, and with a
+// Bluetooth headset as the default input the session listens on the built-in mic so the headset never drops to its
+// call profile (`preferBuiltInMic`). `duckOthers` has nothing left to act on (its minimum ducking was a VPIO setting).
 import Foundation
 
 /// The output route of a conversation, as far as echo goes.
@@ -26,6 +33,8 @@ public enum VoiceAudioRoute: String, Sendable, Equatable {
 public struct HalfDuplexPolicy: Sendable, Equatable {
     public enum Reason: String, Sendable, Equatable {
         case aecUnavailable, routeWithoutAEC, residualEcho
+        /// Echo can reach the mic and nothing cancels it (no voice processing): the reply plays outside any AEC.
+        case echoRoute
     }
 
     /// The audio graph a session starts with.
@@ -35,6 +44,10 @@ public struct HalfDuplexPolicy: Sendable, Equatable {
         /// VPIO's other-audio ducking at the minimum level (`AVAudioVoiceProcessingOtherAudioDuckingConfiguration
         /// (enableAdvancedDucking: false, duckingLevel: .min)`); nil when VPIO is off.
         public var duckingMin: Bool?
+        /// Capture on the built-in mic when the default input is a Bluetooth headset (headphones route only).
+        public var preferBuiltInMic = false
+        /// The mic is gated while the reply plays (no barge-in by voice).
+        public var halfDuplexWhileSpeaking = false
     }
 
     public static let residualThreshold: Float = 0.5
@@ -53,10 +66,12 @@ public struct HalfDuplexPolicy: Sendable, Equatable {
     }
 
     /// The graph for `route` and the ducking setting (step 1).
+    /// No route runs VPIO any more (the "old radio" fix); `duckOthers` is kept for the protocol and the setting.
     public static func plan(route: VoiceAudioRoute, duckOthers: Bool) -> Plan {
-        switch (route, duckOthers) {
-        case (.headphones, false), (.injected, _): Plan(voiceProcessing: false, duckingMin: nil)
-        default: Plan(voiceProcessing: true, duckingMin: true)
+        switch route {
+        case .headphones: Plan(voiceProcessing: false, duckingMin: nil, preferBuiltInMic: true)
+        case .injected: Plan(voiceProcessing: false, duckingMin: nil)
+        case .speakers, .noEchoCancellation: Plan(voiceProcessing: false, duckingMin: nil, halfDuplexWhileSpeaking: true)
         }
     }
 
@@ -66,6 +81,7 @@ public struct HalfDuplexPolicy: Sendable, Equatable {
         guard !route.echoFree, halfDuplex == nil else { return halfDuplex }
         if route == .noEchoCancellation { halfDuplex = .routeWithoutAEC }
         else if voiceProcessing, !aecStarted { halfDuplex = .aecUnavailable }
+        else if !voiceProcessing { halfDuplex = .echoRoute }
         return halfDuplex
     }
 

@@ -11,11 +11,27 @@
 //   x[:, :, t] = bias + Σ_k W[:, :, k] · pad(x_pre)[:, :, t + k],   k = 0…6,
 // the same arithmetic in fp32 (≈ 100 dB SNR against the original on the GPU) on BNNS's matmul path, which does not
 // fault. `KokoroTTS.load` serves the rewritten stage from its own link folder; the model store is never written.
+//
+// 2026-11-18 ("radio" voice): the rewritten stage is wrong on the GPU once the clause is long — every clause whose
+// x_pre is longer than 32 768 steps (≈ 6.8 s of speech: ≳ 105 phonemes, ≈ 273 acoustic frames) came
+// out as hiss at a third of the level (first-difference/energy ratio ≈ 1.0 against ≈ 0.15, RMS 0.017 against 0.05),
+// while the shipped stage on the GPU and the rewritten one on the CPU stay clean (padding by concat and a time-major
+// matmul fail the same way). So the rewrite is served only where the tail really runs on the CPU: the tail pinned to
+// the CPU, or a Mac whose Core ML has no GPU (the clean VM). Everywhere else the shipped stage is linked unchanged.
+import CoreML
+import FluidAudio
 import Foundation
 
 enum KokoroTailRewrite {
     /// The tail's compiled model folder (FluidAudio `KokoroAneStage.tail.bundleName`).
     static let bundleName = "KokoroTail_v2.mlmodelc"
+
+    /// Whether Core ML runs the tail on the CPU for `units` (the only place the rewrite is needed and correct).
+    static func tailRunsOnCPU(_ units: KokoroAneComputeUnits,
+                              gpuAvailable: Bool = MLComputeDevice.allComputeDevices.contains { if case .gpu = $0 { true } else { false } }) -> Bool {
+        !(gpuAvailable && (units.tail == .cpuAndGPU || units.tail == .all))
+    }
+
     /// The op the rewrite replaces, exactly as the pinned model (kokoro-82m-coreml@2568276) spells it.
     static let convLine = "tensor<fp32, [1, 22, ?]> x = conv(bias = conv_post_bias, dilations = x_dilations_0, "
         + "groups = x_groups_0, pad = x_pad_0, pad_type = x_pad_type_0, strides = x_strides_0, weight = weight_1, "

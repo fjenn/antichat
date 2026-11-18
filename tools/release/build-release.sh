@@ -34,7 +34,7 @@ archive="build/AntiChat.xcarchive"
 notarize="${NOTARIZE:-1}"
 version="${APP_VERSION:-$(sed -n 's/^ *CFBundleShortVersionString: *"\(.*\)"/\1/p' project.yml | head -n 1)}"
 # BUILD_NUMBER: test feeds only (AT-FA-12 stamps N-1 below N from one archive); refused for devid below.
-source_build="$(sed -n 's/^build=\([0-9][0-9]*\)$/\1/p' SOURCE_REVISION 2>/dev/null | head -n 1)"
+source_build="$(sed -n 's/^build=\([0-9][0-9]*\)$/\1/p' SOURCE_REVISION 2>/dev/null | head -n 1 || true)"
 build_number="${BUILD_NUMBER:-${source_build:-$(git rev-list --count HEAD)}}"
 commit="$(git rev-parse HEAD)"; dirty_at_start="$(git status --porcelain | wc -l | tr -d ' ')"  # what was built
 step() { echo "== build-release [$mode] $*"; }

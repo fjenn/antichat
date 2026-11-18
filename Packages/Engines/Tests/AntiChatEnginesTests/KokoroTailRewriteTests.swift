@@ -1,5 +1,6 @@
 // AT-FA-05: the Kokoro tail's conv is rewritten as shifted matmuls (no libBNNS fault on the CPU); the stage is served
 // from the link folder with its other files linked, never written into the model store.
+import FluidAudio
 import Foundation
 import Testing
 @testable import AntiChatEngines
@@ -71,5 +72,18 @@ import Testing
         try Data("program(1.0) {}".utf8).write(to: source.appendingPathComponent("model.mil"))
         #expect(try !KokoroTailRewrite.install(source: source, destination: dest))
         #expect(try fm.destinationOfSymbolicLink(atPath: dest.path) == source.path)
+    }
+
+    /// 2026-11-18: the rewrite is wrong on the GPU for long clauses ("radio" voice): served only where the tail runs on
+    /// the CPU.
+    @Test func theTailRewriteIsServedOnlyWhereTheTailRunsOnTheCPU() {
+        var gpuTail = KokoroAneComputeUnits.default
+        gpuTail.tail = .cpuAndGPU
+        var cpuTail = gpuTail
+        cpuTail.tail = .cpuOnly
+        #expect(!KokoroTailRewrite.tailRunsOnCPU(gpuTail, gpuAvailable: true))
+        #expect(KokoroTailRewrite.tailRunsOnCPU(gpuTail, gpuAvailable: false), "no GPU Core ML uses (the clean VM)")
+        #expect(KokoroTailRewrite.tailRunsOnCPU(cpuTail, gpuAvailable: true))
+        #expect(KokoroTailRewrite.tailRunsOnCPU(KokoroTTS.Placement.cpuANE.units, gpuAvailable: true))
     }
 }

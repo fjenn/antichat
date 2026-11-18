@@ -1,0 +1,4 @@
+{"version": "0.0.8", "critical": false, "prerelease": false,
+ "items": [{"icon": "waveform", "title": "Voice sounds right again", "body": "Long sentences no longer turn into a crackly, radio-like voice with sounds that aren't in the text."},
+           {"icon": "headphones", "title": "Clear voice on every turn", "body": "The AI's voice stays at full quality, and on headphones your Mac's microphone is used so AirPods stay clear."},
+           {"icon": "checkmark.seal", "title": "Safer releases", "body": "Every release is now built, signed and notarized automatically."}]}

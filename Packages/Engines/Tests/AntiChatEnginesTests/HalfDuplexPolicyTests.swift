@@ -54,13 +54,34 @@ import Testing
         #expect(p.residualChecked)
     }
 
-    @Test func duckingPlan() {
-        #expect(HalfDuplexPolicy.plan(route: .speakers, duckOthers: true) == .init(voiceProcessing: true, duckingMin: true))
-        // Setting off on speakers: VPIO stays (AC1 needs echo cancellation) at the minimum level.
-        #expect(HalfDuplexPolicy.plan(route: .speakers, duckOthers: false) == .init(voiceProcessing: true, duckingMin: true))
-        // Setting off on headphones: no VPIO, so nothing is ducked.
-        #expect(HalfDuplexPolicy.plan(route: .headphones, duckOthers: false) == .init(voiceProcessing: false, duckingMin: nil))
-        #expect(HalfDuplexPolicy.plan(route: .headphones, duckOthers: true) == .init(voiceProcessing: true, duckingMin: true))
+    /// 0.0.8 "old radio" fix: no route plays the reply through VPIO; echo routes run half duplex, headphones stay full
+    /// duplex and prefer the built-in mic over a Bluetooth headset's.
+    @Test func routeToPlan() {
+        for duck in [true, false] {
+            #expect(HalfDuplexPolicy.plan(route: .speakers, duckOthers: duck)
+                    == .init(voiceProcessing: false, duckingMin: nil, halfDuplexWhileSpeaking: true))
+            #expect(HalfDuplexPolicy.plan(route: .noEchoCancellation, duckOthers: duck)
+                    == .init(voiceProcessing: false, duckingMin: nil, halfDuplexWhileSpeaking: true))
+            #expect(HalfDuplexPolicy.plan(route: .headphones, duckOthers: duck)
+                    == .init(voiceProcessing: false, duckingMin: nil, preferBuiltInMic: true))
+            #expect(HalfDuplexPolicy.plan(route: .injected, duckOthers: duck) == .init(voiceProcessing: false, duckingMin: nil))
+        }
+        // What the session decides at start from that plan.
+        var speakers = HalfDuplexPolicy(route: .speakers)
+        #expect(speakers.started(voiceProcessing: false, aecStarted: false) == .echoRoute)
+        var noAEC = HalfDuplexPolicy(route: .noEchoCancellation)
+        #expect(noAEC.started(voiceProcessing: false, aecStarted: false) == .routeWithoutAEC)
+        var phones = HalfDuplexPolicy(route: .headphones)
+        #expect(phones.started(voiceProcessing: false, aecStarted: false) == nil)
+    }
+
+    @Test func aBluetoothHeadsetMicGivesWayToTheBuiltInMic() {
+        #expect(VoiceAudioRouteProbe.preferredInputUID(defaultInputTransport: kAudioDeviceTransportTypeBluetooth, builtInInputUID: "BuiltInMic") == "BuiltInMic")
+        #expect(VoiceAudioRouteProbe.preferredInputUID(defaultInputTransport: kAudioDeviceTransportTypeBluetoothLE, builtInInputUID: "BuiltInMic") == "BuiltInMic")
+        #expect(VoiceAudioRouteProbe.preferredInputUID(defaultInputTransport: kAudioDeviceTransportTypeBuiltIn, builtInInputUID: "BuiltInMic") == nil)
+        #expect(VoiceAudioRouteProbe.preferredInputUID(defaultInputTransport: kAudioDeviceTransportTypeUSB, builtInInputUID: "BuiltInMic") == nil)
+        // A Mac without a built-in mic keeps the default input.
+        #expect(VoiceAudioRouteProbe.preferredInputUID(defaultInputTransport: kAudioDeviceTransportTypeBluetooth, builtInInputUID: nil) == nil)
     }
 
     @Test func routeClassification() {

@@ -122,8 +122,9 @@ public final class KokoroTTS: SpeechSynthesizing {
             try link(repo.appendingPathComponent(name), ttsDirectory.appendingPathComponent(name))
         }
         let storeANE = ttsDirectory.appendingPathComponent("ANE")
+        let rewriteTail = KokoroTailRewrite.tailRunsOnCPU(units)
         for name in (try? fm.contentsOfDirectory(atPath: storeANE.path)) ?? [] {
-            if name == KokoroTailRewrite.bundleName {
+            if name == KokoroTailRewrite.bundleName, rewriteTail {
                 // AT-FA-05: the tail's conv faults in libBNNS on the CPU; served with that op rewritten.
                 try KokoroTailRewrite.install(source: storeANE.appendingPathComponent(name), destination: ane.appendingPathComponent(name))
                 continue
