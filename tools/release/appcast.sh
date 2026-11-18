@@ -60,11 +60,27 @@ for dmg in "${dmgs[@]}"; do
     fi
     # A rebuilt archive with the same name supersedes the old build: its item's signature no longer matches, so
     # the feed is regenerated from the archives (items of other versions are recreated from their DMGs).
-    if [[ -f "$dir/$base" ]] && ! cmp -s "$dmg" "$dir/$base"; then rm -f "$dir/appcast.xml"; fi
-    cp -f "$dmg" "$dir/$base"
     ver="$(sed -E 's/^AntiChat-(Installer-)?([0-9][0-9.]*[0-9a-z.-]*[0-9])(-UNNOTARIZED|-DEVKEYS)?\.dmg$/\2/' <<< "$base")"
+    # The installer image also holds the "Applications" drop target, itself an app bundle, and generate_appcast
+    # refuses an archive with two bundles ("Too many bundles"). Such an image is fed to Sparkle as a zip of the
+    # stapled AntiChat.app alone (AntiChat-<ver>.zip, uploaded next to the DMG); the DMG stays the download.
+    m="$(mktemp -d "${TMPDIR:-/tmp}/antichat-appcast.XXXXXX")"
+    hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$m" "$dmg" >/dev/null
+    bundles=("$m"/*.app)
+    if ((${#bundles[@]} > 1)); then
+        arch="AntiChat-$ver.zip"
+        rm -f "$dir/$base" "${dir:?}/${base%.dmg}.html"
+        [[ -f "$dir/$arch" ]] && rm -f "$dir/appcast.xml"
+        ditto -c -k --sequesterRsrc --keepParent "$m/AntiChat.app" "$dir/$arch"
+        base="$arch"
+    else
+        if [[ -f "$dir/$base" ]] && ! cmp -s "$dmg" "$dir/$base"; then rm -f "$dir/appcast.xml"; fi
+        cp -f "$dmg" "$dir/$base"
+    fi
+    hdiutil detach -quiet "$m" 2>/dev/null || hdiutil detach -force -quiet "$m" 2>/dev/null || true
+    rmdir "$m" 2>/dev/null || true
     if [[ -f "notes/$ver.md" ]]; then
-        python3 -I - "notes/$ver.md" "$dir/${base%.dmg}.html" <<'PY'
+        python3 -I - "notes/$ver.md" "$dir/${base%.*}.html" <<'PY'
 import html, sys
 lines = open(sys.argv[1]).read().splitlines()
 out, in_list = [], False
@@ -83,7 +99,7 @@ PY
     fi
 done
 # Keep the newest 3 archives (deltas are made against them).
-ls -t "$dir"/*.dmg | tail -n +4 | while read -r old; do rm -f "$old" "${old%.dmg}.html"; done
+ls -t "$dir"/*.dmg "$dir"/*.zip 2>/dev/null | tail -n +4 | while read -r old; do rm -f "$old" "${old%.*}.html"; done
 
 phased=(--phased-rollout-interval 86400)
 [[ "${NO_PHASED:-0}" == 1 ]] && phased=()

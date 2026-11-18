@@ -204,6 +204,7 @@ jobs:
           cp "build/release/AntiChat-Installer-$APP_VERSION.dmg" build/release/SHA256SUMS build/release/SHA256SUMS.sig \
             site/public/appcast.xml dist/release/assets/
           for d in build/updates/stable/AntiChat"$build"-*.delta; do cp "$d" dist/release/assets/; done
+          for z in build/updates/stable/AntiChat-"$APP_VERSION".zip; do cp "$z" dist/release/assets/; done
           cp "notes/$APP_VERSION.md" dist/release/notes.md
           # The new version must lead the feed, with this build number and this tag's download URLs.
           python3 -I - dist/release/assets/appcast.xml "$APP_VERSION" "$build" <<'PY'
