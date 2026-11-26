@@ -1,0 +1,12 @@
+# Opens Settings from the chat screen.
+appId: ${APP_ID}
+---
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- extendedWaitUntil:
+    visible:
+      id: settings
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 2000

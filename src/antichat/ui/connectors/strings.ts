@@ -1,0 +1,52 @@
+/**
+ * Words of the connectors UI, in one place. English only for now; they move
+ * into `locales/en.json` with the next locale pass.
+ */
+export const s = {
+  title: 'Connectors',
+  settingsSubtitle: 'Gmail, Calendar, Notion and more',
+  searchPlaceholder: 'Search apps',
+  offline: 'Needs a connection',
+  connected: 'Connected',
+  apps: 'Apps',
+  popular: 'Popular',
+  results: 'Results',
+  allApps: (count: number) => (count > 0 ? `All · ${count}` : 'All'),
+  connect: 'Connect',
+  disconnect: 'Disconnect',
+  cancel: 'Cancel',
+  waiting: 'Waiting for sign-in…',
+  noResults: 'No app with that name',
+  loadFailed: 'The app list could not be loaded.',
+  signInNote:
+    'You sign in on a secure page in your browser. AntiChat never sees your password.',
+  connectedNote: (name: string) =>
+    `AntiChat can use ${name} when you ask. Actions that change something wait for your OK.`,
+  connectedToast: (name: string) => `${name} connected`,
+  disconnectedToast: (name: string) => `${name} disconnected`,
+  notConnectedToast: (name: string) => `${name} was not connected`,
+  addServer: 'Add custom MCP server',
+  addServerHint: 'Connect any MCP server by its web address',
+  appCount: (count: number) => `${count} ${count === 1 ? 'app' : 'apps'}`,
+  serverUrl: 'Server address',
+  serverUrlPlaceholder: 'https://example.com/mcp',
+  add: 'Add',
+  remove: 'Remove',
+  signInAgain: 'Sign in again',
+  serverTools: (count: number) => `${count} ${count === 1 ? 'tool' : 'tools'}`,
+  serverNeedsSignIn: 'Needs sign-in',
+  serverError: 'Not reachable',
+  serverAdded: (name: string) => `${name} added`,
+  cardTitle: (name: string) => `Connect ${name}`,
+  cardSubtitle: (name: string) => `Sign in once to use ${name} in your chats.`,
+  cardUnknown: (name: string) =>
+    `${name} is not in the app list. Look for it in Connectors.`,
+  openConnectors: 'Open Connectors',
+  approvalTitle: (app: string, action: string) => `${app}: ${action}`,
+  approvalHint: 'AntiChat wants to do this in your account.',
+  allowOnce: 'Allow once',
+  allowAlways: 'Always allow',
+  deny: "Don't allow",
+  previewCard: 'Preview: Connect card',
+  previewApproval: 'Preview: write approval',
+};

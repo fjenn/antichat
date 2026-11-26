@@ -1,0 +1,66 @@
+# M4: a temporary chat leaves no row and no search hit, and is gone when
+# left; "Keep this chat" turns one into a normal chat.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _history-reset.yaml
+- tapOn:
+    id: temporary-toggle
+- assertVisible:
+    id: temporary-intro
+- waitForAnimationToEnd
+- takeScreenshot: 70-temporary-empty
+- tapOn:
+    id: starter-learn-explain
+- assertVisible:
+    id: temporary-badge
+- assertVisible: "Scripted answer.*"
+- waitForAnimationToEnd
+- takeScreenshot: 71-temporary-chat
+
+# No row, no search hit ("scripted" is only said in this chat).
+- runFlow: _open-drawer.yaml
+- assertNotVisible:
+    id: chat-row-.*
+    text: "Explain how transformers work.*"
+- runFlow: _search-open.yaml
+- inputText: scripted
+- assertVisible:
+    id: search-no-results
+- takeScreenshot: 72-temporary-not-found
+- runFlow: _search-cancel.yaml
+
+# Leaving it throws it away.
+- tapOn:
+    id: drawer-new-chat
+- assertVisible:
+    id: greeting
+- runFlow: _open-drawer.yaml
+- assertNotVisible:
+    id: chat-row-.*
+    text: "Explain how transformers work.*"
+- tapOn:
+    id: drawer-new-chat
+
+# Keeping one.
+- tapOn:
+    id: temporary-toggle
+- tapOn:
+    id: starter-learn-explain
+- assertVisible:
+    id: temporary-badge
+- runFlow: _chat-menu.yaml
+- assertVisible: Keep this chat
+- waitForAnimationToEnd
+- takeScreenshot: 73-temporary-menu
+- tapOn: Keep this chat
+- assertNotVisible:
+    id: temporary-badge
+- runFlow: _open-drawer.yaml
+- assertVisible:
+    id: chat-row-.*
+    text: "Explain how transformers work.*"
+- runFlow: _search-open.yaml
+- inputText: scripted
+- assertVisible:
+    id: search-results

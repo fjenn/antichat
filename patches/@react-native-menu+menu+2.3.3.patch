@@ -1,0 +1,103 @@
+diff --git a/node_modules/@react-native-menu/menu/ios/NewArch/MenuView.mm b/node_modules/@react-native-menu/menu/ios/NewArch/MenuView.mm
+index 424637a..1e074bb 100644
+--- a/node_modules/@react-native-menu/menu/ios/NewArch/MenuView.mm
++++ b/node_modules/@react-native-menu/menu/ios/NewArch/MenuView.mm
+@@ -23,6 +23,8 @@ @implementation MenuView {
+     // Set while the menu opens on a long press: the context menu interaction lives on this view
+     // instead of the button, see setOpensOnLongPress:
+     id<UIInteraction> _longPressInteraction;
++    // ANTICHAT: the part of a tall view that was lifted when its menu opened.
++    CGRect _antichatBand;
+     NSString *_themeVariant;
+ }
+ 
+@@ -276,36 +278,83 @@ - (void)contextMenuInteraction:(UIContextMenuInteraction *)interaction
+ }
+ 
+ // The preview is this view as it is drawn. One taken off screen while its menu is up just fades.
+-- (UITargetedPreview *)longPressPreview API_AVAILABLE(ios(14.0))
++//
++// ANTICHAT: a view taller than the visible part of its scroll view (a long answer) would be lifted
++// whole: it then covers the bars floating over the list, or is shrunk to fit. Only a band of it
++// around the finger is lifted instead, inside the part that is on screen between those bars.
++- (UITargetedPreview *)longPressPreviewFor:(UIContextMenuInteraction *)interaction
++                                     fresh:(BOOL)fresh API_AVAILABLE(ios(14.0))
+ {
+-    return self.window != nil ? [[UITargetedPreview alloc] initWithView:self] : nil;
++    UIWindow *window = self.window;
++    if (window == nil) {
++        return nil;
++    }
++    if (fresh) {
++        _antichatBand = CGRectNull;
++        UIView *ancestor = self.superview;
++        while (ancestor != nil && ![ancestor isKindOfClass:[UIScrollView class]]) {
++            ancestor = ancestor.superview;
++        }
++        UIScrollView *scroll = (UIScrollView *)ancestor;
++        if (scroll != nil) {
++            UIEdgeInsets safe = window.safeAreaInsets;
++            // 52: a floating top bar (44) and its gap; the bottom follows the scroll view's own
++            // inset (the composer), or one bar where it has none.
++            CGFloat top = MAX(scroll.adjustedContentInset.top, safe.top + 52);
++            CGFloat bottom = MAX(scroll.adjustedContentInset.bottom, safe.bottom + 64);
++            CGRect onScreen = CGRectIntersection(
++                [scroll convertRect:scroll.bounds toView:window],
++                UIEdgeInsetsInsetRect(window.bounds, UIEdgeInsetsMake(top, 0, bottom, 0)));
++            CGRect visible = CGRectIntersection([self convertRect:onScreen fromView:window], self.bounds);
++            if (!CGRectIsNull(visible) && !CGRectIsEmpty(visible)) {
++                // Room is left for the menu, so nothing has to be shrunk.
++                CGFloat limit = window.bounds.size.height * 0.38;
++                if (visible.size.height > limit) {
++                    CGFloat touch = [interaction locationInView:self].y;
++                    CGFloat y = MIN(MAX(touch - limit / 2, CGRectGetMinY(visible)), CGRectGetMaxY(visible) - limit);
++                    visible = CGRectMake(visible.origin.x, y, visible.size.width, limit);
++                }
++                if (visible.size.height < self.bounds.size.height - 1) {
++                    _antichatBand = visible;
++                }
++            }
++        }
++    }
++    if (CGRectIsNull(_antichatBand)) {
++        return [[UITargetedPreview alloc] initWithView:self];
++    }
++    UIPreviewParameters *parameters = [UIPreviewParameters new];
++    parameters.backgroundColor = UIColor.systemBackgroundColor;
++    parameters.visiblePath = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(_antichatBand, -8, -4)
++                                                        cornerRadius:14];
++    return [[UITargetedPreview alloc] initWithView:self parameters:parameters];
+ }
+ 
+ - (UITargetedPreview *)contextMenuInteraction:(UIContextMenuInteraction *)interaction
+                                 configuration:(UIContextMenuConfiguration *)configuration
+         highlightPreviewForItemWithIdentifier:(id<NSCopying>)identifier API_AVAILABLE(ios(16.0))
+ {
+-    return [self longPressPreview];
++    return [self longPressPreviewFor:interaction fresh:YES];
+ }
+ 
+ - (UITargetedPreview *)contextMenuInteraction:(UIContextMenuInteraction *)interaction
+                                 configuration:(UIContextMenuConfiguration *)configuration
+         dismissalPreviewForItemWithIdentifier:(id<NSCopying>)identifier API_AVAILABLE(ios(16.0))
+ {
+-    return [self longPressPreview];
++    return [self longPressPreviewFor:interaction fresh:NO];
+ }
+ 
+ // The same preview before iOS 16, which asks these instead
+ - (UITargetedPreview *)contextMenuInteraction:(UIContextMenuInteraction *)interaction
+     previewForHighlightingMenuWithConfiguration:(UIContextMenuConfiguration *)configuration API_AVAILABLE(ios(14.0))
+ {
+-    return [self longPressPreview];
++    return [self longPressPreviewFor:interaction fresh:YES];
+ }
+ 
+ - (UITargetedPreview *)contextMenuInteraction:(UIContextMenuInteraction *)interaction
+     previewForDismissingMenuWithConfiguration:(UIContextMenuConfiguration *)configuration API_AVAILABLE(ios(14.0))
+ {
+-    return [self longPressPreview];
++    return [self longPressPreviewFor:interaction fresh:NO];
+ }
+ 
+ Class<RCTComponentViewProtocol> MenuViewCls(void)

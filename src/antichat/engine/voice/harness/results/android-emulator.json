@@ -1,0 +1,385 @@
+{
+  "platform": "android",
+  "osVersion": "37",
+  "startedAt": "2026-11-24T12:08:57.381Z",
+  "finished": false,
+  "config": {
+    "steps": [
+      "whisper"
+    ]
+  },
+  "whisper": {
+    "model": "ggml-base-q8_0.bin",
+    "loadMs": 2056,
+    "realTimeFactor": 0.57,
+    "wer": {
+      "all": 0.034,
+      "clean": 0.042,
+      "noisy": 0.02,
+      "english": 0.01,
+      "otherLanguages": 0.085
+    },
+    "medianFirstPartialMs": 3302,
+    "medianFinalAfterStopMs": 1360,
+    "long": {
+      "seconds": 35,
+      "segments": 6,
+      "wer": 0
+    },
+    "rows": [
+      {
+        "id": "en-us-capital",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 0,
+        "firstPartialMs": null,
+        "finalAfterStopMs": 12913,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-gb-timer",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 1,
+        "firstPartialMs": 5330,
+        "finalAfterStopMs": 3016,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "en-au-plants",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 2,
+        "firstPartialMs": 2744,
+        "finalAfterStopMs": 934,
+        "heard": "Can you explain how photosynthesis works in simple terms?"
+      },
+      {
+        "id": "en-in-recipe",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 2788,
+        "finalAfterStopMs": 1310,
+        "heard": "I need a recipe for dinner tonight with chicken, rice and vegetables."
+      },
+      {
+        "id": "en-ie-trip",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0.067,
+        "partials": 4,
+        "firstPartialMs": 3238,
+        "finalAfterStopMs": 1074,
+        "heard": "We are planning a trip to Portugal in September, which city should we visit first?"
+      },
+      {
+        "id": "de-de-wetter",
+        "lang": "de",
+        "detected": "de",
+        "wer": 0.083,
+        "partials": 2,
+        "firstPartialMs": 3822,
+        "finalAfterStopMs": 1360,
+        "heard": "Wie wird das Wetter Norden in Berlin, und brauche ich einen Regenschirm?"
+      },
+      {
+        "id": "es-es-idioma",
+        "lang": "es",
+        "detected": "es",
+        "wer": 0,
+        "partials": 1,
+        "firstPartialMs": 3124,
+        "finalAfterStopMs": 2661,
+        "heard": "\u00bfCu\u00e1l es la mejor manera de aprender un idioma nuevo r\u00e1pidamente?"
+      },
+      {
+        "id": "fr-fr-livre",
+        "lang": "fr",
+        "detected": "fr",
+        "wer": 0.167,
+        "partials": 1,
+        "firstPartialMs": 4437,
+        "finalAfterStopMs": 4075,
+        "heard": "Peu tue me recommander un bon livre \u00e0 lire pendant les vacances?"
+      },
+      {
+        "id": "en-us-capital-snr15",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 1,
+        "firstPartialMs": 4315,
+        "finalAfterStopMs": 5400,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-us-capital-snr5",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 1,
+        "firstPartialMs": 5491,
+        "finalAfterStopMs": 3166,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-gb-timer-snr10",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 2,
+        "firstPartialMs": 3041,
+        "finalAfterStopMs": 962,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "de-de-wetter-snr10",
+        "lang": "de",
+        "detected": "de",
+        "wer": 0.083,
+        "partials": 2,
+        "firstPartialMs": 3302,
+        "finalAfterStopMs": 947,
+        "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+      }
+    ]
+  },
+  "finishedAt": "2026-11-24T12:11:08.473Z",
+  "tts": {
+    "voices": [
+      {
+        "voice": "system:default",
+        "prepareMs": 13,
+        "runs": 5,
+        "firstAudioMs": [
+          95,
+          49,
+          41,
+          40,
+          38
+        ],
+        "medianFirstAudioMs": 41,
+        "stopMs": [
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "maxStopMs": 3,
+        "stillSpeakingAfterStop": 1,
+        "errors": []
+      },
+      {
+        "voice": "kitten:expr-voice-2-f",
+        "prepareMs": 428,
+        "runs": 5,
+        "firstAudioMs": [
+          1592,
+          280,
+          335,
+          392,
+          321
+        ],
+        "medianFirstAudioMs": 335,
+        "stopMs": [
+          4,
+          2,
+          1,
+          1,
+          1
+        ],
+        "maxStopMs": 4,
+        "stillSpeakingAfterStop": 0,
+        "errors": []
+      }
+    ]
+  },
+  "voice": {
+    "chat": "scripted (400 ms to first token, 20 tokens/s)",
+    "voice": "system:default",
+    "speculationOff": {
+      "summary": {
+        "turns": 5,
+        "endpointingMs": {
+          "p50": 720,
+          "p90": 732
+        },
+        "sttMs": {
+          "p50": 1074,
+          "p90": 1346
+        },
+        "llmFirstSentenceMs": {
+          "p50": 812,
+          "p90": 818
+        },
+        "ttsFirstAudioMs": {
+          "p50": 60,
+          "p90": 71
+        },
+        "totalMs": {
+          "p50": 2646,
+          "p90": 2951
+        }
+      },
+      "adopted": 0,
+      "turns": [
+        {
+          "endpointingMs": 720,
+          "sttMs": 701,
+          "llmFirstSentenceMs": 817,
+          "ttsFirstAudioMs": 77,
+          "totalMs": 2315,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 971,
+          "llmFirstSentenceMs": 812,
+          "ttsFirstAudioMs": 49,
+          "totalMs": 2552,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 740,
+          "sttMs": 1384,
+          "llmFirstSentenceMs": 818,
+          "ttsFirstAudioMs": 60,
+          "totalMs": 3002,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 1074,
+          "llmFirstSentenceMs": 810,
+          "ttsFirstAudioMs": 62,
+          "totalMs": 2646,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 1289,
+          "llmFirstSentenceMs": 811,
+          "ttsFirstAudioMs": 54,
+          "totalMs": 2874,
+          "speculation": "off"
+        }
+      ],
+      "wer": 0.016,
+      "userTurns": 5,
+      "leakedTurns": 0,
+      "errors": []
+    },
+    "speculationOn": {
+      "summary": {
+        "turns": 5,
+        "endpointingMs": {
+          "p50": 720,
+          "p90": 720
+        },
+        "sttMs": {
+          "p50": 1000,
+          "p90": 1237
+        },
+        "llmFirstSentenceMs": {
+          "p50": 819,
+          "p90": 824
+        },
+        "ttsFirstAudioMs": {
+          "p50": 48,
+          "p90": 56
+        },
+        "totalMs": {
+          "p50": 2587,
+          "p90": 2815
+        }
+      },
+      "adopted": 0,
+      "turns": [
+        {
+          "endpointingMs": 720,
+          "sttMs": 1000,
+          "llmFirstSentenceMs": 819,
+          "ttsFirstAudioMs": 48,
+          "totalMs": 2587,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 709,
+          "llmFirstSentenceMs": 809,
+          "ttsFirstAudioMs": 52,
+          "totalMs": 2290,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 814,
+          "llmFirstSentenceMs": 820,
+          "ttsFirstAudioMs": 46,
+          "totalMs": 2380,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 1288,
+          "llmFirstSentenceMs": 812,
+          "ttsFirstAudioMs": 48,
+          "totalMs": 2848,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 1160,
+          "llmFirstSentenceMs": 827,
+          "ttsFirstAudioMs": 58,
+          "totalMs": 2765,
+          "speculation": "none"
+        }
+      ],
+      "wer": 0.016,
+      "userTurns": 5,
+      "leakedTurns": 0,
+      "errors": []
+    }
+  },
+  "note": "whisper step complete; tts and voice (speculation on/off) partial from the earlier run; session and bargeIn are from a short later run (steps session,bargein) on the antichat-m11 emulator started with -no-audio",
+  "session": {
+    "decoder": {
+      "sampleRate": 16000,
+      "channels": 1,
+      "samples": 53909,
+      "expected": 53909
+    },
+    "mic": {
+      "route": "speaker",
+      "echoCancellation": true,
+      "chunks": 23,
+      "samplesPerChunk": 800,
+      "capturedMs": 1150,
+      "firstChunkMs": 536
+    }
+  },
+  "bargeIn": {
+    "attempts": 1,
+    "runs": 1,
+    "detectMs": [
+      300
+    ],
+    "stopMs": [
+      4
+    ],
+    "heardAfter": 1,
+    "userTurns": [
+      "What is the capital of France and how many people live there?",
+      "Wait, stop, tell me about Italy instead."
+    ],
+    "errors": []
+  },
+  "smokeAt": "2026-11-24T16:57:35.544Z"
+}

@@ -1,0 +1,149 @@
+{
+  "deck.pptx": [
+    {
+      "a": "380,000 euros",
+      "page": 3,
+      "q": "What is the total budget of Project Heron?"
+    },
+    {
+      "a": "Graz, from 9 May",
+      "page": 2,
+      "q": "Where does the pilot start?"
+    }
+  ],
+  "handbook-200.pdf": [
+    {
+      "a": "7741-K",
+      "page": 137,
+      "q": "What is the access code for the Tromso depot?"
+    },
+    {
+      "a": "310 euros per week",
+      "page": 72,
+      "q": "What is the fuel card limit for regional drivers?"
+    },
+    {
+      "a": "Ignacio Ferreyra",
+      "page": 93,
+      "q": "Who is the first aid officer for the Valencia depot?"
+    },
+    {
+      "a": "3.4 bar",
+      "page": 152,
+      "q": "What is the tyre pressure for the Mistral vans?"
+    },
+    {
+      "a": "14",
+      "page": 129,
+      "q": "How many bays does the loading dock at the Antwerp depot have?"
+    }
+  ],
+  "photo.jpg": [
+    {
+      "a": "3 (red)",
+      "q": "How many apples are in the picture?"
+    },
+    {
+      "a": "HARBOR ST",
+      "q": "What does the street sign say?"
+    },
+    {
+      "a": "a banana",
+      "q": "What yellow fruit is there?"
+    }
+  ],
+  "report.docx": [
+    {
+      "a": "4.2 million kroner",
+      "page": 1,
+      "q": "What was the revenue in the third quarter?"
+    },
+    {
+      "a": "3 February",
+      "page": 2,
+      "q": "When does the Trondheim store open?"
+    }
+  ],
+  "sales.aggregates": {
+    "average_units": 19.9225,
+    "max_unit_price": 84.9,
+    "revenue_by_region": {
+      "East": 86753.8,
+      "North": 86588.1,
+      "South": 74584.6,
+      "West": 76290.85
+    },
+    "row_count": 400,
+    "sum_units": 7969,
+    "top_region_by_revenue": "East"
+  },
+  "sales.csv": [
+    {
+      "a": 19.9225,
+      "q": "What is the average of the units column?"
+    },
+    {
+      "a": 400,
+      "q": "How many orders are there?"
+    },
+    {
+      "a": "East",
+      "q": "Which region has the highest revenue (units times unit_price)?"
+    }
+  ],
+  "sales.xlsx": [
+    {
+      "a": 19.9225,
+      "q": "What is the average of the units column?"
+    },
+    {
+      "a": 400,
+      "q": "How many orders are there?"
+    },
+    {
+      "a": "East",
+      "q": "Which region has the highest revenue (units times unit_price)?"
+    }
+  ],
+  "scanned-page.png": [
+    {
+      "a": "HL-58213",
+      "page": 1,
+      "q": "What is the reference number?"
+    },
+    {
+      "a": "12 March at 09:45",
+      "page": 1,
+      "q": "When is the appointment?"
+    }
+  ],
+  "scanned.pdf": [
+    {
+      "a": "640 pounds",
+      "page": 2,
+      "q": "What is the estimated total cost of the treatment?"
+    },
+    {
+      "a": "35 pounds",
+      "page": 1,
+      "q": "What is the fee for a missed appointment?"
+    }
+  ],
+  "three-pages.pdf": [
+    {
+      "a": "47 euros",
+      "page": 1,
+      "q": "What is the daily meal allowance in Lisbon?"
+    },
+    {
+      "a": "165 euros",
+      "page": 2,
+      "q": "What is the hotel limit per night?"
+    },
+    {
+      "a": "21 days",
+      "page": 3,
+      "q": "Within how many days must expense reports be filed?"
+    }
+  ]
+}

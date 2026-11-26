@@ -1,0 +1,35 @@
+# Starts the app and waits until the shell is up. Maestro launches the app
+# itself, so a flow never depends on what a previous one left on screen.
+appId: ${APP_ID}
+---
+- launchApp:
+    appId: ${APP_ID}
+    stopApp: true
+    clearState: false
+    arguments:
+      # iOS debug builds: where Metro is. Ignored on Android (see run.sh).
+      RCT_jsLocation: ${METRO}
+      # The in-memory backend, so flows do not depend on a model. Android
+      # has no launch arguments; it gets a deep link below.
+      antichatBackend: ${BACKEND}
+      # Speed of the in-memory model, and the answer style to start with.
+      antichatFakeRate: ${RATE}
+      antichatEffort: fast
+- extendedWaitUntil:
+    visible:
+      id: chat-shell
+    timeout: 180000
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      # Reloads the app only when the backend actually changes.
+      - openLink: pocketpal://hub/dev/backend/${BACKEND}?rate=${RATE}
+      - waitForAnimationToEnd:
+          timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: chat-shell
+    timeout: 180000
+- waitForAnimationToEnd:
+    timeout: 3000

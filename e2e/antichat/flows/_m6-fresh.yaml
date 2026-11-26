@@ -1,0 +1,19 @@
+# Starts a wiped app and waits for the welcome screen (run-m6.sh wipes the
+# app before every "m6-fresh-" flow).
+appId: ${APP_ID}
+---
+- launchApp:
+    appId: ${APP_ID}
+    stopApp: true
+    clearState: false
+    arguments:
+      RCT_jsLocation: ${METRO}
+- extendedWaitUntil:
+    visible:
+      id: get-started
+    timeout: 120000
+- extendedWaitUntil:
+    visible: 'Free. No account. One download of about .* sets it up.'
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 3000

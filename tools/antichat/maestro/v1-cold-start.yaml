@@ -1,0 +1,74 @@
+# The v1 cold-start run: welcome → Get started → model download → a message →
+# the answer streams → drawer → search → settings. Fresh install expected.
+#   maestro --device <udid|serial> test -e APP_ID=<id> tools/antichat/maestro/v1-cold-start.yaml
+# The model comes from tools/antichat/m5-server.py when Documents/antichat-m5.json
+# holds {"auto":"app","filesBaseUrl":"http://<host>:<port>"} (docs/antichat/V1-STATUS.md).
+appId: ${APP_ID}
+---
+- launchApp:
+    appId: ${APP_ID}
+    stopApp: true
+    clearState: false
+    arguments:
+      # iOS debug build: no Metro, the embedded bundle is used.
+      RCT_jsLocation: 127.0.0.1:1
+- extendedWaitUntil:
+    visible:
+      id: get-started
+    timeout: 120000
+- takeScreenshot: v1-01-welcome
+- tapOn:
+    id: get-started
+- runFlow:
+    when:
+      visible: Allow
+    commands:
+      - tapOn: Allow
+- extendedWaitUntil:
+    visible:
+      id: setup-card
+    timeout: 30000
+- takeScreenshot: v1-02-download
+- extendedWaitUntil:
+    notVisible:
+      id: setup-card
+    timeout: 900000
+- tapOn:
+    id: composer-input
+- inputText: Write four lines about the sea.
+- takeScreenshot: v1-03-typed
+- tapOn:
+    id: composer-send
+- extendedWaitUntil:
+    visible:
+      id: answer-text
+    timeout: 180000
+- takeScreenshot: v1-04-streaming
+- extendedWaitUntil:
+    visible:
+      id: answer-actions
+    timeout: 300000
+- takeScreenshot: v1-05-answer
+- tapOn:
+    id: open-drawer
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible:
+      id: drawer-settings
+    timeout: 15000
+- takeScreenshot: v1-06-drawer
+- tapOn:
+    id: drawer-search
+- inputText: sea
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: v1-07-search
+- tapOn:
+    id: drawer-search-cancel
+- tapOn:
+    id: drawer-settings
+- extendedWaitUntil:
+    visible:
+      id: settings
+    timeout: 15000
+- takeScreenshot: v1-08-settings

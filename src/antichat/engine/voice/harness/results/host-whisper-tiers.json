@@ -1,0 +1,68 @@
+{
+  "note": "whisper.cpp on the Mac (M-series), same fixtures and live dictation path as host-whisper.json, 2026-11-25. RTF = decode time / audio time on the Mac.",
+  "tiers": {
+    "base-q8_0": {
+      "fileBytes": 81768585,
+      "wer": {
+        "all": 0.028,
+        "clean": 0.031,
+        "noisy": 0.02,
+        "english": 0.01,
+        "otherLanguages": 0.064
+      },
+      "realTimeFactor": 0.066,
+      "errors": [
+        {
+          "id": "en-ie-trip",
+          "wer": 0.067,
+          "heard": "We are planning a trip to Portugal in September, which city should we visit first?"
+        },
+        {
+          "id": "de-de-wetter",
+          "wer": 0.083,
+          "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+        },
+        {
+          "id": "fr-fr-livre",
+          "wer": 0.083,
+          "heard": "Peut-tu me recommander un bon livre à lire pendant les vacances?"
+        },
+        {
+          "id": "de-de-wetter-snr10",
+          "wer": 0.083,
+          "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+        }
+      ]
+    },
+    "small-q8_0": {
+      "fileBytes": 264464607,
+      "wer": {
+        "all": 0.007,
+        "clean": 0,
+        "noisy": 0.02,
+        "english": 0,
+        "otherLanguages": 0.021
+      },
+      "realTimeFactor": 0.113,
+      "errors": [
+        {
+          "id": "de-de-wetter-snr10",
+          "wer": 0.083,
+          "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+        }
+      ]
+    },
+    "large-v3-turbo-q5_0": {
+      "fileBytes": 574041195,
+      "wer": {
+        "all": 0,
+        "clean": 0,
+        "noisy": 0,
+        "english": 0,
+        "otherLanguages": 0
+      },
+      "realTimeFactor": 0.209,
+      "errors": []
+    }
+  }
+}

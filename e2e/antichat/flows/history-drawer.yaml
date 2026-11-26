@@ -1,0 +1,74 @@
+# M4: the drawer on the real store. Contents, long-press menu, inline
+# rename, swipe actions, pin, delete with undo.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _history-reset.yaml
+- runFlow: _open-drawer.yaml
+- assertVisible:
+    id: drawer-search
+- assertVisible:
+    id: drawer-new-chat-row
+- assertVisible: Pinned
+- assertVisible: Today
+- assertVisible: Weekend trip to Lisbon
+- takeScreenshot: 40-drawer
+
+# Long-press menu.
+- longPressOn: Weekend trip to Lisbon
+- assertVisible: Rename
+- assertVisible: Archive
+- waitForAnimationToEnd
+- takeScreenshot: 41-row-menu
+
+# Rename in place.
+- tapOn: Rename
+- waitForAnimationToEnd
+- takeScreenshot: 42-row-rename
+- eraseText: 80
+- inputText: Lisbon in spring
+- pressKey: Enter
+- assertVisible: Lisbon in spring
+- assertNotVisible: Weekend trip to Lisbon
+
+# Pin from the menu: the chat moves under "Pinned".
+- longPressOn: Lisbon in spring
+- tapOn: Pin
+- waitForAnimationToEnd
+- takeScreenshot: 43-pinned
+
+# Swipe a row towards the start: archive and delete appear.
+- swipe:
+    from: Explain transformers simply
+    direction: LEFT
+    duration: 600
+- waitForAnimationToEnd
+- assertVisible:
+    id: chat-row-.*-swipe-delete
+- takeScreenshot: 44-row-swipe
+
+# Delete, then undo: the row is back.
+- tapOn:
+    id: chat-row-.*-swipe-delete
+- assertNotVisible: Explain transformers simply
+- takeScreenshot: 45-deleted-undo
+- repeat:
+    while:
+      visible:
+        id: toast-action
+    times: 4
+    commands:
+      - tapOn:
+          id: toast-action
+          optional: true
+- assertVisible: Explain transformers simply
+
+# Delete for good.
+- longPressOn: Explain transformers simply
+- tapOn: Delete
+- assertNotVisible: Explain transformers simply
+- extendedWaitUntil:
+    notVisible:
+      id: toast
+    timeout: 10000
+- assertNotVisible: Explain transformers simply

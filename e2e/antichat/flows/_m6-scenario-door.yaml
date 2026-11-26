@@ -1,0 +1,24 @@
+# Debug builds: sets one value of the scripted backend's scenario from the
+# welcome screen (long press on the dot). ${KEY} is the row, ${VALUE} the
+# option, e.g. KEY=network VALUE=cellular.
+appId: ${APP_ID}
+---
+- longPressOn:
+    id: welcome-orb
+- extendedWaitUntil:
+    visible:
+      id: scenario-${KEY}
+    timeout: 10000
+- tapOn:
+    id: scenario-${KEY}
+- tapOn: ${VALUE}
+- waitForAnimationToEnd:
+    timeout: 1500
+- swipe:
+    start: 50%, 40%
+    end: 50%, 98%
+    duration: 300
+- extendedWaitUntil:
+    notVisible:
+      id: scenario-${KEY}
+    timeout: 10000

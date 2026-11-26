@@ -1,0 +1,14 @@
+# Opens "Manage models" from the menu in the top bar of the chat screen.
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible: 'Manage models'
+    times: 5
+    commands:
+      - tapOn:
+          id: model-menu
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible: 'Manage models'

@@ -1,0 +1,17 @@
+# Debug builds: sets one value of the scripted backend's scenario from
+# Settings > Advanced, starting and ending on the chat screen.
+appId: ${APP_ID}
+---
+- runFlow: _m6-open-settings.yaml
+- tapOn:
+    id: settings-advanced
+- scrollUntilVisible:
+    element:
+      id: scenario-${KEY}
+    direction: DOWN
+- tapOn:
+    id: scenario-${KEY}
+- tapOn: ${VALUE}
+- waitForAnimationToEnd:
+    timeout: 1500
+- runFlow: _back.yaml

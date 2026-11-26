@@ -1,0 +1,18 @@
+# Picks ${ITEM} (text, may be a regex) from the menu of row ${ROW}. The row
+# tap is repeated until the menu is open. ${ITEM} must not be on screen
+# before the menu opens.
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible: ${ITEM}
+    times: 4
+    commands:
+      - tapOn:
+          id: ${ROW}
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 1500
+- tapOn: ${ITEM}
+- waitForAnimationToEnd:
+    timeout: 1500

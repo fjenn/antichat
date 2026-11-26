@@ -1,0 +1,19 @@
+# The fake backend streams a markdown answer into the shell.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+# M4: these flows rely on the fake history and fake chat of M1.
+- runFlow:
+    file: _history-backend.yaml
+    env:
+      BACKEND: fake
+- tapOn:
+    id: starter-learn-explain
+- assertVisible:
+    id: thread
+- takeScreenshot: 30-streaming
+- extendedWaitUntil:
+    visible: .*diagram.*
+    timeout: 30000
+- takeScreenshot: 31-streamed
+- runFlow: _new-chat.yaml

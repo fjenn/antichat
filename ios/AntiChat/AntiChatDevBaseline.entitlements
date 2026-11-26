@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Baseline debug build without the memory entitlements (spike protocol
+	     step 0, and the only variant a wildcard profile can sign). Used by
+	     ANTICHAT_NO_ENTITLEMENTS=1 tools/antichat/build-ios-debug.sh device -->
+</dict>
+</plist>

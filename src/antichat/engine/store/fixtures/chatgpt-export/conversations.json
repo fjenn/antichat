@@ -1,0 +1,1489 @@
+[
+ {
+  "title": "Sourdough starter troubleshooting",
+  "create_time": 1793091722.412907,
+  "update_time": 1793091736.780907,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "cc036a9a-3c77-5f1b-b373-3bda810b08ac"
+    ]
+   },
+   "cc036a9a-3c77-5f1b-b373-3bda810b08ac": {
+    "id": "cc036a9a-3c77-5f1b-b373-3bda810b08ac",
+    "message": {
+     "id": "cc036a9a-3c77-5f1b-b373-3bda810b08ac",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 0.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": [
+     "987820cc-185c-592d-b048-a1dcc177f32b"
+    ]
+   },
+   "987820cc-185c-592d-b048-a1dcc177f32b": {
+    "id": "987820cc-185c-592d-b048-a1dcc177f32b",
+    "message": {
+     "id": "987820cc-185c-592d-b048-a1dcc177f32b",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1793091725.629907,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "My sourdough starter smells like nail polish remover. Is it dead?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "b286794f-bde7-51-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "cc036a9a-3c77-5f1b-b373-3bda810b08ac",
+    "children": [
+     "5870f729-df44-5756-a18e-9eedaa1e13cc"
+    ]
+   },
+   "5870f729-df44-5756-a18e-9eedaa1e13cc": {
+    "id": "5870f729-df44-5756-a18e-9eedaa1e13cc",
+    "message": {
+     "id": "5870f729-df44-5756-a18e-9eedaa1e13cc",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1793091728.846907,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "It is not dead. That sharp acetone smell means the starter is **hungry**: the yeast ran out of food and is producing more alcohol and acetic compounds.\n\nWhat to do:\n\n1. Discard all but about 20 g.\n2. Feed it 40 g flour and 40 g water.\n3. Repeat every 12 hours at room temperature.\n\nIt should smell pleasantly sour again within two or three feedings."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-instant",
+      "default_model_slug": "gpt-5-5-instant",
+      "parent_id": "987820cc-185c-592d-b048-a1dcc177f32b",
+      "request_id": "30aa5895-89c2-53-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "987820cc-185c-592d-b048-a1dcc177f32b",
+    "children": [
+     "d18085af-d6c3-550f-b9fd-149cab35082b"
+    ]
+   },
+   "d18085af-d6c3-550f-b9fd-149cab35082b": {
+    "id": "d18085af-d6c3-550f-b9fd-149cab35082b",
+    "message": {
+     "id": "d18085af-d6c3-550f-b9fd-149cab35082b",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1793091732.063907,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Should I switch to rye flour?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "e3f5b4b1-4c32-50-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "5870f729-df44-5756-a18e-9eedaa1e13cc",
+    "children": [
+     "fcceeff9-99d9-532c-b136-4db109ee7b8e"
+    ]
+   },
+   "fcceeff9-99d9-532c-b136-4db109ee7b8e": {
+    "id": "fcceeff9-99d9-532c-b136-4db109ee7b8e",
+    "message": {
+     "id": "fcceeff9-99d9-532c-b136-4db109ee7b8e",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1793091735.280907,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Rye ferments faster and makes a starter more active, so a spoonful mixed into each feeding helps a sluggish culture. You do not need to switch completely; a 20% rye, 80% bread flour mix is a common compromise."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-instant",
+      "default_model_slug": "gpt-5-5-instant",
+      "parent_id": "d18085af-d6c3-550f-b9fd-149cab35082b",
+      "request_id": "d35bc35c-245a-50-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "d18085af-d6c3-550f-b9fd-149cab35082b",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "fcceeff9-99d9-532c-b136-4db109ee7b8e",
+  "plugin_ids": null,
+  "conversation_id": "6973445c-cdf8-56df-bd67-c6b9c31e2aba",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-instant",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "6973445c-cdf8-56df-bd67-c6b9c31e2aba"
+ },
+ {
+  "title": "Kyoto itinerary, 3 days",
+  "create_time": 1792401310.118204,
+  "update_time": 1792401334.137204,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "7b7b7e37-d362-516b-98fe-50d12a311828"
+    ]
+   },
+   "7b7b7e37-d362-516b-98fe-50d12a311828": {
+    "id": "7b7b7e37-d362-516b-98fe-50d12a311828",
+    "message": {
+     "id": "7b7b7e37-d362-516b-98fe-50d12a311828",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 0.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": [
+     "1ff402bc-7d56-532c-a1e3-b9792413678a",
+     "e8f2654a-5895-5bad-bcf5-a7289aef7771"
+    ]
+   },
+   "1ff402bc-7d56-532c-a1e3-b9792413678a": {
+    "id": "1ff402bc-7d56-532c-a1e3-b9792413678a",
+    "message": {
+     "id": "1ff402bc-7d56-532c-a1e3-b9792413678a",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401313.335204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Plan 3 days in Kyoto for someone who hates crowds."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "63d36345-450d-58-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "7b7b7e37-d362-516b-98fe-50d12a311828",
+    "children": [
+     "9b0f2522-c3af-5f19-92b9-42e800d9a767"
+    ]
+   },
+   "9b0f2522-c3af-5f19-92b9-42e800d9a767": {
+    "id": "9b0f2522-c3af-5f19-92b9-42e800d9a767",
+    "message": {
+     "id": "9b0f2522-c3af-5f19-92b9-42e800d9a767",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401316.552204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Day 1: Arashiyama at sunrise, then Gio-ji moss temple. Day 2: Daitoku-ji sub-temples and a walk along the Kamo river. Day 3: Kurama to Kibune hike."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "1ff402bc-7d56-532c-a1e3-b9792413678a",
+      "request_id": "7b2ab606-e9c0-53-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "1ff402bc-7d56-532c-a1e3-b9792413678a",
+    "children": []
+   },
+   "e8f2654a-5895-5bad-bcf5-a7289aef7771": {
+    "id": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+    "message": {
+     "id": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401319.769204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Plan 3 days in Kyoto in late November for someone who hates crowds and loves gardens."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "f057be6e-1977-59-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "7b7b7e37-d362-516b-98fe-50d12a311828",
+    "children": [
+     "e379862b-04c1-52a7-82b0-136b8612db37",
+     "532daec2-3fc5-5633-abca-53b3e855b111"
+    ]
+   },
+   "e379862b-04c1-52a7-82b0-136b8612db37": {
+    "id": "e379862b-04c1-52a7-82b0-136b8612db37",
+    "message": {
+     "id": "e379862b-04c1-52a7-82b0-136b8612db37",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401322.986204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Late November is peak maple season, so timing matters more than location.\n\n**Day 1** Shisen-do and Enko-ji at opening time.\n**Day 2** Shugaku-in Imperial Villa (book ahead).\n**Day 3** Ohara: Sanzen-in and Hosen-in."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+      "request_id": "a799af17-886f-51-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+    "children": []
+   },
+   "532daec2-3fc5-5633-abca-53b3e855b111": {
+    "id": "532daec2-3fc5-5633-abca-53b3e855b111",
+    "message": {
+     "id": "532daec2-3fc5-5633-abca-53b3e855b111",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401326.203204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Here is a quieter plan built around gardens:\n\n| Day | Morning | Afternoon |\n|---|---|---|\n| 1 | Enko-ji | Shisen-do |\n| 2 | Shugaku-in Imperial Villa | Manshu-in |\n| 3 | Sanzen-in, Ohara | Hosen-in |\n\nGo at opening time; tour buses arrive after 10."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+      "request_id": "e0f4c42c-854b-5e-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "e8f2654a-5895-5bad-bcf5-a7289aef7771",
+    "children": [
+     "3261ca38-0585-55e5-975d-f485142c7ce7"
+    ]
+   },
+   "3261ca38-0585-55e5-975d-f485142c7ce7": {
+    "id": "3261ca38-0585-55e5-975d-f485142c7ce7",
+    "message": {
+     "id": "3261ca38-0585-55e5-975d-f485142c7ce7",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401329.420204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Which of these need a reservation?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "a587b5ce-ac9a-51-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "532daec2-3fc5-5633-abca-53b3e855b111",
+    "children": [
+     "c15a5f89-9676-5146-8991-22e007de9164"
+    ]
+   },
+   "c15a5f89-9676-5146-8991-22e007de9164": {
+    "id": "c15a5f89-9676-5146-8991-22e007de9164",
+    "message": {
+     "id": "c15a5f89-9676-5146-8991-22e007de9164",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1792401332.637204,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Only Shugaku-in Imperial Villa: reserve through the Imperial Household Agency website, or queue for same-day slots at 11:00."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "3261ca38-0585-55e5-975d-f485142c7ce7",
+      "request_id": "4583759c-7e59-58-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "3261ca38-0585-55e5-975d-f485142c7ce7",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "c15a5f89-9676-5146-8991-22e007de9164",
+  "plugin_ids": null,
+  "conversation_id": "c0412f40-c5ab-540c-98d5-5b6c8d66fb4c",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-thinking",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "c0412f40-c5ab-540c-98d5-5b6c8d66fb4c"
+ },
+ {
+  "title": "EUR/USD today",
+  "create_time": 1795512000.5,
+  "update_time": 1795512034.17,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "4d7a75d9-544d-5369-a82a-87779f2149aa"
+    ]
+   },
+   "4d7a75d9-544d-5369-a82a-87779f2149aa": {
+    "id": "4d7a75d9-544d-5369-a82a-87779f2149aa",
+    "message": {
+     "id": "4d7a75d9-544d-5369-a82a-87779f2149aa",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512003.717,
+     "update_time": null,
+     "content": {
+      "content_type": "user_editable_context",
+      "user_profile": "Preferred name: Sam",
+      "user_instructions": "Answer briefly."
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true,
+      "is_user_system_message": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": [
+     "f6bcd40a-9309-5d1a-9581-e1bf78268ad0"
+    ]
+   },
+   "f6bcd40a-9309-5d1a-9581-e1bf78268ad0": {
+    "id": "f6bcd40a-9309-5d1a-9581-e1bf78268ad0",
+    "message": {
+     "id": "f6bcd40a-9309-5d1a-9581-e1bf78268ad0",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512006.934,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "What is the euro to dollar rate right now?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "b5cad61a-e56b-55-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "4d7a75d9-544d-5369-a82a-87779f2149aa",
+    "children": [
+     "0e6f19ec-7b42-5f6a-9da2-4eb4c880cef6"
+    ]
+   },
+   "0e6f19ec-7b42-5f6a-9da2-4eb4c880cef6": {
+    "id": "0e6f19ec-7b42-5f6a-9da2-4eb4c880cef6",
+    "message": {
+     "id": "0e6f19ec-7b42-5f6a-9da2-4eb4c880cef6",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512010.151,
+     "update_time": null,
+     "content": {
+      "content_type": "thoughts",
+      "thoughts": [
+       {
+        "summary": "Checking the live rate",
+        "content": "The user wants a current exchange rate, so I should search rather than answer from memory.",
+        "chunks": [],
+        "finished": true
+       }
+      ],
+      "source_analysis_msg_id": "a3fabe7b-db47-50ac-bb4f-d93e4e254857"
+     },
+     "status": "finished_successfully",
+     "end_turn": false,
+     "weight": 1.0,
+     "metadata": {
+      "reasoning_status": "is_reasoning",
+      "model_slug": "gpt-5-5-thinking"
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "f6bcd40a-9309-5d1a-9581-e1bf78268ad0",
+    "children": [
+     "2084100b-c842-5fd5-9ddc-e298f5c5f57d"
+    ]
+   },
+   "2084100b-c842-5fd5-9ddc-e298f5c5f57d": {
+    "id": "2084100b-c842-5fd5-9ddc-e298f5c5f57d",
+    "message": {
+     "id": "2084100b-c842-5fd5-9ddc-e298f5c5f57d",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512013.368,
+     "update_time": null,
+     "content": {
+      "content_type": "code",
+      "language": "unknown",
+      "response_format_name": null,
+      "text": "{\"search_query\":[{\"q\":\"EUR USD exchange rate\"}]}"
+     },
+     "status": "finished_successfully",
+     "end_turn": false,
+     "weight": 1.0,
+     "metadata": {
+      "model_slug": "gpt-5-5-thinking"
+     },
+     "recipient": "web.run",
+     "channel": null
+    },
+    "parent": "0e6f19ec-7b42-5f6a-9da2-4eb4c880cef6",
+    "children": [
+     "91bd7399-7d5f-5be4-b731-6824882c51f9"
+    ]
+   },
+   "91bd7399-7d5f-5be4-b731-6824882c51f9": {
+    "id": "91bd7399-7d5f-5be4-b731-6824882c51f9",
+    "message": {
+     "id": "91bd7399-7d5f-5be4-b731-6824882c51f9",
+     "author": {
+      "role": "tool",
+      "name": "web.run",
+      "metadata": {}
+     },
+     "create_time": 1795512016.585,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "search_result_groups": [
+       {
+        "type": "search_result_group",
+        "domain": "ecb.europa.eu",
+        "entries": [
+         {
+          "type": "search_result",
+          "url": "https://www.ecb.europa.eu/stats/eurofxref/",
+          "title": "Euro foreign exchange reference rates",
+          "snippet": "US dollar 1.0834"
+         }
+        ]
+       }
+      ]
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "2084100b-c842-5fd5-9ddc-e298f5c5f57d",
+    "children": [
+     "13b52038-61f7-54ba-9b53-cc5518f52e5b"
+    ]
+   },
+   "13b52038-61f7-54ba-9b53-cc5518f52e5b": {
+    "id": "13b52038-61f7-54ba-9b53-cc5518f52e5b",
+    "message": {
+     "id": "13b52038-61f7-54ba-9b53-cc5518f52e5b",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512019.802,
+     "update_time": null,
+     "content": {
+      "content_type": "reasoning_recap",
+      "content": "Thought for 6s"
+     },
+     "status": "finished_successfully",
+     "end_turn": false,
+     "weight": 1.0,
+     "metadata": {
+      "reasoning_status": "reasoning_ended",
+      "finished_duration_sec": 6
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "91bd7399-7d5f-5be4-b731-6824882c51f9",
+    "children": [
+     "7cf55ce1-672f-5c84-96bf-d8629d009e52"
+    ]
+   },
+   "7cf55ce1-672f-5c84-96bf-d8629d009e52": {
+    "id": "7cf55ce1-672f-5c84-96bf-d8629d009e52",
+    "message": {
+     "id": "7cf55ce1-672f-5c84-96bf-d8629d009e52",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512023.019,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "About **1.083 US dollars per euro** (ECB reference rate). citeturn0search0"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [
+       {
+        "matched_text": "citeturn0search0",
+        "type": "grouped_webpages",
+        "items": [
+         {
+          "title": "Euro foreign exchange reference rates",
+          "url": "https://www.ecb.europa.eu/stats/eurofxref/",
+          "attribution": "European Central Bank"
+         }
+        ]
+       }
+      ],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "13b52038-61f7-54ba-9b53-cc5518f52e5b",
+      "request_id": "f65297a7-e63d-58-FRA",
+      "timestamp_": "absolute",
+      "search_result_groups": []
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "13b52038-61f7-54ba-9b53-cc5518f52e5b",
+    "children": [
+     "3c3d61bf-524b-5dc2-a189-deb31641d9e2"
+    ]
+   },
+   "3c3d61bf-524b-5dc2-a189-deb31641d9e2": {
+    "id": "3c3d61bf-524b-5dc2-a189-deb31641d9e2",
+    "message": {
+     "id": "3c3d61bf-524b-5dc2-a189-deb31641d9e2",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512026.236,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "And a year ago?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "fff5c4d9-00d7-54-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "7cf55ce1-672f-5c84-96bf-d8629d009e52",
+    "children": [
+     "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d"
+    ]
+   },
+   "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d": {
+    "id": "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d",
+    "message": {
+     "id": "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512029.453,
+     "update_time": null,
+     "content": {
+      "content_type": "thoughts",
+      "thoughts": [
+       {
+        "summary": "Comparing",
+        "content": "A historical figure; one more search.",
+        "chunks": [],
+        "finished": true
+       }
+      ],
+      "source_analysis_msg_id": "d390b371-b921-52cc-940a-a66d6d072c28"
+     },
+     "status": "finished_successfully",
+     "end_turn": false,
+     "weight": 1.0,
+     "metadata": {
+      "reasoning_status": "is_reasoning"
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "3c3d61bf-524b-5dc2-a189-deb31641d9e2",
+    "children": [
+     "80f41050-a77d-5554-8eac-16dcf3546c72"
+    ]
+   },
+   "80f41050-a77d-5554-8eac-16dcf3546c72": {
+    "id": "80f41050-a77d-5554-8eac-16dcf3546c72",
+    "message": {
+     "id": "80f41050-a77d-5554-8eac-16dcf3546c72",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1795512032.67,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "A year ago it was near 1.05, so the euro has gained roughly 3%."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-thinking",
+      "default_model_slug": "gpt-5-5-thinking",
+      "parent_id": "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d",
+      "request_id": "f1b01d11-a5ac-53-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "4208ddf8-cebd-5d81-8fdf-c3bd9d04e30d",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "80f41050-a77d-5554-8eac-16dcf3546c72",
+  "plugin_ids": null,
+  "conversation_id": "98067767-a90c-5760-aa99-006eca74b979",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-thinking",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "98067767-a90c-5760-aa99-006eca74b979"
+ },
+ {
+  "title": "Identify a houseplant",
+  "create_time": 1789000000.25,
+  "update_time": 1789000011.401,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "f31f25fa-2931-59f8-b718-9b2f30aeaee5"
+    ]
+   },
+   "f31f25fa-2931-59f8-b718-9b2f30aeaee5": {
+    "id": "f31f25fa-2931-59f8-b718-9b2f30aeaee5",
+    "message": {
+     "id": "f31f25fa-2931-59f8-b718-9b2f30aeaee5",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 0.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": [
+     "c151e040-7aa7-547c-8677-65c5620dea92"
+    ]
+   },
+   "c151e040-7aa7-547c-8677-65c5620dea92": {
+    "id": "c151e040-7aa7-547c-8677-65c5620dea92",
+    "message": {
+     "id": "c151e040-7aa7-547c-8677-65c5620dea92",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "model_editable_context",
+      "model_set_context": "1. [2026-05-02]. User lives in Rotterdam.",
+      "repository": null,
+      "repo_summary": null,
+      "structured_context": null
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {},
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "f31f25fa-2931-59f8-b718-9b2f30aeaee5",
+    "children": [
+     "056d1ce3-20a4-5145-b564-426d050566c2"
+    ]
+   },
+   "056d1ce3-20a4-5145-b564-426d050566c2": {
+    "id": "056d1ce3-20a4-5145-b564-426d050566c2",
+    "message": {
+     "id": "056d1ce3-20a4-5145-b564-426d050566c2",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1789000003.467,
+     "update_time": null,
+     "content": {
+      "content_type": "multimodal_text",
+      "parts": [
+       {
+        "content_type": "image_asset_pointer",
+        "asset_pointer": "file-service://file-Qm3xT9fakeAssetPointer",
+        "size_bytes": 482113,
+        "width": 1536,
+        "height": 2048,
+        "fovea": null,
+        "metadata": null
+       },
+       "What plant is this, and why are the leaf tips brown?"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "90132c8e-ec9b-5f-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null,
+      "attachments": [
+       {
+        "id": "file-Qm3xT9fakeAssetPointer",
+        "size": 482113,
+        "name": "IMG_2291.jpeg",
+        "mime_type": "image/jpeg",
+        "width": 1536,
+        "height": 2048
+       }
+      ]
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "c151e040-7aa7-547c-8677-65c5620dea92",
+    "children": [
+     "8f4db927-8fac-5b99-b597-1cfa246bba1f"
+    ]
+   },
+   "8f4db927-8fac-5b99-b597-1cfa246bba1f": {
+    "id": "8f4db927-8fac-5b99-b597-1cfa246bba1f",
+    "message": {
+     "id": "8f4db927-8fac-5b99-b597-1cfa246bba1f",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1789000006.684,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "That is a **Calathea orbifolia**. Brown tips usually come from dry air or tap water with a lot of minerals. Try filtered water and group it with other plants to raise the humidity."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-instant",
+      "default_model_slug": "gpt-5-5-instant",
+      "parent_id": "056d1ce3-20a4-5145-b564-426d050566c2",
+      "request_id": "52b97aa1-7350-5f-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "056d1ce3-20a4-5145-b564-426d050566c2",
+    "children": [
+     "8fe5f966-a5af-50a4-8914-012a112fc53c"
+    ]
+   },
+   "8fe5f966-a5af-50a4-8914-012a112fc53c": {
+    "id": "8fe5f966-a5af-50a4-8914-012a112fc53c",
+    "message": {
+     "id": "8fe5f966-a5af-50a4-8914-012a112fc53c",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1789000009.901,
+     "update_time": null,
+     "content": {
+      "content_type": "system_error",
+      "name": "tool_error",
+      "text": "Memory update failed"
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 0.0,
+     "metadata": {},
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "8f4db927-8fac-5b99-b597-1cfa246bba1f",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "8f4db927-8fac-5b99-b597-1cfa246bba1f",
+  "plugin_ids": null,
+  "conversation_id": "04d0e39d-89e7-54a7-99c9-ea3d762a8efa",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": true,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-instant",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "04d0e39d-89e7-54a7-99c9-ea3d762a8efa"
+ },
+ {
+  "title": "正規表現のヘルプ",
+  "create_time": 1794000000.0,
+  "update_time": 1794000014.368,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "b261b212-b953-5bb2-9c1f-8bbbf05147d1"
+    ]
+   },
+   "b261b212-b953-5bb2-9c1f-8bbbf05147d1": {
+    "id": "b261b212-b953-5bb2-9c1f-8bbbf05147d1",
+    "message": {
+     "id": "b261b212-b953-5bb2-9c1f-8bbbf05147d1",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 0.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": [
+     "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd"
+    ]
+   },
+   "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd": {
+    "id": "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd",
+    "message": {
+     "id": "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1794000003.217,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "メールアドレスを検証する正規表現を教えてください。"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "94c1038e-5663-5d-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "b261b212-b953-5bb2-9c1f-8bbbf05147d1",
+    "children": [
+     "39723ff3-8d3f-595e-a0b4-a3d903ce7ac5"
+    ]
+   },
+   "39723ff3-8d3f-595e-a0b4-a3d903ce7ac5": {
+    "id": "39723ff3-8d3f-595e-a0b4-a3d903ce7ac5",
+    "message": {
+     "id": "39723ff3-8d3f-595e-a0b4-a3d903ce7ac5",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1794000006.434,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "実用的にはこの程度で十分です。\n\n```js\nconst re = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n```\n\n完全な RFC 5322 準拠は現実的ではありません。確認メールを送るのが確実です。"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-instant",
+      "default_model_slug": "gpt-5-5-instant",
+      "parent_id": "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd",
+      "request_id": "f4e065ec-4c13-5e-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "27fb6eb1-dda6-5762-baa3-2ca986b6a0dd",
+    "children": [
+     "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8"
+    ]
+   },
+   "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8": {
+    "id": "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8",
+    "message": {
+     "id": "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8",
+     "author": {
+      "role": "user",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1794000009.651,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Can you explain it in English too? Über-short please — café style ☕"
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": null,
+     "weight": 1.0,
+     "metadata": {
+      "request_id": "704e1f6d-f592-59-FRA",
+      "message_source": null,
+      "timestamp_": "absolute",
+      "message_type": null
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "39723ff3-8d3f-595e-a0b4-a3d903ce7ac5",
+    "children": [
+     "2ee76261-d191-5620-9130-f4e5df0d67f4"
+    ]
+   },
+   "2ee76261-d191-5620-9130-f4e5df0d67f4": {
+    "id": "2ee76261-d191-5620-9130-f4e5df0d67f4",
+    "message": {
+     "id": "2ee76261-d191-5620-9130-f4e5df0d67f4",
+     "author": {
+      "role": "assistant",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": 1794000012.868,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       "Sure: one or more non-space, non-@ characters, an @, more of the same, a dot, and more of the same. It rejects obvious typos, nothing more."
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 1.0,
+     "metadata": {
+      "finish_details": {
+       "type": "stop",
+       "stop_tokens": [
+        200002
+       ]
+      },
+      "is_complete": true,
+      "citations": [],
+      "content_references": [],
+      "message_type": null,
+      "model_slug": "gpt-5-5-instant",
+      "default_model_slug": "gpt-5-5-instant",
+      "parent_id": "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8",
+      "request_id": "718e6834-55b1-55-FRA",
+      "timestamp_": "absolute"
+     },
+     "recipient": "all",
+     "channel": "final"
+    },
+    "parent": "ff5a8ccd-997a-51f3-8d05-485d6d8ff6a8",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "2ee76261-d191-5620-9130-f4e5df0d67f4",
+  "plugin_ids": null,
+  "conversation_id": "f28c6fe5-0c10-5f5e-aa1f-b4c3e2a4adc0",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-instant",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "f28c6fe5-0c10-5f5e-aa1f-b4c3e2a4adc0"
+ },
+ {
+  "title": "New chat",
+  "create_time": 1795000000.0,
+  "update_time": 1795000001.5,
+  "mapping": {
+   "client-created-root": {
+    "id": "client-created-root",
+    "message": null,
+    "parent": null,
+    "children": [
+     "8d34175b-3ff2-5488-910b-840af5ac0f01"
+    ]
+   },
+   "8d34175b-3ff2-5488-910b-840af5ac0f01": {
+    "id": "8d34175b-3ff2-5488-910b-840af5ac0f01",
+    "message": {
+     "id": "8d34175b-3ff2-5488-910b-840af5ac0f01",
+     "author": {
+      "role": "system",
+      "name": null,
+      "metadata": {}
+     },
+     "create_time": null,
+     "update_time": null,
+     "content": {
+      "content_type": "text",
+      "parts": [
+       ""
+      ]
+     },
+     "status": "finished_successfully",
+     "end_turn": true,
+     "weight": 0.0,
+     "metadata": {
+      "is_visually_hidden_from_conversation": true
+     },
+     "recipient": "all",
+     "channel": null
+    },
+    "parent": "client-created-root",
+    "children": []
+   }
+  },
+  "moderation_results": [],
+  "current_node": "8d34175b-3ff2-5488-910b-840af5ac0f01",
+  "plugin_ids": null,
+  "conversation_id": "eef75160-e52f-5676-ad0a-4f8cd65cf651",
+  "conversation_template_id": null,
+  "gizmo_id": null,
+  "gizmo_type": null,
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5-5-instant",
+  "conversation_origin": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "sugar_item_id": null,
+  "id": "eef75160-e52f-5676-ad0a-4f8cd65cf651"
+ }
+]

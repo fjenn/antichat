@@ -1,0 +1,83 @@
+# First run on a new install: one welcome screen, one tap, and the app is
+# usable while the assistant downloads. Pause and resume from the card, the
+# model name only under Details, the ready moment, then a first chat.
+# Start state: wiped app (run-m6.sh wipes for every "m6-fresh-" flow).
+appId: ${APP_ID}
+---
+- runFlow: _m6-fresh.yaml
+- takeScreenshot: 60-welcome
+# The only decision.
+- tapOn:
+    id: get-started
+# Pause from the card first: a small model downloads quickly, and the rest of
+# the checks are easier to read on a download that stands still.
+- extendedWaitUntil:
+    visible:
+      id: setup-pause
+    timeout: 15000
+- tapOn:
+    id: setup-pause
+- assertVisible: 'Download paused'
+- assertVisible:
+    id: setup-resume
+- assertNotVisible:
+    id: welcome
+# The chat screen is already there; the composer says why it cannot answer yet.
+- assertVisible:
+    id: composer
+- assertVisible:
+    id: setup-card
+- copyTextFrom:
+    id: setup-line
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: ${maestro.copiedText}
+- takeScreenshot: 62-download-paused
+# The model name is one tap away, and nowhere else.
+- tapOn:
+    id: setup-details
+- extendedWaitUntil:
+    visible:
+      id: model-details
+    timeout: 10000
+- assertVisible: 'This phone only'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 63-details
+- swipe:
+    start: 50%, 45%
+    end: 50%, 95%
+    duration: 300
+- extendedWaitUntil:
+    notVisible:
+      id: model-details
+    timeout: 10000
+# Resume: it carries on.
+- tapOn:
+    id: setup-resume
+- takeScreenshot: 61-downloading
+- assertNotVisible: 'Download paused'
+# The ready moment.
+- extendedWaitUntil:
+    visible: 'Your assistant is ready'
+    timeout: 360000
+- takeScreenshot: 64-ready
+# Chat without any further decision.
+- extendedWaitUntil:
+    visible:
+      id: starter-learn-explain
+    timeout: 20000
+- assertNotVisible: 'Ready when the download finishes'
+- tapOn:
+    id: starter-learn-explain
+- extendedWaitUntil:
+    visible:
+      id: thread
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible:
+      id: setup-card
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: 65-first-chat

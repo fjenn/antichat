@@ -1,0 +1,394 @@
+{
+  "platform": "ios",
+  "osVersion": "27.0",
+  "startedAt": "2026-11-24T10:35:22.041Z",
+  "finished": true,
+  "config": {
+    "steps": [
+      "whisper",
+      "tts",
+      "voice",
+      "session"
+    ],
+    "model": "Qwen3.5-0.8B-Q4_K_M.gguf",
+    "kitten": true
+  },
+  "voice": {
+    "chat": "Qwen3.5-0.8B-Q4_K_M.gguf on llama.rn (loaded in 595 ms)",
+    "voice": "system:default",
+    "speculationOff": {
+      "summary": {
+        "turns": 5,
+        "endpointingMs": {
+          "p50": 720,
+          "p90": 732
+        },
+        "sttMs": {
+          "p50": 868,
+          "p90": 1118
+        },
+        "llmFirstSentenceMs": {
+          "p50": 278,
+          "p90": 460
+        },
+        "ttsFirstAudioMs": {
+          "p50": 160,
+          "p90": 246
+        },
+        "totalMs": {
+          "p50": 2063,
+          "p90": 2300
+        }
+      },
+      "adopted": 0,
+      "turns": [
+        {
+          "endpointingMs": 720,
+          "sttMs": 744,
+          "llmFirstSentenceMs": 570,
+          "ttsFirstAudioMs": 29,
+          "totalMs": 2063,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 981,
+          "llmFirstSentenceMs": 278,
+          "ttsFirstAudioMs": 2,
+          "totalMs": 1981,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 644,
+          "llmFirstSentenceMs": 207,
+          "ttsFirstAudioMs": 160,
+          "totalMs": 1711,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 740,
+          "sttMs": 1209,
+          "llmFirstSentenceMs": 295,
+          "ttsFirstAudioMs": 213,
+          "totalMs": 2457,
+          "speculation": "off"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 868,
+          "llmFirstSentenceMs": 228,
+          "ttsFirstAudioMs": 268,
+          "totalMs": 2064,
+          "speculation": "off"
+        }
+      ],
+      "wer": 0.016,
+      "userTurns": 5,
+      "leakedTurns": 0,
+      "errors": []
+    },
+    "speculationOn": {
+      "summary": {
+        "turns": 5,
+        "endpointingMs": {
+          "p50": 720,
+          "p90": 732
+        },
+        "sttMs": {
+          "p50": 264,
+          "p90": 421
+        },
+        "llmFirstSentenceMs": {
+          "p50": 250,
+          "p90": 296
+        },
+        "ttsFirstAudioMs": {
+          "p50": 2,
+          "p90": 52
+        },
+        "totalMs": {
+          "p50": 1266,
+          "p90": 1449
+        }
+      },
+      "adopted": 0,
+      "turns": [
+        {
+          "endpointingMs": 720,
+          "sttMs": 395,
+          "llmFirstSentenceMs": 204,
+          "ttsFirstAudioMs": 85,
+          "totalMs": 1404,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 438,
+          "llmFirstSentenceMs": 320,
+          "ttsFirstAudioMs": 1,
+          "totalMs": 1479,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 700,
+          "sttMs": 169,
+          "llmFirstSentenceMs": 246,
+          "ttsFirstAudioMs": 1,
+          "totalMs": 1116,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 740,
+          "sttMs": 264,
+          "llmFirstSentenceMs": 260,
+          "ttsFirstAudioMs": 2,
+          "totalMs": 1266,
+          "speculation": "none"
+        },
+        {
+          "endpointingMs": 720,
+          "sttMs": 156,
+          "llmFirstSentenceMs": 250,
+          "ttsFirstAudioMs": 2,
+          "totalMs": 1128,
+          "speculation": "none"
+        }
+      ],
+      "wer": 0.016,
+      "userTurns": 5,
+      "leakedTurns": 0,
+      "errors": []
+    },
+    "bargeIn": {
+      "attempts": 3,
+      "runs": 3,
+      "detectMs": [
+        300,
+        340,
+        300
+      ],
+      "stopMs": [
+        2,
+        1,
+        1
+      ],
+      "onsetToSilentMs": [
+        302,
+        341,
+        301
+      ],
+      "heardAfter": 3,
+      "errors": []
+    }
+  },
+  "finishedAt": "2026-11-24T10:37:41.802Z",
+  "whisper": {
+    "model": "ggml-base-q8_0.bin",
+    "loadMs": 52,
+    "realTimeFactor": 0.212,
+    "wer": {
+      "all": 0.034,
+      "clean": 0.042,
+      "noisy": 0.02,
+      "english": 0.01,
+      "otherLanguages": 0.085
+    },
+    "medianFirstPartialMs": 2053,
+    "medianFinalAfterStopMs": 551,
+    "long": {
+      "seconds": 35,
+      "segments": 6,
+      "wer": 0
+    },
+    "rows": [
+      {
+        "id": "en-us-capital",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 2051,
+        "finalAfterStopMs": 540,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-gb-timer",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 2054,
+        "finalAfterStopMs": 551,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "en-au-plants",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 1994,
+        "finalAfterStopMs": 508,
+        "heard": "Can you explain how photosynthesis works in simple terms?"
+      },
+      {
+        "id": "en-in-recipe",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 5,
+        "firstPartialMs": 2059,
+        "finalAfterStopMs": 536,
+        "heard": "I need a recipe for dinner tonight with chicken, rice and vegetables."
+      },
+      {
+        "id": "en-ie-trip",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0.067,
+        "partials": 5,
+        "firstPartialMs": 2101,
+        "finalAfterStopMs": 896,
+        "heard": "We are planning a trip to Portugal in September, which city should we visit first?"
+      },
+      {
+        "id": "de-de-wetter",
+        "lang": "de",
+        "detected": "de",
+        "wer": 0.083,
+        "partials": 4,
+        "firstPartialMs": 2053,
+        "finalAfterStopMs": 827,
+        "heard": "Wie wird das Wetter Norden in Berlin, und brauche ich einen Regenschirm?"
+      },
+      {
+        "id": "es-es-idioma",
+        "lang": "es",
+        "detected": "es",
+        "wer": 0,
+        "partials": 3,
+        "firstPartialMs": 1970,
+        "finalAfterStopMs": 500,
+        "heard": "\u00bfCu\u00e1l es la mejor manera de aprender un idioma nuevo r\u00e1pidamente?"
+      },
+      {
+        "id": "fr-fr-livre",
+        "lang": "fr",
+        "detected": "fr",
+        "wer": 0.167,
+        "partials": 3,
+        "firstPartialMs": 2037,
+        "finalAfterStopMs": 771,
+        "heard": "Peu tue me recommander un bon livre \u00e0 lire pendant les vacances?"
+      },
+      {
+        "id": "en-us-capital-snr15",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 2045,
+        "finalAfterStopMs": 589,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-us-capital-snr5",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 3,
+        "firstPartialMs": 2233,
+        "finalAfterStopMs": 636,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-gb-timer-snr10",
+        "lang": "en",
+        "detected": "en",
+        "wer": 0,
+        "partials": 4,
+        "firstPartialMs": 2199,
+        "finalAfterStopMs": 453,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "de-de-wetter-snr10",
+        "lang": "de",
+        "detected": "de",
+        "wer": 0.083,
+        "partials": 4,
+        "firstPartialMs": 2229,
+        "finalAfterStopMs": 984,
+        "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+      }
+    ]
+  },
+  "tts": {
+    "voices": [
+      {
+        "voice": "system:default",
+        "prepareMs": 15,
+        "runs": 5,
+        "firstAudioMs": [
+          31,
+          1,
+          1,
+          1,
+          1
+        ],
+        "medianFirstAudioMs": 1,
+        "stopMs": [
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        "maxStopMs": 3,
+        "stillSpeakingAfterStop": 0,
+        "errors": []
+      },
+      {
+        "voice": "kitten:expr-voice-2-f",
+        "prepareMs": 224,
+        "runs": 5,
+        "firstAudioMs": [
+          881,
+          122,
+          117,
+          119,
+          118
+        ],
+        "medianFirstAudioMs": 119,
+        "stopMs": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "maxStopMs": 1,
+        "stillSpeakingAfterStop": 0,
+        "errors": []
+      }
+    ]
+  },
+  "session": {
+    "decoder": {
+      "sampleRate": 16000,
+      "channels": 1,
+      "samples": 53909,
+      "expected": 53909
+    },
+    "mic": {
+      "route": "speaker",
+      "echoCancellation": true,
+      "chunks": 37,
+      "samplesPerChunk": 800,
+      "capturedMs": 1850,
+      "firstChunkMs": 235
+    }
+  },
+  "note": "whisper, tts and session from the full run; voice from a rerun of that step after harness fixes"
+}

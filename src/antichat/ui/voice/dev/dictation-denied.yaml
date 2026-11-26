@@ -1,0 +1,20 @@
+# Dictation with the microphone refused at the system prompt (see run-ui.sh).
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible: {id: 'voice-dev-title'}
+    timeout: 180000
+- tapOn: {id: 'composer-dictate'}
+- extendedWaitUntil:
+    visible: 'Don.t [Aa]llow'
+    timeout: 30000
+- takeScreenshot: 1-permission-prompt
+- tapOn: 'Don.t [Aa]llow'
+- extendedWaitUntil:
+    visible: {id: 'dictation-open-settings'}
+    timeout: 30000
+- takeScreenshot: 2-permission-refused
+- tapOn: {id: 'dictation-cancel'}
+- extendedWaitUntil:
+    visible: {id: 'composer'}
+    timeout: 15000

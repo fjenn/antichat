@@ -1,0 +1,1205 @@
+{
+"source": "AntiChat Mac fixtures/prompts/fresh-vs-stable-200.jsonl (CC0, generated text, no personal data)",
+"rows": [
+{
+"id": "s087",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Hamburg",
+"label": "stable"
+},
+{
+"id": "s017",
+"lang": "en",
+"prompt": "What is the current in a circuit with a 10 ohm resistor at 5 volts?",
+"label": "stable"
+},
+{
+"id": "f068",
+"lang": "en",
+"prompt": "Will it rain in Utrecht tomorrow?",
+"label": "fresh"
+},
+{
+"id": "f007",
+"lang": "en",
+"prompt": "What's the current exchange rate from euros to yen?",
+"label": "fresh"
+},
+{
+"id": "s028",
+"lang": "en",
+"prompt": "Why is the sky blue?",
+"label": "stable"
+},
+{
+"id": "s078",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Utrecht",
+"label": "stable"
+},
+{
+"id": "f019",
+"lang": "en",
+"prompt": "Has Xcode released a new update recently?",
+"label": "fresh"
+},
+{
+"id": "s097",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Toronto",
+"label": "stable"
+},
+{
+"id": "f002",
+"lang": "en",
+"prompt": "Will it rain in Porto tomorrow?",
+"label": "fresh"
+},
+{
+"id": "f031",
+"lang": "de",
+"prompt": "Wer hat gestern the Yankees geschlagen?",
+"label": "fresh"
+},
+{
+"id": "f089",
+"lang": "en",
+"prompt": "How much does a Tesla Model 3 cost these days?",
+"label": "fresh"
+},
+{
+"id": "s057",
+"lang": "en",
+"prompt": "What's the history of the Yankees?",
+"label": "stable"
+},
+{
+"id": "f027",
+"lang": "en",
+"prompt": "Who won the Ballon d'Or in 2026?",
+"label": "fresh"
+},
+{
+"id": "s050",
+"lang": "es",
+"prompt": "Dame una receta de banana bread",
+"label": "stable"
+},
+{
+"id": "f030",
+"lang": "de",
+"prompt": "Was kostet ein Ethereum gerade?",
+"label": "fresh"
+},
+{
+"id": "s048",
+"lang": "en",
+"prompt": "What are the rules of rugby?",
+"label": "stable"
+},
+{
+"id": "s036",
+"lang": "nl",
+"prompt": "Wat is de hoofdstad van Chile?",
+"label": "stable"
+},
+{
+"id": "s075",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Toronto",
+"label": "stable"
+},
+{
+"id": "f016",
+"lang": "en",
+"prompt": "Summarise today's news about interest rates",
+"label": "fresh"
+},
+{
+"id": "s082",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Hamburg",
+"label": "stable"
+},
+{
+"id": "f015",
+"lang": "en",
+"prompt": "What happened with interest rates this week?",
+"label": "fresh"
+},
+{
+"id": "s063",
+"lang": "en",
+"prompt": "Explain how Bitcoin mining works",
+"label": "stable"
+},
+{
+"id": "f010",
+"lang": "en",
+"prompt": "What was the score of yesterday's NBA final?",
+"label": "fresh"
+},
+{
+"id": "s019",
+"lang": "en",
+"prompt": "How many players are on a volleyball team?",
+"label": "stable"
+},
+{
+"id": "s098",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Denver",
+"label": "stable"
+},
+{
+"id": "f051",
+"lang": "en",
+"prompt": "What happened with the Mars sample return mission this week?",
+"label": "fresh"
+},
+{
+"id": "s027",
+"lang": "en",
+"prompt": "Proofread this sentence: their going too the store",
+"label": "stable"
+},
+{
+"id": "s008",
+"lang": "en",
+"prompt": "Give me a recipe for banana bread",
+"label": "stable"
+},
+{
+"id": "f045",
+"lang": "en",
+"prompt": "Who won the Ajax game last night?",
+"label": "fresh"
+},
+{
+"id": "s004",
+"lang": "en",
+"prompt": "How do I reverse a list in Python?",
+"label": "stable"
+},
+{
+"id": "s007",
+"lang": "en",
+"prompt": "How does Xcode store its configuration files?",
+"label": "stable"
+},
+{
+"id": "f074",
+"lang": "en",
+"prompt": "Any news on interest rates?",
+"label": "fresh"
+},
+{
+"id": "s029",
+"lang": "de",
+"prompt": "Erkläre mir, wie ein Elektromotor funktioniert",
+"label": "stable"
+},
+{
+"id": "f077",
+"lang": "en",
+"prompt": "Is Pixel phone out yet?",
+"label": "fresh"
+},
+{
+"id": "s086",
+"lang": "en",
+"prompt": "Who wrote Pride and Prejudice?",
+"label": "stable"
+},
+{
+"id": "f093",
+"lang": "en",
+"prompt": "Summarise today's news about chip export rules",
+"label": "fresh"
+},
+{
+"id": "f054",
+"lang": "en",
+"prompt": "Has Node.js released a new update recently?",
+"label": "fresh"
+},
+{
+"id": "f017",
+"lang": "en",
+"prompt": "What's the latest version of macOS?",
+"label": "fresh"
+},
+{
+"id": "f070",
+"lang": "en",
+"prompt": "How much does a Toyota Corolla cost these days?",
+"label": "fresh"
+},
+{
+"id": "f058",
+"lang": "de",
+"prompt": "Was kostet ein Solana gerade?",
+"label": "fresh"
+},
+{
+"id": "f003",
+"lang": "en",
+"prompt": "Is it snowing in Hamburg right now?",
+"label": "fresh"
+},
+{
+"id": "f029",
+"lang": "de",
+"prompt": "Wie wird das Wetter morgen in Utrecht?",
+"label": "fresh"
+},
+{
+"id": "f008",
+"lang": "en",
+"prompt": "How much does a VW Golf cost these days?",
+"label": "fresh"
+},
+{
+"id": "f091",
+"lang": "en",
+"prompt": "What are the latest headlines about chip export rules?",
+"label": "fresh"
+},
+{
+"id": "f012",
+"lang": "en",
+"prompt": "Did Barcelona win their match this week?",
+"label": "fresh"
+},
+{
+"id": "s099",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Porto",
+"label": "stable"
+},
+{
+"id": "f050",
+"lang": "en",
+"prompt": "Any news on the Mars sample return mission?",
+"label": "fresh"
+},
+{
+"id": "s090",
+"lang": "en",
+"prompt": "What's the history of Ajax?",
+"label": "stable"
+},
+{
+"id": "f083",
+"lang": "nl",
+"prompt": "Wat is het weer vandaag in Hamburg?",
+"label": "fresh"
+},
+{
+"id": "s096",
+"lang": "en",
+"prompt": "Write a short poem about Utrecht in the rain",
+"label": "stable"
+},
+{
+"id": "f078",
+"lang": "en",
+"prompt": "Who is the president of Kenya?",
+"label": "fresh"
+},
+{
+"id": "s044",
+"lang": "en",
+"prompt": "Who wrote Moby-Dick?",
+"label": "stable"
+},
+{
+"id": "f001",
+"lang": "en",
+"prompt": "What's the weather in Lisbon today?",
+"label": "fresh"
+},
+{
+"id": "s006",
+"lang": "en",
+"prompt": "What does 'exchange rate' mean?",
+"label": "stable"
+},
+{
+"id": "f040",
+"lang": "pt",
+"prompt": "Quem ganhou o jogo do Benfica ontem?",
+"label": "fresh"
+},
+{
+"id": "s020",
+"lang": "en",
+"prompt": "What are the rules of cricket?",
+"label": "stable"
+},
+{
+"id": "s011",
+"lang": "en",
+"prompt": "Who wrote Dune?",
+"label": "stable"
+},
+{
+"id": "f076",
+"lang": "en",
+"prompt": "When does the next iPhone come out?",
+"label": "fresh"
+},
+{
+"id": "s074",
+"lang": "en",
+"prompt": "How many players are on a rugby team?",
+"label": "stable"
+},
+{
+"id": "s092",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Osaka",
+"label": "stable"
+},
+{
+"id": "s095",
+"lang": "en",
+"prompt": "What is the capital of Chile?",
+"label": "stable"
+},
+{
+"id": "f014",
+"lang": "en",
+"prompt": "Any news on the climate summit?",
+"label": "fresh"
+},
+{
+"id": "s060",
+"lang": "nl",
+"prompt": "Wat is de hoofdstad van Brazil?",
+"label": "stable"
+},
+{
+"id": "f092",
+"lang": "en",
+"prompt": "What happened with the EU AI Act this week?",
+"label": "fresh"
+},
+{
+"id": "f022",
+"lang": "en",
+"prompt": "Who runs OpenAI now?",
+"label": "fresh"
+},
+{
+"id": "s100",
+"lang": "en",
+"prompt": "Write a short poem about Lisbon in the rain",
+"label": "stable"
+},
+{
+"id": "f063",
+"lang": "fr",
+"prompt": "Quelle est la météo à Osaka demain ?",
+"label": "fresh"
+},
+{
+"id": "f032",
+"lang": "es",
+"prompt": "¿Qué tiempo hace hoy en Hamburg?",
+"label": "fresh"
+},
+{
+"id": "s069",
+"lang": "en",
+"prompt": "Summarise the plot of Dune",
+"label": "stable"
+},
+{
+"id": "f023",
+"lang": "en",
+"prompt": "Who is the president of France?",
+"label": "fresh"
+},
+{
+"id": "s056",
+"lang": "en",
+"prompt": "Give me a recipe for ramen",
+"label": "stable"
+},
+{
+"id": "s033",
+"lang": "fr",
+"prompt": "Explique la théorie de la relativité",
+"label": "stable"
+},
+{
+"id": "s055",
+"lang": "en",
+"prompt": "How does Python store its configuration files?",
+"label": "stable"
+},
+{
+"id": "s022",
+"lang": "en",
+"prompt": "What causes the seasons on Earth?",
+"label": "stable"
+},
+{
+"id": "s051",
+"lang": "nl",
+"prompt": "Wat is de hoofdstad van Kenya?",
+"label": "stable"
+},
+{
+"id": "f080",
+"lang": "de",
+"prompt": "Wie wird das Wetter morgen in Porto?",
+"label": "fresh"
+},
+{
+"id": "s005",
+"lang": "en",
+"prompt": "Explain the difference between a stock and a bond",
+"label": "stable"
+},
+{
+"id": "s065",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Hamburg",
+"label": "stable"
+},
+{
+"id": "f096",
+"lang": "en",
+"prompt": "Who runs Intel now?",
+"label": "fresh"
+},
+{
+"id": "f018",
+"lang": "en",
+"prompt": "When does the next PlayStation come out?",
+"label": "fresh"
+},
+{
+"id": "s042",
+"lang": "en",
+"prompt": "Give me a recipe for paella",
+"label": "stable"
+},
+{
+"id": "s037",
+"lang": "pt",
+"prompt": "Explique como funciona a fotossíntese",
+"label": "stable"
+},
+{
+"id": "s018",
+"lang": "en",
+"prompt": "Define photosynthesis",
+"label": "stable"
+},
+{
+"id": "s014",
+"lang": "en",
+"prompt": "What's the history of Bayern?",
+"label": "stable"
+},
+{
+"id": "f087",
+"lang": "en",
+"prompt": "What is the price of Solana right now?",
+"label": "fresh"
+},
+{
+"id": "f057",
+"lang": "en",
+"prompt": "Who is the president of Chile?",
+"label": "fresh"
+},
+{
+"id": "s061",
+"lang": "en",
+"prompt": "How does Node.js store its configuration files?",
+"label": "stable"
+},
+{
+"id": "f084",
+"lang": "pt",
+"prompt": "Como está o tempo hoje em Osaka?",
+"label": "fresh"
+},
+{
+"id": "s094",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Madrid",
+"label": "stable"
+},
+{
+"id": "s091",
+"lang": "en",
+"prompt": "Explain how Ethereum mining works",
+"label": "stable"
+},
+{
+"id": "f036",
+"lang": "fr",
+"prompt": "Quelles sont les dernières nouvelles sur the EU AI Act ?",
+"label": "fresh"
+},
+{
+"id": "f060",
+"lang": "es",
+"prompt": "¿Qué tiempo hace hoy en Madrid?",
+"label": "fresh"
+},
+{
+"id": "f055",
+"lang": "en",
+"prompt": "Who is the CEO of Boeing?",
+"label": "fresh"
+},
+{
+"id": "f005",
+"lang": "en",
+"prompt": "What is the price of Bitcoin right now?",
+"label": "fresh"
+},
+{
+"id": "f065",
+"lang": "nl",
+"prompt": "Wat is de huidige koers van Bitcoin?",
+"label": "fresh"
+},
+{
+"id": "s076",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Melbourne",
+"label": "stable"
+},
+{
+"id": "s012",
+"lang": "en",
+"prompt": "Translate 'good morning' into Portuguese",
+"label": "stable"
+},
+{
+"id": "f042",
+"lang": "en",
+"prompt": "Will it rain in Melbourne tomorrow?",
+"label": "fresh"
+},
+{
+"id": "f024",
+"lang": "en",
+"prompt": "Is the IKEA in Delft open on Sunday?",
+"label": "fresh"
+},
+{
+"id": "f044",
+"lang": "en",
+"prompt": "What's the current exchange rate from euros to dollars?",
+"label": "fresh"
+},
+{
+"id": "f064",
+"lang": "nl",
+"prompt": "Wat is het weer vandaag in Toronto?",
+"label": "fresh"
+},
+{
+"id": "s035",
+"lang": "nl",
+"prompt": "Leg uit hoe een regenboog ontstaat",
+"label": "stable"
+},
+{
+"id": "f067",
+"lang": "en",
+"prompt": "What's the weather in Lyon today?",
+"label": "fresh"
+},
+{
+"id": "f035",
+"lang": "fr",
+"prompt": "Quelle est la météo à Lisbon demain ?",
+"label": "fresh"
+},
+{
+"id": "s010",
+"lang": "en",
+"prompt": "Summarise the plot of Pride and Prejudice",
+"label": "stable"
+},
+{
+"id": "s009",
+"lang": "en",
+"prompt": "What is the boiling point of water at sea level?",
+"label": "stable"
+},
+{
+"id": "f037",
+"lang": "nl",
+"prompt": "Wat is het weer vandaag in Denver?",
+"label": "fresh"
+},
+{
+"id": "f026",
+"lang": "en",
+"prompt": "What were the biggest tech stories of 2026?",
+"label": "fresh"
+},
+{
+"id": "s030",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Porto",
+"label": "stable"
+},
+{
+"id": "f047",
+"lang": "en",
+"prompt": "Who is leading the NBA this season?",
+"label": "fresh"
+},
+{
+"id": "s068",
+"lang": "en",
+"prompt": "Write a short poem about Osaka in the rain",
+"label": "stable"
+},
+{
+"id": "f046",
+"lang": "en",
+"prompt": "What was the score of yesterday's Premier League final?",
+"label": "fresh"
+},
+{
+"id": "s031",
+"lang": "es",
+"prompt": "¿Qué es la fotosíntesis?",
+"label": "stable"
+},
+{
+"id": "f098",
+"lang": "en",
+"prompt": "What time does the IKEA in Delft close tonight?",
+"label": "fresh"
+},
+{
+"id": "s089",
+"lang": "en",
+"prompt": "What's the history of the Lakers?",
+"label": "stable"
+},
+{
+"id": "s064",
+"lang": "en",
+"prompt": "What are the rules of volleyball?",
+"label": "stable"
+},
+{
+"id": "f097",
+"lang": "en",
+"prompt": "Is the Apple Store on Regent Street open on Sunday?",
+"label": "fresh"
+},
+{
+"id": "s077",
+"lang": "nl",
+"prompt": "Wat is de hoofdstad van Japan?",
+"label": "stable"
+},
+{
+"id": "s026",
+"lang": "en",
+"prompt": "Explain the latest common ancestor concept in biology",
+"label": "stable"
+},
+{
+"id": "s039",
+"lang": "en",
+"prompt": "Write a short poem about Lyon in the rain",
+"label": "stable"
+},
+{
+"id": "f053",
+"lang": "en",
+"prompt": "When does the next Pixel phone come out?",
+"label": "fresh"
+},
+{
+"id": "s081",
+"lang": "en",
+"prompt": "What's the history of Benfica?",
+"label": "stable"
+},
+{
+"id": "f069",
+"lang": "en",
+"prompt": "What's the forecast for Melbourne this weekend?",
+"label": "fresh"
+},
+{
+"id": "f048",
+"lang": "en",
+"prompt": "Did Benfica win their match this week?",
+"label": "fresh"
+},
+{
+"id": "f082",
+"lang": "fr",
+"prompt": "Quelle est la météo à Melbourne demain ?",
+"label": "fresh"
+},
+{
+"id": "f062",
+"lang": "es",
+"prompt": "¿Quién ganó el partido de Ajax ayer?",
+"label": "fresh"
+},
+{
+"id": "s021",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Melbourne",
+"label": "stable"
+},
+{
+"id": "f088",
+"lang": "en",
+"prompt": "What's the current exchange rate from euros to Swiss francs?",
+"label": "fresh"
+},
+{
+"id": "s071",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Denver",
+"label": "stable"
+},
+{
+"id": "f020",
+"lang": "en",
+"prompt": "Is iPhone out yet?",
+"label": "fresh"
+},
+{
+"id": "s043",
+"lang": "en",
+"prompt": "Summarise the plot of Moby-Dick",
+"label": "stable"
+},
+{
+"id": "f009",
+"lang": "en",
+"prompt": "Who won the Bayern game last night?",
+"label": "fresh"
+},
+{
+"id": "s083",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Porto",
+"label": "stable"
+},
+{
+"id": "f004",
+"lang": "en",
+"prompt": "What's the forecast for Porto this weekend?",
+"label": "fresh"
+},
+{
+"id": "f049",
+"lang": "en",
+"prompt": "What are the latest headlines about the Mars sample return mission?",
+"label": "fresh"
+},
+{
+"id": "f043",
+"lang": "en",
+"prompt": "Is it snowing in Denver right now?",
+"label": "fresh"
+},
+{
+"id": "f094",
+"lang": "en",
+"prompt": "What's the latest version of Blender?",
+"label": "fresh"
+},
+{
+"id": "f052",
+"lang": "en",
+"prompt": "Summarise today's news about the climate summit",
+"label": "fresh"
+},
+{
+"id": "f059",
+"lang": "de",
+"prompt": "Wer hat gestern Benfica geschlagen?",
+"label": "fresh"
+},
+{
+"id": "s058",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Utrecht",
+"label": "stable"
+},
+{
+"id": "s088",
+"lang": "en",
+"prompt": "What is the capital of Brazil?",
+"label": "stable"
+},
+{
+"id": "s003",
+"lang": "en",
+"prompt": "What is the capital of France?",
+"label": "stable"
+},
+{
+"id": "f075",
+"lang": "en",
+"prompt": "Summarise today's news about the EU AI Act",
+"label": "fresh"
+},
+{
+"id": "f099",
+"lang": "de",
+"prompt": "Wie wird das Wetter morgen in Lisbon?",
+"label": "fresh"
+},
+{
+"id": "s054",
+"lang": "en",
+"prompt": "What is the capital of Japan?",
+"label": "stable"
+},
+{
+"id": "s093",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Melbourne",
+"label": "stable"
+},
+{
+"id": "f079",
+"lang": "en",
+"prompt": "What time does the Apple Store on Regent Street close tonight?",
+"label": "fresh"
+},
+{
+"id": "f085",
+"lang": "en",
+"prompt": "What's the weather in Melbourne today?",
+"label": "fresh"
+},
+{
+"id": "f073",
+"lang": "en",
+"prompt": "What are the latest headlines about the climate summit?",
+"label": "fresh"
+},
+{
+"id": "f033",
+"lang": "es",
+"prompt": "¿Cuál es el precio actual del Bitcoin?",
+"label": "fresh"
+},
+{
+"id": "f071",
+"lang": "en",
+"prompt": "Who won the Benfica game last night?",
+"label": "fresh"
+},
+{
+"id": "s079",
+"lang": "en",
+"prompt": "Write a short poem about Porto in the rain",
+"label": "stable"
+},
+{
+"id": "s013",
+"lang": "en",
+"prompt": "How do I calculate compound interest?",
+"label": "stable"
+},
+{
+"id": "s025",
+"lang": "en",
+"prompt": "What year did the Berlin Wall fall?",
+"label": "stable"
+},
+{
+"id": "f086",
+"lang": "en",
+"prompt": "What's the forecast for Toronto this weekend?",
+"label": "fresh"
+},
+{
+"id": "f041",
+"lang": "en",
+"prompt": "What's the weather in Utrecht today?",
+"label": "fresh"
+},
+{
+"id": "s066",
+"lang": "es",
+"prompt": "Dame una receta de paella",
+"label": "stable"
+},
+{
+"id": "f006",
+"lang": "en",
+"prompt": "How is Siemens stock doing today?",
+"label": "fresh"
+},
+{
+"id": "s041",
+"lang": "en",
+"prompt": "How does macOS store its configuration files?",
+"label": "stable"
+},
+{
+"id": "s070",
+"lang": "en",
+"prompt": "Help me plan a 3-day trip itinerary for Lisbon",
+"label": "stable"
+},
+{
+"id": "f011",
+"lang": "en",
+"prompt": "Who is leading the Champions League this season?",
+"label": "fresh"
+},
+{
+"id": "s084",
+"lang": "en",
+"prompt": "Write a short poem about Melbourne in the rain",
+"label": "stable"
+},
+{
+"id": "s052",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Madrid",
+"label": "stable"
+},
+{
+"id": "s032",
+"lang": "es",
+"prompt": "Dame una receta de ramen",
+"label": "stable"
+},
+{
+"id": "f028",
+"lang": "en",
+"prompt": "List the films nominated for best picture in 2027",
+"label": "fresh"
+},
+{
+"id": "s062",
+"lang": "en",
+"prompt": "Translate 'good morning' into Japanese",
+"label": "stable"
+},
+{
+"id": "f095",
+"lang": "en",
+"prompt": "Is PlayStation out yet?",
+"label": "fresh"
+},
+{
+"id": "s080",
+"lang": "en",
+"prompt": "How does Blender store its configuration files?",
+"label": "stable"
+},
+{
+"id": "s023",
+"lang": "en",
+"prompt": "Write a news article about a fictional dragon sighting",
+"label": "stable"
+},
+{
+"id": "f038",
+"lang": "nl",
+"prompt": "Wat is de huidige koers van Solana?",
+"label": "fresh"
+},
+{
+"id": "f090",
+"lang": "en",
+"prompt": "Who is leading the Premier League this season?",
+"label": "fresh"
+},
+{
+"id": "f021",
+"lang": "en",
+"prompt": "Who is the CEO of Twitter?",
+"label": "fresh"
+},
+{
+"id": "s085",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Lyon",
+"label": "stable"
+},
+{
+"id": "f061",
+"lang": "es",
+"prompt": "¿Cuál es el precio actual del Ethereum?",
+"label": "fresh"
+},
+{
+"id": "f056",
+"lang": "en",
+"prompt": "Who runs Boeing now?",
+"label": "fresh"
+},
+{
+"id": "s053",
+"lang": "en",
+"prompt": "Write a short poem about Madrid in the rain",
+"label": "stable"
+},
+{
+"id": "s001",
+"lang": "en",
+"prompt": "Explain how a weather forecast model works",
+"label": "stable"
+},
+{
+"id": "f013",
+"lang": "en",
+"prompt": "What are the latest headlines about interest rates?",
+"label": "fresh"
+},
+{
+"id": "f039",
+"lang": "pt",
+"prompt": "Como está o tempo hoje em Lyon?",
+"label": "fresh"
+},
+{
+"id": "s002",
+"lang": "en",
+"prompt": "Write a short poem about Hamburg in the rain",
+"label": "stable"
+},
+{
+"id": "s038",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Denver",
+"label": "stable"
+},
+{
+"id": "s040",
+"lang": "en",
+"prompt": "What is the capital of Kenya?",
+"label": "stable"
+},
+{
+"id": "f034",
+"lang": "es",
+"prompt": "¿Quién ganó el partido de Benfica ayer?",
+"label": "fresh"
+},
+{
+"id": "s024",
+"lang": "en",
+"prompt": "How do I make my code run faster in Swift?",
+"label": "stable"
+},
+{
+"id": "f025",
+"lang": "en",
+"prompt": "What time does the Louvre close tonight?",
+"label": "fresh"
+},
+{
+"id": "f081",
+"lang": "es",
+"prompt": "¿Qué tiempo hace hoy en Lisbon?",
+"label": "fresh"
+},
+{
+"id": "s047",
+"lang": "en",
+"prompt": "How many players are on a cricket team?",
+"label": "stable"
+},
+{
+"id": "f100",
+"lang": "es",
+"prompt": "¿Qué tiempo hace hoy en Toronto?",
+"label": "fresh"
+},
+{
+"id": "s016",
+"lang": "en",
+"prompt": "Write an email asking my landlord to fix the heating",
+"label": "stable"
+},
+{
+"id": "f072",
+"lang": "en",
+"prompt": "What was the score of yesterday's Champions League final?",
+"label": "fresh"
+},
+{
+"id": "s045",
+"lang": "en",
+"prompt": "Translate 'good morning' into Dutch",
+"label": "stable"
+},
+{
+"id": "s072",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Osaka",
+"label": "stable"
+},
+{
+"id": "s034",
+"lang": "fr",
+"prompt": "Écris un poème sur la mer",
+"label": "stable"
+},
+{
+"id": "f066",
+"lang": "pt",
+"prompt": "Como está o tempo hoje em Lisbon?",
+"label": "fresh"
+},
+{
+"id": "s049",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Utrecht",
+"label": "stable"
+},
+{
+"id": "s015",
+"lang": "en",
+"prompt": "Explain how Solana mining works",
+"label": "stable"
+},
+{
+"id": "s073",
+"lang": "en",
+"prompt": "Write a short poem about Denver in the rain",
+"label": "stable"
+},
+{
+"id": "s067",
+"lang": "pt",
+"prompt": "Escreva um poema sobre Lisbon",
+"label": "stable"
+},
+{
+"id": "s059",
+"lang": "de",
+"prompt": "Schreib ein Gedicht über Lyon",
+"label": "stable"
+},
+{
+"id": "s046",
+"lang": "en",
+"prompt": "What's the history of Barcelona?",
+"label": "stable"
+}
+]
+}

@@ -1,0 +1,10 @@
+# Waits until the answer that is being written is complete: the trailing
+# button is back to its idle face.
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible:
+      id: composer-disabled
+    timeout: ${TIMEOUT}
+- waitForAnimationToEnd:
+    timeout: 1500

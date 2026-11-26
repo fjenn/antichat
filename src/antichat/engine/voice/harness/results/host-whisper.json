@@ -1,0 +1,151 @@
+{
+  "dictation": {
+    "rows": [
+      {
+        "id": "en-us-capital",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": null,
+        "wer": 0,
+        "partials": 4,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-gb-timer",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": null,
+        "wer": 0,
+        "partials": 4,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "en-au-plants",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": null,
+        "wer": 0,
+        "partials": 4,
+        "heard": "Can you explain how photosynthesis works in simple terms?"
+      },
+      {
+        "id": "en-in-recipe",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": null,
+        "wer": 0,
+        "partials": 5,
+        "heard": "I need a recipe for dinner tonight with chicken, rice and vegetables."
+      },
+      {
+        "id": "en-ie-trip",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": null,
+        "wer": 0.067,
+        "partials": 5,
+        "heard": "We are planning a trip to Portugal in September, which city should we visit first?"
+      },
+      {
+        "id": "de-de-wetter",
+        "lang": "de",
+        "detected": "de",
+        "snrDb": null,
+        "wer": 0.083,
+        "partials": 4,
+        "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+      },
+      {
+        "id": "es-es-idioma",
+        "lang": "es",
+        "detected": "es",
+        "snrDb": null,
+        "wer": 0,
+        "partials": 3,
+        "heard": "¿Cuál es la mejor manera de aprender un idioma nuevo rápidamente?"
+      },
+      {
+        "id": "fr-fr-livre",
+        "lang": "fr",
+        "detected": "fr",
+        "snrDb": null,
+        "wer": 0.083,
+        "partials": 3,
+        "heard": "Peut-tu me recommander un bon livre à lire pendant les vacances?"
+      },
+      {
+        "id": "en-us-capital-snr15",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": 15,
+        "wer": 0,
+        "partials": 4,
+        "heard": "What is the capital of France and how many people live there?"
+      },
+      {
+        "id": "en-us-capital-snr5",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": 5,
+        "wer": 0,
+        "partials": 4,
+        "heard": "What is the capital of France? And how many people live there?"
+      },
+      {
+        "id": "en-gb-timer-snr10",
+        "lang": "en",
+        "detected": "en",
+        "snrDb": 10,
+        "wer": 0,
+        "partials": 4,
+        "heard": "Set a timer for 15 minutes and remind me to call my sister."
+      },
+      {
+        "id": "de-de-wetter-snr10",
+        "lang": "de",
+        "detected": "de",
+        "snrDb": 10,
+        "wer": 0.083,
+        "partials": 4,
+        "heard": "Wie wird das Wetter Norden in Berlin und brauche ich einen Regenschirm?"
+      }
+    ],
+    "wer": {
+      "all": 0.028,
+      "clean": 0.031,
+      "noisy": 0.02,
+      "english": 0.01,
+      "otherLanguages": 0.064
+    },
+    "realTimeFactor": 0.071
+  },
+  "longDictation": {
+    "seconds": 35,
+    "segments": 6,
+    "wer": 0
+  },
+  "fileTranscription": {
+    "pieces": 3,
+    "wer": 0
+  },
+  "echo": {
+    "echoGain": 0.08,
+    "rawEchoWer": 0,
+    "turnsSaid": 5,
+    "userTurnsCommitted": 5,
+    "leakedTurns": 0,
+    "falseBargeIns": 0,
+    "werOfTurns": 0.016
+  },
+  "bargeIn": {
+    "note": "onset of the interrupting speech to speaker silent; the speaker stop itself is simulated (40 ms)",
+    "onsetToSilentMs": [
+      340,
+      380,
+      340,
+      380,
+      340
+    ],
+    "heard": "Wait, stop, tell me about Italy instead."
+  }
+}

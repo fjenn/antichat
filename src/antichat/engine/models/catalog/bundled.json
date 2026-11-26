@@ -1,0 +1,3976 @@
+{
+  "schemaVersion": 1,
+  "serial": 2026112502,
+  "issuedAt": "2026-11-25T00:00:00Z",
+  "expiresAt": null,
+  "minAppVersion": "0.0.0",
+  "sources": "File names, sizes and SHA-256 read from the Hugging Face API on 2026-11-24; revisions pinned. Ladder and add-ons follow docs/research/04-model-eval-mac.md: Qwen3.5-0.8B is not offered, the unrestricted add-on exists only where the Qwen3.5-4B or Gemma 4 E4B variant fits, at most 8 tools in a prompt. Memory numbers stay provisional until the device spike lands. 2026-11-25: six store-only alternatives added (SmolLM3 3B, Granite 4.0 Micro, Ministral 3 3B/8B, Phi-4 mini, Qwen3.5 9B Unrestricted); repo, revision, size and SHA-256 read from the Hugging Face API, licences from the model cards (Apache-2.0 / MIT); not evaluated, not on any ladder, class defaults unchanged. 2026-11-25 (serial 2026112502): Gemma 4 12B no longer held back (llama.cpp 32561 is open but hits every Gemma 4 size and did not show in our runs); store-only additions Llama 3.2 1B/3B, Llama 3.1 8B, Granite 4.1 3B/8B, Ministral 3 14B, DeepSeek R1 1.5B/7B/8B, Phi-4 mini Reasoning, Qwen2.5 Coder 1.5B/7B, and an unrestricted counterpart (baseModel) for every standard size that has a credible one; repo, revision, size and SHA-256 read from the Hugging Face API; not evaluated; class defaults and ladders unchanged.",
+  "policy": {
+    "speedFloorTokPerSec": 8,
+    "calibrationSeconds": 5,
+    "minContextSize": 2048,
+    "preferredMinContextSize": 4096,
+    "visionWorkingBytes": 268435456,
+    "storage": {
+      "marginBytes": 524288000,
+      "marginFraction": 0.1
+    },
+    "ios": {
+      "weightsFractionOfRam": 0.55,
+      "dirtyFractionOfAvailable": 0.5,
+      "availableFloor": [
+        {
+          "maxRamBytes": 4831838208,
+          "bytes": 1400000000
+        },
+        {
+          "maxRamBytes": 9126805504,
+          "bytes": 3000000000
+        },
+        {
+          "maxRamBytes": null,
+          "bytes": 3300000000
+        }
+      ]
+    },
+    "android": {
+      "overheadFactor": 1.1,
+      "reserveBytes": 1572864000,
+      "budgetFractions": [
+        {
+          "maxRamBytes": 4294967296,
+          "fraction": 0.5
+        },
+        {
+          "maxRamBytes": 8589934592,
+          "fraction": 0.6
+        },
+        {
+          "maxRamBytes": null,
+          "fraction": 0.7
+        }
+      ]
+    },
+    "tierCap": {
+      "low": "A",
+      "mid": "B",
+      "high": "C",
+      "flagship": "E"
+    },
+    "gpu": {
+      "iosMinMajor": 18,
+      "iosMetalReserveBytes": 1717986918,
+      "adrenoMinGeneration": 700,
+      "noGpuMaxRamBytes": {
+        "ios": 0,
+        "android": 4294967296
+      },
+      "androidLayerCaps": [
+        {
+          "maxRamBytes": 6442450944,
+          "layers": 0
+        },
+        {
+          "maxRamBytes": 8589934592,
+          "layers": 12
+        },
+        {
+          "maxRamBytes": null,
+          "layers": 24
+        }
+      ],
+      "initTimeoutMs": {
+        "ios": 45000,
+        "android": 25000
+      }
+    }
+  },
+  "ladder": [
+    "qwen3.5-9b",
+    "gemma-4-e4b-qat",
+    "gemma-4-e2b-qat",
+    "lfm3-1.7b"
+  ],
+  "unrestrictedLadder": [
+    "gemma-4-e4b-unrestricted",
+    "qwen3.5-4b-unrestricted"
+  ],
+  "classes": [
+    {
+      "id": "A",
+      "marketedRamGb": 4,
+      "requires": {
+        "ios": {
+          "weightsPoolBytes": 0,
+          "dirtyPoolBytes": 0
+        },
+        "android": {
+          "poolBytes": 0
+        }
+      },
+      "defaultModel": "lfm3-1.7b",
+      "contextSize": 4096,
+      "unrestrictedModel": null,
+      "features": {
+        "vision": false,
+        "imageGeneration": false,
+        "voiceMode": false,
+        "embeddings": false,
+        "research": false,
+        "followUps": false,
+        "renderHtml": false,
+        "backgroundMemory": false,
+        "searchQueriesPerTurn": 1,
+        "maxTools": 6
+      }
+    },
+    {
+      "id": "B",
+      "marketedRamGb": 6,
+      "requires": {
+        "ios": {
+          "weightsPoolBytes": 3000000000,
+          "dirtyPoolBytes": 900000000
+        },
+        "android": {
+          "poolBytes": 3000000000
+        }
+      },
+      "defaultModel": "lfm3-1.7b",
+      "contextSize": 8192,
+      "unrestrictedModel": null,
+      "features": {
+        "vision": false,
+        "imageGeneration": false,
+        "voiceMode": true,
+        "embeddings": true,
+        "research": false,
+        "followUps": false,
+        "renderHtml": false,
+        "backgroundMemory": true,
+        "searchQueriesPerTurn": 2,
+        "maxTools": 6
+      },
+      "upgrade": {
+        "modelId": "gemma-4-e2b-qat",
+        "mode": "offer"
+      }
+    },
+    {
+      "id": "C",
+      "marketedRamGb": 8,
+      "requires": {
+        "ios": {
+          "weightsPoolBytes": 4000000000,
+          "dirtyPoolBytes": 1200000000
+        },
+        "android": {
+          "poolBytes": 4400000000
+        }
+      },
+      "defaultModel": "gemma-4-e2b-qat",
+      "contextSize": 8192,
+      "unrestrictedModel": "qwen3.5-4b-unrestricted",
+      "features": {
+        "vision": true,
+        "imageGeneration": true,
+        "voiceMode": true,
+        "embeddings": true,
+        "research": true,
+        "followUps": true,
+        "renderHtml": true,
+        "backgroundMemory": true,
+        "searchQueriesPerTurn": 3,
+        "maxTools": 8
+      }
+    },
+    {
+      "id": "D",
+      "marketedRamGb": 12,
+      "requires": {
+        "ios": {
+          "weightsPoolBytes": 6000000000,
+          "dirtyPoolBytes": 1500000000
+        },
+        "android": {
+          "poolBytes": 7000000000
+        }
+      },
+      "defaultModel": "gemma-4-e4b-qat",
+      "contextSize": 16384,
+      "unrestrictedModel": "gemma-4-e4b-unrestricted",
+      "features": {
+        "vision": true,
+        "imageGeneration": true,
+        "voiceMode": true,
+        "embeddings": true,
+        "research": true,
+        "followUps": true,
+        "renderHtml": true,
+        "backgroundMemory": true,
+        "searchQueriesPerTurn": 3,
+        "maxTools": 8
+      },
+      "upgrade": {
+        "modelId": "qwen3.5-9b",
+        "mode": "offer",
+        "minMeasuredAvailableBytes": {
+          "ios": 7000000000
+        }
+      }
+    },
+    {
+      "id": "E",
+      "marketedRamGb": 16,
+      "requires": {
+        "ios": {
+          "weightsPoolBytes": 8199999999,
+          "dirtyPoolBytes": 3500000000
+        },
+        "android": {
+          "poolBytes": 9500000000
+        }
+      },
+      "defaultModel": "qwen3.5-9b",
+      "contextSize": 16384,
+      "unrestrictedModel": "gemma-4-e4b-unrestricted",
+      "features": {
+        "vision": true,
+        "imageGeneration": true,
+        "voiceMode": true,
+        "embeddings": true,
+        "research": true,
+        "followUps": true,
+        "renderHtml": true,
+        "backgroundMemory": true,
+        "searchQueriesPerTurn": 3,
+        "maxTools": 8
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "lfm3-1.7b",
+      "displayName": "LFM3 1.7B",
+      "family": "lfm3",
+      "params": "1.7B",
+      "licence": {
+        "id": "LFM-1.0",
+        "name": "LFM Open License v1.0",
+        "url": "https://www.liquid.ai/lfm-license",
+        "openSource": false,
+        "notice": "Free to use. Commercial use only for organisations under $10M annual revenue."
+      },
+      "tier": "A",
+      "role": "default",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "LiquidAI/LFM3-1.7B-GGUF",
+          "path": "LFM3-1.7B-Q4_K_M.gguf",
+          "revision": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+          "sizeBytes": 1099627808,
+          "sha256": "3793e1e6e2266919d6e015287221b41100175a98eddaba92e111aed3b05c93c4",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "LiquidAI/LFM3-1.7B-GGUF",
+          "path": "LFM3-1.7B-QAD-Q4_0.gguf",
+          "revision": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+          "sizeBytes": 1049615680,
+          "sha256": "43a7d09a0e9cba91b63eb7052488b9564569bddfd65754d2e426465e572a7452",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 4096,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "lfm3-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "ar",
+          "zh",
+          "fr",
+          "de",
+          "it",
+          "ja",
+          "ko",
+          "pt",
+          "es",
+          "vi",
+          "th",
+          "id",
+          "hi",
+          "ru",
+          "pl"
+        ],
+        "source": "LiquidAI/LFM3-1.7B"
+      },
+      "memory": {
+        "kvBytesPerToken": 40960,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 838860800,
+          "android": 1572864000
+        },
+        "basis": "estimate",
+        "note": "Hybrid conv/attention model; per-layer KV heads not read. Estimate until measured on a device."
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 66,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Quick everyday answers"
+    },
+    {
+      "id": "lfm3-vl-2b",
+      "displayName": "LFM3 VL 2B",
+      "family": "lfm3",
+      "params": "2B",
+      "licence": {
+        "id": "LFM-1.0",
+        "name": "LFM Open License v1.0",
+        "url": "https://www.liquid.ai/lfm-license",
+        "openSource": false,
+        "notice": "Free to use. Commercial use only for organisations under $10M annual revenue."
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "LiquidAI/LFM3-VL-2B-GGUF",
+          "path": "LFM3-VL-2B-Q4_K_M.gguf",
+          "revision": "1add221a5ea6c047fcf1eaaf2d247939d7cf8849",
+          "sizeBytes": 1099627808,
+          "sha256": "56dac2e192ff0d9ab8507f4f1aeb4aed0463449bbbefaac79497f041c95f21eb",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "LiquidAI/LFM3-VL-2B-GGUF",
+          "path": "LFM3-VL-2B-QAD-Q4_0.gguf",
+          "revision": "1add221a5ea6c047fcf1eaaf2d247939d7cf8849",
+          "sizeBytes": 1049615648,
+          "sha256": "621c455376cb96a20891697deb9975c6fb47dd5ea98ed3ad1f3b7e8f24f0b1e6",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "LiquidAI/LFM3-VL-2B-GGUF",
+        "path": "mmproj-LFM3-VL-2B-Q8_0.gguf",
+        "revision": "1add221a5ea6c047fcf1eaaf2d247939d7cf8849",
+        "sizeBytes": 203031872,
+        "sha256": "c5c5b58d544a18da919172d2d0368090ea1a4a351b6feb7f8a326a264a5918ab",
+        "quant": "Q8_0",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 4096,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "lfm3-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "ar",
+          "zh",
+          "fr",
+          "de",
+          "it",
+          "ja",
+          "ko",
+          "pt",
+          "es",
+          "vi",
+          "th",
+          "id",
+          "hi",
+          "ru",
+          "pl"
+        ],
+        "source": "LiquidAI/LFM3-VL-2B-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 40960,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 838860800,
+          "android": 1572864000
+        },
+        "basis": "estimate"
+      },
+      "note": "Vision answer for 4-6 GB phones; not evaluated yet.",
+      "summary": "Quick, and reads photos"
+    },
+    {
+      "id": "qwen3.5-2b",
+      "displayName": "Qwen3.5 2B",
+      "family": "qwen3.5",
+      "params": "2B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Qwen3.5-2B-GGUF",
+          "path": "Qwen3.5-2B-Q4_K_M.gguf",
+          "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+          "sizeBytes": 1280835840,
+          "sha256": "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "unsloth/Qwen3.5-2B-GGUF",
+          "path": "Qwen3.5-2B-Q4_0.gguf",
+          "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+          "sizeBytes": 1214873856,
+          "sha256": "cd70221bebaee0503e0f6717e174250cd7825aa88438b3aabec9ad55731d9bb1",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/Qwen3.5-2B-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+        "sizeBytes": 668227264,
+        "sha256": "7035e9cb8d7c6a9681d07eef9a364783e86ea4cd73faab2eabb4f43a101830c7",
+        "quant": "F16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-2B"
+      },
+      "memory": {
+        "kvBytesPerToken": 49152,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 838860800,
+          "android": 1887436800
+        },
+        "basis": "gguf-upper-bound"
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 61,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Small, and reads photos"
+    },
+    {
+      "id": "gemma-4-e2b-qat",
+      "displayName": "Gemma 4 E2B",
+      "family": "gemma4",
+      "params": "E2B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "default",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/gemma-4-E2B-it-qat-GGUF",
+          "path": "gemma-4-E2B-it-qat-UD-Q4_K_XL.gguf",
+          "revision": "66a399f68ddd113b06dff02fca9523e55465d11d",
+          "sizeBytes": 2620370976,
+          "sha256": "e531007218dfab990486a5de7676a6932d6ea8dea233d1f698d7c21cf8a16889",
+          "quant": "UD-Q4_K_XL (QAT)",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/gemma-4-E2B-it-qat-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "66a399f68ddd113b06dff02fca9523e55465d11d",
+        "sizeBytes": 985654080,
+        "sha256": "13c8966d1635d02e6727f27402880614906fa291850c07feda18dbcddf2291b6",
+        "quant": "F16",
+        "modalities": [
+          "image",
+          "audio"
+        ]
+      },
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": true,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-E2B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 12288,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 734003200,
+          "android": 3355443200
+        },
+        "basis": "estimate",
+        "note": "Sliding-window model: assumes 6 global layers; local layers are in the fixed part."
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 67,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Good writing, maths and languages"
+    },
+    {
+      "id": "qwen3.5-4b",
+      "displayName": "Qwen3.5 4B",
+      "family": "qwen3.5",
+      "params": "4B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Qwen3.5-4B-GGUF",
+          "path": "Qwen3.5-4B-Q4_K_M.gguf",
+          "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+          "sizeBytes": 2740937888,
+          "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "unsloth/Qwen3.5-4B-GGUF",
+          "path": "Qwen3.5-4B-Q4_0.gguf",
+          "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+          "sizeBytes": 2583221408,
+          "sha256": "298fcb5fe7a77ccc79745ae24751560c5ac56874caff4bb39b1f2055bd72b8bb",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/Qwen3.5-4B-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+        "sizeBytes": 672423616,
+        "sha256": "cd88edcf8d031894960bb0c9c5b9b7e1fea6ebee02b9f7ce925a00d12891f864",
+        "quant": "F16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-4B"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3879731200
+        },
+        "basis": "gguf-upper-bound"
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 78,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Strong with tools and photos"
+    },
+    {
+      "id": "gemma-4-e4b-qat",
+      "displayName": "Gemma 4 E4B",
+      "family": "gemma4",
+      "params": "E4B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "default",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/gemma-4-E4B-it-qat-GGUF",
+          "path": "gemma-4-E4B-it-qat-UD-Q4_K_XL.gguf",
+          "revision": "8c5a9e4fd5482e2be20fe0bf013b4c262a8f4265",
+          "sizeBytes": 4215695776,
+          "sha256": "df0fd4ee07072c607c29a0a1cb4f98918426cca12f45a2776bdd6ee6d09a4de3",
+          "quant": "UD-Q4_K_XL (QAT)",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/gemma-4-E4B-it-qat-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "8c5a9e4fd5482e2be20fe0bf013b4c262a8f4265",
+        "sizeBytes": 990372672,
+        "sha256": "6a255159ee4b01b304f633a57f017dd7d5a69d30fff52abb2614bf0813cef034",
+        "quant": "F16",
+        "modalities": [
+          "image",
+          "audio"
+        ]
+      },
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": true,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-E4B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 356515840,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 5242880000
+        },
+        "basis": "estimate",
+        "note": "Sliding-window model: assumes 7 global layers; local layers are in the fixed part."
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 72,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Best answers we measured"
+    },
+    {
+      "id": "qwen3.5-9b",
+      "displayName": "Qwen3.5 9B",
+      "family": "qwen3.5",
+      "params": "9B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "default",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Qwen3.5-9B-GGUF",
+          "path": "Qwen3.5-9B-Q4_K_M.gguf",
+          "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+          "sizeBytes": 5680522464,
+          "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "unsloth/Qwen3.5-9B-GGUF",
+          "path": "Qwen3.5-9B-Q4_0.gguf",
+          "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+          "sizeBytes": 5379417312,
+          "sha256": "17670346b4260ddcb0173965145155885024f3c9a4a24389a3370751edbcde24",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/Qwen3.5-9B-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+        "sizeBytes": 918166080,
+        "sha256": "f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f",
+        "quant": "F16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-9B"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6920601600
+        },
+        "basis": "gguf-upper-bound"
+      },
+      "eval": {
+        "toolCalls": {
+          "passed": 83,
+          "of": 90,
+          "source": "mac-eval-2026-11-24 base, 6 tools, 3 seeds (partial run)"
+        }
+      },
+      "summary": "Best at tools and web search"
+    },
+    {
+      "id": "gemma-4-12b-qat",
+      "displayName": "Gemma 4 12B",
+      "family": "gemma4",
+      "params": "12B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/gemma-4-12B-it-qat-GGUF",
+          "path": "gemma-4-12B-it-qat-UD-Q4_K_XL.gguf",
+          "revision": "980b060c40a8539ac159e0501a3e0f66a6365af3",
+          "sizeBytes": 6716356800,
+          "sha256": "90fd44e29e0d7cffeb0fd00dc73cfdab9ed0b0e95306ecf7821ea634c940c370",
+          "quant": "UD-Q4_K_XL (QAT)",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "unsloth/gemma-4-12B-it-qat-GGUF",
+        "path": "mmproj-F16.gguf",
+        "revision": "980b060c40a8539ac159e0501a3e0f66a6365af3",
+        "sizeBytes": 175115840,
+        "sha256": "ecc4e93128da8363b7dbf2193eab98cf1142353f52ceaa0c95c0872997aaadd3",
+        "quant": "F16",
+        "modalities": [
+          "image",
+          "audio"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": true,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-12B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 65536,
+        "fixedBytes": 419430400,
+        "minMeasuredAvailableBytes": {
+          "ios": 1468006400,
+          "android": 8178892800
+        },
+        "basis": "estimate",
+        "note": "Header not read; scaled from E4B."
+      },
+      "note": "Store only; not evaluated by us. llama.cpp 32561 (Gemma 4 tool-call grammar with JSON-quoted nested values) is open but affects all Gemma 4 sizes and did not show with our flat tool schemas on E2B/E4B.",
+      "summary": "Deep answers on big phones"
+    },
+    {
+      "id": "qwen3.5-4b-unrestricted",
+      "displayName": "Qwen3.5 4B Unrestricted",
+      "family": "qwen3.5",
+      "params": "4B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "default",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive",
+          "path": "Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf",
+          "revision": "c09cdbcdb1fefad6d335809d445621b5f5ba0c6e",
+          "sizeBytes": 2707513696,
+          "sha256": "79e28ecacf84e75b6056cf4059636d435aa9eb67795780f7b7dbc7d32a962741",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive",
+        "path": "mmproj-Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-BF16.gguf",
+        "revision": "c09cdbcdb1fefad6d335809d445621b5f5ba0c6e",
+        "sizeBytes": 675568768,
+        "sha256": "a1e32e86ea99aa7a56f3dcfe7e63c1d0be9439d31fd07087099f15bc0fda0f22",
+        "quant": "BF16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-4B"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3984588800
+        },
+        "basis": "gguf-upper-bound"
+      },
+      "baseModel": "qwen3.5-4b",
+      "summary": "No built-in refusals"
+    },
+    {
+      "id": "gemma-4-e4b-unrestricted",
+      "displayName": "Gemma 4 E4B Unrestricted",
+      "family": "gemma4",
+      "params": "E4B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "default",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF",
+          "path": "gemma-4-E4B-it-ultra-uncensored-heretic-Q4_K_M.gguf",
+          "revision": "93619707525a1c3d95ca011b4058ac0907043be5",
+          "sizeBytes": 5335289696,
+          "sha256": "f9dbbe3bdf396f65aec4e801516a1b868a510d96225417a8aa06763e3c5b97dc",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF",
+        "path": "gemma-4-E4B-it-mmproj-BF16.gguf",
+        "revision": "93619707525a1c3d95ca011b4058ac0907043be5",
+        "sizeBytes": 991552000,
+        "sha256": "ffa64aebf7144bbadd5a1e143b77794d88e76a81cc0168d91de0770eb49e88e0",
+        "quant": "BF16",
+        "modalities": [
+          "image",
+          "audio"
+        ]
+      },
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": true,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-E4B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 356515840,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 6396313600
+        },
+        "basis": "estimate"
+      },
+      "baseModel": "gemma-4-e4b-qat",
+      "summary": "No built-in refusals"
+    },
+    {
+      "id": "smollm3-3b",
+      "displayName": "SmolLM3 3B",
+      "family": "smollm3",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "ggml-org/SmolLM3-3B-GGUF",
+          "path": "SmolLM3-Q4_K_M.gguf",
+          "revision": "4965cb60b150737b68a0408c36aeefb65078f894",
+          "sizeBytes": 1915305312,
+          "sha256": "8334b850b7bd46238c16b0c550df2138f0889bf433809008cc17a8b05761863e",
+          "quant": "Q4_K_M"
+        }
+      ],
+      "context": {
+        "trained": 65536,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt"
+        ],
+        "source": "HuggingFaceTB/SmolLM3-3B"
+      },
+      "memory": {
+        "kvBytesPerToken": 73728,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 2726297600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "summary": "Fully open, light and quick"
+    },
+    {
+      "id": "granite-4.0-micro",
+      "displayName": "Granite 4.0 Micro",
+      "family": "granite4",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "ibm-granite/granite-4.0-micro-GGUF",
+          "path": "granite-4.0-micro-Q4_K_M.gguf",
+          "revision": "55cded3dcb8ab9f0fdd5373f4e960ffb7fda1c61",
+          "sizeBytes": 2099502528,
+          "sha256": "97c417dcc0534b0737c74016fb2af083cb17c3b51eaac621192d23961b7024eb",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu"
+          ]
+        },
+        {
+          "repo": "ibm-granite/granite-4.0-micro-GGUF",
+          "path": "granite-4.0-micro-Q4_0.gguf",
+          "revision": "55cded3dcb8ab9f0fdd5373f4e960ffb7fda1c61",
+          "sizeBytes": 1984609728,
+          "sha256": "41ddec7abeba67178442a45829d8093354b334ba709e41a998e859a3a8ef655e",
+          "quant": "Q4_0",
+          "backends": [
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.0-micro"
+      },
+      "memory": {
+        "kvBytesPerToken": 81920,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 3040870400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "summary": "Plain, to-the-point answers"
+    },
+    {
+      "id": "ministral-3-3b",
+      "displayName": "Ministral 3 3B",
+      "family": "ministral3",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "mistralai/Ministral-3-3B-Instruct-2512-GGUF",
+          "path": "Ministral-3-3B-Instruct-2512-Q4_K_M.gguf",
+          "revision": "eb599d408350ea2bb60452cb86be7c7b2fc28227",
+          "sizeBytes": 2147023008,
+          "sha256": "9ed150d4367e68df0ac8e1540f6ddc65b42d0ee26378329d1ecbca60f93fc5f8",
+          "quant": "Q4_K_M"
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-3B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 106496,
+        "fixedBytes": 262144000,
+        "minMeasuredAvailableBytes": {
+          "ios": 1363148800,
+          "android": 3145728000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "summary": "Compact model from Mistral"
+    },
+    {
+      "id": "phi-4-mini",
+      "displayName": "Phi-4 mini",
+      "family": "phi4",
+      "params": "3.8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Phi-4-mini-instruct-GGUF",
+          "path": "Phi-4-mini-instruct-Q4_K_M.gguf",
+          "revision": "78eb92a46fc37e6b524df991ed9aca9bc6aa7b80",
+          "sizeBytes": 2491874272,
+          "sha256": "88c00229914083cd112853aab84ed51b87bdf6b9ce42f532d8c85c7c63b1730a",
+          "quant": "Q4_K_M"
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "phi4",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "ar",
+          "zh",
+          "cs",
+          "da",
+          "nl",
+          "en",
+          "fi",
+          "fr",
+          "de",
+          "he",
+          "hu",
+          "it",
+          "ja",
+          "ko",
+          "no",
+          "pl",
+          "pt",
+          "ru",
+          "es",
+          "sv",
+          "th",
+          "tr",
+          "uk"
+        ],
+        "source": "microsoft/Phi-4-mini-instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3565158400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "summary": "Good at reasoning and code"
+    },
+    {
+      "id": "ministral-3-8b",
+      "displayName": "Ministral 3 8B",
+      "family": "ministral3",
+      "params": "8B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "mistralai/Ministral-3-8B-Instruct-2512-GGUF",
+          "path": "Ministral-3-8B-Instruct-2512-Q4_K_M.gguf",
+          "revision": "0102285ad796bd99af90f58de616092e5630e970",
+          "sizeBytes": 5198911904,
+          "sha256": "33e7a72cf5e6e2cfc2f2847075acc013d68bba023e35310cef86b5cf8fdca761",
+          "quant": "Q4_K_M"
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-8B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 139264,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6815744000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "summary": "Careful writing, slower"
+    },
+    {
+      "id": "qwen3.5-9b-unrestricted",
+      "displayName": "Qwen3.5 9B Unrestricted",
+      "family": "qwen3.5",
+      "params": "9B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "HauhauCS/Qwen3.5-9B-Uncensored-HauhauCS-Aggressive",
+          "path": "Qwen3.5-9B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf",
+          "revision": "0a41c68809d375475f954be12ba7c40efa56c2a9",
+          "sizeBytes": 5627044224,
+          "sha256": "2ca636d9e81d3d23ca9b60c234fe185d30ec082eeba69ce770fdb0c76559a4f5",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "projector": {
+        "repo": "HauhauCS/Qwen3.5-9B-Uncensored-HauhauCS-Aggressive",
+        "path": "mmproj-Qwen3.5-9B-Uncensored-HauhauCS-Aggressive-BF16.gguf",
+        "revision": "0a41c68809d375475f954be12ba7c40efa56c2a9",
+        "sizeBytes": 921704448,
+        "sha256": "05f662501f8bd45607b079723a3e238a4e888fd085a10a53f4057a0e250f6934",
+        "quant": "BF16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-9B"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 7025459200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors scaled from the Qwen3.5 entries of similar size."
+      },
+      "baseModel": "qwen3.5-9b",
+      "summary": "No built-in refusals"
+    },
+    {
+      "id": "gemma-4-12b-unrestricted",
+      "displayName": "Gemma 4 12B Unrestricted",
+      "family": "gemma4",
+      "params": "12B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "TrevorJS/gemma-4-12B-it-uncensored-GGUF",
+          "path": "gemma-4-12B-it-uncensored-Q4_K_M.gguf",
+          "revision": "d878d412b001a720b9a62eaac432d00aac9d1b4f",
+          "sizeBytes": 7381382208,
+          "sha256": "6f78e675eddd0f1ec8079ba4f66193880e14dfcb42002b6bd72c18ad7c365494",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-12B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 65536,
+        "fixedBytes": 419430400,
+        "minMeasuredAvailableBytes": {
+          "ios": 1468006400,
+          "android": 8388608000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "gemma-4-12b-qat",
+      "note": "Pick from docs/research/04-model-eval-mac.md (16 GB uncensored); no projector in the repo, so text only. Not evaluated on a phone."
+    },
+    {
+      "id": "gemma-4-e2b-unrestricted",
+      "displayName": "Gemma 4 E2B Unrestricted",
+      "family": "gemma4",
+      "params": "E2B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "llmfan46/gemma-4-E2B-it-ultra-uncensored-heretic-GGUF",
+          "path": "gemma-4-E2B-it-ultra-uncensored-heretic-Q4_K_M.gguf",
+          "revision": "e16997210b96c34c4dbd61a452765819db5f0c0e",
+          "sizeBytes": 3427879136,
+          "sha256": "b458a896b652de933a587a660c21a4b2516f936934db328ae44bbad7a4518ac5",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "gemma4",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": true,
+        "thinking": true
+      },
+      "languages": {
+        "count": 140,
+        "atLeast": true,
+        "source": "google/gemma-4-E2B-it"
+      },
+      "memory": {
+        "kvBytesPerToken": 12288,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 734003200,
+          "android": 5138022400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "gemma-4-e2b-qat",
+      "projector": {
+        "repo": "llmfan46/gemma-4-E2B-it-ultra-uncensored-heretic-GGUF",
+        "path": "gemma-4-E2B-it-mmproj-BF16.gguf",
+        "revision": "e16997210b96c34c4dbd61a452765819db5f0c0e",
+        "sizeBytes": 986833408,
+        "sha256": "d460bb51ce5115232a723a7366694c8ee70d8aa8f60159d182a1da0777d10db3",
+        "quant": "BF16",
+        "modalities": [
+          "image",
+          "audio"
+        ]
+      },
+      "note": "Same author as the E4B add-on (heretic). Not evaluated by us."
+    },
+    {
+      "id": "qwen3.5-2b-unrestricted",
+      "displayName": "Qwen3.5 2B Unrestricted",
+      "family": "qwen3.5",
+      "params": "2B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive",
+          "path": "Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf",
+          "revision": "2bcf35c1ebf62c837c12c1aa90b578ff4717e831",
+          "sizeBytes": 1270808032,
+          "sha256": "be3ccca13a9d1bc8b67165ea80bd103cd6151a37ad131183cc7ca388f78d9517",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "qwen3-coder-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": true,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "count": 201,
+        "source": "Qwen/Qwen3.5-2B"
+      },
+      "memory": {
+        "kvBytesPerToken": 49152,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 838860800,
+          "android": 2726297600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "qwen3.5-2b",
+      "projector": {
+        "repo": "HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive",
+        "path": "mmproj-Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-f16.gguf",
+        "revision": "2bcf35c1ebf62c837c12c1aa90b578ff4717e831",
+        "sizeBytes": 668226688,
+        "sha256": "a86ac75fbd9a11d1883c688969d88a11d3d24a729cc7e181833fd2e1b3865c9d",
+        "quant": "F16",
+        "modalities": [
+          "image"
+        ]
+      },
+      "note": "Same author as the 4B/9B add-ons. Not evaluated by us."
+    },
+    {
+      "id": "lfm3-1.7b-unrestricted",
+      "displayName": "LFM3 1.7B Unrestricted",
+      "family": "lfm3",
+      "params": "1.7B",
+      "licence": {
+        "id": "LFM-1.0",
+        "name": "LFM Open License v1.0",
+        "url": "https://www.liquid.ai/lfm-license",
+        "openSource": false,
+        "notice": "Free to use. Commercial use only for organisations under $10M annual revenue."
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "AtomicChat/LFM3-1.7B-Uncensored-GGUF",
+          "path": "LFM3-1.7B-Uncensored-AD-Q4_K_M.gguf",
+          "revision": "3ad712542eb9de349dbd28f2739b69c925cdec7d",
+          "sizeBytes": 1132208000,
+          "sha256": "b22df65673b54ed326f18f74826d76f3b65dadc237ffd6306cd52be04544827d",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 4096,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "lfm3-xml",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "ar",
+          "zh",
+          "fr",
+          "de",
+          "it",
+          "ja",
+          "ko",
+          "pt",
+          "es",
+          "vi",
+          "th",
+          "id",
+          "hi",
+          "ru",
+          "pl"
+        ],
+        "source": "LiquidAI/LFM3-1.7B"
+      },
+      "memory": {
+        "kvBytesPerToken": 40960,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 838860800,
+          "android": 1887436800
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "lfm3-1.7b",
+      "note": "Community abliterated/uncensored build; not evaluated by us."
+    },
+    {
+      "id": "ministral-3-3b-unrestricted",
+      "displayName": "Ministral 3 3B Unrestricted",
+      "family": "ministral3",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "Abiray/Huihui-Ministral-3B-Instruct-2512-abliterated-GGUF",
+          "path": "Huihui-Ministral-3B-Abliterated-Q4_K_M.gguf",
+          "revision": "aaa02c2d471c4702ea95b2c59c8c00beda4dde95",
+          "sizeBytes": 2146497824,
+          "sha256": "00331124445444adc7f145135ee196502364c46d873fe02d19bd6f1d3f768751",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-3B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 106496,
+        "fixedBytes": 262144000,
+        "minMeasuredAvailableBytes": {
+          "ios": 1363148800,
+          "android": 3250585600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "ministral-3-3b",
+      "note": "GGUF of huihui-ai/Huihui-Ministral-3-3B-Instruct-2512-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "ministral-3-8b-unrestricted",
+      "displayName": "Ministral 3 8B Unrestricted",
+      "family": "ministral3",
+      "params": "8B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Ministral-3-8B-Instruct-2512-BF16-abliterated-GGUF",
+          "path": "Ministral-3-8B-Instruct-2512-BF16-abliterated.Q4_K_M.gguf",
+          "revision": "4cff00f7873e6b4294d6c14422a525c4589194a3",
+          "sizeBytes": 5198387680,
+          "sha256": "be5068ea6a5f25a1ec62020d24eafff994b9e75cf893406c375dd1f151a49c3e",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-8B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 139264,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6815744000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "ministral-3-8b",
+      "note": "GGUF of s3nh/Ministral-3-8B-Instruct-2512-BF16-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "smollm3-3b-unrestricted",
+      "displayName": "SmolLM3 3B Unrestricted",
+      "family": "smollm3",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Huihui-SmolLM3-3B-abliterated-GGUF",
+          "path": "Huihui-SmolLM3-3B-abliterated.Q4_K_M.gguf",
+          "revision": "a22d8c90fba43ece78e78aeeed904a10148b7fb0",
+          "sizeBytes": 1915306368,
+          "sha256": "d3ce317147fbf997c3b34f0050a43a42210c20797ac5747a15182cfb532734c0",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 65536,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt"
+        ],
+        "source": "HuggingFaceTB/SmolLM3-3B"
+      },
+      "memory": {
+        "kvBytesPerToken": 73728,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 2831155200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "smollm3-3b",
+      "note": "GGUF of huihui-ai/Huihui-SmolLM3-3B-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "granite-4.0-micro-unrestricted",
+      "displayName": "Granite 4.0 Micro Unrestricted",
+      "family": "granite4",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Huihui-granite-4.0-micro-abliterated-GGUF",
+          "path": "Huihui-granite-4.0-micro-abliterated.Q4_K_M.gguf",
+          "revision": "ad4d1c34ce0dd2c109507edcb6de81d10959371a",
+          "sizeBytes": 2099503008,
+          "sha256": "31c320ac22ef491dd67d3fd2787c00f39405be4ceb60a09113c1a821b8131a7f",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.0-micro"
+      },
+      "memory": {
+        "kvBytesPerToken": 81920,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 3040870400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "granite-4.0-micro",
+      "note": "GGUF of huihui-ai/Huihui-granite-4.0-micro-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "phi-4-mini-unrestricted",
+      "displayName": "Phi-4 mini Unrestricted",
+      "family": "phi4",
+      "params": "3.8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/license/mit",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Phi-4-mini-instruct-abliterated-GGUF",
+          "path": "Phi-4-mini-instruct-abliterated.Q4_K_M.gguf",
+          "revision": "352a82c3dbb28cff03d15c07757679ac56fdafa2",
+          "sizeBytes": 2491875424,
+          "sha256": "e3b3983f0a84d2966ad6563578affaa89b6ba2543dfa77a99987cbd913906108",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "phi4",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "ar",
+          "zh",
+          "cs",
+          "da",
+          "nl",
+          "en",
+          "fi",
+          "fr",
+          "de",
+          "he",
+          "hu",
+          "it",
+          "ja",
+          "ko",
+          "no",
+          "pl",
+          "pt",
+          "ru",
+          "es",
+          "sv",
+          "th",
+          "tr",
+          "uk"
+        ],
+        "source": "microsoft/Phi-4-mini-instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3670016000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "phi-4-mini",
+      "note": "GGUF of lunahr/Phi-4-mini-instruct-abliterated (MIT). Not evaluated by us."
+    },
+    {
+      "id": "ministral-3-14b",
+      "displayName": "Ministral 3 14B",
+      "family": "ministral3",
+      "params": "14B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "mistralai/Ministral-3-14B-Instruct-2512-GGUF",
+          "path": "Ministral-3-14B-Instruct-2512-Q4_K_M.gguf",
+          "revision": "74fac473c43357d7fb2671713608183cc72496d0",
+          "sizeBytes": 8239593024,
+          "sha256": "824e0f3373e69b84f2cae46fdcb9bd1ebc6ab3bfc7acc125d818b7b8178cc613",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-14B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 163840,
+        "fixedBytes": 419430400,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 9646899200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Mistral’s largest; careful, slow",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "ministral-3-14b-unrestricted",
+      "displayName": "Ministral 3 14B Unrestricted",
+      "family": "ministral3",
+      "params": "14B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Ministral-3-14B-Instruct-2512-BF16-abliterated-GGUF",
+          "path": "Ministral-3-14B-Instruct-2512-BF16-abliterated.Q4_K_M.gguf",
+          "revision": "167aaac5d0db26a2112ebd5bca36835dc2182cd2",
+          "sizeBytes": 8239068800,
+          "sha256": "e71d74af0153350cbaf9083109e9f49e334c732341706e09b958b360b5d8c0a0",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 262144,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "mistral",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl",
+          "zh",
+          "ja",
+          "ko",
+          "ar"
+        ],
+        "source": "mistralai/Ministral-3-14B-Instruct-2512-GGUF"
+      },
+      "memory": {
+        "kvBytesPerToken": 163840,
+        "fixedBytes": 419430400,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 9646899200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "ministral-3-14b",
+      "note": "GGUF of s3nh/Ministral-3-14B-Instruct-2512-BF16-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "granite-4.1-3b",
+      "displayName": "Granite 4.1 3B",
+      "family": "granite4",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "ibm-granite/granite-4.1-3b-GGUF",
+          "path": "granite-4.1-3b-Q4_K_M.gguf",
+          "revision": "ab4701481089b58a082ef63cc1cee738887293ff",
+          "sizeBytes": 2099501664,
+          "sha256": "662b0626cd58f443baea23559b469df6576a81d349649c59413b36a9fb32eb29",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.1-3b"
+      },
+      "memory": {
+        "kvBytesPerToken": 81920,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3040870400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Clear, to-the-point answers",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "granite-4.1-3b-unrestricted",
+      "displayName": "Granite 4.1 3B Unrestricted",
+      "family": "granite4",
+      "params": "3B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Huihui-granite-4.1-3b-abliterated-GGUF",
+          "path": "Huihui-granite-4.1-3b-abliterated.Q4_K_M.gguf",
+          "revision": "c1344c80b4d9565d56c65acfce7725356d461c81",
+          "sizeBytes": 2099502624,
+          "sha256": "3616f9aa3ba080c5b88cd380691a5b778e5ca03e85867778a7444dc9338d0a54",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.1-3b"
+      },
+      "memory": {
+        "kvBytesPerToken": 81920,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3040870400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "granite-4.1-3b",
+      "note": "GGUF of huihui-ai/Huihui-granite-4.1-3b-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "granite-4.1-8b",
+      "displayName": "Granite 4.1 8B",
+      "family": "granite4",
+      "params": "8B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "ibm-granite/granite-4.1-8b-GGUF",
+          "path": "granite-4.1-8b-Q4_K_M.gguf",
+          "revision": "865b82c2e7970d82e3731278c88c57ae7138359c",
+          "sizeBytes": 5347914400,
+          "sha256": "ed902ac9eb6adce5a90c6a08c8ea201b50e23fdc5976d1cd0362006afac5309e",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.1-8b"
+      },
+      "memory": {
+        "kvBytesPerToken": 163840,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6710886400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Follows instructions closely",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "granite-4.1-8b-unrestricted",
+      "displayName": "Granite 4.1 8B Unrestricted",
+      "family": "granite4",
+      "params": "8B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Huihui-granite-4.1-8b-abliterated-GGUF",
+          "path": "Huihui-granite-4.1-8b-abliterated.Q4_K_M.gguf",
+          "revision": "8daab2423ecdc964f5779c28415233b6b6132019",
+          "sizeBytes": 5347915328,
+          "sha256": "a9c8b9479f4c1511c1323297441ecd11e644b1b23462cf6207d9c367114114de",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "granite",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "es",
+          "fr",
+          "ja",
+          "pt",
+          "ar",
+          "cs",
+          "it",
+          "ko",
+          "nl",
+          "zh"
+        ],
+        "source": "ibm-granite/granite-4.1-8b"
+      },
+      "memory": {
+        "kvBytesPerToken": 163840,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6710886400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "granite-4.1-8b",
+      "note": "GGUF of huihui-ai/Huihui-granite-4.1-8b-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "llama-3.2-1b",
+      "displayName": "Llama 3.2 1B",
+      "family": "llama3",
+      "params": "1B",
+      "licence": {
+        "id": "Llama-3.2",
+        "name": "Llama 3.2 Community License",
+        "url": "https://www.llama.com/llama3_2/license/",
+        "openSource": false,
+        "notice": "Free to use. Services with over 700 million monthly users need a licence from Meta."
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+          "path": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+          "revision": "067b946cf014b7c697f3654f621d577a3e3afd1c",
+          "sizeBytes": 807694464,
+          "sha256": "6f85a640a97cf2bf5b8e764087b1e83da0fdb51d7c9fab7d0fece9385611df83",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 4096,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "llama3-json",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "fr",
+          "it",
+          "pt",
+          "hi",
+          "es",
+          "th"
+        ],
+        "source": "meta-llama/Llama-3.2-1B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 32768,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 1468006400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Tiny and very quick",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "llama-3.2-3b",
+      "displayName": "Llama 3.2 3B",
+      "family": "llama3",
+      "params": "3B",
+      "licence": {
+        "id": "Llama-3.2",
+        "name": "Llama 3.2 Community License",
+        "url": "https://www.llama.com/llama3_2/license/",
+        "openSource": false,
+        "notice": "Free to use. Services with over 700 million monthly users need a licence from Meta."
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Llama-3.2-3B-Instruct-GGUF",
+          "path": "Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+          "revision": "e7d0997e49c9cb00d88b4c1a6a16aa894b0bbc31",
+          "sizeBytes": 2019377600,
+          "sha256": "6c99cc00ae910f6a532a80022cb4bc1939094527a089c29294b841c0bd87f74d",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "llama3-json",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "fr",
+          "it",
+          "pt",
+          "hi",
+          "es",
+          "th"
+        ],
+        "source": "meta-llama/Llama-3.2-3B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 114688,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3040870400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Friendly everyday answers",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "llama-3.2-3b-unrestricted",
+      "displayName": "Llama 3.2 3B Unrestricted",
+      "family": "llama3",
+      "params": "3B",
+      "licence": {
+        "id": "Llama-3.2",
+        "name": "Llama 3.2 Community License",
+        "url": "https://www.llama.com/llama3_2/license/",
+        "openSource": false,
+        "notice": "Free to use. Services with over 700 million monthly users need a licence from Meta."
+      },
+      "tier": "B",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Llama-3.2-3B-Instruct-abliterated-GGUF",
+          "path": "Llama-3.2-3B-Instruct-abliterated.Q4_K_M.gguf",
+          "revision": "0b0fc4afe030af5b9bf106fe61b64967e3de67be",
+          "sizeBytes": 2241004512,
+          "sha256": "3a8ad1732ca90048bc5ecf44dcb3b789469e8a68d389ab79516853bf0d27ad34",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "llama3-json",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "fr",
+          "it",
+          "pt",
+          "hi",
+          "es",
+          "th"
+        ],
+        "source": "meta-llama/Llama-3.2-3B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 114688,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3250585600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "llama-3.2-3b",
+      "note": "GGUF of huihui-ai/Llama-3.2-3B-Instruct-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "llama-3.1-8b",
+      "displayName": "Llama 3.1 8B",
+      "family": "llama3",
+      "params": "8B",
+      "licence": {
+        "id": "Llama-3.1",
+        "name": "Llama 3.1 Community License",
+        "url": "https://www.llama.com/llama3_1/license/",
+        "openSource": false,
+        "notice": "Free to use. Services with over 700 million monthly users need a licence from Meta."
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+          "path": "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+          "revision": "bf5b95e96dac0462e2a09145ec66cae9a3f12067",
+          "sizeBytes": 4920739232,
+          "sha256": "7b064f5842bf9532c91456deda288a1b672397a54fa729aa665952863033557c",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "llama3-json",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "fr",
+          "it",
+          "pt",
+          "hi",
+          "es",
+          "th"
+        ],
+        "source": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6186598400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Broad general knowledge",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "llama-3.1-8b-unrestricted",
+      "displayName": "Llama 3.1 8B Unrestricted",
+      "family": "llama3",
+      "params": "8B",
+      "licence": {
+        "id": "Llama-3.1",
+        "name": "Llama 3.1 Community License",
+        "url": "https://www.llama.com/llama3_1/license/",
+        "openSource": false,
+        "notice": "Free to use. Services with over 700 million monthly users need a licence from Meta."
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated-GGUF",
+          "path": "meta-llama-3.1-8b-instruct-abliterated.Q4_K_M.gguf",
+          "revision": "9a44c6b2a6e355dfd5beea6f5d5ad47412b632da",
+          "sizeBytes": 4920734784,
+          "sha256": "c4735f9efaba8eb2c30113291652e3ffe13bf940b675ed61f6be749608b4f266",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "llama3-json",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en",
+          "de",
+          "fr",
+          "it",
+          "pt",
+          "hi",
+          "es",
+          "th"
+        ],
+        "source": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6186598400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "llama-3.1-8b",
+      "note": "mlabonne abliteration. Not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen-1.5b",
+      "displayName": "DeepSeek R1 1.5B",
+      "family": "deepseek-r1",
+      "params": "1.5B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/DeepSeek-R1-Distill-Qwen-1.5B-GGUF",
+          "path": "DeepSeek-R1-Distill-Qwen-1.5B-Q4_K_M.gguf",
+          "revision": "3cb4d15544a2a5e07439592b9a0965b6445fbd34",
+          "sizeBytes": 1117321312,
+          "sha256": "f3bdf9cf31dee4b57ae4e455a1cb0d01b5c2c1b50d72d3112141c195506c2840",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 1782579200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Small; thinks before answering",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen-1.5b-unrestricted",
+      "displayName": "DeepSeek R1 1.5B Unrestricted",
+      "family": "deepseek-r1",
+      "params": "1.5B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/DeepSeek-R1-Distill-Qwen-1.5B-abliterated-GGUF",
+          "path": "DeepSeek-R1-Distill-Qwen-1.5B-abliterated.Q4_K_M.gguf",
+          "revision": "b4c8f307c8040a1697c035419688c929ea421cb6",
+          "sizeBytes": 1117321504,
+          "sha256": "20ad8fbd18fcf24656c457bc6929e4491324f63f7fdc239417bed5598d0133ec",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 1782579200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "deepseek-r1-qwen-1.5b",
+      "note": "GGUF of huihui-ai/DeepSeek-R1-Distill-Qwen-1.5B-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen-7b",
+      "displayName": "DeepSeek R1 7B",
+      "family": "deepseek-r1",
+      "params": "7B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+          "path": "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+          "revision": "097680e4eed7a83b3df6b0bb5e5134099cadf1b0",
+          "sizeBytes": 4683073248,
+          "sha256": "78272d8d32084548bd450394a560eb2d70de8232ab96a725769b1f9171235c1c",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 57344,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 5662310400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Maths and logic, step by step",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen-7b-unrestricted",
+      "displayName": "DeepSeek R1 7B Unrestricted",
+      "family": "deepseek-r1",
+      "params": "7B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/DeepSeek-R1-Distill-Qwen-7B-abliterated-v2-GGUF",
+          "path": "DeepSeek-R1-Distill-Qwen-7B-abliterated-v2.Q4_K_M.gguf",
+          "revision": "f9607eaf3f221f68fe93994e65aaa42ae62d026f",
+          "sizeBytes": 4683074176,
+          "sha256": "0a8577adae8180a505bdcc8adb468ed7a5d227a4990d38c040689ea485f3aa39",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 57344,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 5662310400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "deepseek-r1-qwen-7b",
+      "note": "GGUF of huihui-ai/DeepSeek-R1-Distill-Qwen-7B-abliterated-v2. Not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen3-8b",
+      "displayName": "DeepSeek R1 8B",
+      "family": "deepseek-r1",
+      "params": "8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF",
+          "path": "DeepSeek-R1-0528-Qwen3-8B-Q4_K_M.gguf",
+          "revision": "eb48357c179d34dbf515983f798dfb8752a0f261",
+          "sizeBytes": 5027785216,
+          "sha256": "a86349a4180c4e6bb43f874c29c404fa2be3f90b15509bd6d86f697dba724ec1",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 147456,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6396313600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Strongest reasoning; slow",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "deepseek-r1-qwen3-8b-unrestricted",
+      "displayName": "DeepSeek R1 8B Unrestricted",
+      "family": "deepseek-r1",
+      "params": "8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "E",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Josiefied-DeepSeek-R1-0528-Qwen3-8B-abliterated-v1-GGUF",
+          "path": "Josiefied-DeepSeek-R1-0528-Qwen3-8B-abliterated-v1.Q4_K_M.gguf",
+          "revision": "b1c58a27507eb4dee3f2464579c19ea651ca2261",
+          "sizeBytes": 5027783680,
+          "sha256": "d8bc871b82675568ed1fab65d5063c2a25e0c46169d930a51875615fd6bfdf9f",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "memory": {
+        "kvBytesPerToken": 147456,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 6396313600
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "deepseek-r1-qwen3-8b",
+      "note": "GGUF of Goekdeniz-Guelmez/Josiefied-DeepSeek-R1-0528-Qwen3-8B-abliterated-v1 (repo states no licence; base is MIT). Not evaluated by us."
+    },
+    {
+      "id": "phi-4-mini-reasoning",
+      "displayName": "Phi-4 mini Reasoning",
+      "family": "phi4",
+      "params": "3.8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "unsloth/Phi-4-mini-reasoning-GGUF",
+          "path": "Phi-4-mini-reasoning-Q4_K_M.gguf",
+          "revision": "6b9cfad9419cad66996ad42ebddbff9b34446479",
+          "sizeBytes": 2491875232,
+          "sha256": "81878401a2f8160473649af89560a7fc0932f3623e4f6e58143d5dcbf71d6480",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "microsoft/Phi-4-mini-reasoning"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3670016000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Small maths and logic model",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "phi-4-mini-reasoning-unrestricted",
+      "displayName": "Phi-4 mini Reasoning Unrestricted",
+      "family": "phi4",
+      "params": "3.8B",
+      "licence": {
+        "id": "MIT",
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+        "openSource": true
+      },
+      "tier": "C",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "mradermacher/Phi-4-Mini-Reasoning-Abliterated-GGUF",
+          "path": "Phi-4-Mini-Reasoning-Abliterated.Q4_K_M.gguf",
+          "revision": "248b274ad6c36ae4996cf2a57c441cbec13155cb",
+          "sizeBytes": 2493840864,
+          "sha256": "b8bfafea7f02c68a2aca8f5bd7bc9f3bd254c54947e566e2b3d8361e671ffff1",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 131072,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "none",
+        "thinking": {
+          "supported": true,
+          "default": false,
+          "canDisable": false
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": true
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "microsoft/Phi-4-mini-reasoning"
+      },
+      "memory": {
+        "kvBytesPerToken": 131072,
+        "fixedBytes": 314572800,
+        "minMeasuredAvailableBytes": {
+          "ios": 1782579200,
+          "android": 3670016000
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "phi-4-mini-reasoning",
+      "note": "GGUF of DuoNeural/Phi-4-Mini-Reasoning-Abliterated (MIT). Not evaluated by us."
+    },
+    {
+      "id": "qwen2.5-coder-1.5b",
+      "displayName": "Qwen2.5 Coder 1.5B",
+      "family": "qwen2.5-coder",
+      "params": "1.5B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+          "path": "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf",
+          "revision": "f86cb2c1fa58255f8052cc32aeede1b7482d4361",
+          "sizeBytes": 1117320768,
+          "sha256": "cc324af070c2ecbfd324a30884d2f951a7ff756aba85cb811a6ec436933bb046",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 32768,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 1782579200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Quick code help",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "qwen2.5-coder-1.5b-unrestricted",
+      "displayName": "Qwen2.5 Coder 1.5B Unrestricted",
+      "family": "qwen2.5-coder",
+      "params": "1.5B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "A",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "bartowski/Qwen2.5-Coder-1.5B-Instruct-abliterated-GGUF",
+          "path": "Qwen2.5-Coder-1.5B-Instruct-abliterated-Q4_K_M.gguf",
+          "revision": "823ab8183896816dec7d29899310b556e655ad73",
+          "sizeBytes": 1117321696,
+          "sha256": "389b8172028c874b79a11358d258222dbce272b56ab3512ccc743893a25e06b4",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 32768,
+        "default": 8192,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": false,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 28672,
+        "fixedBytes": 209715200,
+        "minMeasuredAvailableBytes": {
+          "ios": 1048576000,
+          "android": 1782579200
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "qwen2.5-coder-1.5b",
+      "note": "GGUF of huihui-ai/Qwen2.5-Coder-1.5B-Instruct-abliterated. Not evaluated by us."
+    },
+    {
+      "id": "qwen2.5-coder-7b",
+      "displayName": "Qwen2.5 Coder 7B",
+      "family": "qwen2.5-coder",
+      "params": "7B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "alternative",
+      "unrestricted": false,
+      "files": [
+        {
+          "repo": "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF",
+          "path": "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+          "revision": "13fb94bfda8c8cf22497dc57b78f391a9acb426a",
+          "sizeBytes": 4683073536,
+          "sha256": "509287f78cb4d4cf6b3843734733b914b2c158e43e22a7f4bf5e963800894d3c",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 32768,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "Qwen/Qwen2.5-Coder-7B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 57344,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 5662310400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "Writes and explains code",
+      "note": "Store only; not evaluated by us."
+    },
+    {
+      "id": "qwen2.5-coder-7b-unrestricted",
+      "displayName": "Qwen2.5 Coder 7B Unrestricted",
+      "family": "qwen2.5-coder",
+      "params": "7B",
+      "licence": {
+        "id": "Apache-2.0",
+        "name": "Apache License 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        "openSource": true
+      },
+      "tier": "D",
+      "role": "alternative",
+      "unrestricted": true,
+      "files": [
+        {
+          "repo": "bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF",
+          "path": "Qwen2.5-Coder-7B-Instruct-abliterated-Q4_K_M.gguf",
+          "revision": "a416f57ecabe9841551055493e6945895e54e135",
+          "sizeBytes": 4683074400,
+          "sha256": "fdf02c16fb654ff60b2c30f1e91573ebc603a7084df3449df89120dca2b18170",
+          "quant": "Q4_K_M",
+          "backends": [
+            "metal",
+            "cpu",
+            "opencl"
+          ]
+        }
+      ],
+      "context": {
+        "trained": 32768,
+        "default": 16384,
+        "max": 32768
+      },
+      "template": {
+        "jinja": true,
+        "toolFormat": "hermes",
+        "thinking": {
+          "supported": false,
+          "default": false,
+          "canDisable": true
+        }
+      },
+      "capabilities": {
+        "tools": true,
+        "vision": false,
+        "audio": false,
+        "thinking": false
+      },
+      "languages": {
+        "codes": [
+          "en"
+        ],
+        "source": "Qwen/Qwen2.5-Coder-7B-Instruct"
+      },
+      "memory": {
+        "kvBytesPerToken": 57344,
+        "fixedBytes": 367001600,
+        "minMeasuredAvailableBytes": {
+          "ios": 1887436800,
+          "android": 5662310400
+        },
+        "basis": "estimate",
+        "note": "Not measured on a phone; floors from file size, KV cache and buffers (estimate)."
+      },
+      "summary": "No built-in refusals",
+      "baseModel": "qwen2.5-coder-7b",
+      "note": "GGUF of huihui-ai/Qwen2.5-Coder-7B-Instruct-abliterated. Not evaluated by us."
+    }
+  ],
+  "revoked": [],
+  "embedding": {
+    "id": "embeddinggemma-300m-q8@256",
+    "displayName": "EmbeddingGemma 300M",
+    "licence": {
+      "id": "Gemma",
+      "name": "Gemma Terms of Use",
+      "url": "https://ai.google.dev/gemma/terms",
+      "openSource": false
+    },
+    "file": {
+      "repo": "unsloth/embeddinggemma-300m-GGUF",
+      "path": "embeddinggemma-300M-Q8_0.gguf",
+      "revision": "6661a6504c30d8304af13455cb4a5d4f5bc6011f",
+      "sizeBytes": 328577056,
+      "sha256": "a0f7b4e13c397a6e1b32c2de75b1f65a14c92ec524d5f674d94a4290a1c4969b",
+      "quant": "Q8_0"
+    },
+    "nativeDims": 768,
+    "dims": 256,
+    "contextSize": 2048,
+    "ramBytes": 377487360
+  }
+}

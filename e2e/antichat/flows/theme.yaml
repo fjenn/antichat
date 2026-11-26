@@ -1,0 +1,60 @@
+# Theme and accent switch live, without a restart, and go back to System.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+# M4: these flows rely on the fake history and fake chat of M1.
+- runFlow:
+    file: _history-backend.yaml
+    env:
+      BACKEND: fake
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- assertVisible:
+    id: settings
+# M6: theme and accent live under Settings > General; the theme is a menu.
+- tapOn:
+    id: settings-general
+# Start from the defaults even if an earlier run stopped half-way.
+- tapOn:
+    id: theme-row
+- tapOn: 'System'
+- tapOn:
+    id: accent-blue
+- tapOn:
+    id: theme-row
+- tapOn: 'Dark'
+- tapOn:
+    id: accent-green
+- waitForAnimationToEnd
+- takeScreenshot: 20-forced-dark-green
+- tapOn:
+    id: theme-row
+- tapOn: 'Light'
+- tapOn:
+    id: accent-purple
+- waitForAnimationToEnd
+- takeScreenshot: 21-forced-light-purple
+- runFlow: _back.yaml
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: chat-row-c1
+- assertVisible:
+    id: chat-more
+- waitForAnimationToEnd
+- takeScreenshot: 22-thread-purple
+# Back to the defaults for the next run.
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- tapOn:
+    id: settings-general
+- tapOn:
+    id: theme-row
+- tapOn: 'System'
+- tapOn:
+    id: accent-blue
+- tapOn:
+    id: haptics-toggle
+- tapOn:
+    id: haptics-toggle

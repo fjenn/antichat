@@ -1,0 +1,8 @@
+# Types ${TEXT} into the composer and sends it.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: composer-input
+- inputText: ${TEXT}
+- tapOn:
+    id: composer-send

@@ -1,0 +1,16 @@
+# Leaves search in the drawer (see _open-drawer.yaml on repeated taps).
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      visible:
+        id: drawer-search-cancel
+    times: 5
+    commands:
+      - tapOn:
+          id: drawer-search-cancel
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: drawer-settings

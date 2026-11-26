@@ -1,0 +1,56 @@
+# First run when things go wrong: a full phone, then a download that breaks.
+# Each state says what happened and offers one way on.
+# Start state: wiped app.
+appId: ${APP_ID}
+---
+- runFlow: _m6-fresh.yaml
+- runFlow:
+    file: _m6-scenario-door.yaml
+    env:
+      KEY: storage
+      VALUE: full
+- tapOn:
+    id: get-started
+- extendedWaitUntil:
+    visible: 'Not enough space'
+    timeout: 20000
+- assertVisible: 'Free up .* and try again.'
+- assertVisible: 'Download your assistant to chat'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 95-not-enough-space
+- tapOn:
+    id: setup-storage
+- extendedWaitUntil:
+    visible:
+      id: storage-page
+    timeout: 15000
+- runFlow: _back.yaml
+# Space is back, but the next download breaks part-way.
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: storage
+      VALUE: real
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: failure
+      VALUE: network
+- tapOn:
+    id: setup-retry
+- extendedWaitUntil:
+    visible: 'The download stopped'
+    timeout: 240000
+- assertVisible: 'Nothing is lost. It continues where it stopped.'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 96-download-stopped
+# One tap and it continues.
+- tapOn:
+    id: setup-retry
+- extendedWaitUntil:
+    visible:
+      id: setup-pause
+    timeout: 20000
+- assertVisible: 'Downloading your assistant'

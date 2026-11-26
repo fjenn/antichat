@@ -1,0 +1,14 @@
+# Opens the model and answer-style menu from the title. A tap on the top bar
+# does not always arrive on the iOS simulator (see _open-drawer.yaml).
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible: "Fast.*"
+    times: 5
+    commands:
+      - tapOn:
+          id: model-menu
+      - waitForAnimationToEnd:
+          timeout: 1500
+- assertVisible: "Fast.*"

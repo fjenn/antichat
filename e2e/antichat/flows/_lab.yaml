@@ -1,0 +1,20 @@
+# Opens the history lab (debug builds): drawer → Settings → History lab.
+appId: ${APP_ID}
+---
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- extendedWaitUntil:
+    visible:
+      id: settings
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: open-history-lab
+    direction: DOWN
+- tapOn:
+    id: open-history-lab
+- extendedWaitUntil:
+    visible:
+      id: history-lab
+    timeout: 10000

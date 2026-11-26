@@ -1,0 +1,16 @@
+# Starts a new chat with the top-bar button (see _open-drawer.yaml on repeats).
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible:
+        id: greeting
+    times: 5
+    commands:
+      - tapOn:
+          id: new-chat
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: greeting

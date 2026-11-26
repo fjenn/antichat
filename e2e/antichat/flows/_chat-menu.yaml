@@ -1,0 +1,15 @@
+# Opens the chat's ••• menu (see _open-drawer.yaml on repeated taps). Every
+# variant of the menu ends with "Delete".
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible: Delete
+    times: 5
+    commands:
+      - tapOn:
+          id: chat-more
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible: Delete

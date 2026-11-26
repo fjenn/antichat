@@ -1,0 +1,87 @@
+diff --git a/node_modules/react-native-unistyles/cxx/core/HostUnistyle.h b/node_modules/react-native-unistyles/cxx/core/HostUnistyle.h
+index a2c7736..3c35719 100644
+--- a/node_modules/react-native-unistyles/cxx/core/HostUnistyle.h
++++ b/node_modules/react-native-unistyles/cxx/core/HostUnistyle.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include <jsi/jsi.h>
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ #include "UnistyleWrapper.h"
+ 
+ namespace margelo::nitro::unistyles::core {
+diff --git a/node_modules/react-native-unistyles/cxx/core/RNStyle.h b/node_modules/react-native-unistyles/cxx/core/RNStyle.h
+index 5faccac..5478b5f 100644
+--- a/node_modules/react-native-unistyles/cxx/core/RNStyle.h
++++ b/node_modules/react-native-unistyles/cxx/core/RNStyle.h
+@@ -2,7 +2,7 @@
+ 
+ #include <jsi/jsi.h>
+ #include "Helpers.h"
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ #include "HostUnistyle.h"
+ #include "UnistyleWrapper.h"
+ 
+diff --git a/node_modules/react-native-unistyles/cxx/core/UnistyleWrapper.h b/node_modules/react-native-unistyles/cxx/core/UnistyleWrapper.h
+index 2b1ed87..29230f9 100644
+--- a/node_modules/react-native-unistyles/cxx/core/UnistyleWrapper.h
++++ b/node_modules/react-native-unistyles/cxx/core/UnistyleWrapper.h
+@@ -6,7 +6,7 @@
+ #include "Helpers.h"
+ #include "HybridUnistylesRuntime.h"
+ #include "UnistylesConstants.h"
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ 
+ namespace margelo::nitro::unistyles::core {
+ 
+diff --git a/node_modules/react-native-unistyles/cxx/core/UnistylesRegistry.cpp b/node_modules/react-native-unistyles/cxx/core/UnistylesRegistry.cpp
+index 5cec618..2293fa9 100644
+--- a/node_modules/react-native-unistyles/cxx/core/UnistylesRegistry.cpp
++++ b/node_modules/react-native-unistyles/cxx/core/UnistylesRegistry.cpp
+@@ -1,6 +1,6 @@
+ #include "UnistylesRegistry.h"
+ #include "UnistylesState.h"
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ #include "NativeProps.h"
+ 
+ using namespace margelo::nitro::unistyles;
+diff --git a/node_modules/react-native-unistyles/cxx/hybridObjects/HybridStyleSheet.h b/node_modules/react-native-unistyles/cxx/hybridObjects/HybridStyleSheet.h
+index bad352a..94405c0 100644
+--- a/node_modules/react-native-unistyles/cxx/hybridObjects/HybridStyleSheet.h
++++ b/node_modules/react-native-unistyles/cxx/hybridObjects/HybridStyleSheet.h
+@@ -12,7 +12,7 @@
+ #include "PerformanceTracing.h"
+ #include "UnistylesConstants.h"
+ #include "Breakpoints.h"
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ #include "ShadowTreeManager.h"
+ 
+ using namespace margelo::nitro::unistyles;
+diff --git a/node_modules/react-native-unistyles/cxx/parser/Parser.cpp b/node_modules/react-native-unistyles/cxx/parser/Parser.cpp
+index 79f74b4..5f546cf 100644
+--- a/node_modules/react-native-unistyles/cxx/parser/Parser.cpp
++++ b/node_modules/react-native-unistyles/cxx/parser/Parser.cpp
+@@ -1,4 +1,4 @@
+-#include "Parser.h"
++#include "./Parser.h"
+ #include "UnistyleWrapper.h"
+ #include "BackgroundImageConverter.h"
+ #include "BackgroundLayerConverter.h"
+diff --git a/node_modules/react-native-unistyles/cxx/shadowTree/ShadowTreeDiagnostics.cpp b/node_modules/react-native-unistyles/cxx/shadowTree/ShadowTreeDiagnostics.cpp
+index d1b5f6e..c6e09d3 100644
+--- a/node_modules/react-native-unistyles/cxx/shadowTree/ShadowTreeDiagnostics.cpp
++++ b/node_modules/react-native-unistyles/cxx/shadowTree/ShadowTreeDiagnostics.cpp
+@@ -23,7 +23,7 @@
+ #endif
+ #include <react/renderer/uimanager/UIManagerBinding.h>
+ #include <string_view>
+-#include "Parser.h"
++#include "../parser/Parser.h"
+ #include "UnistylesRegistry.h"
+ 
+ using namespace margelo::nitro::unistyles;

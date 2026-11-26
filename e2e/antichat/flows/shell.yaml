@@ -1,0 +1,88 @@
+# The M1 shell: empty chat, drawer by button and by edge swipe, a chat from
+# history, Settings and the design gallery. Run through ../run.sh, which
+# launches the app first.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+# M4: these flows rely on the fake history and fake chat of M1.
+- runFlow:
+    file: _history-backend.yaml
+    env:
+      BACKEND: fake
+- assertVisible:
+    id: greeting
+- assertVisible:
+    id: composer
+- takeScreenshot: 01-chat-empty
+
+# Drawer by swipe from the left side. Not from the very edge: there Android's
+# own back gesture takes the swipe before the app sees it.
+- swipe:
+    start: 12%, 50%
+    end: 85%, 50%
+    duration: 300
+- assertVisible:
+    id: drawer-settings
+- assertVisible: Today
+- takeScreenshot: 02-drawer
+
+# A chat from the fake history.
+- tapOn: Fix a flaky Jest test
+- assertVisible:
+    id: thread
+- assertVisible:
+    id: chat-more
+- waitForAnimationToEnd
+- takeScreenshot: 03-chat-thread
+
+# Drawer by button.
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- assertVisible:
+    id: settings
+- takeScreenshot: 04-settings
+
+# M6: the design gallery moved to Settings > Advanced (debug builds).
+- tapOn:
+    id: settings-advanced
+- scrollUntilVisible:
+    element:
+      id: open-gallery
+    direction: DOWN
+- tapOn:
+    id: open-gallery
+- assertVisible:
+    id: gallery
+- takeScreenshot: 05-gallery-1
+- scrollUntilVisible:
+    element:
+      id: gallery-field
+    direction: DOWN
+- takeScreenshot: 06-gallery-2
+- scrollUntilVisible:
+    element:
+      id: open-sheet
+    direction: DOWN
+- takeScreenshot: 07-gallery-3
+- tapOn:
+    id: open-sheet
+- assertVisible:
+    id: close-sheet
+- takeScreenshot: 08-sheet
+- tapOn:
+    id: close-sheet
+- extendedWaitUntil:
+    notVisible:
+      id: close-sheet
+    timeout: 10000
+- waitForAnimationToEnd
+- tapOn:
+    id: show-toast
+# The toast is on screen for four seconds; on a slow emulator Maestro can take
+# longer than that to look. Its behaviour is covered in Jest.
+- assertVisible:
+    text: Copied
+    optional: true
+- scroll
+- takeScreenshot: 09-gallery-4

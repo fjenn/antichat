@@ -1,0 +1,83 @@
+# M12 connectors: Settings › Connectors against the live relay (read calls
+# only: app list, connections), the Connect card and write-approval previews,
+# and a custom MCP server by URL. Never taps a real Connect button.
+#   SERVER_URL  a no-auth MCP server reachable from the device
+#   SERVER_ID   the id the app derives from it (host without dots)
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _open-drawer.yaml
+- tapOn:
+    id: drawer-settings
+- tapOn:
+    id: open-connectors
+- extendedWaitUntil:
+    visible:
+      id: app-gmail
+    timeout: 30000
+- takeScreenshot: connectors-list
+- tapOn:
+    id: connectors-search
+- inputText: airtable
+- assertVisible:
+    id: app-airtable
+- assertNotVisible:
+    id: app-gmail
+- assertNotVisible:
+    id: connectors-advanced
+- takeScreenshot: connectors-search
+- tapOn:
+    id: app-airtable
+- assertVisible:
+    id: connect-card-connect
+- takeScreenshot: connectors-app
+- swipe:
+    start: 50%, 60%
+    end: 50%, 99%
+- eraseText: 10
+- hideKeyboard
+- tapOn:
+    id: preview-card
+- assertVisible:
+    id: connect-card
+- takeScreenshot: connect-card
+- swipe:
+    start: 50%, 80%
+    end: 50%, 99%
+- tapOn:
+    id: preview-approval
+- assertVisible:
+    id: approval-card
+- takeScreenshot: approval
+- tapOn:
+    id: approval-deny
+- assertVisible: Not allowed
+- scrollUntilVisible:
+    element:
+      id: connectors-advanced
+    direction: DOWN
+    timeout: 60000
+    speed: 100
+- tapOn:
+    id: connectors-advanced
+- tapOn:
+    id: add-server
+- tapOn:
+    id: server-url
+- inputText: ${SERVER_URL}
+- tapOn:
+    id: server-add
+- scrollUntilVisible:
+    element:
+      id: server-${SERVER_ID}
+    direction: UP
+    timeout: 60000
+    speed: 100
+- takeScreenshot: connectors-server
+- tapOn:
+    id: server-${SERVER_ID}
+- assertVisible: '2 tools: search_notes, create_note'
+- tapOn:
+    id: server-remove
+- assertNotVisible:
+    id: server-${SERVER_ID}

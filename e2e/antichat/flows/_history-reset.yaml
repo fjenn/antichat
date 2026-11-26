@@ -1,0 +1,22 @@
+# Real store with a known history: deletes every chat, then adds the 24
+# sample chats of ui/drawer/dev/seed.ts. Ends on the empty chat.
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _history-backend.yaml
+    env:
+      BACKEND: real
+- runFlow: _lab.yaml
+- tapOn:
+    id: lab-unlock-pass
+- tapOn:
+    id: lab-clear
+- extendedWaitUntil:
+    visible: "Done: deleted all"
+    timeout: 60000
+- tapOn:
+    id: lab-seed-24
+- extendedWaitUntil:
+    visible: "Done: added 24.*"
+    timeout: 120000
+- runFlow: _back.yaml

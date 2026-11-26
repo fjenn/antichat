@@ -1,0 +1,18 @@
+# Leaves a pushed screen with its back button (see _open-drawer.yaml on repeats).
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      visible:
+        id: header-back
+    times: 5
+    commands:
+      - tapOn:
+          id: header-back
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 3000
+- extendedWaitUntil:
+    visible:
+      id: composer
+    timeout: 20000

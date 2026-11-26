@@ -1,0 +1,255 @@
+{
+"source": "AntiChat Mac fixtures/prompts: 20 rows of search-availability-100 and 30 of citation-qa-100 (CC0, generated, neutral topics, no personal data)",
+"queries": [
+{
+"id": "q001",
+"category": "news",
+"question": "chess championship update today"
+},
+{
+"id": "q002",
+"category": "news",
+"question": "what happened with solar power recently"
+},
+{
+"id": "q003",
+"category": "news",
+"question": "latest heat wave news"
+},
+{
+"id": "q004",
+"category": "news",
+"question": "latest tennis open news"
+},
+{
+"id": "q005",
+"category": "news",
+"question": "latest wildfire news"
+},
+{
+"id": "q006",
+"category": "news",
+"question": "solar power news this week"
+},
+{
+"id": "q007",
+"category": "news",
+"question": "latest election results news"
+},
+{
+"id": "q008",
+"category": "news",
+"question": "what happened with space telescope recently"
+},
+{
+"id": "q041",
+"category": "encyclopedic",
+"question": "who discovered jazz music"
+},
+{
+"id": "q042",
+"category": "encyclopedic",
+"question": "theory of relativity facts"
+},
+{
+"id": "q043",
+"category": "encyclopedic",
+"question": "who discovered plate tectonics"
+},
+{
+"id": "q044",
+"category": "encyclopedic",
+"question": "industrial revolution facts"
+},
+{
+"id": "q045",
+"category": "encyclopedic",
+"question": "jazz music facts"
+},
+{
+"id": "q046",
+"category": "encyclopedic",
+"question": "what is theory of relativity"
+},
+{
+"id": "q071",
+"category": "howto",
+"question": "fix a leaky faucet step by step"
+},
+{
+"id": "q072",
+"category": "howto",
+"question": "best way to grow tomatoes"
+},
+{
+"id": "q073",
+"category": "howto",
+"question": "how do I tie a bowline knot"
+},
+{
+"id": "q074",
+"category": "howto",
+"question": "best way to repot a houseplant"
+},
+{
+"id": "q075",
+"category": "howto",
+"question": "clean a cast iron pan step by step"
+},
+{
+"id": "q076",
+"category": "howto",
+"question": "how to fold a fitted sheet"
+},
+{
+"id": "c001",
+"category": "org",
+"question": "Who is the current chief executive of IKEA?"
+},
+{
+"id": "c002",
+"category": "org",
+"question": "Where is the headquarters of Mozilla located?"
+},
+{
+"id": "c006",
+"category": "org",
+"question": "Who is the current chief executive of Siemens?"
+},
+{
+"id": "c008",
+"category": "org",
+"question": "Who is the current chief executive of Nokia?"
+},
+{
+"id": "c010",
+"category": "org",
+"question": "Who is the current chief executive of the World Health Organization?"
+},
+{
+"id": "c022",
+"category": "org",
+"question": "Who is the current chief executive of CERN?"
+},
+{
+"id": "c003",
+"category": "science",
+"question": "What is the main use of X-rays?"
+},
+{
+"id": "c009",
+"category": "science",
+"question": "Who discovered insulin?"
+},
+{
+"id": "c011",
+"category": "science",
+"question": "What is the main use of penicillin?"
+},
+{
+"id": "c013",
+"category": "science",
+"question": "Who discovered the laser?"
+},
+{
+"id": "c021",
+"category": "science",
+"question": "What is the main use of the Higgs boson?"
+},
+{
+"id": "c025",
+"category": "science",
+"question": "Who discovered the Higgs boson?"
+},
+{
+"id": "c004",
+"category": "place",
+"question": "What is the population of Nairobi?"
+},
+{
+"id": "c012",
+"category": "place",
+"question": "What is the population of New Zealand?"
+},
+{
+"id": "c018",
+"category": "place",
+"question": "What is the official language of Ghana?"
+},
+{
+"id": "c019",
+"category": "place",
+"question": "What is the population of Vienna?"
+},
+{
+"id": "c024",
+"category": "place",
+"question": "What is the official language of Montreal?"
+},
+{
+"id": "c026",
+"category": "place",
+"question": "What is the official language of Chile?"
+},
+{
+"id": "c005",
+"category": "software",
+"question": "What is the latest stable version of Django?"
+},
+{
+"id": "c015",
+"category": "software",
+"question": "When was the most recent release of Blender published?"
+},
+{
+"id": "c016",
+"category": "software",
+"question": "When was the most recent release of Rust published?"
+},
+{
+"id": "c017",
+"category": "software",
+"question": "What is the latest stable version of SQLite?"
+},
+{
+"id": "c029",
+"category": "software",
+"question": "When was the most recent release of Kubernetes published?"
+},
+{
+"id": "c031",
+"category": "software",
+"question": "When was the most recent release of Node.js published?"
+},
+{
+"id": "c007",
+"category": "event",
+"question": "Who won the most recent UN Climate Change Conference?"
+},
+{
+"id": "c014",
+"category": "event",
+"question": "Who won the most recent Rugby World Cup?"
+},
+{
+"id": "c020",
+"category": "event",
+"question": "Where will the next Eurovision Song Contest be held?"
+},
+{
+"id": "c034",
+"category": "event",
+"question": "Where will the next Wimbledon men's singles be held?"
+},
+{
+"id": "c036",
+"category": "event",
+"question": "Where will the next Winter Olympic Games be held?"
+},
+{
+"id": "c044",
+"category": "event",
+"question": "Where will the next Chess World Championship be held?"
+}
+]
+}

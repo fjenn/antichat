@@ -1,0 +1,22 @@
+# M4: fills the real store with the 2,000-chat test history
+# (ui/drawer/dev/seed.ts). Takes a few minutes. Ends on the empty chat.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow:
+    file: _history-backend.yaml
+    env:
+      BACKEND: real
+- runFlow: _lab.yaml
+- tapOn:
+    id: lab-clear
+- extendedWaitUntil:
+    visible: "Done: deleted all"
+    timeout: 120000
+- tapOn:
+    id: lab-seed-2000
+- extendedWaitUntil:
+    visible: "Done: added 2000.*"
+    timeout: 1200000
+- takeScreenshot: 90-seeded-2000
+- runFlow: _back.yaml

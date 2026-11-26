@@ -1,0 +1,21 @@
+# Opens the drawer with its button.
+#
+# On the iOS simulator a tap that Maestro sends to the top bar sometimes never
+# reaches the app (no touch arrives at the React root; the same taps by
+# coordinates and all taps on Android arrive). So top-bar taps are repeated
+# until they have had their effect.
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible:
+        id: drawer-settings
+    times: 5
+    commands:
+      - tapOn:
+          id: open-drawer
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: drawer-settings

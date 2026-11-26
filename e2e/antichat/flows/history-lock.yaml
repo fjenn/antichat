@@ -1,0 +1,64 @@
+# M4: a locked chat shows nothing until the phone has verified its owner.
+# Simulators have no usable Face ID / fingerprint prompt, so the history
+# lab stands in for it: "always pass" while locking, "always fail" after.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _history-reset.yaml
+- runFlow: _open-drawer.yaml
+- tapOn: Birthday message for Mum
+- runFlow: _chat-menu.yaml
+- tapOn: Lock chat
+- waitForAnimationToEnd
+
+# From here on the unlock fails (and everything is locked again).
+- runFlow: _lab.yaml
+- tapOn:
+    id: lab-unlock-fail
+- runFlow: _back.yaml
+- assertVisible:
+    id: locked-gate
+- assertNotVisible: "Birthday message for Mum.*"
+- takeScreenshot: 80-locked-gate
+- tapOn:
+    id: locked-gate-unlock
+- assertVisible:
+    id: locked-gate
+
+# The drawer shows a placeholder, search does not find it, a tap stays out.
+- runFlow: _open-drawer.yaml
+- assertVisible: "Locked chat.*"
+- assertNotVisible: "Birthday message for Mum.*"
+- takeScreenshot: 81-locked-row
+- runFlow: _search-open.yaml
+- inputText: birthday
+- assertVisible:
+    id: search-no-results
+- runFlow: _search-cancel.yaml
+- tapOn: "Locked chat.*"
+- assertVisible:
+    id: drawer-settings
+
+# With a passing unlock the chat opens and its title is back.
+- tapOn:
+    id: drawer-settings
+- scrollUntilVisible:
+    element:
+      id: open-history-lab
+    direction: DOWN
+- tapOn:
+    id: open-history-lab
+- tapOn:
+    id: lab-unlock-pass
+- runFlow: _back.yaml
+- tapOn:
+    id: locked-gate-unlock
+- assertVisible:
+    id: thread
+- waitForAnimationToEnd
+- takeScreenshot: 82-unlocked
+- runFlow: _chat-menu.yaml
+- assertVisible: Remove lock
+- tapOn: Remove lock
+- runFlow: _open-drawer.yaml
+- assertVisible: Birthday message for Mum

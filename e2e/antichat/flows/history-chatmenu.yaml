@@ -1,0 +1,96 @@
+# M4: the chat's ••• menu. Branch, rename, share sheet, archive and find it
+# again in the archive list.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _history-reset.yaml
+- runFlow: _open-drawer.yaml
+- tapOn: Sourdough starter schedule
+- assertVisible:
+    id: thread
+- runFlow: _chat-menu.yaml
+- assertVisible: Branch in new chat
+- assertVisible: Lock chat
+- waitForAnimationToEnd
+- takeScreenshot: 60-chat-menu
+
+# Branch: a new chat opens, titled after the one it came from.
+- tapOn: Branch in new chat
+- waitForAnimationToEnd
+- runFlow: _open-drawer.yaml
+- assertVisible: Branch · Sourdough starter schedule
+- assertVisible: Sourdough starter schedule
+- takeScreenshot: 61-branched-drawer
+- tapOn: Branch · Sourdough starter schedule
+
+# Rename from the menu.
+- runFlow: _chat-menu.yaml
+- tapOn: Rename
+- assertVisible:
+    id: rename-dialog
+- waitForAnimationToEnd
+- takeScreenshot: 62-rename-dialog
+- eraseText: 80
+- inputText: Rye starter
+- tapOn:
+    id: rename-dialog-save
+- runFlow: _open-drawer.yaml
+- assertVisible: "Rye starter.*"
+- tapOn: "Rye starter.*"
+
+# Share sheet.
+- runFlow: _chat-menu.yaml
+- tapOn: Share
+- assertVisible:
+    id: share-markdown
+- assertVisible:
+    id: share-chatgpt
+- waitForAnimationToEnd
+- takeScreenshot: 63-share-sheet
+# A tap on the dimmed chat above the sheet closes it.
+- repeat:
+    while:
+      visible:
+        id: share-markdown
+    times: 4
+    commands:
+      - tapOn:
+          point: 50%, 12%
+      - waitForAnimationToEnd:
+          timeout: 3000
+- extendedWaitUntil:
+    notVisible:
+      id: share-markdown
+    timeout: 10000
+
+# Archive: the chat leaves the drawer and search, and is found again.
+- runFlow: _chat-menu.yaml
+- tapOn: Archive
+- assertVisible:
+    id: greeting
+- extendedWaitUntil:
+    notVisible:
+      id: toast
+    timeout: 10000
+- runFlow: _open-drawer.yaml
+- assertNotVisible: "Rye starter.*"
+- tapOn:
+    id: drawer-settings
+- scrollUntilVisible:
+    element:
+      id: open-archived
+    direction: DOWN
+- tapOn:
+    id: open-archived
+- assertVisible:
+    id: archived-chats
+- assertVisible: "Rye starter.*"
+- takeScreenshot: 64-archived
+- longPressOn: "Rye starter.*"
+- tapOn: Unarchive
+- assertVisible:
+    id: archived-empty
+- takeScreenshot: 65-archived-empty
+- runFlow: _back.yaml
+- runFlow: _open-drawer.yaml
+- assertVisible: "Rye starter.*"

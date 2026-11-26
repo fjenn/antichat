@@ -1,0 +1,64 @@
+# M2: send, stream, stop, send again (the new question is pinned to the top),
+# scroll-to-latest. In-memory backend.
+appId: ${APP_ID}
+env:
+  TIMEOUT: 120000
+---
+- runFlow: _ready.yaml
+- runFlow: _new-chat.yaml
+- assertVisible:
+    id: composer-voice
+- takeScreenshot: 40-empty
+
+# Typing turns the trailing button into send; the starters leave.
+- tapOn:
+    id: composer-input
+- inputText: Explain how transformers work, simply.
+- assertVisible:
+    id: composer-send
+- assertNotVisible:
+    id: "starter-.*"
+- takeScreenshot: 41-typed
+- tapOn:
+    id: composer-send
+
+# While the answer is written the button is stop.
+- extendedWaitUntil:
+    visible:
+      id: composer-stop
+    timeout: 15000
+- assertVisible:
+    id: user-message
+- takeScreenshot: 42-streaming
+- tapOn:
+    id: composer-stop
+- extendedWaitUntil:
+    visible:
+      id: composer-voice
+    timeout: 10000
+# A stopped answer keeps its text and gets its actions.
+- assertVisible:
+    id: answer-text
+- takeScreenshot: 43-stopped
+
+# A second question in a thread that overflows: pinned under the top bar.
+- runFlow:
+    file: _send.yaml
+    env:
+      TEXT: And what is attention?
+- runFlow: _answer-done.yaml
+- assertVisible: And what is attention\?
+- takeScreenshot: 44-pinned
+
+# The answer ran past the bottom: the way back is offered.
+- assertVisible:
+    id: scroll-to-bottom
+- tapOn:
+    id: scroll-to-bottom
+- extendedWaitUntil:
+    visible:
+      id: answer-actions
+    timeout: 5000
+- assertVisible:
+    id: follow-ups
+- takeScreenshot: 45-latest

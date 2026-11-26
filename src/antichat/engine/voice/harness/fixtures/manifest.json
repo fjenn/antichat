@@ -1,0 +1,18 @@
+[
+  {"id":"en-us-capital","file":"en-us-capital.wav","voice":"Samantha","lang":"en","kind":"utterance","text":"What is the capital of France, and how many people live there?"},
+  {"id":"en-gb-timer","file":"en-gb-timer.wav","voice":"Daniel","lang":"en","kind":"utterance","text":"Set a timer for fifteen minutes and remind me to call my sister."},
+  {"id":"en-au-plants","file":"en-au-plants.wav","voice":"Karen","lang":"en","kind":"utterance","text":"Can you explain how photosynthesis works in simple terms?"},
+  {"id":"en-in-recipe","file":"en-in-recipe.wav","voice":"Rishi","lang":"en","kind":"utterance","text":"I need a recipe for dinner tonight with chicken, rice and vegetables."},
+  {"id":"en-ie-trip","file":"en-ie-trip.wav","voice":"Moira","lang":"en","kind":"utterance","text":"We are planning a trip to Portugal in September. Which cities should we visit first?"},
+  {"id":"de-de-wetter","file":"de-de-wetter.wav","voice":"Anna","lang":"de","kind":"utterance","text":"Wie wird das Wetter morgen in Berlin, und brauche ich einen Regenschirm?"},
+  {"id":"es-es-idioma","file":"es-es-idioma.wav","voice":"Mónica","lang":"es","kind":"utterance","text":"¿Cuál es la mejor manera de aprender un idioma nuevo rápidamente?"},
+  {"id":"fr-fr-livre","file":"fr-fr-livre.wav","voice":"Thomas","lang":"fr","kind":"utterance","text":"Peux-tu me recommander un bon livre à lire pendant les vacances ?"},
+  {"id":"en-us-bargein","file":"en-us-bargein.wav","voice":"Samantha","lang":"en","kind":"bargein","text":"Wait, stop. Tell me about Italy instead."},
+  {"id":"en-us-reply","file":"en-us-reply.wav","voice":"Daniel","lang":"en","kind":"tts","text":"The capital of France is Paris. About two million people live in the city itself, and more than ten million in the wider region. It has been the capital for over a thousand years."},
+  {"id":"en-us-long","file":"en-us-long.wav","voice":"Samantha","lang":"en","kind":"long","text":"This is a longer dictation to check that nothing is cut off. First, I went to the market and bought apples, bread and cheese. Then I walked home along the river, because the weather was warm and the trees were green. After lunch I wrote three letters to old friends. One of them lives in Canada, another in Japan, and the third just moved to Norway. In the evening we cooked pasta with tomatoes and garlic, and we talked about the plans for next year. Finally, I read a few pages of a book about the history of the railway, and then I went to sleep."},
+  {"id":"en-us-capital-snr15","file":"en-us-capital-snr15.wav","voice":"Samantha","lang":"en","kind":"utterance","noiseSnrDb":15,"text":"What is the capital of France, and how many people live there?"},
+  {"id":"en-us-capital-snr5","file":"en-us-capital-snr5.wav","voice":"Samantha","lang":"en","kind":"utterance","noiseSnrDb":5,"text":"What is the capital of France, and how many people live there?"},
+  {"id":"en-gb-timer-snr10","file":"en-gb-timer-snr10.wav","voice":"Daniel","lang":"en","kind":"utterance","noiseSnrDb":10,"text":"Set a timer for fifteen minutes and remind me to call my sister."},
+  {"id":"de-de-wetter-snr10","file":"de-de-wetter-snr10.wav","voice":"Anna","lang":"de","kind":"utterance","noiseSnrDb":10,"text":"Wie wird das Wetter morgen in Berlin, und brauche ich einen Regenschirm?"},
+  {"id":"room-noise","file":"room-noise.wav","voice":"","lang":"","kind":"noise","text":""}
+]

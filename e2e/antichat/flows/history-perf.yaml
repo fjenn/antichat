@@ -1,0 +1,49 @@
+# M4: scrolls the drawer through a 2,000-chat history while the app records
+# frame times on both threads (run history-seed-2000 first). The numbers are
+# on the lab screen (screenshot 92) and in the Metro log: "[antichat-perf]".
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _open-drawer.yaml
+- takeScreenshot: 91-drawer-2000
+- tapOn:
+    id: drawer-settings
+- scrollUntilVisible:
+    element:
+      id: open-history-lab
+    direction: DOWN
+- tapOn:
+    id: open-history-lab
+- tapOn:
+    id: lab-perf-arm
+- runFlow: _back.yaml
+- runFlow: _open-drawer.yaml
+# Twelve seconds of flings: six down the list, then back up.
+- repeat:
+    times: 7
+    commands:
+      - swipe:
+          start: 40%, 80%
+          end: 40%, 20%
+          duration: 120
+- repeat:
+    times: 4
+    commands:
+      - swipe:
+          start: 40%, 25%
+          end: 40%, 85%
+          duration: 120
+- tapOn:
+    id: drawer-settings
+- scrollUntilVisible:
+    element:
+      id: open-history-lab
+    direction: DOWN
+- tapOn:
+    id: open-history-lab
+- extendedWaitUntil:
+    visible:
+      id: lab-perf-result
+    timeout: 30000
+- takeScreenshot: 92-perf-result
+- runFlow: _back.yaml

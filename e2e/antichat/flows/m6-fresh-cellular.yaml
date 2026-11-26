@@ -1,0 +1,79 @@
+# First run on mobile data and without a connection: one question with the
+# size, waiting for Wi-Fi, starting by itself when Wi-Fi arrives, the Offline
+# pill, and a download that waits and carries on.
+# Start state: wiped app.
+appId: ${APP_ID}
+---
+- runFlow: _m6-fresh.yaml
+# A slow connection, so that even a small assistant is still downloading
+# while the network is switched around.
+- runFlow:
+    file: _m6-scenario-door.yaml
+    env:
+      KEY: speed
+      VALUE: slow
+- runFlow:
+    file: _m6-scenario-door.yaml
+    env:
+      KEY: network
+      VALUE: cellular
+- tapOn:
+    id: get-started
+- extendedWaitUntil:
+    visible: 'Download on mobile data\?'
+    timeout: 15000
+- assertVisible: 'Your assistant is a .* download.*'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 67-mobile-data
+- tapOn:
+    id: setup-wait-wifi
+- assertVisible: 'Waiting for Wi-Fi'
+- assertVisible: 'Waiting to download'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 68-waiting-wifi
+# Wi-Fi arrives: the download starts without another tap.
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: network
+      VALUE: wifi
+- extendedWaitUntil:
+    visible:
+      id: setup-pause
+    timeout: 20000
+# The connection drops: a small pill, and the download waits.
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: network
+      VALUE: offline
+- extendedWaitUntil:
+    visible:
+      id: offline-pill
+    timeout: 15000
+- extendedWaitUntil:
+    visible: 'Waiting for a connection'
+    timeout: 15000
+- assertVisible: '.* continues by itself'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 69-offline
+# Back online: it carries on by itself and the pill goes away.
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: network
+      VALUE: real
+- extendedWaitUntil:
+    notVisible:
+      id: offline-pill
+    timeout: 15000
+- assertNotVisible: 'Waiting for a connection'
+# Leave the scripted backend at its normal speed.
+- runFlow:
+    file: _m6-scenario.yaml
+    env:
+      KEY: speed
+      VALUE: demo

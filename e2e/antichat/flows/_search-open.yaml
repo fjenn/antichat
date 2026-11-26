@@ -1,0 +1,17 @@
+# Puts the cursor in the drawer's search field (the drawer must be open;
+# see _open-drawer.yaml on repeated taps).
+appId: ${APP_ID}
+---
+- repeat:
+    while:
+      notVisible:
+        id: drawer-search-cancel
+    times: 5
+    commands:
+      - tapOn:
+          id: drawer-search
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: drawer-search-cancel

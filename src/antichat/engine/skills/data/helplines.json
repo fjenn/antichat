@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "checked": "2026-11-24",
+  "note": "Each service line was checked against the service's own site, a government page or findahelpline.com on the date above. Countries with only an emergency number have no confirmed national crisis line (TR, RU) or a paused one (UA). The model never writes these numbers from memory; the app supplies them.",
+  "fallback": {
+    "name": "Find A Helpline",
+    "url": "findahelpline.com",
+    "emergency": "112"
+  },
+  "countries": {
+    "US": {
+      "emergency": "911",
+      "name": "988 Suicide & Crisis Lifeline",
+      "phone": "988",
+      "allHours": true,
+      "text": "988"
+    },
+    "CA": {
+      "emergency": "911",
+      "name": "9-8-8 Suicide Crisis Helpline",
+      "phone": "988",
+      "allHours": true,
+      "text": "988"
+    },
+    "GB": {
+      "emergency": "999",
+      "name": "Samaritans",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "IE": {
+      "emergency": "112",
+      "name": "Samaritans Ireland",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "AU": {
+      "emergency": "000",
+      "name": "Lifeline",
+      "phone": "13 11 14",
+      "allHours": true,
+      "text": "0477 13 11 14"
+    },
+    "NZ": {
+      "emergency": "111",
+      "name": "1737 Need to talk?",
+      "phone": "1737",
+      "allHours": true,
+      "text": "1737"
+    },
+    "DE": {
+      "emergency": "112",
+      "name": "TelefonSeelsorge",
+      "phone": "0800 111 0 111",
+      "allHours": true
+    },
+    "AT": {
+      "emergency": "112",
+      "name": "TelefonSeelsorge",
+      "phone": "142",
+      "allHours": true
+    },
+    "CH": {
+      "emergency": "144",
+      "name": "Die Dargebotene Hand / La Main Tendue (Tel 143)",
+      "phone": "143",
+      "allHours": true
+    },
+    "FR": {
+      "emergency": "112",
+      "name": "Numéro national de prévention du suicide",
+      "phone": "3114",
+      "allHours": true
+    },
+    "ES": {
+      "emergency": "112",
+      "name": "Línea 024 de atención a la conducta suicida",
+      "phone": "024",
+      "allHours": true
+    },
+    "IT": {
+      "emergency": "112",
+      "name": "Telefono Amico Italia",
+      "phone": "02 2327 2327",
+      "allHours": true
+    },
+    "NL": {
+      "emergency": "112",
+      "name": "113 Zelfmoordpreventie",
+      "phone": "113",
+      "allHours": true
+    },
+    "BE": {
+      "emergency": "112",
+      "name": "Zelfmoordlijn 1813 (NL) / Centre de Prévention du Suicide (FR)",
+      "phone": "1813 / 0800 32 123",
+      "allHours": true
+    },
+    "SE": {
+      "emergency": "112",
+      "name": "Mind Självmordslinjen",
+      "phone": "90101",
+      "allHours": true
+    },
+    "NO": {
+      "emergency": "113",
+      "name": "Mental Helse Hjelpetelefonen",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "DK": {
+      "emergency": "112",
+      "name": "Livslinien",
+      "phone": "70 201 201",
+      "allHours": false
+    },
+    "FI": {
+      "emergency": "112",
+      "name": "MIELI Kriisipuhelin",
+      "phone": "09 2525 0111",
+      "allHours": true
+    },
+    "PL": {
+      "emergency": "112",
+      "name": "Telefon zaufania 116sos.pl",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "PT": {
+      "emergency": "112",
+      "name": "SNS 24 Aconselhamento Psicológico",
+      "phone": "808 24 24 24",
+      "allHours": true
+    },
+    "BR": {
+      "emergency": "192",
+      "name": "CVV (Centro de Valorização da Vida)",
+      "phone": "188",
+      "allHours": true
+    },
+    "MX": {
+      "emergency": "911",
+      "name": "Línea de la Vida",
+      "phone": "800 911 2000",
+      "allHours": true
+    },
+    "AR": {
+      "emergency": "911",
+      "name": "Centro de Asistencia al Suicida",
+      "phone": "0800 345 1435",
+      "allHours": false
+    },
+    "CL": {
+      "emergency": "131",
+      "name": "Línea de Prevención del Suicidio",
+      "phone": "*4141",
+      "allHours": true
+    },
+    "CO": {
+      "emergency": "123",
+      "name": "Línea 106",
+      "phone": "106",
+      "allHours": true
+    },
+    "JP": {
+      "emergency": "119",
+      "name": "よりそいホットライン (Yorisoi Hotline)",
+      "phone": "0120-279-338",
+      "allHours": true
+    },
+    "KR": {
+      "emergency": "119",
+      "name": "자살예방상담전화 109",
+      "phone": "109",
+      "allHours": true
+    },
+    "CN": {
+      "emergency": "120",
+      "name": "全国统一心理援助热线 12356",
+      "phone": "12356",
+      "allHours": false
+    },
+    "HK": {
+      "emergency": "999",
+      "name": "The Samaritans Hong Kong",
+      "phone": "2896 0000",
+      "allHours": true
+    },
+    "TW": {
+      "emergency": "119",
+      "name": "安心專線 1925",
+      "phone": "1925",
+      "allHours": true
+    },
+    "SG": {
+      "emergency": "995",
+      "name": "Samaritans of Singapore",
+      "phone": "1767",
+      "allHours": true
+    },
+    "IN": {
+      "emergency": "112",
+      "name": "Tele-MANAS",
+      "phone": "14416",
+      "allHours": true
+    },
+    "PH": {
+      "emergency": "911",
+      "name": "NCMH Crisis Hotline",
+      "phone": "1553",
+      "allHours": true
+    },
+    "MY": {
+      "emergency": "999",
+      "name": "Befrienders Kuala Lumpur",
+      "phone": "03-7627 2929",
+      "allHours": true
+    },
+    "ID": {
+      "emergency": "119",
+      "name": "Healing119.id",
+      "phone": "119 ext 8",
+      "allHours": true
+    },
+    "TH": {
+      "emergency": "1669",
+      "name": "สายด่วนสุขภาพจิต 1323",
+      "phone": "1323",
+      "allHours": true
+    },
+    "ZA": {
+      "emergency": "112",
+      "name": "SADAG Suicide Crisis Helpline",
+      "phone": "0800 567 567",
+      "allHours": true
+    },
+    "IL": {
+      "emergency": "101",
+      "name": "ERAN (ער\"ן)",
+      "phone": "1201",
+      "allHours": true
+    },
+    "CZ": {
+      "emergency": "112",
+      "name": "Linka první psychické pomoci",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "GR": {
+      "emergency": "112",
+      "name": "Klimaka 1018",
+      "phone": "1018",
+      "allHours": true
+    },
+    "HU": {
+      "emergency": "112",
+      "name": "Telefonos Lelki Elsősegély-szolgálat (LESZ)",
+      "phone": "116 123",
+      "allHours": true
+    },
+    "RO": {
+      "emergency": "112",
+      "name": "DepreHUB",
+      "phone": "0374 456 420",
+      "allHours": true
+    },
+    "TR": {
+      "emergency": "112"
+    },
+    "RU": {
+      "emergency": "112"
+    },
+    "UA": {
+      "emergency": "112"
+    }
+  }
+}

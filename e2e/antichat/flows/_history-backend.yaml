@@ -1,0 +1,22 @@
+# Makes sure the chat list runs on the wanted backend (debug builds):
+#   BACKEND=real  the conversation store (antichat.db)
+#   BACKEND=fake  the in-memory fake of M1
+# Choosing the other backend reloads the app; choosing the current one does
+# nothing. Ends on the empty chat.
+appId: ${APP_ID}
+---
+- runFlow: _lab.yaml
+- tapOn:
+    id: lab-backend-${BACKEND}
+# A reload takes the lab away within a moment; without one it stays.
+- waitForAnimationToEnd:
+    timeout: 4000
+- runFlow:
+    when:
+      visible:
+        id: history-lab
+    file: _back.yaml
+- extendedWaitUntil:
+    visible:
+      id: composer
+    timeout: 60000

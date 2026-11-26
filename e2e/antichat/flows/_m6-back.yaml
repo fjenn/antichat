@@ -1,0 +1,20 @@
+# Goes back until the screen with id ${TO} shows (default: Settings). Top-bar
+# taps are repeated because one sometimes does not arrive on the iOS
+# simulator (see _open-drawer.yaml).
+appId: ${APP_ID}
+env:
+  TO: ${TO || 'settings'}
+---
+- repeat:
+    while:
+      notVisible:
+        id: ${TO}
+    times: 6
+    commands:
+      - tapOn:
+          id: header-back
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 2500
+- assertVisible:
+    id: ${TO}

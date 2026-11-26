@@ -1,0 +1,38 @@
+# Dictation on the real engine: allow the microphone, live words, confirm,
+# another language, cancel (see run-ui.sh).
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible: {id: 'voice-dev-title'}
+    timeout: 180000
+- tapOn: {id: 'composer-dictate'}
+- tapOn:
+    text: 'Allow|While using the app'
+    optional: true
+- extendedWaitUntil:
+    visible: {id: 'dictation-text'}
+    timeout: 120000
+- takeScreenshot: 3-listening
+- tapOn: {id: 'dictation-confirm'}
+- extendedWaitUntil:
+    visible: '.*capital of France.*'
+    timeout: 90000
+- takeScreenshot: 4-dictated
+- tapOn: {id: 'dictation-language-de'}
+- tapOn: {id: 'composer-dictate'}
+- extendedWaitUntil:
+    visible: {id: 'dictation-text'}
+    timeout: 120000
+- tapOn: {id: 'dictation-confirm'}
+- extendedWaitUntil:
+    visible: {id: 'composer'}
+    timeout: 90000
+- takeScreenshot: 5-german
+- tapOn: {id: 'composer-dictate'}
+- extendedWaitUntil:
+    visible: {id: 'dictation-cancel'}
+    timeout: 60000
+- tapOn: {id: 'dictation-cancel'}
+- extendedWaitUntil:
+    visible: {id: 'composer'}
+    timeout: 15000

@@ -1,0 +1,52 @@
+# M4: search in the drawer. Empty state, results with highlighted snippets,
+# a hit opens the chat on the matching message, recent searches, no results.
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _history-reset.yaml
+- runFlow: _open-drawer.yaml
+- runFlow: _search-open.yaml
+- takeScreenshot: 50-search-empty
+
+# Message text: "mornings" is only ever said inside answers.
+- inputText: morn
+- assertVisible:
+    id: search-results
+- waitForAnimationToEnd
+- takeScreenshot: 51-search-results
+
+# Title match.
+- eraseText
+- inputText: sourdough
+- assertVisible: ".*Sourdough starter schedule.*"
+- takeScreenshot: 52-search-title
+
+- eraseText
+- inputText: zzzqqq
+- assertVisible:
+    id: search-no-results
+- takeScreenshot: 53-search-none
+
+# A hit opens the chat scrolled to the message that matched.
+- eraseText
+- inputText: gaps
+- tapOn:
+    id: search-hit-.*
+    index: 0
+- assertVisible:
+    id: thread-focus
+- waitForAnimationToEnd
+- takeScreenshot: 54-search-hit-open
+
+# The search is remembered.
+- runFlow: _open-drawer.yaml
+- runFlow: _search-open.yaml
+- assertVisible:
+    id: search-recent
+- assertVisible: ".*gaps.*"
+- takeScreenshot: 55-search-recent
+- tapOn:
+    id: search-recent-0
+- assertVisible:
+    id: search-results
+- runFlow: _search-cancel.yaml

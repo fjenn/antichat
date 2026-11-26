@@ -1,0 +1,92 @@
+# M2 acceptance on the real engine: send, stream, stop, regenerate, switch
+# versions, edit, branch. Needs a small GGUF in the app's
+# Documents/antichat-models (docs/antichat/m2/README.md).
+appId: ${APP_ID}
+env:
+  TIMEOUT: 400000
+---
+- runFlow: _ready.yaml
+- runFlow: _new-chat.yaml
+- runFlow:
+    file: _send.yaml
+    env:
+      TEXT: Name three uses of binary search, one line each.
+- extendedWaitUntil:
+    visible:
+      id: answer-text
+    timeout: 400000
+- takeScreenshot: 70-real-streaming
+- runFlow: _answer-done.yaml
+- assertVisible:
+    id: answer-actions
+- takeScreenshot: 71-real-answer
+
+# Stop a long answer part-way.
+- runFlow:
+    file: _send.yaml
+    env:
+      TEXT: Now explain binary search in detail, with a table and a Python example.
+- extendedWaitUntil:
+    visible:
+      id: answer-text
+    timeout: 400000
+- tapOn:
+    id: composer-stop
+- runFlow: _answer-done.yaml
+- takeScreenshot: 72-real-stopped
+
+# Regenerate it and switch between the two versions.
+- tapOn:
+    id: scroll-to-bottom
+    optional: true
+- tapOn:
+    id: answer-regenerate
+# A short answer can be over before Maestro looks.
+- extendedWaitUntil:
+    visible:
+      id: composer-stop
+    timeout: 8000
+    optional: true
+- runFlow: _answer-done.yaml
+- tapOn:
+    id: scroll-to-bottom
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: answer-versions
+    timeout: 20000
+- assertVisible: 2/2
+- takeScreenshot: 73-real-version-2
+- tapOn:
+    id: answer-versions-previous
+- assertVisible: 1/2
+- takeScreenshot: 74-real-version-1
+
+# Branch from here, then edit the first question of the branch.
+- tapOn:
+    id: answer-more
+- tapOn: Branch in new chat
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertVisible:
+    id: user-message
+- takeScreenshot: 75-real-branched
+- scrollUntilVisible:
+    element: Name three uses of binary search, one line each.
+    direction: UP
+    timeout: 20000
+- longPressOn: Name three uses of binary search, one line each.
+- tapOn: Edit message
+- inputText: " Use emoji."
+- tapOn:
+    id: composer-send
+# A short answer can be over before Maestro looks.
+- extendedWaitUntil:
+    visible:
+      id: composer-stop
+    timeout: 8000
+    optional: true
+- runFlow: _answer-done.yaml
+- assertVisible:
+    id: message-versions
+- takeScreenshot: 76-real-edited

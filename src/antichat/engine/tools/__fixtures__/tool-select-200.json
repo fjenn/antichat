@@ -1,0 +1,1621 @@
+{
+"source": "AntiChat Mac fixtures: tools/forty-tools.json and prompts/tool-select-200.jsonl (CC0, generated text, no personal data)",
+"tools": [
+{
+"name": "get_time",
+"description": "Get the current date and time, in the user's time zone or in a given IANA time zone."
+},
+{
+"name": "web_search",
+"description": "Search the web for current information. Use when the answer needs facts newer than your training or the user asks to search."
+},
+{
+"name": "read_url",
+"description": "Read the page at a URL the user gave and answer from it."
+},
+{
+"name": "create_image",
+"description": "Create a picture from a text description. Use it whenever the user asks for an image, drawing, photo or illustration."
+},
+{
+"name": "edit_image",
+"description": "Change an existing picture as described (edit it, or fill a masked area)."
+},
+{
+"name": "create_document",
+"description": "Create a downloadable document file (PDF, Word .docx or Markdown .md) from Markdown. Use it when the user asks for a file, report, letter, handout or export (slide decks: create_presentation; spreadsheets: create_spreadsheet). Write the full content in `markdown` (headings, lists, tables, code, images as ![alt](ref) where ref is an id from `images`). To change a file you made earlier, pass its artifact_id as `revises`. Runs on this Mac; nothing is uploaded."
+},
+{
+"name": "create_spreadsheet",
+"description": "Create a downloadable spreadsheet (Excel .xlsx or .csv). Give each sheet typed columns and either `rows` (values) or `data_ref` (the data_ref of a query_data result — required when the data came from an attached file). Optional: Excel formulas by cell ({\"B14\": \"SUM(B2:B13)\"}, no \"=\"), number formats, a native chart. To change a file you made earlier, pass its artifact_id as `revises`. Runs on this Mac; nothing is uploaded."
+},
+{
+"name": "export_table",
+"description": "Save a query_data result (its data_ref) as a downloadable .csv or .xlsx file. Use it when the user wants the table itself as a file."
+},
+{
+"name": "create_presentation",
+"description": "Create a downloadable slide deck (PowerPoint .pptx; opens in Keynote and PowerPoint). 1–30 slides; layouts: title, bullets, image, title_bullets_image; up to 8 short bullets per slide; optional speaker notes; images by attachment or file id. Themes: clean (default), dusk, paper, bold. To change a deck you made earlier, pass its artifact_id as `revises`. Runs on this Mac; nothing is uploaded."
+},
+{
+"name": "create_chart",
+"description": "Draw a chart inline in the chat from a Vega-Lite v6 spec (bar, line, area, point, arc/pie, heatmap…). When the data comes from an attached sheet or a query_data result, pass that result's `data_ref` and leave `data.values` out of the spec — the app injects the exact rows; encode the result's column names as fields and do not re-aggregate a grouped result. Only for numbers the user typed in the conversation may the spec carry inline `data.values`. To change a chart you made earlier, pass its artifact_id as `revises`. Runs on this Mac; nothing is uploaded."
+},
+{
+"name": "query_data",
+"description": "Run one read-only SQL query (DuckDB dialect) over the spreadsheets attached to this chat. Each sheet is a table; the table names, columns and types are in the <sheet_tables> block. Use SELECT / WITH / SUMMARIZE / DESCRIBE / PIVOT only; quote names with double quotes. Per month: select strftime(\"date\", '%Y-%m') AS month and GROUP BY that same expression (grouping by the raw date gives one row per day). Returns up to 200 rows plus a data_ref for charts and exports."
+},
+{
+"name": "memory",
+"description": "Save, update, delete or view facts about the user. Save only when the user asks you to remember something, or when you propose it and the user agrees. Tag facts about health, sexuality, religion, politics or money with sensitive_category."
+},
+{
+"name": "create_video",
+"description": "Create a short video clip from a text description, or animate a picture."
+},
+{
+"name": "team_chat_search_messages",
+"description": "Search the team's messages by words."
+},
+{
+"name": "team_chat_send_message",
+"description": "Send a message to a channel."
+},
+{
+"name": "github_search_repositories",
+"description": "Search GitHub repositories by name, topic or language."
+},
+{
+"name": "github_create_issue",
+"description": "Open a new issue in a GitHub repository."
+},
+{
+"name": "github_list_pull_requests",
+"description": "List the open pull requests of a GitHub repository."
+},
+{
+"name": "github_get_file_contents",
+"description": "Read a file from a GitHub repository at a branch or commit."
+},
+{
+"name": "github_create_pull_request",
+"description": "Open a pull request from one branch into another."
+},
+{
+"name": "notion_search",
+"description": "Search pages and databases in the user's Notion workspace."
+},
+{
+"name": "notion_create_page",
+"description": "Create a new Notion page with a title and content."
+},
+{
+"name": "notion_append_block",
+"description": "Add text to the end of an existing Notion page."
+},
+{
+"name": "linear_list_issues",
+"description": "List Linear issues, filtered by team, assignee or state."
+},
+{
+"name": "linear_create_issue",
+"description": "Create a Linear issue in a team with a title and description."
+},
+{
+"name": "linear_update_issue",
+"description": "Change a Linear issue's state, assignee or priority."
+},
+{
+"name": "calendar_list_events",
+"description": "List the events on the user's calendar between two dates."
+},
+{
+"name": "calendar_create_event",
+"description": "Add an event to the user's calendar."
+},
+{
+"name": "calendar_find_free_time",
+"description": "Find free time slots in the user's calendar for a meeting of a given length."
+},
+{
+"name": "drive_search_files",
+"description": "Search the user's cloud drive for files by name or content."
+},
+{
+"name": "drive_read_file",
+"description": "Read the text of a file in the user's cloud drive."
+},
+{
+"name": "weather_get_forecast",
+"description": "Get the weather forecast for a place for the next days."
+},
+{
+"name": "stripe_list_payments",
+"description": "List recent payments received in the Stripe account."
+},
+{
+"name": "stripe_create_invoice",
+"description": "Create and send a Stripe invoice to a customer."
+},
+{
+"name": "maps_search_places",
+"description": "Find places such as restaurants, shops or museums near a location."
+},
+{
+"name": "maps_get_directions",
+"description": "Get travel directions and time between two places."
+},
+{
+"name": "composio_composio_search_tools",
+"description": "Find the tools that fit a use case across the toolkits enabled for this session."
+},
+{
+"name": "composio_composio_get_tool_schemas",
+"description": "Return the full input schemas of tools found by COMPOSIO_SEARCH_TOOLS."
+},
+{
+"name": "composio_composio_manage_connections",
+"description": "Check or start the connection of a toolkit for this user."
+},
+{
+"name": "composio_composio_multi_execute_tool",
+"description": "Execute one or more tools found by COMPOSIO_SEARCH_TOOLS, in parallel."
+}
+],
+"rows": [
+{
+"also": [],
+"gold": "query_data",
+"id": "ts-001",
+"lang": "en",
+"prompt": "In the attached sales.xlsx, which region had the highest revenue?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-002",
+"lang": "fr",
+"prompt": "Comment dit-on 'merci beaucoup' en japonais ?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-003",
+"lang": "en",
+"prompt": "Give me five tips for sleeping better"
+},
+{
+"also": [],
+"gold": "team_chat_send_message",
+"id": "ts-004",
+"lang": "en",
+"prompt": "send a message to #design saying the mockups are ready"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-005",
+"lang": "en",
+"prompt": "thanks, that was helpful"
+},
+{
+"also": [],
+"gold": "query_data",
+"id": "ts-006",
+"lang": "en",
+"prompt": "How many orders in the spreadsheet I attached were shipped late?"
+},
+{
+"also": [],
+"gold": "team_chat_send_message",
+"id": "ts-007",
+"lang": "en",
+"prompt": "Post 'standup moved to 10am' in the general channel"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-008",
+"lang": "de",
+"prompt": "Merk dir bitte, dass ich in Köln wohne"
+},
+{
+"also": [],
+"gold": "create_presentation",
+"id": "ts-009",
+"lang": "en",
+"prompt": "Build slides for my team kickoff: goals, timeline, roles"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-010",
+"lang": "en",
+"prompt": "current price of bitcoin?"
+},
+{
+"also": [],
+"gold": "create_presentation",
+"id": "ts-011",
+"lang": "en",
+"prompt": "Prepare a slide deck for my grandmother's 80th birthday party"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-012",
+"lang": "es",
+"prompt": "¿Cuáles son las últimas noticias sobre la huelga de trenes en Francia?"
+},
+{
+"also": [],
+"gold": "edit_image",
+"id": "ts-013",
+"lang": "es",
+"prompt": "Quita el fondo de esta foto y déjalo blanco"
+},
+{
+"also": [],
+"gold": "edit_image",
+"id": "ts-014",
+"lang": "en",
+"prompt": "brighten this photo a bit, it's too dark"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-015",
+"lang": "de",
+"prompt": "Wie funktioniert ein Elektromotor?"
+},
+{
+"also": [],
+"gold": "get_time",
+"id": "ts-016",
+"lang": "en",
+"prompt": "What time is it in Tokyo right now?"
+},
+{
+"also": [],
+"gold": "create_chart",
+"id": "ts-017",
+"lang": "en",
+"prompt": "Plot a bar chart of these sales numbers: Jan 120, Feb 95, Mar 140"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-018",
+"lang": "en",
+"prompt": "Help me write a polite reply declining a wedding invitation"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-019",
+"lang": "en",
+"prompt": "Give me a 3-day meal plan for a vegetarian"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-020",
+"lang": "en",
+"prompt": "how many legs does a spider have"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-021",
+"lang": "pt",
+"prompt": "Cria uma ilustração de um gato astronauta"
+},
+{
+"also": [],
+"gold": "team_chat_search_messages",
+"id": "ts-022",
+"lang": "en",
+"prompt": "Search our team chat for what Ana said about the launch date"
+},
+{
+"also": [],
+"gold": "stripe_list_payments",
+"id": "ts-023",
+"lang": "en",
+"prompt": "how much did customers pay us through Stripe yesterday"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-024",
+"lang": "en",
+"prompt": "Recommend three classic science fiction novels"
+},
+{
+"also": [],
+"gold": "notion_search",
+"id": "ts-025",
+"lang": "en",
+"prompt": "Search my Notion for the onboarding checklist"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-026",
+"lang": "en",
+"prompt": "How do I calculate the area of a circle?"
+},
+{
+"also": [],
+"gold": "create_video",
+"id": "ts-027",
+"lang": "en",
+"prompt": "animate this picture so the flag waves in the wind"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-028",
+"lang": "en",
+"prompt": "search the web for reviews of the new Framework laptop"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-029",
+"lang": "en",
+"prompt": "how do I center a div in CSS"
+},
+{
+"also": [],
+"gold": "create_chart",
+"id": "ts-030",
+"lang": "en",
+"prompt": "visualize this data as a scatter plot: (1,2) (2,4) (3,5) (4,4)"
+},
+{
+"also": [],
+"gold": "calendar_create_event",
+"id": "ts-031",
+"lang": "en",
+"prompt": "schedule lunch with Sam next Thursday at noon"
+},
+{
+"also": [],
+"gold": "create_chart",
+"id": "ts-032",
+"lang": "en",
+"prompt": "make a pie chart of how I spend my week: work 40, sleep 56, other 72"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-033",
+"lang": "en",
+"prompt": "I want a poster image for our jazz night, art deco style"
+},
+{
+"also": [],
+"gold": "linear_list_issues",
+"id": "ts-034",
+"lang": "en",
+"prompt": "What tickets is the backend team working on in Linear?"
+},
+{
+"also": [],
+"gold": "team_chat_send_message",
+"id": "ts-035",
+"lang": "en",
+"prompt": "let the #support channel know the outage is fixed"
+},
+{
+"also": [],
+"gold": "calendar_list_events",
+"id": "ts-036",
+"lang": "de",
+"prompt": "Welche Termine habe ich nächste Woche?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-037",
+"lang": "en",
+"prompt": "Explain compound interest like I'm twelve"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-038",
+"lang": "pt",
+"prompt": "Explique o que é inflação de forma simples"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-039",
+"lang": "en",
+"prompt": "Suggest five names for a golden retriever puppy"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-040",
+"lang": "en",
+"prompt": "Keep in mind that my daughter's name is Mia"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-041",
+"lang": "en",
+"prompt": "write a limerick about a programmer"
+},
+{
+"also": [],
+"gold": "drive_search_files",
+"id": "ts-042",
+"lang": "en",
+"prompt": "Find the contract PDF in my drive"
+},
+{
+"also": [],
+"gold": "notion_search",
+"id": "ts-043",
+"lang": "en",
+"prompt": "Look up our team wiki in Notion for the vacation policy"
+},
+{
+"also": [],
+"gold": "drive_search_files",
+"id": "ts-044",
+"lang": "es",
+"prompt": "Busca en mi Drive el documento del contrato de alquiler"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_get_directions",
+"id": "ts-045",
+"lang": "en",
+"prompt": "How long does it take to walk from the Eiffel Tower to the Louvre?"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-046",
+"lang": "en",
+"prompt": "Post a tweet saying our shop opens at 9 tomorrow"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-047",
+"lang": "en",
+"prompt": "hi! how are you doing today?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-048",
+"lang": "es",
+"prompt": "¿Me das una receta fácil de tortilla de patatas?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-049",
+"lang": "en",
+"prompt": "Summarize the plot of Pride and Prejudice in three sentences"
+},
+{
+"also": [],
+"gold": "github_get_file_contents",
+"id": "ts-050",
+"lang": "en",
+"prompt": "read src/config.yml from the acme/app repo"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-051",
+"lang": "en",
+"prompt": "What makes a good presentation? General advice please"
+},
+{
+"also": [],
+"gold": "github_get_file_contents",
+"id": "ts-052",
+"lang": "en",
+"prompt": "Show me the README of acme/api on the main branch"
+},
+{
+"also": [],
+"gold": "create_video",
+"id": "ts-053",
+"lang": "fr",
+"prompt": "Fais une courte vidéo d'un chat qui joue avec une pelote"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-054",
+"lang": "de",
+"prompt": "Erkläre mir, wie ein Regenbogen entsteht"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-055",
+"lang": "en",
+"prompt": "what is a good way to learn chess as an adult"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-056",
+"lang": "es",
+"prompt": "Genera un PDF con el itinerario del viaje"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-057",
+"lang": "en",
+"prompt": "please forget what I told you about my old job"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "weather_get_forecast",
+"id": "ts-058",
+"lang": "es",
+"prompt": "¿Qué tiempo hará en Madrid el lunes?"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-059",
+"lang": "en",
+"prompt": "add a task to Asana: renew the domain"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-060",
+"lang": "en",
+"prompt": "How do spreadsheet formulas like VLOOKUP work?"
+},
+{
+"also": [],
+"gold": "team_chat_search_messages",
+"id": "ts-061",
+"lang": "en",
+"prompt": "find messages in the team chat that mention the budget"
+},
+{
+"also": [],
+"gold": "create_chart",
+"id": "ts-062",
+"lang": "de",
+"prompt": "Zeichne ein Diagramm mit den Temperaturen der letzten Woche: 12, 14, 9, 11, 15"
+},
+{
+"also": [],
+"gold": "get_time",
+"id": "ts-063",
+"lang": "de",
+"prompt": "Wie spät ist es gerade in Sydney?"
+},
+{
+"also": [
+"create_spreadsheet"
+],
+"gold": "export_table",
+"id": "ts-064",
+"lang": "en",
+"prompt": "Download the filtered table you just showed me as xlsx"
+},
+{
+"also": [],
+"gold": "linear_list_issues",
+"id": "ts-065",
+"lang": "en",
+"prompt": "show the open bugs for the mobile team in Linear"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-066",
+"lang": "en",
+"prompt": "Describe a calm morning routine in a short paragraph"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-067",
+"lang": "en",
+"prompt": "What is the capital of Australia?"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-068",
+"lang": "de",
+"prompt": "Erstelle mir ein Word-Dokument mit einer Einladung zum Sommerfest"
+},
+{
+"also": [],
+"gold": "read_url",
+"id": "ts-069",
+"lang": "en",
+"prompt": "Summarize this article for me: https://example.org/blog/why-sleep-matters"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-070",
+"lang": "fr",
+"prompt": "Donne-moi trois idées de cadeaux pour ma sœur"
+},
+{
+"also": [
+"composio_composio_search_tools"
+],
+"gold": "composio_composio_manage_connections",
+"id": "ts-071",
+"lang": "en",
+"prompt": "is my Google Sheets account connected?"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-072",
+"lang": "en",
+"prompt": "Check my Gmail for unread messages from the bank"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-073",
+"lang": "en",
+"prompt": "How do I write a good README for an open source project?"
+},
+{
+"also": [],
+"gold": "linear_update_issue",
+"id": "ts-074",
+"lang": "en",
+"prompt": "change the priority of ENG-77 in Linear to urgent"
+},
+{
+"also": [],
+"gold": "read_url",
+"id": "ts-075",
+"lang": "en",
+"prompt": "What does the page at https://example.com/pricing say about the free plan?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-076",
+"lang": "en",
+"prompt": "Can you help me plan a birthday party for a 7 year old?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-077",
+"lang": "en",
+"prompt": "What should I pack for a weekend hiking trip?"
+},
+{
+"also": [],
+"gold": "calendar_list_events",
+"id": "ts-078",
+"lang": "en",
+"prompt": "do I have any meetings on Friday afternoon"
+},
+{
+"also": [],
+"gold": "stripe_create_invoice",
+"id": "ts-079",
+"lang": "en",
+"prompt": "Send an invoice for 450 euros to client@example.com via Stripe"
+},
+{
+"also": [],
+"gold": "create_presentation",
+"id": "ts-080",
+"lang": "en",
+"prompt": "Turn this outline into a PowerPoint presentation"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-081",
+"lang": "en",
+"prompt": "Why is the sky blue?"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-082",
+"lang": "en",
+"prompt": "Reply to the latest email from Alex in my inbox and say I'll be late"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-083",
+"lang": "en",
+"prompt": "What does a product manager do?"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-084",
+"lang": "en",
+"prompt": "Write my cover letter as a Word document I can download"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-085",
+"lang": "en",
+"prompt": "How do I ask my manager for a raise?"
+},
+{
+"also": [],
+"gold": "edit_image",
+"id": "ts-086",
+"lang": "en",
+"prompt": "Remove the person in the background of my photo"
+},
+{
+"also": [],
+"gold": "create_spreadsheet",
+"id": "ts-087",
+"lang": "en",
+"prompt": "Make an Excel sheet to track my monthly expenses with a total row"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-088",
+"lang": "en",
+"prompt": "Who is the current prime minister of Japan?"
+},
+{
+"also": [],
+"gold": "create_video",
+"id": "ts-089",
+"lang": "en",
+"prompt": "Make a short video of waves rolling onto a beach at sunset"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-090",
+"lang": "en",
+"prompt": "Which is heavier, a kilo of feathers or a kilo of steel?"
+},
+{
+"also": [],
+"gold": "linear_list_issues",
+"id": "ts-091",
+"lang": "en",
+"prompt": "What Linear issues are assigned to me?"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_search_places",
+"id": "ts-092",
+"lang": "en",
+"prompt": "Find a good ramen place near Shibuya station"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-093",
+"lang": "en",
+"prompt": "Remember that I'm allergic to peanuts"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-094",
+"lang": "en",
+"prompt": "Rewrite this sentence to sound more formal: we gotta fix this asap"
+},
+{
+"also": [],
+"gold": "calendar_find_free_time",
+"id": "ts-095",
+"lang": "en",
+"prompt": "when am I free for 30 minutes in the next three days?"
+},
+{
+"also": [],
+"gold": "github_create_pull_request",
+"id": "ts-096",
+"lang": "en",
+"prompt": "Open a pull request in acme/app from feature/login into main"
+},
+{
+"also": [],
+"gold": "notion_create_page",
+"id": "ts-097",
+"lang": "en",
+"prompt": "make a new page in Notion for tomorrow's meeting notes"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-098",
+"lang": "en",
+"prompt": "What are the main causes of the French Revolution?"
+},
+{
+"also": [],
+"gold": "create_spreadsheet",
+"id": "ts-099",
+"lang": "en",
+"prompt": "Set up a budget table in xlsx with categories and monthly columns"
+},
+{
+"also": [],
+"gold": "github_create_issue",
+"id": "ts-100",
+"lang": "en",
+"prompt": "file a bug on GitHub in acme/app titled 'Crash on launch'"
+},
+{
+"also": [],
+"gold": "drive_read_file",
+"id": "ts-101",
+"lang": "en",
+"prompt": "read the notes document in my drive with id 1a2b3c"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-102",
+"lang": "en",
+"prompt": "Give me my CV as a downloadable docx"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-103",
+"lang": "fr",
+"prompt": "Cherche sur internet les horaires d'ouverture du musée d'Orsay"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "weather_get_forecast",
+"id": "ts-104",
+"lang": "en",
+"prompt": "Do I need an umbrella in London on Saturday?"
+},
+{
+"also": [],
+"gold": "create_presentation",
+"id": "ts-105",
+"lang": "en",
+"prompt": "Make a 6-slide deck about the history of the bicycle"
+},
+{
+"also": [],
+"gold": "create_video",
+"id": "ts-106",
+"lang": "en",
+"prompt": "Create a 5 second clip of snow falling over a quiet village"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-107",
+"lang": "en",
+"prompt": "List some fun things to do on a rainy day indoors"
+},
+{
+"also": [],
+"gold": "github_list_pull_requests",
+"id": "ts-108",
+"lang": "en",
+"prompt": "What changed in the open PRs on acme/web?"
+},
+{
+"also": [],
+"gold": "linear_update_issue",
+"id": "ts-109",
+"lang": "en",
+"prompt": "Assign WEB-88 to Priya in Linear"
+},
+{
+"also": [],
+"gold": "github_search_repositories",
+"id": "ts-110",
+"lang": "en",
+"prompt": "search github for rust web frameworks"
+},
+{
+"also": [],
+"gold": "team_chat_search_messages",
+"id": "ts-111",
+"lang": "en",
+"prompt": "did anyone in the team chat ask about the holiday schedule?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-112",
+"lang": "en",
+"prompt": "write a haiku about autumn rain"
+},
+{
+"also": [],
+"gold": "github_search_repositories",
+"id": "ts-113",
+"lang": "en",
+"prompt": "Find popular GitHub repos for Swift markdown parsing"
+},
+{
+"also": [],
+"gold": "get_time",
+"id": "ts-114",
+"lang": "en",
+"prompt": "Is it already evening in New York?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-115",
+"lang": "en",
+"prompt": "Draft a short thank-you note to my neighbour for watering my plants"
+},
+{
+"also": [],
+"gold": "stripe_list_payments",
+"id": "ts-116",
+"lang": "en",
+"prompt": "list failed Stripe payments"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-117",
+"lang": "en",
+"prompt": "Brainstorm ten blog post ideas about gardening"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-118",
+"lang": "en",
+"prompt": "Explain how recursion works with a simple example"
+},
+{
+"also": [],
+"gold": "notion_create_page",
+"id": "ts-119",
+"lang": "en",
+"prompt": "Start a new Notion doc for the book club reading list"
+},
+{
+"also": [],
+"gold": "create_spreadsheet",
+"id": "ts-120",
+"lang": "en",
+"prompt": "I need a spreadsheet for a weekly workout plan"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_search_places",
+"id": "ts-121",
+"lang": "en",
+"prompt": "any pharmacies open near me in Utrecht?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-122",
+"lang": "en",
+"prompt": "Which planets in our solar system have rings?"
+},
+{
+"also": [
+"notion_search"
+],
+"gold": "notion_append_block",
+"id": "ts-123",
+"lang": "en",
+"prompt": "Add 'call the plumber' to the end of my Notion to-do page"
+},
+{
+"also": [],
+"gold": "query_data",
+"id": "ts-124",
+"lang": "en",
+"prompt": "From the sheet I uploaded, list customers who spent over 1000"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-125",
+"lang": "en",
+"prompt": "Translate 'good morning, how are you?' into Italian"
+},
+{
+"also": [],
+"gold": "create_presentation",
+"id": "ts-126",
+"lang": "nl",
+"prompt": "Maak een presentatie van vijf dia's over zonne-energie"
+},
+{
+"also": [],
+"gold": "edit_image",
+"id": "ts-127",
+"lang": "en",
+"prompt": "Change the color of the car in the image to dark green"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-128",
+"lang": "nl",
+"prompt": "Geef me tips om beter te leren voor een examen"
+},
+{
+"also": [],
+"gold": "drive_search_files",
+"id": "ts-129",
+"lang": "en",
+"prompt": "search my cloud drive for the budget spreadsheet from last year"
+},
+{
+"also": [],
+"gold": "linear_create_issue",
+"id": "ts-130",
+"lang": "en",
+"prompt": "log a new ticket in Linear about slow search"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-131",
+"lang": "pt",
+"prompt": "Escreve uma mensagem de aniversário para a minha avó"
+},
+{
+"also": [],
+"gold": "create_spreadsheet",
+"id": "ts-132",
+"lang": "en",
+"prompt": "Create a CSV with the 10 largest cities in Europe and their populations"
+},
+{
+"also": [],
+"gold": "query_data",
+"id": "ts-133",
+"lang": "en",
+"prompt": "average order value per month in the attached csv"
+},
+{
+"also": [],
+"gold": "notion_search",
+"id": "ts-134",
+"lang": "en",
+"prompt": "find the page about Q3 goals in Notion"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-135",
+"lang": "en",
+"prompt": "Generate a photo-realistic picture of a red bicycle leaning on a brick wall"
+},
+{
+"also": [],
+"gold": "github_create_pull_request",
+"id": "ts-136",
+"lang": "en",
+"prompt": "create a PR merging fix-typos into develop on acme/docs"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-137",
+"lang": "en",
+"prompt": "Draw a watercolor fox sleeping under a maple tree"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "weather_get_forecast",
+"id": "ts-138",
+"lang": "en",
+"prompt": "What's the weather forecast for Berlin this weekend?"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_search_places",
+"id": "ts-139",
+"lang": "en",
+"prompt": "Find a vegan bakery around Prenzlauer Berg"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-140",
+"lang": "en",
+"prompt": "Proofread: Their going to the park tomorow"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-141",
+"lang": "fr",
+"prompt": "Souviens-toi que je suis végétarien"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-142",
+"lang": "en",
+"prompt": "Create a one-page handout about recycling rules as a PDF file"
+},
+{
+"also": [],
+"gold": "github_create_issue",
+"id": "ts-143",
+"lang": "en",
+"prompt": "Open an issue in acme/website: the contact form doesn't submit on Safari"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_get_directions",
+"id": "ts-144",
+"lang": "nl",
+"prompt": "Hoe kom ik met het OV van Utrecht naar Leiden?"
+},
+{
+"also": [],
+"gold": "get_time",
+"id": "ts-145",
+"lang": "en",
+"prompt": "what's today's date"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-146",
+"lang": "en",
+"prompt": "What's the difference between a virus and a bacterium?"
+},
+{
+"also": [],
+"gold": "github_create_issue",
+"id": "ts-147",
+"lang": "en",
+"prompt": "report a bug in acme/cli: the --help flag prints nothing"
+},
+{
+"also": [],
+"gold": "read_url",
+"id": "ts-148",
+"lang": "en",
+"prompt": "read https://example.net/docs/install and tell me the steps for macOS"
+},
+{
+"also": [
+"drive_search_files"
+],
+"gold": "drive_read_file",
+"id": "ts-149",
+"lang": "en",
+"prompt": "Open the file 'Project plan' from my drive and summarize it"
+},
+{
+"also": [],
+"gold": "read_url",
+"id": "ts-150",
+"lang": "nl",
+"prompt": "Kun je deze pagina samenvatten? https://example.org/nieuws/klimaat"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-151",
+"lang": "en",
+"prompt": "What's 15% of 84.50?"
+},
+{
+"also": [],
+"gold": "stripe_list_payments",
+"id": "ts-152",
+"lang": "en",
+"prompt": "Show the payments we received in Stripe this week"
+},
+{
+"also": [],
+"gold": "create_video",
+"id": "ts-153",
+"lang": "en",
+"prompt": "I'd like a little clip of a paper boat floating down a stream"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-154",
+"lang": "en",
+"prompt": "Who won the Champions League final last night?"
+},
+{
+"also": [],
+"gold": "calendar_find_free_time",
+"id": "ts-155",
+"lang": "en",
+"prompt": "Find a free hour in my calendar this week for a call"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-156",
+"lang": "en",
+"prompt": "Write a Python function that reverses a string"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-157",
+"lang": "en",
+"prompt": "Is it better to rent or buy a house? Give me the trade-offs"
+},
+{
+"also": [
+"create_spreadsheet"
+],
+"gold": "export_table",
+"id": "ts-158",
+"lang": "en",
+"prompt": "Save that query result as a CSV file"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-159",
+"lang": "en",
+"prompt": "Can you explain what a pull request is, in simple terms?"
+},
+{
+"also": [],
+"gold": "github_search_repositories",
+"id": "ts-160",
+"lang": "en",
+"prompt": "Are there any open source repositories for parsing PDFs in Go?"
+},
+{
+"also": [
+"calendar_find_free_time"
+],
+"gold": "calendar_list_events",
+"id": "ts-161",
+"lang": "en",
+"prompt": "Am I busy on the morning of the 14th?"
+},
+{
+"also": [],
+"gold": "edit_image",
+"id": "ts-162",
+"lang": "en",
+"prompt": "make the sky in this picture more dramatic and orange"
+},
+{
+"also": [
+"maps_search_places"
+],
+"gold": "web_search",
+"id": "ts-163",
+"lang": "en",
+"prompt": "is the Louvre open on Mondays these days?"
+},
+{
+"also": [],
+"gold": "linear_update_issue",
+"id": "ts-164",
+"lang": "en",
+"prompt": "Mark Linear issue WEB-142 as done"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-165",
+"lang": "de",
+"prompt": "Erstelle ein Bild von einem Leuchtturm im Sturm"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-166",
+"lang": "en",
+"prompt": "What is a good stretching routine after running?"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-167",
+"lang": "en",
+"prompt": "put this recipe into a markdown file for me"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-168",
+"lang": "en",
+"prompt": "good night!"
+},
+{
+"also": [],
+"gold": "calendar_create_event",
+"id": "ts-169",
+"lang": "en",
+"prompt": "Add a dentist appointment to my calendar on Tuesday at 3pm"
+},
+{
+"also": [],
+"gold": "memory",
+"id": "ts-170",
+"lang": "en",
+"prompt": "Note for the future: I prefer metric units"
+},
+{
+"also": [],
+"gold": "composio_composio_manage_connections",
+"id": "ts-171",
+"lang": "en",
+"prompt": "link my HubSpot so you can use it"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-172",
+"lang": "en",
+"prompt": "Send an email from my Gmail to Kim saying the report is attached"
+},
+{
+"also": [
+"create_spreadsheet"
+],
+"gold": "export_table",
+"id": "ts-173",
+"lang": "en",
+"prompt": "export the results of that last query to Excel"
+},
+{
+"also": [],
+"gold": "query_data",
+"id": "ts-174",
+"lang": "es",
+"prompt": "En la hoja que adjunté, ¿cuál es el producto más vendido?"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-175",
+"lang": "es",
+"prompt": "Explícame qué es la fotosíntesis"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-176",
+"lang": "en",
+"prompt": "make me a logo for a bakery called Crumbs, minimal, warm colors"
+},
+{
+"also": [],
+"gold": "composio_composio_manage_connections",
+"id": "ts-177",
+"lang": "en",
+"prompt": "Connect my Dropbox account"
+},
+{
+"also": [],
+"gold": "create_spreadsheet",
+"id": "ts-178",
+"lang": "es",
+"prompt": "Hazme una hoja de cálculo para controlar las horas de trabajo"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_get_directions",
+"id": "ts-179",
+"lang": "en",
+"prompt": "give me driving directions from Lyon to Geneva"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-180",
+"lang": "de",
+"prompt": "Schreib ein kurzes Gedicht über das Meer"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-181",
+"lang": "en",
+"prompt": "tell me a joke about cats"
+},
+{
+"also": [],
+"gold": "calendar_list_events",
+"id": "ts-182",
+"lang": "en",
+"prompt": "What's on my calendar tomorrow?"
+},
+{
+"also": [],
+"gold": "calendar_create_event",
+"id": "ts-183",
+"lang": "en",
+"prompt": "Put 'yoga class' on my calendar every Wednesday at 7"
+},
+{
+"also": [],
+"gold": "github_list_pull_requests",
+"id": "ts-184",
+"lang": "en",
+"prompt": "list PRs waiting for review on acme/api"
+},
+{
+"also": [],
+"gold": "create_image",
+"id": "ts-185",
+"lang": "en",
+"prompt": "Can you sketch a floor plan style drawing of a cozy studio apartment?"
+},
+{
+"also": [],
+"gold": "stripe_create_invoice",
+"id": "ts-186",
+"lang": "en",
+"prompt": "bill jo@example.com 120 dollars for the design work"
+},
+{
+"also": [],
+"gold": "github_list_pull_requests",
+"id": "ts-187",
+"lang": "en",
+"prompt": "Which pull requests are open in acme/website?"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-188",
+"lang": "en",
+"prompt": "What are the latest headlines about the EU AI Act?"
+},
+{
+"also": [],
+"gold": "create_document",
+"id": "ts-189",
+"lang": "en",
+"prompt": "Export these meeting notes as a PDF"
+},
+{
+"also": [],
+"gold": "notion_create_page",
+"id": "ts-190",
+"lang": "en",
+"prompt": "Create a Notion page called 'Trip to Lisbon' with a packing list"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-191",
+"lang": "en",
+"prompt": "Explain the difference between weather and climate"
+},
+{
+"also": [
+"composio_composio_multi_execute_tool"
+],
+"gold": "composio_composio_search_tools",
+"id": "ts-192",
+"lang": "en",
+"prompt": "Create a Trello card called 'Order new chairs' on my office board"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-193",
+"lang": "en",
+"prompt": "Explain what an API is to a non-programmer"
+},
+{
+"also": [],
+"gold": "none",
+"id": "ts-194",
+"lang": "nl",
+"prompt": "Wat is het verschil tussen een meer en een zee?"
+},
+{
+"also": [
+"query_data"
+],
+"gold": "create_chart",
+"id": "ts-195",
+"lang": "en",
+"prompt": "Show me a line chart of the revenue by month from my spreadsheet"
+},
+{
+"also": [
+"notion_search"
+],
+"gold": "notion_append_block",
+"id": "ts-196",
+"lang": "en",
+"prompt": "append today's summary to the project log page in Notion"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "weather_get_forecast",
+"id": "ts-197",
+"lang": "en",
+"prompt": "will it rain in Amsterdam tomorrow"
+},
+{
+"also": [],
+"gold": "linear_create_issue",
+"id": "ts-198",
+"lang": "en",
+"prompt": "Create a Linear issue for the web team: dark mode toggle is broken"
+},
+{
+"also": [],
+"gold": "web_search",
+"id": "ts-199",
+"lang": "de",
+"prompt": "Was gibt es Neues bei der Bundesliga?"
+},
+{
+"also": [
+"web_search"
+],
+"gold": "maps_get_directions",
+"id": "ts-200",
+"lang": "en",
+"prompt": "What's the fastest way by train from Brussels to Cologne?"
+}
+]
+}

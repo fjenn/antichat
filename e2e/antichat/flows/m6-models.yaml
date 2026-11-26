@@ -1,0 +1,128 @@
+# The model picker and "Manage models": download a second model with pause and
+# resume, delete the one in use (chat carries on with the other), add it
+# again, and the unrestricted add-on behind its consent.
+# Start state: an installed assistant (run m6-fresh-first-run first).
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _m6-open-models.yaml
+- takeScreenshot: 66-model-menu
+- tapOn: 'Manage models'
+- extendedWaitUntil:
+    visible:
+      id: models-page
+    timeout: 15000
+- assertVisible:
+    id: model-in-use-smart
+- assertVisible:
+    id: models-automatic-on
+# A second model, with pause and resume from the row.
+- tapOn:
+    id: model-download-fast
+- extendedWaitUntil:
+    visible:
+      id: model-pause-fast
+    timeout: 15000
+- tapOn:
+    id: model-pause-fast
+- assertVisible:
+    id: model-resume-fast
+- assertVisible: 'Paused · .*'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 88-models-download-paused
+- tapOn:
+    id: model-resume-fast
+- extendedWaitUntil:
+    notVisible:
+      id: model-pause-fast
+    timeout: 360000
+- assertNotVisible:
+    id: model-download-fast
+# The download did not change the model in use.
+- assertVisible:
+    id: model-in-use-smart
+# Delete the one in use: the other takes over.
+- tapOn:
+    id: model-more-smart
+- tapOn: 'Delete'
+- extendedWaitUntil:
+    visible:
+      id: model-delete-confirm-confirm
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 89-model-delete
+- tapOn:
+    id: model-delete-confirm-confirm
+- extendedWaitUntil:
+    visible:
+      id: model-in-use-fast
+    timeout: 60000
+- assertVisible:
+    id: model-download-smart
+- assertVisible:
+    id: models-automatic-off
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: 90-models-after-delete
+# Add it again: switching "Choose for me" back on downloads it and switches.
+- tapOn:
+    id: models-automatic
+- extendedWaitUntil:
+    visible:
+      id: model-in-use-smart
+    timeout: 420000
+- assertVisible:
+    id: models-automatic-on
+# Tidy up: remove the second model.
+- tapOn:
+    id: model-more-fast
+- tapOn: 'Delete'
+- tapOn:
+    id: model-delete-confirm-confirm
+- extendedWaitUntil:
+    visible:
+      id: model-download-fast
+    timeout: 30000
+# The unrestricted add-on: one sentence, then a consent before any download.
+- scrollUntilVisible:
+    element:
+      id: unrestricted-get
+    direction: DOWN
+- tapOn:
+    id: unrestricted-get
+- extendedWaitUntil:
+    visible:
+      id: unrestricted-consent-check
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 91-unrestricted-consent
+# Without the switch nothing downloads.
+- tapOn:
+    id: unrestricted-consent-confirm
+- assertVisible:
+    id: unrestricted-consent-check
+- tapOn:
+    id: unrestricted-consent-check
+- tapOn:
+    id: unrestricted-consent-confirm
+- scrollUntilVisible:
+    element:
+      id: model-pause-unrestricted
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: model-pause-unrestricted
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 92-unrestricted-downloading
+# Leave the phone as it was.
+- tapOn:
+    id: model-more-unrestricted
+- tapOn: 'Cancel download'
+- scrollUntilVisible:
+    element:
+      id: unrestricted-get
+    direction: DOWN

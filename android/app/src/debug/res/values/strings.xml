@@ -1,0 +1,4 @@
+<resources>
+    <!-- ANTICHAT: debug builds install side by side as "AntiChat Dev". -->
+    <string name="app_name">AntiChat Dev</string>
+</resources>

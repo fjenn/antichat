@@ -1,0 +1,76 @@
+# M2: regenerate and the version switcher, copy, rating, edit and resend,
+# branch in a new chat, select text. In-memory backend.
+appId: ${APP_ID}
+env:
+  TIMEOUT: 60000
+---
+- runFlow: _ready.yaml
+- runFlow: _new-chat.yaml
+- runFlow:
+    file: _send.yaml
+    env:
+      TEXT: Write a short birthday message for my mum
+- runFlow: _answer-done.yaml
+- assertVisible:
+    id: answer-actions
+- takeScreenshot: 50-answer
+
+# Copy confirms in place; a rating stays.
+- tapOn:
+    id: answer-copy
+- tapOn:
+    id: answer-good
+- takeScreenshot: 51-copied-rated
+
+# Regenerate: a second version, and the way back to the first.
+- tapOn:
+    id: answer-regenerate
+- runFlow: _answer-done.yaml
+- assertVisible:
+    id: answer-versions
+- assertVisible: 2/2
+- takeScreenshot: 52-version-2
+- tapOn:
+    id: answer-versions-previous
+- assertVisible: 1/2
+- takeScreenshot: 53-version-1
+
+# Long-press the question: copy, select, edit.
+- longPressOn:
+    id: user-message-text
+- assertVisible: Edit message
+- takeScreenshot: 54-question-menu
+- tapOn: Edit message
+- assertVisible: Editing message
+- takeScreenshot: 55-editing
+- inputText: " and my dad"
+- tapOn:
+    id: composer-send
+- runFlow: _answer-done.yaml
+- assertVisible: Write a short birthday message for my mum and my dad
+- takeScreenshot: 56-edited
+
+# Long-press the answer: its menu; "Select text" opens the whole message.
+- longPressOn:
+    id: answer-text
+- assertVisible: Branch in new chat
+- takeScreenshot: 57-answer-menu
+- tapOn: Select text
+- assertVisible:
+    id: select-text-sheet
+- takeScreenshot: 58-select-text
+- swipe:
+    start: 50%, 45%
+    end: 50%, 99%
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Branch: a new chat that holds the thread up to this answer.
+- tapOn:
+    id: answer-more
+- tapOn: Branch in new chat
+- waitForAnimationToEnd:
+    timeout: 2500
+- assertVisible:
+    id: user-message
+- takeScreenshot: 59-branched

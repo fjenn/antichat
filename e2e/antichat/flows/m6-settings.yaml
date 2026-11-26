@@ -1,0 +1,153 @@
+# Every settings screen, for the paired screenshots. Start state: an
+# installed assistant (run m6-fresh-first-run first).
+appId: ${APP_ID}
+---
+- runFlow: _ready.yaml
+- runFlow: _m6-open-settings.yaml
+- takeScreenshot: 70-settings
+- tapOn:
+    id: settings-general
+- assertVisible:
+    id: settings-general-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 71-general
+- tapOn:
+    id: language-row
+- assertVisible:
+    id: settings-language-page
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-personalization
+- assertVisible:
+    id: settings-personalization-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 72-personalization
+- scrollUntilVisible:
+    element:
+      id: memory-manage
+    direction: DOWN
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 73-personalization-2
+- tapOn:
+    id: memory-manage
+- assertVisible:
+    id: settings-memories-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 74-memories
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-voice
+- assertVisible:
+    id: settings-voice-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 75-voice
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-data
+- assertVisible:
+    id: settings-data-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 76-data-controls
+- tapOn:
+    id: data-archived
+- assertVisible:
+    id: settings-archived-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 77-archived
+- runFlow:
+    file: _m6-back.yaml
+    env:
+      TO: settings-data-page
+# Export goes through the conversation store (M3) on the phone: with no chats
+# in it yet, it says so instead of opening an empty share sheet.
+- tapOn:
+    id: data-export
+- extendedWaitUntil:
+    visible: 'There are no chats to export yet.'
+    timeout: 20000
+- tapOn:
+    id: data-delete-all
+- extendedWaitUntil:
+    visible:
+      id: delete-all-confirm-cancel
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 78-delete-all
+- tapOn:
+    id: delete-all-confirm-cancel
+- extendedWaitUntil:
+    notVisible:
+      id: delete-all-confirm-cancel
+    timeout: 10000
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-models
+- assertVisible:
+    id: models-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 80-models
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-storage
+- assertVisible:
+    id: storage-page
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: 81-storage
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-capabilities
+- assertVisible:
+    id: capabilities-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 82-capabilities
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-privacy
+- assertVisible:
+    id: settings-privacy-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 83-privacy
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-about
+- assertVisible:
+    id: settings-about-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 84-about
+- tapOn:
+    id: about-licences
+- assertVisible:
+    id: settings-licences-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 85-licences
+- tapOn:
+    id: licences-search
+- inputText: 'fflate'
+- tapOn: 'fflate, MIT'
+- assertVisible:
+    id: settings-licence-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 86-licence
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-advanced
+- assertVisible:
+    id: settings-advanced-page
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 87-advanced

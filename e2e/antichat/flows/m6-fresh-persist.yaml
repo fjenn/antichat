@@ -1,0 +1,143 @@
+# Every settings row keeps its value across a restart: changes each setting,
+# restarts the app, checks each one.
+# Start state: wiped app (so every setting is at its default); the flow does
+# first run itself. Leaves the settings changed: run it last.
+appId: ${APP_ID}
+---
+- runFlow: _m6-fresh.yaml
+- tapOn:
+    id: get-started
+- extendedWaitUntil:
+    visible:
+      id: starter-learn-explain
+    timeout: 420000
+- runFlow: _m6-open-settings.yaml
+# General
+- tapOn:
+    id: settings-general
+- runFlow:
+    file: _m6-pick.yaml
+    env:
+      ROW: theme-row
+      ITEM: 'Dark'
+- tapOn:
+    id: accent-green
+- runFlow:
+    file: _m6-toggle.yaml
+    env:
+      ID: haptics-toggle
+      STATE: 'off'
+- tapOn:
+    id: language-row
+- tapOn:
+    id: language-en
+- runFlow: _m6-back.yaml
+# Personalization
+- tapOn:
+    id: settings-personalization
+# iOS menu items carry their subtitle in the label.
+- runFlow:
+    file: _m6-pick.yaml
+    env:
+      ROW: personality-preset
+      ITEM: 'Friendly.*'
+- tapOn:
+    id: dial-warmth-more
+- tapOn:
+    id: dial-emoji-less
+- tapOn:
+    id: about-nickname
+- inputText: 'Sam'
+- tapOn:
+    id: custom-instructions
+- inputText: 'Answer in short sentences.'
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: memory-toggle
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _m6-toggle.yaml
+    env:
+      ID: memory-toggle
+      STATE: 'off'
+- runFlow: _m6-back.yaml
+# Voice
+- tapOn:
+    id: settings-voice
+- tapOn: 'Alder'
+- runFlow: _m6-back.yaml
+# Advanced
+- tapOn:
+    id: settings-advanced
+- runFlow:
+    file: _m6-toggle.yaml
+    env:
+      ID: expert-mode
+      STATE: 'on'
+- runFlow:
+    file: _m6-pick.yaml
+    env:
+      ROW: expert-context
+      ITEM: '4,096 tokens'
+- runFlow:
+    file: _m6-toggle.yaml
+    env:
+      ID: show-speed
+      STATE: 'on'
+- runFlow: _m6-back.yaml
+# Models: a manual choice instead of "Choose for me".
+- tapOn:
+    id: settings-models
+- runFlow:
+    file: _m6-toggle.yaml
+    env:
+      ID: models-automatic
+      STATE: 'off'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# iOS rows are one accessibility element ("Theme, Dark"): hence the patterns.
+# ---- restart ----------------------------------------------------------------
+- runFlow: _ready.yaml
+- runFlow: _m6-open-settings.yaml
+- tapOn:
+    id: settings-general
+- assertVisible: '.*Dark.*'
+- assertVisible: '.*Green.*'
+- assertVisible: '.*English.*'
+- assertVisible:
+    id: haptics-toggle-off
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 93-persisted-general
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-personalization
+- assertVisible: '.*Friendly.*'
+- assertVisible: 'Sam'
+- assertVisible: 'Answer in short sentences.'
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: 94-persisted-personalization
+- scrollUntilVisible:
+    element:
+      id: memory-toggle-off
+    direction: DOWN
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-advanced
+- assertVisible:
+    id: expert-mode-on
+- assertVisible: '.*4,096 tokens.*'
+- assertVisible:
+    id: show-speed-on
+- runFlow: _m6-back.yaml
+- tapOn:
+    id: settings-models
+- assertVisible:
+    id: models-automatic-off
+- assertVisible:
+    id: model-in-use-smart
+

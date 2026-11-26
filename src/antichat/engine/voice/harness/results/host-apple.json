@@ -1,0 +1,80 @@
+{
+  "recogniser": "Apple SpeechTranscriber (SpeechAnalyzer), on-device, run on macOS 26 with host/apple-transcribe.swift",
+  "locale": "en-US",
+  "note": "Same recogniser family as iOS 26+; not run through the app (the @react-native-ai/apple pod is not in the build). Only en-US assets were installed on this Mac, so other languages are unmeasured.",
+  "werEnglishUtterances": 0.02,
+  "rows": [
+    {
+      "id": "en-us-capital",
+      "wer": 0.0,
+      "volatileResults": 13,
+      "finalResults": 1,
+      "wallMs": 165,
+      "heard": "What is the capital of France, and how many people live there?"
+    },
+    {
+      "id": "en-gb-timer",
+      "wer": 0.0,
+      "volatileResults": 14,
+      "finalResults": 1,
+      "wallMs": 86,
+      "heard": "Set a timer for 15 minutes and remind me to call my sister."
+    },
+    {
+      "id": "en-au-plants",
+      "wer": 0.0,
+      "volatileResults": 13,
+      "finalResults": 1,
+      "wallMs": 88,
+      "heard": "Can you explain how photosynthesis works in simple terms?"
+    },
+    {
+      "id": "en-in-recipe",
+      "wer": 0.0,
+      "volatileResults": 15,
+      "finalResults": 1,
+      "wallMs": 82,
+      "heard": "I need a recipe for dinner tonight with chicken, rice and vegetables."
+    },
+    {
+      "id": "en-ie-trip",
+      "wer": 0.067,
+      "volatileResults": 19,
+      "finalResults": 2,
+      "wallMs": 85,
+      "heard": "We are planning a trip to Portugal in September. Which city should we visit first?"
+    },
+    {
+      "id": "en-us-capital-snr15",
+      "wer": 0.0,
+      "volatileResults": 13,
+      "finalResults": 1,
+      "wallMs": 77,
+      "heard": "What is the capital of France, and how many people live there?"
+    },
+    {
+      "id": "en-us-capital-snr5",
+      "wer": 0.083,
+      "volatileResults": 13,
+      "finalResults": 1,
+      "wallMs": 69,
+      "heard": "What is the capital of France, and how many people live here?"
+    },
+    {
+      "id": "en-gb-timer-snr10",
+      "wer": 0.0,
+      "volatileResults": 14,
+      "finalResults": 1,
+      "wallMs": 73,
+      "heard": "Set a timer for 15 minutes and remind me to call my sister."
+    },
+    {
+      "id": "en-us-long",
+      "wer": 0.019,
+      "volatileResults": 135,
+      "finalResults": 6,
+      "wallMs": 424,
+      "heard": "This is a longer dictation to check that nothing is cut off. First, I went to the market and bought apples, bread and cheese. Then I walked home along the river because the weather was warm and the trees were green. After lunch I wrote 3 letters to old friends, one of them lives in Canada, another in Japan, and the 3rd just moved to Norway. In the evening, we cooked pasta with tomatoes and garlic, and we talked about the plans for next year. Finally, I read a few pages of a book about the history of the railway, and then I went to sleep."
+    }
+  ]
+}
